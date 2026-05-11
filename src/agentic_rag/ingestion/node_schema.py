@@ -1,0 +1,44 @@
+﻿from __future__ import annotations
+
+from typing import Any, Literal
+
+from pydantic import BaseModel, Field
+
+
+class NodeMetadata(BaseModel):
+    """Normalized metadata for multimodal ingestion nodes."""
+
+    source: str
+    doc_id: str
+    page: int | None = None
+    chunk_index: int
+    title: str | None = None
+    section: str | None = None
+    modality: Literal["text", "image", "table"]
+    parser_name: str | None = None
+
+
+class Node(BaseModel):
+    """Unified multimodal node schema."""
+
+    node_id: str
+    modality: Literal["text", "image", "table"]
+    text: str | None = None
+    image_path: str | None = None
+    table_markdown: str | None = None
+    metadata: NodeMetadata
+    relationships: dict[str, Any] = Field(default_factory=dict)
+
+
+class IngestionFailure(BaseModel):
+    """Failure record for per-file ingestion errors."""
+
+    source: str
+    error: str
+
+
+class MultimodalIngestionResult(BaseModel):
+    """Aggregate result for multimodal ingestion run."""
+
+    nodes: list[Node] = Field(default_factory=list)
+    failures: list[IngestionFailure] = Field(default_factory=list)
