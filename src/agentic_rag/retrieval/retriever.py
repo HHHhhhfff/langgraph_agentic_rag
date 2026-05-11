@@ -1,10 +1,10 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
 from agentic_rag.config import Settings
-from agentic_rag.retrieval.hybrid import RetrievalBackend
+from agentic_rag.retrieval.hybrid import HybridRetriever, HybridRetrievalResult
 from agentic_rag.schemas import SearchHit
 from agentic_rag.store.qdrant_store import QdrantStore, QdrantStoreError
 
@@ -21,7 +21,7 @@ class RetrievalResult:
     fallback_used: bool = False
 
 
-class VectorRetriever(RetrievalBackend):
+class VectorRetriever:
     """Vector retriever with metadata filter fallback support."""
 
     def __init__(self, settings: Settings, store: QdrantStore):
@@ -62,3 +62,33 @@ class VectorRetriever(RetrievalBackend):
             return RetrievalResult(hits=fallback_filtered, fallback_used=True)
 
         return RetrievalResult(hits=[], fallback_used=False)
+
+
+class MultiChannelRetriever:
+    """Compatibility retriever facade for future TaskGraph routing."""
+
+    def __init__(self, settings: Settings, store: QdrantStore, vector_retriever: VectorRetriever):
+        self.settings = settings
+        self.store = store
+        self.vector_retriever = vector_retriever
+        self.hybrid_retriever = HybridRetriever(
+            settings=settings,
+            store=store,
+            vector_search_fn=lambda query_vector, filters=None: self.vector_retriever.retrieve(
+                query_vector=query_vector,
+                filters=filters,
+            ).hits,
+        )
+
+    def retrieve(
+        self,
+        query_text: str,
+        query_vector: list[float],
+        filters: dict[str, Any] | None = None,
+    ) -> HybridRetrievalResult:
+        return self.hybrid_retriever.retrieve(
+            query_text=query_text,
+            query_vector=query_vector,
+            filters=filters,
+        )
+

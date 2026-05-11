@@ -29,6 +29,7 @@ class QdrantStore:
     def __init__(self, settings: Settings):
         self.settings = settings
         self.stage_logger: StageLogger | None = None
+        self.named_vectors_enabled = settings.enable_named_vectors
         try:
             self.client = QdrantClient(
                 url=settings.qdrant_url,
@@ -64,6 +65,41 @@ class QdrantStore:
             return None
         return models.Filter(must=conditions)
 
+    @staticmethod
+    def _point_to_search_hit(point: Any) -> SearchHit:
+        payload = point.payload or {}
+        metadata = payload.get("metadata") if isinstance(payload, dict) else {}
+        if not metadata and isinstance(payload, dict):
+            metadata = {
+                "source": payload.get("source"),
+                "doc_id": payload.get("doc_id"),
+                "page": payload.get("page"),
+                "chunk_index": payload.get("chunk_index"),
+                "title": payload.get("title"),
+                "section": payload.get("section"),
+                "modality": payload.get("modality"),
+                "parser_name": payload.get("parser_name"),
+            }
+        text = payload.get("text") if isinstance(payload, dict) else ""
+        page = payload.get("page") if isinstance(payload, dict) else None
+        section_path = payload.get("section_path") if isinstance(payload, dict) else []
+        return SearchHit(
+            point_id=str(point.id),
+            node_id=str(payload.get("node_id")) if isinstance(payload, dict) and payload.get("node_id") else None,
+            text=str(text or ""),
+            score=float(point.score or 0.0),
+            doc_id=str(payload.get("doc_id")) if isinstance(payload, dict) and payload.get("doc_id") is not None else None,
+            page=int(page) if isinstance(page, int) else None,
+            section_path=[str(x) for x in section_path] if isinstance(section_path, list) else [],
+            channel=str(payload.get("modality", "text")) if isinstance(payload, dict) else "text",
+            score_vector=float(point.score or 0.0),
+            modality=str(payload.get("modality", "text")) if isinstance(payload, dict) else "text",
+            image_path=str(payload.get("image_path")) if isinstance(payload, dict) and payload.get("image_path") else None,
+            table_markdown=str(payload.get("table_markdown")) if isinstance(payload, dict) and payload.get("table_markdown") else None,
+            relationships=payload.get("relationships", {}) if isinstance(payload, dict) else {},
+            metadata=metadata if isinstance(metadata, dict) else {},
+        )
+
     def ensure_collection(self, vector_size: int) -> None:
         """Create or validate target collection with expected vector settings."""
 
@@ -85,10 +121,16 @@ class QdrantStore:
 
         if not exists or self.settings.qdrant_recreate_collection:
             try:
-                self.client.recreate_collection(
-                    collection_name=name,
-                    vectors_config=models.VectorParams(size=vector_size, distance=distance),
-                )
+                vectors_config: Any
+                if self.named_vectors_enabled:
+                    vectors_config = {
+                        "text": models.VectorParams(size=vector_size, distance=distance),
+                        "image": models.VectorParams(size=vector_size, distance=distance),
+                        "table": models.VectorParams(size=vector_size, distance=distance),
+                    }
+                else:
+                    vectors_config = models.VectorParams(size=vector_size, distance=distance)
+                self.client.recreate_collection(collection_name=name, vectors_config=vectors_config)
             except Exception as exc:
                 if self.stage_logger:
                     self.stage_logger.log_stage_error("qdrant_ensure_collection", exc, source=name)
@@ -108,8 +150,14 @@ class QdrantStore:
             if isinstance(vectors, models.VectorParams):
                 existing_size = vectors.size
                 existing_distance = vectors.distance
+            elif isinstance(vectors, dict) and vectors:
+                first_vec = next(iter(vectors.values()))
+                if not isinstance(first_vec, models.VectorParams):
+                    raise QdrantStoreError("Unsupported named-vector collection format")
+                existing_size = first_vec.size
+                existing_distance = first_vec.distance
             else:
-                raise QdrantStoreError("Unsupported named-vector collection format in this baseline")
+                raise QdrantStoreError("Unsupported collection vector format")
 
             if existing_size != vector_size:
                 raise QdrantStoreError(
@@ -221,6 +269,9 @@ class QdrantStore:
                     "relationships": node.relationships,
                     "node_id": node.node_id,
                     "modality": node.modality,
+                    "page": md.page,
+                    "doc_id": md.doc_id,
+                    "section_path": [x for x in [md.section] if x],
                     # flat metadata fields
                     "source": md.source,
                     "doc_id": md.doc_id,
@@ -233,7 +284,11 @@ class QdrantStore:
                     "metadata": md.model_dump(),
                 }
                 point_id = str(uuid.uuid5(uuid.NAMESPACE_URL, node.node_id))
-                points.append(models.PointStruct(id=point_id, vector=vector, payload=payload))
+                point_vector: Any = vector
+                if self.named_vectors_enabled:
+                    vector_name = "table" if node.modality == "table" else "image" if node.modality == "image" else "text"
+                    point_vector = {vector_name: vector}
+                points.append(models.PointStruct(id=point_id, vector=point_vector, payload=payload))
 
             try:
                 self.client.upsert(
@@ -287,9 +342,12 @@ class QdrantStore:
             )
         try:
             if hasattr(self.client, "query_points"):
+                query_vector_payload: Any = query_vector
+                if self.named_vectors_enabled:
+                    query_vector_payload = {"text": query_vector}
                 response = self.client.query_points(
                     collection_name=self.settings.qdrant_collection,
-                    query=query_vector,
+                    query=query_vector_payload,
                     limit=top_k,
                     query_filter=qdrant_filter,
                     with_payload=True,
@@ -314,32 +372,7 @@ class QdrantStore:
 
         hits: list[SearchHit] = []
         for point in points:
-            payload = point.payload or {}
-            metadata = payload.get("metadata") if isinstance(payload, dict) else {}
-            if not metadata and isinstance(payload, dict):
-                metadata = {
-                    "source": payload.get("source"),
-                    "doc_id": payload.get("doc_id"),
-                    "page": payload.get("page"),
-                    "chunk_index": payload.get("chunk_index"),
-                    "title": payload.get("title"),
-                    "section": payload.get("section"),
-                    "modality": payload.get("modality"),
-                    "parser_name": payload.get("parser_name"),
-                }
-            text = payload.get("text") if isinstance(payload, dict) else ""
-            hits.append(
-                SearchHit(
-                    point_id=str(point.id),
-                    text=str(text or ""),
-                    score=float(point.score or 0.0),
-                    modality=str(payload.get("modality", "text")) if isinstance(payload, dict) else "text",
-                    image_path=str(payload.get("image_path")) if isinstance(payload, dict) and payload.get("image_path") else None,
-                    table_markdown=str(payload.get("table_markdown")) if isinstance(payload, dict) and payload.get("table_markdown") else None,
-                    relationships=payload.get("relationships", {}) if isinstance(payload, dict) else {},
-                    metadata=metadata if isinstance(metadata, dict) else {},
-                )
-            )
+            hits.append(self._point_to_search_hit(point))
         if self.stage_logger:
             self.stage_logger.log_stage_end(
                 "qdrant_search",
@@ -347,4 +380,35 @@ class QdrantStore:
                 source=self.settings.qdrant_collection,
                 chunk_count=len(hits),
             )
+        return hits
+
+    def scroll_hits(
+        self,
+        filters: dict[str, Any] | None = None,
+        limit: int = 256,
+        batch_size: int = 256,
+    ) -> list[SearchHit]:
+        """Scroll all stored points as SearchHit objects for offline retrieval indexes."""
+
+        qdrant_filter = self._build_filter(filters)
+        offset = None
+        hits: list[SearchHit] = []
+        while True:
+            try:
+                points, offset = self.client.scroll(
+                    collection_name=self.settings.qdrant_collection,
+                    scroll_filter=qdrant_filter,
+                    limit=batch_size,
+                    offset=offset,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+            except Exception as exc:
+                raise QdrantStoreError(f"Qdrant scroll failed: {exc}") from exc
+            for point in points:
+                hits.append(self._point_to_search_hit(point))
+                if len(hits) >= limit:
+                    return hits
+            if offset is None:
+                break
         return hits

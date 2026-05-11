@@ -22,6 +22,15 @@ BASE_FIELDS = {
     "fallback",
     "error_type",
     "error_msg",
+    "query_text",
+    "query_plan",
+    "channel",
+    "doc_id",
+    "page",
+    "section_path",
+    "evidence_count",
+    "route",
+    "task_name",
 }
 
 

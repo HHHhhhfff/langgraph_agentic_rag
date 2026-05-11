@@ -84,7 +84,17 @@ class ConsoleProgressReporter:
 
         now_ms = self._now_ms()
         if now_ms - self._last_emit_ms < self.settings.console_progress_min_interval_ms:
-            keep_stages = {"build_index_run", "qdrant_ensure_collection", "multimodal_parse_directory"}
+            keep_stages = {
+                "build_index_run",
+                "qdrant_ensure_collection",
+                "multimodal_parse_directory",
+                "query_analyze",
+                "task_route",
+                "retrieve_fanout",
+                "retrieve_rrf",
+                "evidence_gate",
+                "local_retry",
+            }
             return event.stage in keep_stages
         return True
 
@@ -141,6 +151,15 @@ class ConsoleProgressReporter:
             "batch_id",
             "fallback_from",
             "fallback_to",
+            "query_text",
+            "query_plan",
+            "channel",
+            "doc_id",
+            "page",
+            "section_path",
+            "evidence_count",
+            "route",
+            "task_name",
         ]:
             value = self._get_value(event.payload, key)
             if value is not None and value != "":

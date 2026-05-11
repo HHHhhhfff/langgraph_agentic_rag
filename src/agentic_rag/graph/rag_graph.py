@@ -8,7 +8,7 @@ from agentic_rag.config import Settings
 from agentic_rag.generation.prompt_builder import PromptBuilder
 from agentic_rag.models.providers import EmbeddingProvider, LLMClient
 from agentic_rag.retrieval.rerank import RerankService
-from agentic_rag.retrieval.retriever import VectorRetriever
+from agentic_rag.retrieval.retriever import MultiChannelRetriever, VectorRetriever
 from agentic_rag.schemas import RAGResult, SearchHit
 
 
@@ -37,7 +37,7 @@ class RAGGraph:
         self,
         settings: Settings,
         embedding_provider: EmbeddingProvider,
-        retriever: VectorRetriever,
+        retriever: VectorRetriever | MultiChannelRetriever,
         rerank_service: RerankService,
         llm_client: LLMClient,
         prompt_builder: PromptBuilder,
@@ -60,12 +60,24 @@ class RAGGraph:
         return {"query_vector": vectors[0]}
 
     def _retrieve_node(self, state: RAGGraphState) -> RAGGraphState:
+        question = state.get("question", "")
         query_vector = state["query_vector"]
         filters = state.get("filters")
-        result = self.retriever.retrieve(query_vector=query_vector, filters=filters)
+        if isinstance(self.retriever, MultiChannelRetriever):
+            result = self.retriever.retrieve(
+                query_text=question,
+                query_vector=query_vector,
+                filters=filters,
+            )
+            hits = result.expanded_hits or result.hits
+            fallback_used = False
+        else:
+            base = self.retriever.retrieve(query_vector=query_vector, filters=filters)
+            hits = base.hits
+            fallback_used = base.fallback_used
         return {
-            "retrieved_hits": result.hits,
-            "fallback_used": result.fallback_used,
+            "retrieved_hits": hits,
+            "fallback_used": fallback_used,
         }
 
     def _rerank_node(self, state: RAGGraphState) -> RAGGraphState:

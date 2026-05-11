@@ -202,6 +202,16 @@ class Settings(BaseSettings):
         default=True,
         description="Retry retrieval without metadata filter when filtered results are empty",
     )
+    bm25_enabled: bool = Field(default=True, description="Enable BM25 keyword retrieval")
+    bm25_top_k: int = Field(default=12, description="BM25 retrieval top-k")
+    page_top_k: int = Field(default=8, description="Page-level retrieval top-k")
+    table_top_k: int = Field(default=8, description="Table retrieval top-k")
+    rrf_k: int = Field(default=60, description="RRF smoothing parameter")
+    rrf_top_k: int = Field(default=12, description="RRF fused top-k")
+    rel_expand_steps: int = Field(default=1, description="Relationship expansion steps")
+    rel_expand_pages: int = Field(default=1, description="Page expansion window")
+    enable_named_vectors: bool = Field(default=False, description="Enable Qdrant named vectors abstraction")
+    retrieval_prepare_taskgraph: bool = Field(default=True, description="Expose retrieval prep interfaces for future TaskGraph")
     context_top_n: int = Field(default=6, description="How many chunks enter prompt context")
     prompt_max_context_chars: int = Field(default=12000, description="Max context characters in prompt")
 
@@ -233,6 +243,13 @@ class Settings(BaseSettings):
     @field_validator(
         "retrieval_top_k",
         "context_top_n",
+        "bm25_top_k",
+        "page_top_k",
+        "table_top_k",
+        "rrf_k",
+        "rrf_top_k",
+        "rel_expand_steps",
+        "rel_expand_pages",
         "embedding_batch_size",
         "image_embed_batch_size",
         "image_embed_max_retries",

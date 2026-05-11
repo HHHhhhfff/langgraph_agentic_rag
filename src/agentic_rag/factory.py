@@ -9,7 +9,7 @@ from agentic_rag.models.providers import (
     build_reranker,
 )
 from agentic_rag.retrieval.rerank import RerankService
-from agentic_rag.retrieval.retriever import VectorRetriever
+from agentic_rag.retrieval.retriever import MultiChannelRetriever, VectorRetriever
 from agentic_rag.store.qdrant_store import QdrantStore
 
 
@@ -21,7 +21,8 @@ def build_rag_graph() -> RAGGraph:
     reranker = build_reranker(settings)
     llm = build_llm_client(settings)
     store = QdrantStore(settings)
-    retriever = VectorRetriever(settings=settings, store=store)
+    vector_retriever = VectorRetriever(settings=settings, store=store)
+    retriever = MultiChannelRetriever(settings=settings, store=store, vector_retriever=vector_retriever)
     rerank_service = RerankService(settings=settings, reranker=reranker)
     prompt_builder = PromptBuilder(settings=settings)
 

@@ -387,7 +387,6 @@ py -3.11 -m pip install -r requirements.txt
 - 跨模态融合检索：向量召回 + 关键词召回 + RRF 融合
 - 图谱化 relationships：支持父子块、页面顺序、章节层级检索
 - Qdrant Named Vectors：为 text/image/table 分离向量字段并支持混合打分
-- 评估 MinerU：当前版本暂不接入 MinerU，仅保留规划说明；后续按效果与成本评估接入
 
 ---
 

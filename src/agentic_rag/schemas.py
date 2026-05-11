@@ -17,8 +17,16 @@ class SearchHit(BaseModel):
     """Retriever output item with payload and vector score."""
 
     point_id: str
+    node_id: str | None = None
     text: str
     score: float
+    doc_id: str | None = None
+    page: int | None = None
+    section_path: list[str] = Field(default_factory=list)
+    channel: str = "vector"
+    score_vector: float | None = None
+    score_bm25: float | None = None
+    score_rrf: float | None = None
     modality: str = "text"
     image_path: str | None = None
     table_markdown: str | None = None
