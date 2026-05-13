@@ -33,7 +33,8 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\activate
 py -3.11 -m pip install -U pip
 py -3.11 -m pip install -r requirements.txt
-py -3.11 -m pip install -e .
+##py -3.11 -m pip install -e .
+py -3.11 -m pytest -q  
 ```
 
 ### 多模态解析依赖安装（Unstructured）
@@ -230,7 +231,7 @@ Copy-Item .env.example .env
 # MULTIMODAL_ENABLED=false
 
 py -3.11 -m agentic_rag.cli.build_index --docs data/demo_docs
-py -3.11 -m agentic_rag.cli.query "这个项目支持哪些检索过滤能力？"
+py -3.11 -m agentic_rag.cli.query "你的问题"
 ```
 
 ### 4.2 multimodal 模式
