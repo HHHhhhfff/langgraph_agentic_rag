@@ -31,6 +31,7 @@ BASE_FIELDS = {
     "evidence_count",
     "route",
     "task_name",
+    "evidence_gain",
 }
 
 

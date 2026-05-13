@@ -94,6 +94,7 @@ class ConsoleProgressReporter:
                 "retrieve_rrf",
                 "evidence_gate",
                 "local_retry",
+                "citation_verify",
             }
             return event.stage in keep_stages
         return True

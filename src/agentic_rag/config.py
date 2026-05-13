@@ -212,6 +212,16 @@ class Settings(BaseSettings):
     rel_expand_pages: int = Field(default=1, description="Page expansion window")
     enable_named_vectors: bool = Field(default=False, description="Enable Qdrant named vectors abstraction")
     retrieval_prepare_taskgraph: bool = Field(default=True, description="Expose retrieval prep interfaces for future TaskGraph")
+    taskgraph_enabled: bool = Field(default=False, description="Enable TaskGraph execution path for query")
+    tg_max_retries: int = Field(default=2, description="Max local retry loops in TaskGraph")
+    tg_budget_tokens: int = Field(default=12000, description="Estimated token budget for one TaskGraph run")
+    tg_budget_ms: int = Field(default=30000, description="Time budget in milliseconds for one TaskGraph run")
+    tg_min_evidence_hits: int = Field(default=2, description="Minimum evidence hit count required by evidence gate")
+    tg_min_coverage_ratio: float = Field(default=0.5, description="Minimum keyword coverage ratio for evidence gate")
+    tg_min_gain_threshold: float = Field(default=0.05, description="Minimum evidence gain threshold across retries")
+    tg_citation_strict: bool = Field(default=True, description="Require answer to include citation markers")
+    tg_allow_refusal: bool = Field(default=True, description="Allow refusal when evidence remains insufficient")
+    tg_route_llm_enabled: bool = Field(default=False, description="Use LLM-assisted route analysis (off by default)")
     context_top_n: int = Field(default=6, description="How many chunks enter prompt context")
     prompt_max_context_chars: int = Field(default=12000, description="Max context characters in prompt")
 
@@ -250,6 +260,10 @@ class Settings(BaseSettings):
         "rrf_top_k",
         "rel_expand_steps",
         "rel_expand_pages",
+        "tg_max_retries",
+        "tg_budget_tokens",
+        "tg_budget_ms",
+        "tg_min_evidence_hits",
         "embedding_batch_size",
         "image_embed_batch_size",
         "image_embed_max_retries",
@@ -290,6 +304,13 @@ class Settings(BaseSettings):
     def validate_image_embed_timeout(cls, value: float) -> float:
         if value <= 0:
             raise ValueError("image_embed_timeout_sec must be > 0")
+        return value
+
+    @field_validator("tg_min_coverage_ratio", "tg_min_gain_threshold")
+    @classmethod
+    def validate_ratio(cls, value: float) -> float:
+        if value < 0:
+            raise ValueError("ratio must be >= 0")
         return value
 
 

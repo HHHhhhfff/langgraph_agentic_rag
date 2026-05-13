@@ -171,7 +171,31 @@ Copy-Item .env.example .env
 - LLM：`LLM_*`
 - 检索：`RETRIEVAL_*` / `CONTEXT_TOP_N` / `PROMPT_MAX_CONTEXT_CHARS`
 
-### 3.5 阶段日志观测配置（新增）
+### 3.5 TaskGraph 可选路径配置（新增）
+
+- `TASKGRAPH_ENABLED=true|false`
+  - `false`（默认）：继续走旧 `rag_graph.py` 兼容路径
+  - `true`：启用 `task_graph.py` 路径（CLI 入口不变）
+- `TG_MAX_RETRIES`
+  - 局部重检最大轮次，超过后直接 finalize
+- `TG_BUDGET_TOKENS`
+  - TaskGraph 估算 token 预算，超预算停止重检
+- `TG_BUDGET_MS`
+  - TaskGraph 时间预算（毫秒），超预算停止重检
+- `TG_MIN_EVIDENCE_HITS`
+  - 证据门控最低命中数
+- `TG_MIN_COVERAGE_RATIO`
+  - 证据关键词覆盖阈值（0~1）
+- `TG_MIN_GAIN_THRESHOLD`
+  - 连续重检时最小证据增益阈值
+- `TG_CITATION_STRICT=true|false`
+  - 是否严格要求答案包含引用标记且引用可回溯
+- `TG_ALLOW_REFUSAL=true|false`
+  - 证据冲突不可消解时是否允许拒答
+- `TG_ROUTE_LLM_ENABLED=true|false`
+  - 预留开关：是否启用 LLM 辅助路由（当前默认关闭）
+
+### 3.6 阶段日志观测配置（新增）
 
 - `ENABLE_STAGE_LOG=true|false`
   - 是否开启 ingestion 阶段结构化日志。关闭时不会输出阶段日志。

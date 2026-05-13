@@ -1,8 +1,9 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from agentic_rag.config import get_settings
 from agentic_rag.generation.prompt_builder import PromptBuilder
 from agentic_rag.graph.rag_graph import RAGGraph
+from agentic_rag.graph.task_graph import TaskGraphRAG
 from agentic_rag.models.providers import (
     build_embedding_provider,
     build_llm_client,
@@ -13,9 +14,7 @@ from agentic_rag.retrieval.retriever import MultiChannelRetriever, VectorRetriev
 from agentic_rag.store.qdrant_store import QdrantStore
 
 
-def build_rag_graph() -> RAGGraph:
-    """Create configured RAG graph instance."""
-
+def _build_shared_components():
     settings = get_settings()
     embedding = build_embedding_provider(settings)
     reranker = build_reranker(settings)
@@ -25,7 +24,34 @@ def build_rag_graph() -> RAGGraph:
     retriever = MultiChannelRetriever(settings=settings, store=store, vector_retriever=vector_retriever)
     rerank_service = RerankService(settings=settings, reranker=reranker)
     prompt_builder = PromptBuilder(settings=settings)
+    return settings, embedding, llm, retriever, rerank_service, prompt_builder
 
+
+def build_task_graph() -> TaskGraphRAG:
+    """Create configured TaskGraph RAG instance."""
+
+    settings, embedding, llm, retriever, _rerank_service, prompt_builder = _build_shared_components()
+    return TaskGraphRAG(
+        settings=settings,
+        embedding_provider=embedding,
+        retriever=retriever,
+        llm_client=llm,
+        prompt_builder=prompt_builder,
+    )
+
+
+def build_rag_graph() -> RAGGraph | TaskGraphRAG:
+    """Create configured graph instance with optional TaskGraph path."""
+
+    settings, embedding, llm, retriever, rerank_service, prompt_builder = _build_shared_components()
+    if settings.taskgraph_enabled:
+        return TaskGraphRAG(
+            settings=settings,
+            embedding_provider=embedding,
+            retriever=retriever,
+            llm_client=llm,
+            prompt_builder=prompt_builder,
+        )
     return RAGGraph(
         settings=settings,
         embedding_provider=embedding,
@@ -34,3 +60,4 @@ def build_rag_graph() -> RAGGraph:
         llm_client=llm,
         prompt_builder=prompt_builder,
     )
+

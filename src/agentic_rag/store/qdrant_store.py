@@ -68,6 +68,11 @@ class QdrantStore:
     @staticmethod
     def _point_to_search_hit(point: Any) -> SearchHit:
         payload = point.payload or {}
+        raw_score = getattr(point, "score", None)
+        try:
+            score = float(raw_score) if raw_score is not None else 0.0
+        except (TypeError, ValueError):
+            score = 0.0
         metadata = payload.get("metadata") if isinstance(payload, dict) else {}
         if not metadata and isinstance(payload, dict):
             metadata = {
@@ -87,12 +92,12 @@ class QdrantStore:
             point_id=str(point.id),
             node_id=str(payload.get("node_id")) if isinstance(payload, dict) and payload.get("node_id") else None,
             text=str(text or ""),
-            score=float(point.score or 0.0),
+            score=score,
             doc_id=str(payload.get("doc_id")) if isinstance(payload, dict) and payload.get("doc_id") is not None else None,
             page=int(page) if isinstance(page, int) else None,
             section_path=[str(x) for x in section_path] if isinstance(section_path, list) else [],
             channel=str(payload.get("modality", "text")) if isinstance(payload, dict) else "text",
-            score_vector=float(point.score or 0.0),
+            score_vector=score,
             modality=str(payload.get("modality", "text")) if isinstance(payload, dict) else "text",
             image_path=str(payload.get("image_path")) if isinstance(payload, dict) and payload.get("image_path") else None,
             table_markdown=str(payload.get("table_markdown")) if isinstance(payload, dict) and payload.get("table_markdown") else None,
