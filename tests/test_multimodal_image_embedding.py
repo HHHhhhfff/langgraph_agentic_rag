@@ -113,6 +113,7 @@ def test_multimodal_direct_image_embedding_path(tmp_path: Path) -> None:
         multimodal_enabled=True,
         image_embed_mode="direct",
         image_embed_fallback_to_caption=True,
+        embedding_dimensions=None,
     )
     nodes = _build_multimodal_nodes(tmp_path)
 
@@ -139,6 +140,7 @@ def test_image_embedding_fallback_to_caption(tmp_path: Path) -> None:
         multimodal_enabled=True,
         image_embed_mode="direct",
         image_embed_fallback_to_caption=True,
+        embedding_dimensions=None,
     )
     nodes = _build_multimodal_nodes(tmp_path)
 
@@ -164,6 +166,7 @@ def test_image_embedding_no_fallback_records_failure(tmp_path: Path) -> None:
         multimodal_enabled=True,
         image_embed_mode="direct",
         image_embed_fallback_to_caption=False,
+        embedding_dimensions=None,
     )
     nodes = _build_multimodal_nodes(tmp_path)
 
@@ -181,3 +184,34 @@ def test_image_embedding_no_fallback_records_failure(tmp_path: Path) -> None:
     assert summary.failed_files >= 2
     assert len(store.last_nodes) == 2
     assert all(n.modality != "image" for n in store.last_nodes)
+
+
+def test_formula_nodes_use_formula_latex_for_embedding(tmp_path: Path) -> None:
+    settings = Settings(
+        ingestion_engine="multimodal",
+        multimodal_enabled=True,
+        embedding_dimensions=None,
+    )
+    normalizer = NodeNormalizer()
+    formula_node = normalizer.normalize(
+        source=str(tmp_path / "math.md"),
+        parser_name="llamaindex:formula",
+        chunk_index=0,
+        modality="formula",
+        text="Formula (display): E=mc^2",
+        formula_latex="E=mc^2",
+    )
+
+    text_provider = DummyTextEmbedding()
+    image_provider = DummyImageEmbedding()
+    store = DummyStore(settings)
+    builder = _build_builder(settings, text_provider, image_provider, store)
+    builder.multimodal_orchestrator = DummyOrchestrator(
+        MultimodalIngestionResult(nodes=[formula_node], failures=[])
+    )
+
+    summary = builder.build_from_directory(str(tmp_path))
+
+    assert summary.upserted == 1
+    assert text_provider.calls[0] == ["E=mc^2"]
+    assert store.last_nodes[0].modality == "formula"

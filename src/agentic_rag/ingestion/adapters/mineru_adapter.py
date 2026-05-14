@@ -6,6 +6,7 @@ from agentic_rag.config import Settings
 from agentic_rag.ingestion.adapters.mineru_client import MinerUClient
 from agentic_rag.ingestion.adapters.mineru_result_parser import parse_mineru_markdown
 from agentic_rag.ingestion.chunk_strategies import TableChunker, build_text_chunk_strategy
+from agentic_rag.ingestion.formula_extractor import extract_formulas
 from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import IngestionFailure, MultimodalIngestionResult
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
@@ -249,6 +250,7 @@ class MinerUAdapter:
         idx = 0
         text_count = 0
         table_count = 0
+        formula_count = 0
 
         buffer: list[str] = []
 
@@ -305,6 +307,22 @@ class MinerUAdapter:
 
         flush_text()
 
+        if self.settings.enable_formula_recognition:
+            for formula in extract_formulas(markdown):
+                nodes.append(
+                    self.normalizer.normalize(
+                        source=str(file_path),
+                        parser_name="mineru:formula",
+                        chunk_index=idx,
+                        modality="formula",
+                        text=formula.text,
+                        formula_latex=formula.formula_latex,
+                        title=file_path.stem,
+                    )
+                )
+                idx += 1
+                formula_count += 1
+
         if self.stage_logger:
             self.stage_logger.log_counter(
                 "mineru_modality_counts",
@@ -313,6 +331,7 @@ class MinerUAdapter:
                 text_count=text_count,
                 table_count=table_count,
                 image_count=0,
+                formula_count=formula_count,
             )
 
         return nodes

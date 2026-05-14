@@ -123,6 +123,10 @@ class Settings(BaseSettings):
     mineru_poll_timeout_sec: int = Field(default=600, description="MinerU poll timeout seconds")
     mineru_enable_table: bool = Field(default=True, description="Enable MinerU table extraction")
     mineru_enable_formula: bool = Field(default=True, description="Enable MinerU formula extraction")
+    enable_formula_recognition: bool = Field(
+        default=True,
+        description="Extract LaTeX/MathML formulas from parsed text into formula nodes",
+    )
     mineru_is_ocr: bool = Field(default=False, description="Enable MinerU OCR")
     mineru_language: str = Field(default="ch", description="MinerU language")
     mineru_page_range: str = Field(default="", description="MinerU page range")

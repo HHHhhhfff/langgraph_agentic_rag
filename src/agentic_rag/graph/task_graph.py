@@ -25,6 +25,15 @@ def _keyword_tokens(text: str) -> list[str]:
     return [x.lower() for x in re.findall(r"[\u4e00-\u9fff]|[a-zA-Z0-9_]+", text or "")]
 
 
+def _hit_evidence_text(hit: SearchHit) -> str:
+    parts = [hit.text or ""]
+    if hit.formula_latex:
+        parts.append(hit.formula_latex)
+    if hit.table_markdown:
+        parts.append(hit.table_markdown)
+    return " ".join(parts)
+
+
 class TaskGraphRAG:
     """TaskGraph-based constrained Agentic RAG pipeline."""
 
@@ -101,6 +110,14 @@ class TaskGraphRAG:
             "\u7167\u7247",
             "\u622a\u56fe",
         )
+        formula_tokens = (
+            "\u516c\u5f0f",
+            "\u65b9\u7a0b",
+            "\u8868\u8fbe\u5f0f",
+            "latex",
+            "equation",
+            "formula",
+        )
 
         need_cross_doc = any(k in question for k in cross_doc_tokens) or "compare" in lower
         need_page_level = any(k in question for k in page_tokens)
@@ -110,6 +127,9 @@ class TaskGraphRAG:
         elif any(k in question for k in image_tokens):
             intent = "image_qa"
             target_modalities = ["image", "text"]
+        elif any(k in lower for k in formula_tokens):
+            intent = "formula_qa"
+            target_modalities = ["formula", "text"]
         elif need_page_level:
             intent = "page_qa"
             target_modalities = ["page", "text"]
@@ -257,12 +277,20 @@ class TaskGraphRAG:
         if q_tokens and hits:
             covered = set()
             for hit in hits[: max(1, self.settings.tg_min_evidence_hits * 2)]:
-                covered |= set(_keyword_tokens(hit.text)) & q_tokens
+                covered |= set(_keyword_tokens(_hit_evidence_text(hit))) & q_tokens
             coverage = len(covered) / max(1, len(q_tokens))
+        target_modalities = state.get("target_modalities") or []
+        has_formula_evidence = any(
+            hit.modality == "formula" or hit.formula_latex or hit.metadata.get("modality") == "formula"
+            for hit in hits
+        )
+        min_coverage_ratio = self.settings.tg_min_coverage_ratio
+        if "formula" in target_modalities and has_formula_evidence:
+            min_coverage_ratio = 0.0
         evidence_gaps: list[str] = []
         if len(hits) < self.settings.tg_min_evidence_hits:
             evidence_gaps.append("insufficient_hits")
-        if coverage < self.settings.tg_min_coverage_ratio:
+        if coverage < min_coverage_ratio:
             evidence_gaps.append("low_keyword_coverage")
         conflict_detected = False
         # simple conflict heuristic for "yes/no" contradiction.

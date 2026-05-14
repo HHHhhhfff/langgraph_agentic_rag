@@ -19,12 +19,13 @@ class NodeNormalizer:
         text: str | None = None,
         image_path: str | None = None,
         table_markdown: str | None = None,
+        formula_latex: str | None = None,
         page: int | None = None,
         title: str | None = None,
         section: str | None = None,
         relationships: dict[str, Any] | None = None,
     ) -> Node:
-        normalized_modality = modality if modality in {"text", "image", "table"} else "text"
+        normalized_modality = modality if modality in {"text", "image", "table", "formula"} else "text"
         doc_id = build_doc_id(source)
         resolved_title = title or guess_title(source)
 
@@ -46,6 +47,7 @@ class NodeNormalizer:
             text=text,
             image_path=image_path,
             table_markdown=table_markdown,
+            formula_latex=formula_latex,
             metadata=metadata,
             relationships=relationships or {},
         )

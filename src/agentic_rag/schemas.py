@@ -30,6 +30,7 @@ class SearchHit(BaseModel):
     modality: str = "text"
     image_path: str | None = None
     table_markdown: str | None = None
+    formula_latex: str | None = None
     relationships: dict[str, Any] = Field(default_factory=dict)
     metadata: dict[str, Any] = Field(default_factory=dict)
 

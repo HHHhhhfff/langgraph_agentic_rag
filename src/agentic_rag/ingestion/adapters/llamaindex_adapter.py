@@ -4,6 +4,7 @@ from pathlib import Path
 
 import frontmatter
 
+from agentic_rag.ingestion.formula_extractor import extract_formulas
 from agentic_rag.ingestion.chunk_strategies import build_text_chunk_strategy
 from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import MultimodalIngestionResult
@@ -50,7 +51,8 @@ class LlamaIndexAdapter:
 
         chunks = self.strategy.chunk_text(content)
         nodes = []
-        for idx, chunk in enumerate(chunks):
+        idx = 0
+        for chunk in chunks:
             nodes.append(
                 self.normalizer.normalize(
                     source=str(file_path),
@@ -62,14 +64,40 @@ class LlamaIndexAdapter:
                     section=section,
                 )
             )
+            idx += 1
+
+        formula_count = 0
+        if self.settings.enable_formula_recognition:
+            for formula in extract_formulas(content):
+                nodes.append(
+                    self.normalizer.normalize(
+                        source=str(file_path),
+                        parser_name=f"llamaindex:{self.settings.text_chunk_parser}:formula",
+                        chunk_index=idx,
+                        modality="formula",
+                        text=formula.text,
+                        formula_latex=formula.formula_latex,
+                        title=title,
+                        section=section,
+                    )
+                )
+                idx += 1
+                formula_count += 1
 
         if self.stage_logger:
             self.stage_logger.log_counter(
                 "llamaindex_text_chunks",
                 source=str(file_path),
                 parser=f"llamaindex:{self.settings.text_chunk_parser}",
-                chunk_count=len(nodes),
+                chunk_count=len(chunks),
                 modality="text",
+            )
+            self.stage_logger.log_counter(
+                "formula_nodes",
+                source=str(file_path),
+                parser=f"llamaindex:{self.settings.text_chunk_parser}",
+                modality="formula",
+                formula_count=formula_count,
             )
             self.stage_logger.log_stage_end(
                 "llamaindex_parse",

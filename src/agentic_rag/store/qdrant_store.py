@@ -101,6 +101,7 @@ class QdrantStore:
             modality=str(payload.get("modality", "text")) if isinstance(payload, dict) else "text",
             image_path=str(payload.get("image_path")) if isinstance(payload, dict) and payload.get("image_path") else None,
             table_markdown=str(payload.get("table_markdown")) if isinstance(payload, dict) and payload.get("table_markdown") else None,
+            formula_latex=str(payload.get("formula_latex")) if isinstance(payload, dict) and payload.get("formula_latex") else None,
             relationships=payload.get("relationships", {}) if isinstance(payload, dict) else {},
             metadata=metadata if isinstance(metadata, dict) else {},
         )
@@ -271,6 +272,7 @@ class QdrantStore:
                     "text": node.text,
                     "image_path": node.image_path,
                     "table_markdown": node.table_markdown,
+                    "formula_latex": node.formula_latex,
                     "relationships": node.relationships,
                     "node_id": node.node_id,
                     "modality": node.modality,

@@ -33,3 +33,23 @@ def test_prompt_context_and_citation_assembly() -> None:
     assert citations[0].source == "s1.md"
     assert "仅依据给定上下文回答" in prompt
     assert "[1][2]" in prompt
+
+
+def test_prompt_context_uses_formula_latex() -> None:
+    settings = Settings(prompt_max_context_chars=5000)
+    builder = PromptBuilder(settings)
+    hit = SearchHit(
+        point_id="f1",
+        text="Formula placeholder",
+        score=0.9,
+        modality="formula",
+        formula_latex="E=mc^2",
+        metadata={"source": "math.md", "title": "Math", "chunk_index": 2, "modality": "formula"},
+    )
+
+    context, citations = builder.build_context([hit])
+
+    assert "modality=formula" in context
+    assert "E=mc^2" in context
+    assert "Formula placeholder" not in context
+    assert citations[0].source == "math.md"

@@ -1,3 +1,6 @@
+.env
+.pytest_cache/
+pytest-cache-files-*/
 .venv/
 __pycache__/
 *.pyc
@@ -5,3 +8,4 @@ __pycache__/
 *.exe
 *.pt
 *.ckpt
+src/*.egg-info/

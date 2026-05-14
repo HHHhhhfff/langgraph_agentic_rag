@@ -28,6 +28,8 @@ class PromptBuilder:
                 snippet = snippet or f"[image] {hit.image_path}"
             if modality == "table" and hit.table_markdown:
                 snippet = hit.table_markdown.strip()
+            if modality == "formula" and hit.formula_latex:
+                snippet = hit.formula_latex.strip()
             block = (
                 f"[{i}] source={source}; title={title}; modality={modality}; chunk_index={chunk_index}; "
                 f"score={hit.score:.4f}\n{snippet}\n"

@@ -2,6 +2,9 @@
 
 from typing import Any, Literal
 
+
+NodeModality = Literal["text", "image", "table", "formula"]
+
 from pydantic import BaseModel, Field
 
 
@@ -14,7 +17,7 @@ class NodeMetadata(BaseModel):
     chunk_index: int
     title: str | None = None
     section: str | None = None
-    modality: Literal["text", "image", "table"]
+    modality: NodeModality
     parser_name: str | None = None
 
 
@@ -22,10 +25,11 @@ class Node(BaseModel):
     """Unified multimodal node schema."""
 
     node_id: str
-    modality: Literal["text", "image", "table"]
+    modality: NodeModality
     text: str | None = None
     image_path: str | None = None
     table_markdown: str | None = None
+    formula_latex: str | None = None
     metadata: NodeMetadata
     relationships: dict[str, Any] = Field(default_factory=dict)
 

@@ -7,6 +7,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 from agentic_rag.config import Settings
 from agentic_rag.ingestion.adapters.unstructured_adapter import UnstructuredAdapter
 from agentic_rag.ingestion.chunk_strategies import TableChunker, build_text_chunk_strategy
+from agentic_rag.ingestion.formula_extractor import extract_formulas
 from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import IngestionFailure, MultimodalIngestionResult
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
@@ -83,6 +84,7 @@ class LlamaParseAdapter:
         chunk_index = 0
         text_count = 0
         table_count = 0
+        formula_count = 0
         for doc in docs:
             page = None
             content = str(getattr(doc, "text", "") or "").strip()
@@ -107,6 +109,23 @@ class LlamaParseAdapter:
                     chunk_index += 1
                     table_count += 1
 
+            if self.settings.enable_formula_recognition:
+                for formula in extract_formulas(content):
+                    nodes.append(
+                        self.normalizer.normalize(
+                            source=str(file_path),
+                            parser_name="llamaparse:formula",
+                            chunk_index=chunk_index,
+                            modality="formula",
+                            text=formula.text,
+                            formula_latex=formula.formula_latex,
+                            page=page,
+                            title=file_path.stem,
+                        )
+                    )
+                    chunk_index += 1
+                    formula_count += 1
+
             text_chunks = self.text_strategy.chunk_text(content)
             for chunk in text_chunks:
                 nodes.append(
@@ -130,6 +149,7 @@ class LlamaParseAdapter:
                 parser="llamaparse",
                 text_count=text_count,
                 table_count=table_count,
+                formula_count=formula_count,
             )
             self.stage_logger.log_stage_end(
                 "llamaparse_parse",

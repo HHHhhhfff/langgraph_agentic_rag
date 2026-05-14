@@ -211,6 +211,8 @@ class IndexBuilder:
                 continue
             if node.modality == "table":
                 text_table_pairs.append((idx, node.table_markdown or node.text or ""))
+            elif node.modality == "formula":
+                text_table_pairs.append((idx, node.formula_latex or node.text or ""))
             else:
                 text_table_pairs.append((idx, node.text or ""))
         if self.stage_logger:

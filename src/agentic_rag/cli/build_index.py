@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 import uuid
+from dataclasses import asdict
 
 from agentic_rag.config import get_settings
 from agentic_rag.ingestion.index_builder import IndexBuilder, build_default_chunker
@@ -69,7 +70,7 @@ def main() -> int:
     )
 
     if args.json:
-        print(json.dumps(summary.__dict__, ensure_ascii=False, indent=2))
+        print(json.dumps(asdict(summary), ensure_ascii=False, indent=2))
         return 0
 
     print("Index build completed")

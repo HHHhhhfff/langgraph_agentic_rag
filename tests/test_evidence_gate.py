@@ -41,6 +41,25 @@ class ConflictRetriever:
         )
 
 
+class FormulaRetriever:
+    def retrieve(self, *, query_text, query_vector, filters=None):
+        hit = SearchHit(
+            point_id="p1",
+            node_id="n1",
+            text="Formula (inline): E=mc^2",
+            score=0.9,
+            doc_id="d1",
+            formula_latex="E=mc^2",
+            modality="formula",
+            metadata={"source": "math.md", "title": "Math", "chunk_index": 0, "modality": "formula"},
+        )
+        return SimpleNamespace(
+            hits=[hit],
+            route_hits={"vector": [hit], "bm25": [], "page": [], "table": []},
+            expanded_hits=[hit],
+        )
+
+
 def _build_graph(settings: Settings, retriever) -> TaskGraphRAG:
     return TaskGraphRAG(
         settings=settings,
@@ -75,3 +94,15 @@ def test_evidence_gate_conflict_can_refuse() -> None:
     assert result.debug.get("refusal") is True
     assert result.debug.get("refusal_reason") == "evidence_conflict"
 
+
+def test_formula_evidence_does_not_fail_keyword_coverage() -> None:
+    settings = Settings(
+        tg_max_retries=1,
+        tg_min_evidence_hits=1,
+        tg_min_coverage_ratio=0.9,
+        tg_citation_strict=True,
+    )
+    graph = _build_graph(settings, FormulaRetriever())
+    result = graph.invoke("文档中有哪些公式？")
+    assert result.debug.get("evidence_ok") is True
+    assert "low_keyword_coverage" not in result.debug.get("evidence_gaps", [])

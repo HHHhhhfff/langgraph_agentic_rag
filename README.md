@@ -23,19 +23,22 @@
 - Python 3.11+
 - 本地可访问 Qdrant：`http://localhost:6333`
 - OpenAI-Compatible API（Embedding / Rerank / LLM）
+  - 本项目当前已验证百炼/DashScope OpenAI 兼容接口。
 - 若启用 LlamaParse：准备 `LLAMA_CLOUD_API_KEY`
 
 ### 安装
 
 ```powershell
-cd d:\Agentic_RAG\langgraph_agentic_rag
+cd <project-root>
 py -3.11 -m venv .venv
 .\.venv\Scripts\activate
 py -3.11 -m pip install -U pip
 py -3.11 -m pip install -r requirements.txt
-##py -3.11 -m pip install -e .
-py -3.11 -m pytest -q  
+py -3.11 -m pip install -e .
 ```
+
+> 注意：如果本机曾经用 `pip install -e` 安装过另一个同名目录，务必在当前项目根目录重新执行
+> `py -3.11 -m pip install -e .`，否则 `python -m agentic_rag...` 可能会导入旧项目。
 
 ### 多模态解析依赖安装（Unstructured）
 
@@ -108,6 +111,8 @@ Copy-Item .env.example .env
   - 是否开启表格解析
 - `MINERU_ENABLE_FORMULA=true|false`
   - 是否开启公式解析
+- `ENABLE_FORMULA_RECOGNITION=true|false`
+  - 是否从解析后的 Markdown/文本中抽取 LaTeX/MathML 公式节点
 - `MINERU_IS_OCR=true|false`
   - 是否开启 OCR
 - `MINERU_LANGUAGE`
@@ -161,7 +166,46 @@ Copy-Item .env.example .env
 - 当 `IMAGE_EMBED_MODE=caption_text`：
   - 不调用图像向量接口，直接走文本 embedding（保留兼容行为）。
 
-### 3.4 现有配置仍生效
+### 3.4 百炼/DashScope 推荐配置（已验证）
+
+如果使用阿里云百炼控制台创建的 API Key，需要同时切换 `BASE_URL` 到 DashScope；不要把百炼 Key 配到 `https://apirouter.ai/v1`，否则会返回 `401 无效的令牌`。
+
+当前项目已用如下配置跑通 demo 索引与查询：
+
+```env
+QDRANT_URL=http://localhost:6333
+QDRANT_COLLECTION=agentic_rag_docs
+
+INGESTION_ENGINE=multimodal
+MULTIMODAL_ENABLED=true
+PDF_PARSER=unstructured
+ENABLE_MINERU=true
+MINERU_FALLBACK_TO_EXISTING=true
+ENABLE_FORMULA_RECOGNITION=true
+MINERU_ENABLE_FORMULA=true
+
+EMBEDDING_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+EMBEDDING_API_KEY=<your-bailian-api-key>
+EMBEDDING_MODEL=text-embedding-v4
+EMBEDDING_DIMENSIONS=1024
+EMBEDDING_BATCH_SIZE=10
+
+LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+LLM_API_KEY=<your-bailian-api-key>
+LLM_MODEL=qwen-plus
+
+RERANK_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+RERANK_API_KEY=<your-bailian-api-key>
+RERANK_MODEL=qwen3-vl-rerank
+```
+
+说明：
+
+- `text-embedding-v4` 返回 1024 维向量，因此建议设置 `EMBEDDING_DIMENSIONS=1024`，并让 Qdrant collection 使用同样维度。
+- DashScope embedding 单批上限为 10 条；`EMBEDDING_BATCH_SIZE` 请设置为 `10` 或更小。
+- 如果更换 embedding 模型或维度，需要重建 Qdrant collection。可临时设置 `QDRANT_RECREATE_COLLECTION=true` 后重新构建索引。
+
+### 3.5 现有配置仍生效
 
 - Qdrant：`QDRANT_*`
 - Embedding：`EMBEDDING_*`
@@ -172,7 +216,7 @@ Copy-Item .env.example .env
 - LLM：`LLM_*`
 - 检索：`RETRIEVAL_*` / `CONTEXT_TOP_N` / `PROMPT_MAX_CONTEXT_CHARS`
 
-### 3.5 TaskGraph 可选路径配置（新增）
+### 3.6 TaskGraph 可选路径配置（新增）
 
 - `TASKGRAPH_ENABLED=true|false`
   - `false`（默认）：继续走旧 `rag_graph.py` 兼容路径
@@ -196,7 +240,7 @@ Copy-Item .env.example .env
 - `TG_ROUTE_LLM_ENABLED=true|false`
   - 预留开关：是否启用 LLM 辅助路由（当前默认关闭）
 
-### 3.6 阶段日志观测配置（新增）
+### 3.7 阶段日志观测配置（新增）
 
 - `ENABLE_STAGE_LOG=true|false`
   - 是否开启 ingestion 阶段结构化日志。关闭时不会输出阶段日志。
@@ -223,6 +267,17 @@ Copy-Item .env.example .env
 
 ## 4. 启动与运行
 
+### 4.0 启动 Qdrant
+
+如果已有 `qdrant` 容器：
+
+```powershell
+docker start qdrant
+Invoke-WebRequest http://localhost:6333/collections
+```
+
+如果还没有容器，请参考第 10 节创建。
+
 ### 4.1 legacy 模式（兼容原流程）
 
 ```powershell
@@ -231,7 +286,7 @@ Copy-Item .env.example .env
 # MULTIMODAL_ENABLED=false
 
 py -3.11 -m agentic_rag.cli.build_index --docs data/demo_docs
-py -3.11 -m agentic_rag.cli.query "你的问题"
+py -3.11 -m agentic_rag.cli.query "这个项目支持哪些检索过滤能力？"
 ```
 
 ### 4.2 multimodal 模式
@@ -240,14 +295,21 @@ py -3.11 -m agentic_rag.cli.query "你的问题"
 # .env
 # INGESTION_ENGINE=multimodal
 # MULTIMODAL_ENABLED=true
-# PDF_PARSER=llamaparse
-# LLAMAPARSE_FALLBACK_TO_UNSTRUCTURED=true
+# EMBEDDING_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+# EMBEDDING_MODEL=text-embedding-v4
+# EMBEDDING_DIMENSIONS=1024
+# EMBEDDING_BATCH_SIZE=10
 
-py -3.11 -m agentic_rag.cli.build_index --docs data/demo_docs
-py -3.11 -m agentic_rag.cli.query "这个项目支持哪些检索过滤能力？"
+py -3.11 -m agentic_rag.cli.build_index --docs data/demo_docs --json
+py -3.11 -m agentic_rag.cli.query "这个项目支持哪些检索过滤能力？" --json
 ```
 
 > `build_index` 输出里会包含 `failed_files`，用于观察多模态解析失败文件数。
+
+已验证的 demo 运行结果：
+
+- `build_index`：`chunks=142`、`vectors=142`、`upserted=142`、`failed_files=0`、`vector_size=1024`
+- `query`：可返回答案与引用，`evidence_ok=true`、`citation_ok=true`
 
 ### 4.3 Agent 调用示例
 
@@ -262,10 +324,11 @@ py -3.11 -m agentic_rag.cli.agent_demo "这个项目支持哪些检索过滤能�
 项目已落地统一 `Node`（`src/agentic_rag/ingestion/node_schema.py`）：
 
 - `node_id`
-- `modality: text|image|table`
+- `modality: text|image|table|formula`
 - `text`
 - `image_path`
 - `table_markdown`
+- `formula_latex`
 - `metadata`（source/doc_id/page/chunk_index/title/section/modality/parser_name）
 - `relationships`
 
@@ -274,6 +337,7 @@ Qdrant payload 映射包含：
 - `text`
 - `image_path`
 - `table_markdown`
+- `formula_latex`
 - `relationships`
 - metadata 扁平字段：`source/doc_id/page/chunk_index/title/section/modality/parser_name`
 - 同时保留 `metadata` 嵌套对象用于兼容
@@ -305,6 +369,7 @@ Qdrant payload 映射包含：
 - `PDF_PARSER=llamaparse` 时先走 LlamaParse
 - 失败且 `LLAMAPARSE_FALLBACK_TO_UNSTRUCTURED=true` 时回退 Unstructured
 - 元素分流 text/table/image
+- 从 Markdown/LaTeX 片段中识别公式并生成 formula node
 - Node 构造并入库
 
 ### 6.4 表格
@@ -314,6 +379,28 @@ Qdrant payload 映射包含：
 - 大表按行组 chunk
 - table node -> text embedding -> upsert
 
+### 6.5 公式
+
+- 识别 `$$...$$`、`\[...\]`、`\(...\)`、LaTeX 环境与 MathML
+- 生成 formula node，保留 `formula_latex`
+- formula node 复用文本 embedding 入库，可被向量/BM25 检索召回
+- TaskGraph 对 formula evidence 做了专门兼容：当检索结果已包含 `modality=formula` 或 `formula_latex` 时，不会因为中文问题与 LaTeX 字符串关键词不重合而误判 `low_keyword_coverage`
+
+公式识别烟测：
+
+```powershell
+py -3.11 -m pytest -q tests/test_formula_extractor.py `
+  tests/test_prompt_builder.py::test_prompt_context_uses_formula_latex `
+  tests/test_multimodal_image_embedding.py::test_formula_nodes_use_formula_latex_for_embedding `
+  tests/test_evidence_gate.py::test_formula_evidence_does_not_fail_keyword_coverage
+```
+
+已验证可识别并入库：
+
+- `$E=mc^2$`
+- `$$\frac{a}{b}=c$$`
+- `\begin{equation}x^2+y^2=z^2\end{equation}`
+
 ---
 
 ## 7. 测试
@@ -321,6 +408,8 @@ Qdrant payload 映射包含：
 ```powershell
 py -3.11 -m pytest -q
 ```
+
+当前本地验证结果：`53 passed`。
 
 当前覆盖：
 
@@ -333,6 +422,8 @@ py -3.11 -m pytest -q
   - PDF 解析回退
   - 表格 chunk 规则（小表/大表）
   - 文本 chunk 策略切换（sentence/markdown/hierarchical）
+  - LaTeX/MathML 公式识别、公式节点入库、公式上下文引用
+  - TaskGraph 公式证据门控兼容
 
 ---
 
@@ -350,6 +441,12 @@ py -3.11 -m pip install -e .
 
 `EMBEDDING_DIMENSIONS=` 留空即可，代码会自动转 `None`。
 
+如果使用百炼 `text-embedding-v4`，建议显式配置：
+
+```env
+EMBEDDING_DIMENSIONS=1024
+```
+
 ### 8.3 `QdrantClient object has no attribute search`
 
 已兼容新旧 API（`query_points`/`search`）。
@@ -366,18 +463,42 @@ py -3.11 -m pip install -e .
 
 不会中断主流程，会自动回退到未 rerank 结果。
 
-### 8.6 PDF 中文解析效果一般
+### 8.6 Embedding 返回 `401 无效的令牌`
+
+优先检查 API Key 和 `BASE_URL` 是否属于同一个平台：
+
+- 百炼/DashScope Key：`EMBEDDING_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1`
+- OpenAI Key：`EMBEDDING_BASE_URL=https://api.openai.com/v1`
+- apirouter Key：`EMBEDDING_BASE_URL=https://apirouter.ai/v1`
+
+常见误配是“百炼 Key + apirouter URL”，服务端会直接返回 401。
+
+### 8.7 DashScope embedding 批量大小报错
+
+如果看到：
+
+```text
+batch size is invalid, it should not be larger than 10
+```
+
+将批量大小调小：
+
+```env
+EMBEDDING_BATCH_SIZE=10
+```
+
+### 8.8 PDF 中文解析效果一般
 
 `pdfminer` 对中文文档（尤其复杂版式、双栏、跨页表格、扫描件 OCR 场景）通常不够友好。生产环境建议优先使用 `LlamaParse` 作为 PDF 主解析器；对于更高复杂度多模态文档，后续可评估 `MinerU`。
 
-### 8.7 MinerU 接入失败排查
+### 8.9 MinerU 接入失败排查
 
 - `MINERU_MODE=precise` 时请确认 `MINERU_API_TOKEN` 已填写且有效。
 - 检查服务地址：`MINERU_BASE_URL` 是否可访问。
 - 若日志中出现 `A0202/A0211`，通常是 token 无效或过期。
 - 若出现超限或队列错误（如 `-30001/-30003/-60009`），建议开启回退：`MINERU_FALLBACK_TO_EXISTING=true`。
 
-### 8.8 `No module named 'unstructured_inference'`
+### 8.10 `No module named 'unstructured_inference'`
 
 说明：Unstructured 回退解析 PDF/复杂文档时需要该依赖。  
 修复：
@@ -392,7 +513,7 @@ py -3.11 -m pip install unstructured-inference
 py -3.11 -m pip install -r requirements.txt
 ```
 
-### 8.9 Embedding 8192 tokens 超限
+### 8.11 Embedding 8192 tokens 超限
 
 当前版本已加入两层保护：
 
@@ -403,6 +524,16 @@ py -3.11 -m pip install -r requirements.txt
 
 - `EMBEDDING_INPUT_MAX_TOKENS=8192`
 - `EMBEDDING_INPUT_SAFETY_MARGIN_TOKENS=256`
+
+### 8.12 公式识别误召回 Shell/命令表达式
+
+当前公式识别是启发式规则，会识别包含 `= + - * / ^ _ < >`、LaTeX 命令、MathML 或公式环境的片段。Linux 命令文档中类似下面的表达式可能被误识别为 formula：
+
+```text
+-name "*.c" -o -name "*.h"
+```
+
+这不影响 LaTeX 公式链路，但如果生产数据里命令表达式很多，建议进一步收紧 `formula_extractor.py` 的规则，或对特定文档类型关闭 `ENABLE_FORMULA_RECOGNITION`。
 
 ---
 
