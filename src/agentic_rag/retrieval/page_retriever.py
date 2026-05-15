@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from typing import Any
 
 from agentic_rag.retrieval.bm25_index import BM25Index
+from agentic_rag.config import Settings
+from agentic_rag.retrieval.index_persistence import load_or_build_bm25_index
 from agentic_rag.schemas import SearchHit
 from agentic_rag.store.qdrant_store import QdrantStore
 
@@ -11,25 +12,19 @@ from agentic_rag.store.qdrant_store import QdrantStore
 class PageRetriever:
     """Page-level retrieval by grouping chunks within the same page."""
 
-    def __init__(self, store: QdrantStore):
+    def __init__(self, store: QdrantStore, settings: Settings | None = None):
         self.store = store
+        self.settings = settings or getattr(store, "settings", None) or Settings(retrieval_index_persist_enabled=False)
         self._index: BM25Index | None = None
 
     def _load_index(self) -> BM25Index:
         if self._index is None:
-            docs = self.store.scroll_hits(limit=5000)
-            page_hits: list[SearchHit] = []
-            grouped: dict[tuple[str | None, int | None], list[SearchHit]] = defaultdict(list)
-            for hit in docs:
-                grouped[(hit.doc_id, hit.page)].append(hit)
-            for (_, page), hits in grouped.items():
-                text = "\n".join(h.text for h in hits if h.text).strip()
-                base = hits[0].model_copy(deep=True)
-                base.text = text
-                base.channel = "page"
-                base.score = max((h.score for h in hits), default=0.0)
-                page_hits.append(base)
-            self._index = BM25Index.build(page_hits)
+            self._index = load_or_build_bm25_index(
+                self.settings,
+                self.store,
+                "page",
+                stage_logger=getattr(self.store, "stage_logger", None),
+            )
         return self._index
 
     def retrieve(

@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 
+from agentic_rag.cli.debug_format import build_query_debug_lines
 from agentic_rag.config import get_settings
 from agentic_rag.factory import build_rag_graph
 
@@ -45,11 +46,9 @@ def main() -> int:
             f"chunk_index={c.chunk_index}; score={c.score:.4f}; tags={c.tags}"
         )
 
-    print("\nDebug:")
-    print(f"- retrieved_count={result.retrieved_count}")
-    print(f"- used_rerank={result.used_rerank}")
-    print(f"- fallback_used={result.fallback_used}")
-    print(f"- uncertain_answer_text={settings.uncertain_answer_text}")
+    print()
+    for line in build_query_debug_lines(result, settings):
+        print(line)
     return 0
 
 

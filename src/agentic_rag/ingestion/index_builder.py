@@ -14,6 +14,12 @@ from agentic_rag.models.providers import (
     build_image_embedding_provider,
 )
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
+from agentic_rag.retrieval.index_persistence import (
+    build_persistent_retrieval_indexes,
+    hits_from_chunks,
+    hits_from_nodes,
+)
+from agentic_rag.schemas import SearchHit
 from agentic_rag.store.qdrant_store import QdrantStore
 
 
@@ -158,6 +164,7 @@ class IndexBuilder:
                 upserted_count=upserted,
                 vector_count=len(normalized_vectors),
             )
+        self._persist_retrieval_indexes(hits_from_chunks(chunks), source=markdown_dir)
 
         return IndexBuildSummary(
             documents=len(docs),
@@ -304,6 +311,7 @@ class IndexBuilder:
                 upserted_count=upserted,
                 vector_count=len(normalized_vectors),
             )
+        self._persist_retrieval_indexes(hits_from_nodes(surviving_nodes), source=input_dir)
         doc_count = len({n.metadata.doc_id for n in surviving_nodes})
         return IndexBuildSummary(
             documents=doc_count,
@@ -389,6 +397,26 @@ class IndexBuilder:
                 vector_count=sum(1 for idx, _, _ in image_pairs if idx in vector_by_idx),
             )
         return failed
+
+    def _persist_retrieval_indexes(self, hits: list[SearchHit], source: str) -> None:
+        if not self.settings.retrieval_index_persist_enabled:
+            return
+        try:
+            build_persistent_retrieval_indexes(
+                self.settings,
+                self.store,
+                hits=hits,
+                stage_logger=self.stage_logger,
+            )
+        except Exception as exc:
+            if self.stage_logger:
+                self.stage_logger.log_warning(
+                    "retrieval_index_build",
+                    "retrieval_index_build_failed_continue",
+                    source=source,
+                    error_type=type(exc).__name__,
+                    error_msg=str(exc),
+                )
 
 
 def build_default_chunker(settings: Settings) -> TextChunker:

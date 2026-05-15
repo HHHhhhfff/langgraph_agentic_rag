@@ -4,6 +4,7 @@ from typing import Any
 
 from agentic_rag.config import Settings
 from agentic_rag.retrieval.bm25_index import BM25Index
+from agentic_rag.retrieval.index_persistence import load_or_build_bm25_index
 from agentic_rag.schemas import SearchHit
 from agentic_rag.store.qdrant_store import QdrantStore
 
@@ -18,8 +19,12 @@ class BM25Retriever:
 
     def _load_index(self) -> BM25Index:
         if self._index is None:
-            docs = self.store.scroll_hits(limit=10000)
-            self._index = BM25Index.build(docs)
+            self._index = load_or_build_bm25_index(
+                self.settings,
+                self.store,
+                "bm25",
+                stage_logger=getattr(self.store, "stage_logger", None),
+            )
         return self._index
 
     def retrieve(

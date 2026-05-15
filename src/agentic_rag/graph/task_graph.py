@@ -8,9 +8,11 @@ from langgraph.graph import END, StateGraph
 
 from agentic_rag.config import Settings
 from agentic_rag.generation.prompt_builder import PromptBuilder
+from agentic_rag.graph.local_retry import LocalRetryPlanner
 from agentic_rag.graph.task_graph_prep import TaskGraphState
 from agentic_rag.models.providers import EmbeddingProvider, LLMClient
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
+from agentic_rag.retrieval.evidence_gate import EvidenceEvaluator
 from agentic_rag.retrieval.evidence_pack import EvidencePack
 from agentic_rag.retrieval.retrieval_plan import RetrievalPlan, RetrievalTask
 from agentic_rag.retrieval.retriever import MultiChannelRetriever
@@ -34,6 +36,17 @@ def _hit_evidence_text(hit: SearchHit) -> str:
     return " ".join(parts)
 
 
+def _count_by_key(hits: list[SearchHit], key_fn) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for hit in hits:
+        raw = key_fn(hit)
+        if raw is None or raw == "":
+            continue
+        key = str(raw)
+        counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
 class TaskGraphRAG:
     """TaskGraph-based constrained Agentic RAG pipeline."""
 
@@ -53,6 +66,8 @@ class TaskGraphRAG:
         self.llm_client = llm_client
         self.prompt_builder = prompt_builder
         self.stage_logger = stage_logger
+        self.evidence_evaluator = EvidenceEvaluator(settings)
+        self.local_retry_planner = LocalRetryPlanner(settings)
         self.graph = self._compile_graph()
 
     def _log_start(self, stage: str, **fields: Any) -> StageTimer:
@@ -223,6 +238,7 @@ class TaskGraphRAG:
             max_retries=state.get("max_retries", self.settings.tg_max_retries),
             budget_tokens=state.get("budget_tokens", self.settings.tg_budget_tokens),
             budget_ms=state.get("budget_ms", self.settings.tg_budget_ms),
+            original_query=question,
             query_text=question,
             tasks=tasks,
         )
@@ -241,10 +257,13 @@ class TaskGraphRAG:
         question = state.get("question", "")
         query_vector = state.get("query_vector") or []
         filters = state.get("filters")
+        plan_raw = state.get("retrieval_plan")
+        plan = RetrievalPlan.model_validate(plan_raw) if isinstance(plan_raw, dict) else plan_raw
         result = self.retriever.retrieve(
             query_text=question,
             query_vector=query_vector,
             filters=filters,
+            plan=plan,
         )
         self._log_end(
             "retrieve_fanout",
@@ -256,6 +275,7 @@ class TaskGraphRAG:
             "fused_hits": result.hits,
             "expanded_hits": result.expanded_hits,
             "evidence_gain": state.get("evidence_gain", 1.0),
+            "executed_channels": result.executed_channels,
         }
 
     def _retrieve_rrf_node(self, state: TaskGraphState) -> TaskGraphState:
@@ -271,104 +291,80 @@ class TaskGraphRAG:
     def _evidence_gate_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("evidence_gate")
         hits = state.get("expanded_hits", [])
-        question = state.get("question", "")
-        q_tokens = set(_keyword_tokens(question))
-        coverage = 0.0
-        if q_tokens and hits:
-            covered = set()
-            for hit in hits[: max(1, self.settings.tg_min_evidence_hits * 2)]:
-                covered |= set(_keyword_tokens(_hit_evidence_text(hit))) & q_tokens
-            coverage = len(covered) / max(1, len(q_tokens))
-        target_modalities = state.get("target_modalities") or []
-        has_formula_evidence = any(
-            hit.modality == "formula" or hit.formula_latex or hit.metadata.get("modality") == "formula"
-            for hit in hits
-        )
-        min_coverage_ratio = self.settings.tg_min_coverage_ratio
-        if "formula" in target_modalities and has_formula_evidence:
-            min_coverage_ratio = 0.0
-        evidence_gaps: list[str] = []
-        if len(hits) < self.settings.tg_min_evidence_hits:
-            evidence_gaps.append("insufficient_hits")
-        if coverage < min_coverage_ratio:
-            evidence_gaps.append("low_keyword_coverage")
-        conflict_detected = False
-        # simple conflict heuristic for "yes/no" contradiction.
-        top_text = " ".join((h.text or "") for h in hits[:4]).lower()
-        if " not " in f" {top_text} " and ("\u662f" in top_text or "yes" in top_text):
-            conflict_detected = True
-            evidence_gaps.append("possible_conflict")
-        evidence_ok = len(evidence_gaps) == 0
-        refusal = bool(conflict_detected and self.settings.tg_allow_refusal)
-        refusal_reason = "evidence_conflict" if refusal else None
         plan_raw = state.get("retrieval_plan") or {}
-        plan = RetrievalPlan(**plan_raw) if isinstance(plan_raw, dict) else plan_raw
-        pack = EvidencePack(
-            plan=plan,
+        plan = RetrievalPlan.model_validate(plan_raw) if isinstance(plan_raw, dict) else plan_raw
+        pack = self.evidence_evaluator.evaluate(
+            question=state.get("question", ""),
             hits=hits,
             route_hits=state.get("route_hits", {}),
-            expanded_hits=hits,
-            evidence_ok=evidence_ok,
-            evidence_gaps=evidence_gaps,
-            conflict_detected=conflict_detected,
+            target_modalities=state.get("target_modalities", []),
+            plan=plan,
+            filters=state.get("filters"),
         )
+        evidence_ok = pack.gate_decision == "pass"
+        refusal = pack.gate_decision == "refuse"
+        refusal_reason = "evidence_conflict" if refusal and pack.conflict_level == "high" else None
         self._log_end(
             "evidence_gate",
             timer,
             evidence_count=len(hits),
             fallback=not evidence_ok,
-            error_msg=",".join(evidence_gaps),
+            error_msg=",".join(pack.gate_reasons),
+            support_level=pack.support_level,
+            support_score=pack.support_score,
+            gate_decision=pack.gate_decision,
+            conflict_level=pack.conflict_level,
+            missing_slots=",".join(pack.missing_slots),
         )
         return {
             "evidence_pack": pack.model_dump(),
             "evidence_ok": evidence_ok,
-            "evidence_gaps": evidence_gaps,
+            "evidence_gaps": pack.evidence_gaps,
             "refusal": refusal,
             "refusal_reason": refusal_reason,
+            "claim_supported": pack.claim_supported,
+            "source_coverage": pack.source_coverage,
+            "page_coverage": pack.page_coverage,
+            "modality_coverage": pack.modality_coverage,
+            "conflict_level": pack.conflict_level,
+            "missing_slots": pack.missing_slots,
+            "supporting_hit_ids": pack.supporting_hit_ids,
+            "support_level": pack.support_level,
+            "support_score": pack.support_score,
+            "slot_coverage": pack.slot_coverage,
+            "required_slots": pack.required_slots,
+            "covered_slots": pack.covered_slots,
+            "conflict_reasons": pack.conflict_reasons,
+            "gate_decision": pack.gate_decision,
+            "gate_reasons": pack.gate_reasons,
         }
 
     def _local_retry_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("local_retry")
-        old_hits = state.get("expanded_hits", [])
-        old_ids = {h.point_id for h in old_hits}
-        retry_count = int(state.get("retry_count", 0)) + 1
-        plan = RetrievalPlan(**(state.get("retrieval_plan") or {}))
-
-        if "low_keyword_coverage" in (state.get("evidence_gaps") or []):
-            has_bm25 = any(t.channel == "bm25" for t in plan.tasks)
-            if not has_bm25:
-                plan.tasks.append(
-                    RetrievalTask(
-                        channel="bm25",
-                        query_text=plan.query_text or state.get("question", ""),
-                        top_k=self.settings.bm25_top_k,
-                        filters=cast(dict[str, object], state.get("filters") or {}),
-                    )
-                )
-        if "insufficient_hits" in (state.get("evidence_gaps") or []):
-            has_page = any(t.channel == "page" for t in plan.tasks)
-            if not has_page:
-                plan.tasks.append(
-                    RetrievalTask(
-                        channel="page",
-                        query_text=plan.query_text or state.get("question", ""),
-                        top_k=self.settings.page_top_k,
-                        filters=cast(dict[str, object], state.get("filters") or {}),
-                    )
-                )
-        plan.retry_count = retry_count
-        new_ids = {h.point_id for h in state.get("fused_hits", [])}
-        union = len(old_ids | new_ids)
-        gain = 0.0 if union == 0 else (len(new_ids - old_ids) / union)
+        decision = self.local_retry_planner.plan_retry(cast(dict[str, Any], state))
+        plan = decision.plan
         self._log_end(
             "local_retry",
             timer,
             fallback=True,
             task_name="plan_update",
-            retry_count=retry_count,
-            evidence_gain=gain,
+            retry_count=decision.retry_count,
+            evidence_gain=decision.evidence_gain,
+            retry_actions=",".join(decision.retry_actions),
+            rewritten_query_text=decision.rewritten_query_text or "",
+            page_window=plan.page_window,
+            retry_channels=",".join(plan.channels()),
+            retry_top_k=",".join(f"{task.channel}:{task.top_k}" for task in plan.tasks),
         )
-        return {"retrieval_plan": plan.model_dump(), "retry_count": retry_count, "evidence_gain": gain}
+        return {
+            "retrieval_plan": plan.model_dump(),
+            "retry_count": decision.retry_count,
+            "evidence_gain": decision.evidence_gain,
+            "retry_actions": decision.retry_actions,
+            "retry_history": plan.retry_history,
+            "rewritten_query_text": decision.rewritten_query_text,
+            "page_window": plan.page_window,
+        }
 
     def _build_prompt_node(self, state: TaskGraphState) -> TaskGraphState:
         hits = state.get("expanded_hits", [])
@@ -430,6 +426,24 @@ class TaskGraphRAG:
                 "refusal": state.get("refusal", False),
                 "refusal_reason": state.get("refusal_reason"),
                 "evidence_gaps": state.get("evidence_gaps", []),
+                "executed_channels": state.get("executed_channels", []),
+                "claim_supported": state.get("claim_supported", False),
+                "source_coverage": state.get("source_coverage", {}),
+                "page_coverage": state.get("page_coverage", {}),
+                "modality_coverage": state.get("modality_coverage", {}),
+                "conflict_level": state.get("conflict_level", "none"),
+                "missing_slots": state.get("missing_slots", []),
+                "supporting_hit_ids": state.get("supporting_hit_ids", []),
+                "support_level": state.get("support_level", "none"),
+                "support_score": state.get("support_score", 0.0),
+                "slot_coverage": state.get("slot_coverage", {}),
+                "conflict_reasons": state.get("conflict_reasons", []),
+                "gate_decision": state.get("gate_decision", "retry"),
+                "gate_reasons": state.get("gate_reasons", []),
+                "retry_actions": state.get("retry_actions", []),
+                "retry_history": state.get("retry_history", []),
+                "rewritten_query_text": state.get("rewritten_query_text"),
+                "page_window": state.get("page_window"),
             },
         )
         for row in state.get("citations", []):

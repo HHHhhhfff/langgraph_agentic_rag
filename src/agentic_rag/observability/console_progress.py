@@ -95,6 +95,10 @@ class ConsoleProgressReporter:
                 "evidence_gate",
                 "local_retry",
                 "citation_verify",
+                "retrieval_index_build",
+                "retrieval_index_save",
+                "retrieval_index_load",
+                "retrieval_index_fallback_scroll",
             }
             return event.stage in keep_stages
         return True
@@ -161,6 +165,23 @@ class ConsoleProgressReporter:
             "evidence_count",
             "route",
             "task_name",
+            "index_kind",
+            "index_path",
+            "doc_count",
+            "support_level",
+            "support_score",
+            "gate_decision",
+            "conflict_level",
+            "missing_slots",
+            "conflict_reasons",
+            "retry_actions",
+            "rewritten_query_text",
+            "page_window",
+            "retry_channels",
+            "retry_top_k",
+            "vector_name",
+            "named_vectors_enabled",
+            "vector_mode",
         ]:
             value = self._get_value(event.payload, key)
             if value is not None and value != "":

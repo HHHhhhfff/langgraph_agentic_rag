@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import math
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from agentic_rag.schemas import SearchHit
@@ -59,6 +61,39 @@ class BM25Index:
             for tok in set(toks):
                 index.df[tok] += 1
         index.avgdl = sum(lengths) / len(lengths) if lengths else 0.0
+        return index
+
+    def save(self, path: Path) -> None:
+        """Persist the index as debuggable JSON."""
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "schema_version": 1,
+            "docs": [doc.model_dump() for doc in self.docs],
+            "tokens": self.tokens,
+            "df": dict(self.df),
+            "avgdl": self.avgdl,
+            "k1": self.k1,
+            "b": self.b,
+        }
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    @classmethod
+    def load(cls, path: Path) -> "BM25Index":
+        """Load an index previously written by save()."""
+
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        docs = [SearchHit.model_validate(row) for row in payload.get("docs", [])]
+        index = cls(
+            docs=docs,
+            tokens=[[str(tok) for tok in row] for row in payload.get("tokens", [])],
+            df={str(k): int(v) for k, v in dict(payload.get("df", {})).items()},
+            avgdl=float(payload.get("avgdl", 0.0)),
+            k1=float(payload.get("k1", 1.5)),
+            b=float(payload.get("b", 0.75)),
+        )
+        if len(index.tokens) != len(index.docs):
+            raise ValueError("BM25 index token/doc length mismatch")
         return index
 
     def search(self, query: str, top_k: int = 12, filters: dict[str, Any] | None = None) -> list[SearchHit]:

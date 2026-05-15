@@ -16,4 +16,19 @@ class EvidencePack(BaseModel):
     evidence_ok: bool = False
     evidence_gaps: list[str] = Field(default_factory=list)
     conflict_detected: bool = False
+    claim_supported: bool = False
+    source_coverage: dict[str, int] = Field(default_factory=dict)
+    page_coverage: dict[str, int] = Field(default_factory=dict)
+    modality_coverage: dict[str, int] = Field(default_factory=dict)
+    conflict_level: str = "none"
+    missing_slots: list[str] = Field(default_factory=list)
+    supporting_hit_ids: list[str] = Field(default_factory=list)
+    support_level: str = "none"
+    support_score: float = 0.0
+    slot_coverage: dict[str, bool] = Field(default_factory=dict)
+    required_slots: list[str] = Field(default_factory=list)
+    covered_slots: list[str] = Field(default_factory=list)
+    conflict_reasons: list[str] = Field(default_factory=list)
+    gate_decision: str = "retry"
+    gate_reasons: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)

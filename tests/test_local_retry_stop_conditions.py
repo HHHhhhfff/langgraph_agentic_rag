@@ -19,12 +19,14 @@ class DummyLLM:
 
 
 class NoEvidenceRetriever:
-    def retrieve(self, *, query_text, query_vector, filters=None):
-        return SimpleNamespace(hits=[], route_hits={"vector": [], "bm25": [], "page": [], "table": []}, expanded_hits=[])
+    def retrieve(self, *, query_text, query_vector, filters=None, plan=None):
+        channels = [task.channel for task in plan.tasks] if plan else ["vector"]
+        return SimpleNamespace(hits=[], route_hits={}, expanded_hits=[], executed_channels=channels)
 
 
 class VerboseEvidenceRetriever:
-    def retrieve(self, *, query_text, query_vector, filters=None):
+    def retrieve(self, *, query_text, query_vector, filters=None, plan=None):
+        channels = [task.channel for task in plan.tasks] if plan else ["vector"]
         long_text = "A" * 12000
         hit = SearchHit(
             point_id="p1",
@@ -39,6 +41,7 @@ class VerboseEvidenceRetriever:
             hits=[hit],
             route_hits={"vector": [hit], "bm25": [], "page": [], "table": []},
             expanded_hits=[hit],
+            executed_channels=channels,
         )
 
 

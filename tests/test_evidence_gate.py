@@ -19,12 +19,14 @@ class DummyLLM:
 
 
 class EmptyRetriever:
-    def retrieve(self, *, query_text, query_vector, filters=None):
-        return SimpleNamespace(hits=[], route_hits={"vector": [], "bm25": [], "page": [], "table": []}, expanded_hits=[])
+    def retrieve(self, *, query_text, query_vector, filters=None, plan=None):
+        channels = [task.channel for task in plan.tasks] if plan else ["vector"]
+        return SimpleNamespace(hits=[], route_hits={}, expanded_hits=[], executed_channels=channels)
 
 
 class ConflictRetriever:
-    def retrieve(self, *, query_text, query_vector, filters=None):
+    def retrieve(self, *, query_text, query_vector, filters=None, plan=None):
+        channels = [task.channel for task in plan.tasks] if plan else ["vector"]
         hit = SearchHit(
             point_id="p1",
             node_id="n1",
@@ -38,11 +40,13 @@ class ConflictRetriever:
             hits=[hit],
             route_hits={"vector": [hit], "bm25": [], "page": [], "table": []},
             expanded_hits=[hit],
+            executed_channels=channels,
         )
 
 
 class FormulaRetriever:
-    def retrieve(self, *, query_text, query_vector, filters=None):
+    def retrieve(self, *, query_text, query_vector, filters=None, plan=None):
+        channels = [task.channel for task in plan.tasks] if plan else ["vector"]
         hit = SearchHit(
             point_id="p1",
             node_id="n1",
@@ -57,6 +61,7 @@ class FormulaRetriever:
             hits=[hit],
             route_hits={"vector": [hit], "bm25": [], "page": [], "table": []},
             expanded_hits=[hit],
+            executed_channels=channels,
         )
 
 

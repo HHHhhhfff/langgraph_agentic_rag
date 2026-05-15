@@ -32,6 +32,23 @@ BASE_FIELDS = {
     "route",
     "task_name",
     "evidence_gain",
+    "index_kind",
+    "index_path",
+    "doc_count",
+    "support_level",
+    "support_score",
+    "gate_decision",
+    "conflict_level",
+    "missing_slots",
+    "conflict_reasons",
+    "retry_actions",
+    "rewritten_query_text",
+    "page_window",
+    "retry_channels",
+    "retry_top_k",
+    "vector_name",
+    "named_vectors_enabled",
+    "vector_mode",
 }
 
 

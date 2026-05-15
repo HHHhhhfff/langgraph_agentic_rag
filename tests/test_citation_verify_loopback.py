@@ -23,7 +23,12 @@ class NoCitationLLM:
 
 
 class StableRetriever:
-    def retrieve(self, *, query_text, query_vector, filters=None):
+    def __init__(self):
+        self.top_k_by_call: list[dict[str, int]] = []
+
+    def retrieve(self, *, query_text, query_vector, filters=None, plan=None):
+        channels = [task.channel for task in plan.tasks] if plan else ["vector"]
+        self.top_k_by_call.append({task.channel: task.top_k for task in plan.tasks} if plan else {})
         hit = SearchHit(
             point_id="p1",
             node_id="n1",
@@ -37,6 +42,7 @@ class StableRetriever:
             hits=[hit],
             route_hits={"vector": [hit], "bm25": [], "page": [], "table": []},
             expanded_hits=[hit],
+            executed_channels=channels,
         )
 
 
@@ -48,10 +54,11 @@ def test_citation_verify_loopback_until_retry_limit() -> None:
         tg_citation_strict=True,
     )
     llm = NoCitationLLM()
+    retriever = StableRetriever()
     graph = TaskGraphRAG(
         settings=settings,
         embedding_provider=DummyEmbedding(),
-        retriever=StableRetriever(),
+        retriever=retriever,
         llm_client=llm,
         prompt_builder=PromptBuilder(settings),
     )
@@ -60,4 +67,6 @@ def test_citation_verify_loopback_until_retry_limit() -> None:
     assert result.debug.get("citation_ok") is False
     assert result.debug.get("retry_count") == 1
     assert llm.calls >= 1
+    assert len(retriever.top_k_by_call) == 2
+    assert retriever.top_k_by_call[1]["vector"] > retriever.top_k_by_call[0]["vector"]
 

@@ -210,11 +210,27 @@ class Settings(BaseSettings):
     bm25_top_k: int = Field(default=12, description="BM25 retrieval top-k")
     page_top_k: int = Field(default=8, description="Page-level retrieval top-k")
     table_top_k: int = Field(default=8, description="Table retrieval top-k")
+    retrieval_index_dir: str = Field(
+        default="storage/retrieval_indexes",
+        description="Local directory for persisted BM25/page/table retrieval indexes",
+    )
+    retrieval_index_persist_enabled: bool = Field(
+        default=True,
+        description="Persist BM25/page/table retrieval indexes during index build",
+    )
+    retrieval_index_fallback_to_scroll: bool = Field(
+        default=True,
+        description="Fallback to Qdrant scroll when local retrieval index is missing or invalid",
+    )
     rrf_k: int = Field(default=60, description="RRF smoothing parameter")
     rrf_top_k: int = Field(default=12, description="RRF fused top-k")
     rel_expand_steps: int = Field(default=1, description="Relationship expansion steps")
     rel_expand_pages: int = Field(default=1, description="Page expansion window")
     enable_named_vectors: bool = Field(default=False, description="Enable Qdrant named vectors abstraction")
+    named_vector_text_name: str = Field(default="text", description="Qdrant named vector key for text nodes")
+    named_vector_table_name: str = Field(default="table", description="Qdrant named vector key for table nodes")
+    named_vector_image_name: str = Field(default="image", description="Qdrant named vector key for image nodes")
+    named_vector_fallback_to_text: bool = Field(default=True, description="Fallback unsupported vector channels to text named vector")
     retrieval_prepare_taskgraph: bool = Field(default=True, description="Expose retrieval prep interfaces for future TaskGraph")
     taskgraph_enabled: bool = Field(default=False, description="Enable TaskGraph execution path for query")
     tg_max_retries: int = Field(default=2, description="Max local retry loops in TaskGraph")
@@ -223,6 +239,15 @@ class Settings(BaseSettings):
     tg_min_evidence_hits: int = Field(default=2, description="Minimum evidence hit count required by evidence gate")
     tg_min_coverage_ratio: float = Field(default=0.5, description="Minimum keyword coverage ratio for evidence gate")
     tg_min_gain_threshold: float = Field(default=0.05, description="Minimum evidence gain threshold across retries")
+    tg_min_support_score: float = Field(default=0.45, description="Minimum support score for evidence gate")
+    tg_strong_support_score: float = Field(default=0.75, description="Support score threshold for strong evidence")
+    tg_conflict_numeric_tolerance: float = Field(default=0.0, description="Numeric tolerance for evidence conflict checks")
+    tg_required_slot_strict: bool = Field(default=True, description="Require all extracted evidence slots to be covered")
+    tg_retry_top_k_multiplier: float = Field(default=1.5, description="Top-k multiplier applied by TaskGraph local retry")
+    tg_retry_max_top_k: int = Field(default=32, description="Maximum top-k allowed during TaskGraph local retry")
+    tg_retry_page_window_step: int = Field(default=1, description="Page-window increment applied by TaskGraph local retry")
+    tg_retry_max_page_window: int = Field(default=3, description="Maximum relationship page window during TaskGraph local retry")
+    tg_retry_rewrite_enabled: bool = Field(default=True, description="Enable rule-based query rewrite during local retry")
     tg_citation_strict: bool = Field(default=True, description="Require answer to include citation markers")
     tg_allow_refusal: bool = Field(default=True, description="Allow refusal when evidence remains insufficient")
     tg_route_llm_enabled: bool = Field(default=False, description="Use LLM-assisted route analysis (off by default)")
@@ -268,6 +293,9 @@ class Settings(BaseSettings):
         "tg_budget_tokens",
         "tg_budget_ms",
         "tg_min_evidence_hits",
+        "tg_retry_max_top_k",
+        "tg_retry_page_window_step",
+        "tg_retry_max_page_window",
         "embedding_batch_size",
         "image_embed_batch_size",
         "image_embed_max_retries",
@@ -310,11 +338,18 @@ class Settings(BaseSettings):
             raise ValueError("image_embed_timeout_sec must be > 0")
         return value
 
-    @field_validator("tg_min_coverage_ratio", "tg_min_gain_threshold")
+    @field_validator("tg_min_coverage_ratio", "tg_min_gain_threshold", "tg_min_support_score", "tg_strong_support_score", "tg_conflict_numeric_tolerance")
     @classmethod
     def validate_ratio(cls, value: float) -> float:
         if value < 0:
             raise ValueError("ratio must be >= 0")
+        return value
+
+    @field_validator("tg_retry_top_k_multiplier")
+    @classmethod
+    def validate_retry_top_k_multiplier(cls, value: float) -> float:
+        if value <= 1:
+            raise ValueError("tg_retry_top_k_multiplier must be > 1")
         return value
 
 

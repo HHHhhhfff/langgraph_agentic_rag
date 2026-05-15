@@ -5,6 +5,7 @@ from typing import Any
 
 from agentic_rag.config import Settings
 from agentic_rag.retrieval.hybrid import HybridRetriever, HybridRetrievalResult
+from agentic_rag.retrieval.retrieval_plan import RetrievalChannel, RetrievalPlan
 from agentic_rag.schemas import SearchHit
 from agentic_rag.store.qdrant_store import QdrantStore, QdrantStoreError
 
@@ -32,15 +33,19 @@ class VectorRetriever:
         self,
         query_vector: list[float],
         filters: dict[str, Any] | None = None,
+        vector_name: str | None = None,
+        top_k: int | None = None,
     ) -> RetrievalResult:
         normalized_filters = dict(filters or {})
+        top_n = top_k or self.settings.retrieval_top_k
         if "modality" in normalized_filters and normalized_filters.get("modality") is None:
             normalized_filters.pop("modality", None)
         try:
             hits = self.store.search(
                 query_vector=query_vector,
-                top_k=self.settings.retrieval_top_k,
+                top_k=top_n,
                 filters=normalized_filters or None,
+                vector_name=vector_name,
             )
         except QdrantStoreError as exc:
             raise RetrievalError(f"Qdrant retrieval failed: {exc}") from exc
@@ -53,8 +58,9 @@ class VectorRetriever:
             try:
                 fallback_hits = self.store.search(
                     query_vector=query_vector,
-                    top_k=self.settings.retrieval_top_k,
+                    top_k=top_n,
                     filters=None,
+                    vector_name=vector_name,
                 )
             except QdrantStoreError as exc:
                 raise RetrievalError(f"Fallback retrieval failed: {exc}") from exc
@@ -74,9 +80,11 @@ class MultiChannelRetriever:
         self.hybrid_retriever = HybridRetriever(
             settings=settings,
             store=store,
-            vector_search_fn=lambda query_vector, filters=None: self.vector_retriever.retrieve(
+            vector_search_fn=lambda query_vector, filters=None, vector_name=None, top_k=None: self.vector_retriever.retrieve(
                 query_vector=query_vector,
                 filters=filters,
+                vector_name=vector_name,
+                top_k=top_k,
             ).hits,
         )
 
@@ -85,10 +93,14 @@ class MultiChannelRetriever:
         query_text: str,
         query_vector: list[float],
         filters: dict[str, Any] | None = None,
+        plan: RetrievalPlan | dict[str, Any] | None = None,
+        channels: list[RetrievalChannel] | None = None,
     ) -> HybridRetrievalResult:
         return self.hybrid_retriever.retrieve(
             query_text=query_text,
             query_vector=query_vector,
             filters=filters,
+            plan=plan,
+            channels=channels,
         )
 

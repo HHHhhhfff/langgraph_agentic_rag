@@ -32,6 +32,26 @@ class TaskGraphState(TypedDict, total=False):
     evidence_ok: bool
     evidence_gaps: list[str]
     evidence_gain: float
+    executed_channels: list[str]
+    claim_supported: bool
+    source_coverage: dict[str, int]
+    page_coverage: dict[str, int]
+    modality_coverage: dict[str, int]
+    conflict_level: str
+    missing_slots: list[str]
+    supporting_hit_ids: list[str]
+    support_level: str
+    support_score: float
+    slot_coverage: dict[str, bool]
+    required_slots: list[str]
+    covered_slots: list[str]
+    conflict_reasons: list[str]
+    gate_decision: str
+    gate_reasons: list[str]
+    retry_actions: list[str]
+    retry_history: list[dict[str, object]]
+    rewritten_query_text: str | None
+    page_window: int | None
     refusal: bool
     refusal_reason: str | None
 
@@ -60,6 +80,10 @@ class TaskRouteState(TypedDict, total=False):
 class EvidenceGateState(TypedDict, total=False):
     evidence_ok: bool
     evidence_gaps: list[str]
+    support_level: str
+    support_score: float
+    gate_decision: str
+    gate_reasons: list[str]
     refusal: bool
     refusal_reason: str | None
 
@@ -68,6 +92,10 @@ class LocalRetryState(TypedDict, total=False):
     retrieval_plan: dict[str, Any]
     retry_count: int
     evidence_gain: float
+    retry_actions: list[str]
+    retry_history: list[dict[str, object]]
+    rewritten_query_text: str | None
+    page_window: int | None
 
 
 __all__ = [

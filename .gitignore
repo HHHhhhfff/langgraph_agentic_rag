@@ -9,3 +9,4 @@ __pycache__/
 *.pt
 *.ckpt
 src/*.egg-info/
+storage/retrieval_indexes/

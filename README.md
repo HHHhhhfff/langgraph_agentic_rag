@@ -216,7 +216,29 @@ RERANK_MODEL=qwen3-vl-rerank
 - LLM：`LLM_*`
 - 检索：`RETRIEVAL_*` / `CONTEXT_TOP_N` / `PROMPT_MAX_CONTEXT_CHARS`
 
-### 3.6 TaskGraph 可选路径配置（新增）
+### 3.6 检索索引持久化配置（新增）
+
+- `RETRIEVAL_INDEX_DIR=storage/retrieval_indexes`
+  - BM25 / page / table 本地检索索引保存目录。
+  - 实际路径为 `{RETRIEVAL_INDEX_DIR}/{QDRANT_COLLECTION}/bm25.json|page.json|table.json`。
+- `RETRIEVAL_INDEX_PERSIST_ENABLED=true|false`
+  - `true`：`build_index` 成功 upsert 后同步写出本地检索索引。
+  - `false`：不写本地索引，查询时按 fallback 策略处理。
+- `RETRIEVAL_INDEX_FALLBACK_TO_SCROLL=true|false`
+  - `true`：本地索引缺失或损坏时，查询阶段 fallback 到 Qdrant `scroll_hits()` 临时构建。
+  - `false`：本地索引不可用时直接报错，便于生产环境暴露索引构建问题。
+- `ENABLE_NAMED_VECTORS=true|false`
+  - 默认 `false`，保持旧单向量 Qdrant collection 兼容。
+  - 开启后 Qdrant collection 使用 `text/table/image` 三个 named vectors。
+  - 建议使用新 collection，或设置 `QDRANT_RECREATE_COLLECTION=true` 重建旧 collection。
+- `NAMED_VECTOR_TEXT_NAME=text`
+- `NAMED_VECTOR_TABLE_NAME=table`
+- `NAMED_VECTOR_IMAGE_NAME=image`
+  - 分别控制文本、表格、图片向量字段名。
+- `NAMED_VECTOR_FALLBACK_TO_TEXT=true|false`
+  - 未显式指定向量字段时是否回退到 text named vector。
+
+### 3.7 TaskGraph 可选路径配置（新增）
 
 - `TASKGRAPH_ENABLED=true|false`
   - `false`（默认）：继续走旧 `rag_graph.py` 兼容路径
@@ -233,6 +255,24 @@ RERANK_MODEL=qwen3-vl-rerank
   - 证据关键词覆盖阈值（0~1）
 - `TG_MIN_GAIN_THRESHOLD`
   - 连续重检时最小证据增益阈值
+- `TG_MIN_SUPPORT_SCORE`
+  - EvidenceGate 判定证据至少部分支持问题所需的最低支持度分数
+- `TG_STRONG_SUPPORT_SCORE`
+  - EvidenceGate 判定强支持证据的分数阈值
+- `TG_CONFLICT_NUMERIC_TOLERANCE`
+  - 数值冲突判断容差，默认 `0.0` 表示不同数值严格视为冲突候选
+- `TG_REQUIRED_SLOT_STRICT=true|false`
+  - 是否要求页码、来源、数值、表格/图片/公式等必需槽位全部覆盖后才允许通过证据门控
+- `TG_RETRY_TOP_K_MULTIPLIER`
+  - TaskGraph `local_retry` 提高各检索通道 `top_k` 的倍率，默认 `1.5`
+- `TG_RETRY_MAX_TOP_K`
+  - TaskGraph `local_retry` 允许的最大 `top_k`，防止重检无限放大
+- `TG_RETRY_PAGE_WINDOW_STEP`
+  - 页码缺失或冲突重检时，每轮扩展的邻页窗口步长
+- `TG_RETRY_MAX_PAGE_WINDOW`
+  - relationship expansion 可使用的最大邻页窗口
+- `TG_RETRY_REWRITE_ENABLED=true|false`
+  - 是否启用规则版 query rewrite；当前不接 LLM rewrite
 - `TG_CITATION_STRICT=true|false`
   - 是否严格要求答案包含引用标记且引用可回溯
 - `TG_ALLOW_REFUSAL=true|false`
@@ -240,7 +280,7 @@ RERANK_MODEL=qwen3-vl-rerank
 - `TG_ROUTE_LLM_ENABLED=true|false`
   - 预留开关：是否启用 LLM 辅助路由（当前默认关闭）
 
-### 3.7 阶段日志观测配置（新增）
+### 3.8 阶段日志观测配置（新增）
 
 - `ENABLE_STAGE_LOG=true|false`
   - 是否开启 ingestion 阶段结构化日志。关闭时不会输出阶段日志。
@@ -305,11 +345,29 @@ py -3.11 -m agentic_rag.cli.query "这个项目支持哪些检索过滤能力？
 ```
 
 > `build_index` 输出里会包含 `failed_files`，用于观察多模态解析失败文件数。
+> `query --json` 会输出完整 `debug`，适合脚本和回归检查。
 
 已验证的 demo 运行结果：
 
 - `build_index`：`chunks=142`、`vectors=142`、`upserted=142`、`failed_files=0`、`vector_size=1024`
 - `query`：可返回答案与引用，`evidence_ok=true`、`citation_ok=true`
+
+普通 `query` 输出在 `TASKGRAPH_ENABLED=true` 时会额外展示 `TaskGraph Debug` 摘要，例如：
+
+```text
+TaskGraph Debug:
+- route=text_first
+- executed_channels=vector,bm25
+- retry_count=1
+- gate_decision=pass
+- evidence_ok=true
+- support_level=strong
+- support_score=0.8123
+- retry_actions=[rewrite_query,increase_top_k]
+- citation_ok=true
+```
+
+如果需要查看完整 `retry_history`、`slot_coverage`、`source_coverage` 等字段，请使用 `--json`。
 
 ### 4.3 Agent 调用示例
 
@@ -409,7 +467,7 @@ py -3.11 -m pytest -q tests/test_formula_extractor.py `
 py -3.11 -m pytest -q
 ```
 
-当前本地验证结果：`53 passed`。
+当前覆盖包含离线单元测试和 TaskGraph 规则链路测试；默认不会访问真实 Qdrant、LLM 或外部网络。
 
 当前覆盖：
 
@@ -424,6 +482,58 @@ py -3.11 -m pytest -q
   - 文本 chunk 策略切换（sentence/markdown/hierarchical）
   - LaTeX/MathML 公式识别、公式节点入库、公式上下文引用
   - TaskGraph 公式证据门控兼容
+
+### 7.1 评测集与回归指标
+
+PR-7 新增了轻量离线评测框架，用于基于 `RAGResult.answer / citations / debug`
+检查 RAG 输出是否满足固定预期。默认评测不调用真实 Qdrant/LLM，适合纳入回归测试。
+
+固定样例位于：
+
+```text
+tests/eval_cases/taskgraph_eval_cases.jsonl
+```
+
+当前覆盖类别：
+
+- `text_qa`：普通文本问答
+- `table_qa`：表格问答
+- `page_qa`：页级问答
+- `cross_page_qa`：跨页上下文
+- `cross_doc_qa`：跨文档综合/冲突
+- `no_answer_refusal`：无答案拒答
+
+离线评测需要传入已有结果 JSONL，每条记录可使用：
+
+```json
+{"case_id":"text_taskgraph_intro","result":{"answer":"...","citations":[],"debug":{}}}
+```
+
+运行离线评测：
+
+```powershell
+py -3.11 -m agentic_rag.cli.eval `
+  --cases tests/eval_cases/taskgraph_eval_cases.jsonl `
+  --results results.jsonl `
+  --json
+```
+
+如需真实端到端评测，显式使用 `--live`。该模式会使用当前 `.env` 中的
+Qdrant、Embedding 和 LLM 配置，可能访问外部服务：
+
+```powershell
+py -3.11 -m agentic_rag.cli.eval `
+  --cases tests/eval_cases/taskgraph_eval_cases.jsonl `
+  --live `
+  --json
+```
+
+pytest 已注册 `live_eval` marker。真实 live eval 测试应保持显式 opt-in，例如：
+
+```powershell
+$env:RUN_LIVE_EVAL="true"
+py -3.11 -m pytest -q -m live_eval
+```
 
 ---
 
@@ -539,10 +649,10 @@ py -3.11 -m pip install -r requirements.txt
 
 ## 9. 架构扩展建议（下一步）
 
-- Qdrant Named Vectors：为 text/image/table 分开向量空间
-- 跨模态融合检索：向量召回 + 关键词召回 + RRF 融合
-- 图谱化 relationships：支持父子块、页面顺序、章节层级检索
-- Qdrant Named Vectors：为 text/image/table 分离向量字段并支持混合打分
+- Qdrant Named Vectors：PR-6 后支持 text/image/table 分开向量空间
+- 跨模态融合检索：向量召回 + 关键词召回 + RRF 融合 (已完成)
+- 图谱化 relationships：支持父子块、页面顺序、章节层级检索 (已完成)
+- Qdrant Named Vectors：PR-6 后支持按 text/table/image 通道独立召回并参与 RRF 融合
 
 ---
 

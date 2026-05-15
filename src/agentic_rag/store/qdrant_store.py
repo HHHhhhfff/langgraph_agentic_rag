@@ -42,6 +42,35 @@ class QdrantStore:
     def set_stage_logger(self, stage_logger: StageLogger) -> None:
         self.stage_logger = stage_logger
 
+    def _named_vector_names(self) -> tuple[str, str, str]:
+        return (
+            self.settings.named_vector_text_name,
+            self.settings.named_vector_table_name,
+            self.settings.named_vector_image_name,
+        )
+
+    def _vector_name_for_modality(self, modality: str | None) -> str:
+        if modality == "table":
+            return self.settings.named_vector_table_name
+        if modality == "image":
+            return self.settings.named_vector_image_name
+        return self.settings.named_vector_text_name
+
+    def _vector_payload(self, vector: list[float], *, modality: str | None = None) -> Any:
+        if not self.named_vectors_enabled:
+            return vector
+        return {self._vector_name_for_modality(modality): vector}
+
+    @staticmethod
+    def _build_named_query_vector(vector_name: str, query_vector: list[float]) -> Any:
+        named_vector_cls = getattr(models, "NamedVector", None)
+        if named_vector_cls is not None:
+            try:
+                return named_vector_cls(name=vector_name, vector=query_vector)
+            except Exception:
+                pass
+        return (vector_name, query_vector)
+
     def _build_filter(self, filters: dict[str, Any] | None) -> models.Filter | None:
         if not filters:
             return None
@@ -118,6 +147,8 @@ class QdrantStore:
                 source=name,
                 vector_size=vector_size,
                 distance=self.settings.qdrant_distance,
+                named_vectors_enabled=self.named_vectors_enabled,
+                vector_mode="named" if self.named_vectors_enabled else "single",
             )
 
         try:
@@ -129,10 +160,11 @@ class QdrantStore:
             try:
                 vectors_config: Any
                 if self.named_vectors_enabled:
+                    text_name, table_name, image_name = self._named_vector_names()
                     vectors_config = {
-                        "text": models.VectorParams(size=vector_size, distance=distance),
-                        "image": models.VectorParams(size=vector_size, distance=distance),
-                        "table": models.VectorParams(size=vector_size, distance=distance),
+                        text_name: models.VectorParams(size=vector_size, distance=distance),
+                        table_name: models.VectorParams(size=vector_size, distance=distance),
+                        image_name: models.VectorParams(size=vector_size, distance=distance),
                     }
                 else:
                     vectors_config = models.VectorParams(size=vector_size, distance=distance)
@@ -147,32 +179,44 @@ class QdrantStore:
                     latency_ms=timer.elapsed_ms(),
                     source=name,
                     vector_size=vector_size,
+                    named_vectors_enabled=self.named_vectors_enabled,
+                    vector_mode="named" if self.named_vectors_enabled else "single",
                 )
             return
 
         try:
             info = self.client.get_collection(name)
             vectors = info.config.params.vectors
-            if isinstance(vectors, models.VectorParams):
-                existing_size = vectors.size
-                existing_distance = vectors.distance
-            elif isinstance(vectors, dict) and vectors:
-                first_vec = next(iter(vectors.values()))
-                if not isinstance(first_vec, models.VectorParams):
-                    raise QdrantStoreError("Unsupported named-vector collection format")
-                existing_size = first_vec.size
-                existing_distance = first_vec.distance
+            if self.named_vectors_enabled:
+                if isinstance(vectors, models.VectorParams):
+                    raise QdrantStoreError(
+                        f"Vector mode mismatch for collection {name}: existing=single, expected named vectors "
+                        f"{list(self._named_vector_names())}. Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
+                    )
+                vector_map = dict(vectors) if hasattr(vectors, "items") else None
+                if not vector_map:
+                    raise QdrantStoreError(
+                        f"Unsupported named-vector collection format for {name}; expected named vectors "
+                        f"{list(self._named_vector_names())}."
+                    )
+                for vector_name in self._named_vector_names():
+                    params = vector_map.get(vector_name)
+                    if not isinstance(params, models.VectorParams):
+                        raise QdrantStoreError(
+                            f"Missing named vector '{vector_name}' in collection {name}; expected named vectors "
+                            f"{list(self._named_vector_names())}. Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
+                        )
+                    self._validate_vector_params(name, vector_name, params, vector_size, distance)
             else:
-                raise QdrantStoreError("Unsupported collection vector format")
-
-            if existing_size != vector_size:
-                raise QdrantStoreError(
-                    f"Vector size mismatch for collection {name}: existing={existing_size}, expected={vector_size}"
-                )
-            if existing_distance != distance:
-                raise QdrantStoreError(
-                    f"Distance mismatch for collection {name}: existing={existing_distance}, expected={distance}"
-                )
+                if isinstance(vectors, models.VectorParams):
+                    self._validate_vector_params(name, "default", vectors, vector_size, distance)
+                elif hasattr(vectors, "items"):
+                    raise QdrantStoreError(
+                        f"Vector mode mismatch for collection {name}: existing=named vectors, expected=single vector. "
+                        f"Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
+                    )
+                else:
+                    raise QdrantStoreError("Unsupported collection vector format")
         except QdrantStoreError:
             if self.stage_logger:
                 self.stage_logger.log_stage_error(
@@ -191,6 +235,27 @@ class QdrantStore:
                 latency_ms=timer.elapsed_ms(),
                 source=name,
                 vector_size=vector_size,
+                named_vectors_enabled=self.named_vectors_enabled,
+                vector_mode="named" if self.named_vectors_enabled else "single",
+            )
+
+    @staticmethod
+    def _validate_vector_params(
+        collection_name: str,
+        vector_name: str,
+        params: models.VectorParams,
+        vector_size: int,
+        distance: models.Distance,
+    ) -> None:
+        if params.size != vector_size:
+            raise QdrantStoreError(
+                f"Vector size mismatch for collection {collection_name} vector={vector_name}: "
+                f"existing={params.size}, expected={vector_size}"
+            )
+        if params.distance != distance:
+            raise QdrantStoreError(
+                f"Distance mismatch for collection {collection_name} vector={vector_name}: "
+                f"existing={params.distance}, expected={distance}"
             )
 
     def upsert_chunks(
@@ -213,12 +278,23 @@ class QdrantStore:
             vector_batch = vectors[i : i + batch_size]
             points: list[models.PointStruct] = []
             for chunk, vector in zip(chunk_batch, vector_batch):
+                md = dict(chunk.metadata or {})
+                md.setdefault("modality", "text")
                 payload = {
                     "text": chunk.text,
-                    "metadata": chunk.metadata,
+                    "node_id": chunk.chunk_id,
+                    "modality": "text",
+                    "source": md.get("source"),
+                    "doc_id": md.get("doc_id"),
+                    "page": md.get("page"),
+                    "chunk_index": md.get("chunk_index"),
+                    "title": md.get("title"),
+                    "section": md.get("section"),
+                    "parser_name": md.get("parser_name"),
+                    "metadata": md,
                 }
                 point_id = str(uuid.uuid5(uuid.NAMESPACE_URL, chunk.chunk_id))
-                points.append(models.PointStruct(id=point_id, vector=vector, payload=payload))
+                points.append(models.PointStruct(id=point_id, vector=self._vector_payload(vector, modality="text"), payload=payload))
 
             try:
                 self.client.upsert(
@@ -243,6 +319,8 @@ class QdrantStore:
                     source=self.settings.qdrant_collection,
                     upserted_count=len(points),
                     batch_index=i,
+                    named_vectors_enabled=self.named_vectors_enabled,
+                    vector_mode="named" if self.named_vectors_enabled else "single",
                 )
 
         return total
@@ -291,10 +369,7 @@ class QdrantStore:
                     "metadata": md.model_dump(),
                 }
                 point_id = str(uuid.uuid5(uuid.NAMESPACE_URL, node.node_id))
-                point_vector: Any = vector
-                if self.named_vectors_enabled:
-                    vector_name = "table" if node.modality == "table" else "image" if node.modality == "image" else "text"
-                    point_vector = {vector_name: vector}
+                point_vector: Any = self._vector_payload(vector, modality=node.modality)
                 points.append(models.PointStruct(id=point_id, vector=point_vector, payload=payload))
 
             try:
@@ -325,6 +400,8 @@ class QdrantStore:
                     latency_ms=batch_timer.elapsed_ms(),
                     source=self.settings.qdrant_collection,
                     upserted_count=len(points),
+                    named_vectors_enabled=self.named_vectors_enabled,
+                    vector_mode="named" if self.named_vectors_enabled else "single",
                     **extra_fields,
                 )
         return total
@@ -334,10 +411,12 @@ class QdrantStore:
         query_vector: list[float],
         top_k: int,
         filters: dict[str, Any] | None = None,
+        vector_name: str | None = None,
     ) -> list[SearchHit]:
         """Search similar vectors with optional metadata filter."""
 
         qdrant_filter = self._build_filter(filters)
+        resolved_vector_name = vector_name or self.settings.named_vector_text_name
         timer = StageTimer.start_now()
         if self.stage_logger:
             self.stage_logger.log_stage_start(
@@ -346,24 +425,46 @@ class QdrantStore:
                 vector_count=1,
                 top_k=top_k,
                 has_filter=bool(filters),
+                vector_name=resolved_vector_name if self.named_vectors_enabled else None,
+                named_vectors_enabled=self.named_vectors_enabled,
+                vector_mode="named" if self.named_vectors_enabled else "single",
             )
         try:
             if hasattr(self.client, "query_points"):
-                query_vector_payload: Any = query_vector
                 if self.named_vectors_enabled:
-                    query_vector_payload = {"text": query_vector}
-                response = self.client.query_points(
-                    collection_name=self.settings.qdrant_collection,
-                    query=query_vector_payload,
-                    limit=top_k,
-                    query_filter=qdrant_filter,
-                    with_payload=True,
-                )
+                    try:
+                        response = self.client.query_points(
+                            collection_name=self.settings.qdrant_collection,
+                            query=query_vector,
+                            using=resolved_vector_name,
+                            limit=top_k,
+                            query_filter=qdrant_filter,
+                            with_payload=True,
+                        )
+                    except TypeError:
+                        response = self.client.query_points(
+                            collection_name=self.settings.qdrant_collection,
+                            query=self._build_named_query_vector(resolved_vector_name, query_vector),
+                            limit=top_k,
+                            query_filter=qdrant_filter,
+                            with_payload=True,
+                        )
+                else:
+                    response = self.client.query_points(
+                        collection_name=self.settings.qdrant_collection,
+                        query=query_vector,
+                        limit=top_k,
+                        query_filter=qdrant_filter,
+                        with_payload=True,
+                    )
                 points = response.points
             else:
+                query_vector_payload: Any = query_vector
+                if self.named_vectors_enabled:
+                    query_vector_payload = self._build_named_query_vector(resolved_vector_name, query_vector)
                 points = self.client.search(
                     collection_name=self.settings.qdrant_collection,
-                    query_vector=query_vector,
+                    query_vector=query_vector_payload,
                     limit=top_k,
                     query_filter=qdrant_filter,
                     with_payload=True,
@@ -374,6 +475,9 @@ class QdrantStore:
                     "qdrant_search",
                     exc,
                     source=self.settings.qdrant_collection,
+                    vector_name=resolved_vector_name if self.named_vectors_enabled else None,
+                    named_vectors_enabled=self.named_vectors_enabled,
+                    vector_mode="named" if self.named_vectors_enabled else "single",
                 )
             raise QdrantStoreError(f"Qdrant search failed: {exc}") from exc
 
@@ -386,6 +490,9 @@ class QdrantStore:
                 latency_ms=timer.elapsed_ms(),
                 source=self.settings.qdrant_collection,
                 chunk_count=len(hits),
+                vector_name=resolved_vector_name if self.named_vectors_enabled else None,
+                named_vectors_enabled=self.named_vectors_enabled,
+                vector_mode="named" if self.named_vectors_enabled else "single",
             )
         return hits
 
