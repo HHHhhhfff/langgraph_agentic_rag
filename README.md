@@ -107,6 +107,14 @@ Copy-Item .env.example .env
   - 轮询间隔（秒）
 - `MINERU_POLL_TIMEOUT_SEC`
   - 轮询超时（秒）
+- `MINERU_POLL_WAIT_FOREVER=true|false`
+  - 是否忽略 `MINERU_POLL_TIMEOUT_SEC`，一直轮询到 MinerU 返回 `done/failed`
+- `MINERU_DOWNLOAD_WAIT_FOREVER=true|false`
+  - 是否在 MinerU 结果 ZIP/Markdown 下载超时时持续重试，直到下载成功
+- `MINERU_DOWNLOAD_MAX_RETRIES`
+  - `MINERU_DOWNLOAD_WAIT_FOREVER=false` 时的结果下载最大重试次数
+- `MINERU_DOWNLOAD_RETRY_INTERVAL_SEC`
+  - MinerU 结果下载失败后的重试间隔（秒）
 - `MINERU_ENABLE_TABLE=true|false`
   - 是否开启表格解析
 - `MINERU_ENABLE_FORMULA=true|false`
@@ -158,6 +166,21 @@ Copy-Item .env.example .env
 - `IMAGE_EMBED_REQUIRE_FILE_EXISTS=true|false`
   - 是否在发起图像 embedding 前校验本地文件存在，默认 `true`。
   - 开启可更快定位路径错误。
+- `IMAGE_ENRICHMENT_ENABLED=true|false`
+  - 是否为纯图片生成 caption/OCR/object 派生证据节点，默认关闭。
+- `IMAGE_MINERU_ENRICH_ENABLED=true|false`
+  - 是否用 MinerU 作为纯图片 OCR/结构解析增强源；需要同时开启 `ENABLE_MINERU=true`。
+- `IMAGE_VLM_CAPTION_ENABLED=true|false`
+  - 是否调用视觉模型生成图片 caption、可见文字摘要和对象描述。
+- `IMAGE_VLM_BASE_URL` / `IMAGE_VLM_API_KEY` / `IMAGE_VLM_MODEL`
+  - 视觉理解模型配置，默认模型名为 `qwen3.6-plus`。
+- `IMAGE_VLM_TIMEOUT_SEC` / `IMAGE_VLM_MAX_RETRIES`
+  - 视觉理解模型请求超时和重试次数。
+- `IMAGE_VLM_ENABLE_THINKING=true|false`
+  - 是否向兼容的视觉理解模型传入 `enable_thinking` 参数，默认关闭。
+  - 建议索引构建阶段保持 `false`，避免 caption/OCR/object 增强产生额外延迟和不稳定输出。
+- `IMAGE_OBJECT_MAX_ITEMS` / `IMAGE_CAPTION_MAX_CHARS` / `IMAGE_OCR_MAX_CHARS`
+  - 控制图片派生节点数量和文本长度。
 
 `IMAGE_EMBED_MODE` 与上述配置关系：
 - 当 `IMAGE_EMBED_MODE=direct`：
@@ -165,6 +188,8 @@ Copy-Item .env.example .env
   - 若失败且 `IMAGE_EMBED_FALLBACK_TO_CAPTION=true`，自动回退到 caption 文本 embedding。
 - 当 `IMAGE_EMBED_MODE=caption_text`：
   - 不调用图像向量接口，直接走文本 embedding（保留兼容行为）。
+
+图片增强开启后，一张纯图片会保留 `whole_image` 整图节点，并可追加 `caption`、`ocr`、`object` 派生节点。派生节点仍使用 `modality=image`，开启 Qdrant named vectors 时统一写入 `image` named vector；`qwen3.6-plus` 只负责生成描述文本，实际向量化仍由 embedding 模型完成。推荐让 `EMBEDDING_MODEL` 与 `IMAGE_EMBED_MODEL` 都使用同一多模态 embedding 模型，例如 `qwen3-vl-embedding`。
 
 ### 3.4 百炼/DashScope 推荐配置（已验证）
 
@@ -279,6 +304,27 @@ RERANK_MODEL=qwen3-vl-rerank
   - 证据冲突不可消解时是否允许拒答
 - `TG_ROUTE_LLM_ENABLED=true|false`
   - 预留开关：是否启用 LLM 辅助路由（当前默认关闭）
+- `TG_AGENT_ROUTE_ENABLED=true|false`
+  - 是否启用受约束 LLM Agent 问题分析。默认关闭；`TG_ROUTE_LLM_ENABLED` 可作为兼容开关。
+- `TG_AGENT_RETRIEVAL_PLANNER_ENABLED=true|false`
+  - 是否启用 Agent 检索规划建议。Agent 只能建议 `RetrievalPlan`，不能直接执行检索。
+- `TG_AGENT_EVIDENCE_CRITIC_ENABLED=true|false`
+  - 是否启用 Agent 证据充分性判断。最终 gate 使用保守合并，不能绕过规则 EvidenceGate。
+- `TG_AGENT_RETRY_ADVISOR_ENABLED=true|false`
+  - 是否启用 Agent 局部重检建议。建议会经过 plan 校验，不能突破 top_k/page_window/retry 预算。
+- `TG_AGENT_MAX_CONTEXT_HITS`
+  - 发送给 Agent EvidenceCritic 的最大证据条数。
+- `TG_AGENT_FALLBACK_TO_RULES=true|false`
+  - Agent 输出非法、非 JSON 或 LLM 调用失败时是否回退现有规则路径。
+- `TG_AGENT_MIN_ROUTE_CONFIDENCE`
+  - Agent 路由结果被采纳的最低置信度。
+
+Agent 接入原则：
+
+- Agent 只提出问题分析、检索规划、证据批判和重检建议。
+- 系统仍负责 schema 校验、预算控制和检索执行。
+- `EvidenceGate` 与 `CitationVerify` 不可绕过。
+- 默认关闭所有 Agent 开关，保证旧行为稳定。
 
 ### 3.8 阶段日志观测配置（新增）
 
@@ -607,6 +653,20 @@ EMBEDDING_BATCH_SIZE=10
 - 检查服务地址：`MINERU_BASE_URL` 是否可访问。
 - 若日志中出现 `A0202/A0211`，通常是 token 无效或过期。
 - 若出现超限或队列错误（如 `-30001/-30003/-60009`），建议开启回退：`MINERU_FALLBACK_TO_EXISTING=true`。
+- 如果任务状态已 `done`，但下载 `cdn-mineru...zip` 超时，可设置：
+
+```env
+MINERU_DOWNLOAD_WAIT_FOREVER=true
+MINERU_DOWNLOAD_RETRY_INTERVAL_SEC=10
+```
+
+- 如果希望 MinerU 长任务一直等待到完成，可设置：
+
+```env
+MINERU_POLL_WAIT_FOREVER=true
+```
+
+- 注意：无限等待适合本地构建和重要文档解析；生产批处理建议仍设置有限超时，避免单个文件永久阻塞。
 
 ### 8.10 `No module named 'unstructured_inference'`
 

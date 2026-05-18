@@ -73,6 +73,23 @@ def hits_from_nodes(nodes: list[Node]) -> list[SearchHit]:
     hits: list[SearchHit] = []
     for node in nodes:
         md = node.metadata.model_dump()
+        md.update(
+            {
+                key: value
+                for key, value in (node.relationships or {}).items()
+                if key
+                in {
+                    "image_semantic_type",
+                    "parent_image_node_id",
+                    "source_parser",
+                    "confidence",
+                    "caption",
+                    "ocr_text",
+                    "object_label",
+                    "object_description",
+                }
+            }
+        )
         text = node.text or ""
         if node.modality == "table" and node.table_markdown:
             text = node.table_markdown
@@ -90,6 +107,14 @@ def hits_from_nodes(nodes: list[Node]) -> list[SearchHit]:
                 channel="bm25",
                 modality=node.modality,
                 image_path=node.image_path,
+                image_semantic_type=str(md.get("image_semantic_type")) if md.get("image_semantic_type") else None,
+                parent_image_node_id=str(md.get("parent_image_node_id")) if md.get("parent_image_node_id") else None,
+                source_parser=str(md.get("source_parser")) if md.get("source_parser") else None,
+                confidence=float(md["confidence"]) if isinstance(md.get("confidence"), (int, float)) else None,
+                caption=str(md.get("caption")) if md.get("caption") else None,
+                ocr_text=str(md.get("ocr_text")) if md.get("ocr_text") else None,
+                object_label=str(md.get("object_label")) if md.get("object_label") else None,
+                object_description=str(md.get("object_description")) if md.get("object_description") else None,
                 table_markdown=node.table_markdown,
                 formula_latex=node.formula_latex,
                 relationships=node.relationships,

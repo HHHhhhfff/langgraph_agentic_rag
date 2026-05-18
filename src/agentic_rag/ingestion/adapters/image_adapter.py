@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from agentic_rag.config import Settings
+from agentic_rag.ingestion.image_enrichment import ImageEnricher, IMAGE_SEMANTIC_WHOLE
 from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import MultimodalIngestionResult
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
@@ -16,6 +17,7 @@ class ImageAdapter:
         self.normalizer = NodeNormalizer()
         self.stage_logger = stage_logger
         self.run_id = run_id
+        self.enricher = ImageEnricher(settings, stage_logger=stage_logger, run_id=run_id)
 
     def _build_caption(self, path: Path) -> str:
         # Placeholder deterministic caption. Keeps pipeline runnable without extra VLM dependency.
@@ -43,7 +45,13 @@ class ImageAdapter:
             text=text,
             image_path=str(file_path),
             title=file_path.stem,
+            relationships={
+                "image_semantic_type": IMAGE_SEMANTIC_WHOLE,
+                "source_parser": "image_adapter",
+                "image_path": str(file_path),
+            },
         )
+        nodes = self.enricher.enrich(image_path=file_path, base_node=node)
         if self.stage_logger:
             self.stage_logger.log_counter(
                 "image_node_built",
@@ -51,6 +59,8 @@ class ImageAdapter:
                 parser="image_adapter",
                 modality="image",
                 caption_mode=self.settings.image_embed_mode,
+                image_enrichment_enabled=self.settings.image_enrichment_enabled,
+                node_count=len(nodes),
             )
             self.stage_logger.log_stage_end(
                 "image_parse",
@@ -58,6 +68,6 @@ class ImageAdapter:
                 source=str(file_path),
                 parser="image_adapter",
                 modality="image",
-                chunk_count=1,
+                chunk_count=len(nodes),
             )
-        return MultimodalIngestionResult(nodes=[node], failures=[])
+        return MultimodalIngestionResult(nodes=nodes, failures=[])

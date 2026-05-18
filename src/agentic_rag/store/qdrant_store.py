@@ -113,6 +113,9 @@ class QdrantStore:
                 "section": payload.get("section"),
                 "modality": payload.get("modality"),
                 "parser_name": payload.get("parser_name"),
+                "image_semantic_type": payload.get("image_semantic_type"),
+                "parent_image_node_id": payload.get("parent_image_node_id"),
+                "source_parser": payload.get("source_parser"),
             }
         text = payload.get("text") if isinstance(payload, dict) else ""
         page = payload.get("page") if isinstance(payload, dict) else None
@@ -129,6 +132,14 @@ class QdrantStore:
             score_vector=score,
             modality=str(payload.get("modality", "text")) if isinstance(payload, dict) else "text",
             image_path=str(payload.get("image_path")) if isinstance(payload, dict) and payload.get("image_path") else None,
+            image_semantic_type=str(payload.get("image_semantic_type")) if isinstance(payload, dict) and payload.get("image_semantic_type") else None,
+            parent_image_node_id=str(payload.get("parent_image_node_id")) if isinstance(payload, dict) and payload.get("parent_image_node_id") else None,
+            source_parser=str(payload.get("source_parser")) if isinstance(payload, dict) and payload.get("source_parser") else None,
+            confidence=float(payload.get("confidence")) if isinstance(payload, dict) and isinstance(payload.get("confidence"), (int, float)) else None,
+            caption=str(payload.get("caption")) if isinstance(payload, dict) and payload.get("caption") else None,
+            ocr_text=str(payload.get("ocr_text")) if isinstance(payload, dict) and payload.get("ocr_text") else None,
+            object_label=str(payload.get("object_label")) if isinstance(payload, dict) and payload.get("object_label") else None,
+            object_description=str(payload.get("object_description")) if isinstance(payload, dict) and payload.get("object_description") else None,
             table_markdown=str(payload.get("table_markdown")) if isinstance(payload, dict) and payload.get("table_markdown") else None,
             formula_latex=str(payload.get("formula_latex")) if isinstance(payload, dict) and payload.get("formula_latex") else None,
             relationships=payload.get("relationships", {}) if isinstance(payload, dict) else {},
@@ -187,36 +198,7 @@ class QdrantStore:
         try:
             info = self.client.get_collection(name)
             vectors = info.config.params.vectors
-            if self.named_vectors_enabled:
-                if isinstance(vectors, models.VectorParams):
-                    raise QdrantStoreError(
-                        f"Vector mode mismatch for collection {name}: existing=single, expected named vectors "
-                        f"{list(self._named_vector_names())}. Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
-                    )
-                vector_map = dict(vectors) if hasattr(vectors, "items") else None
-                if not vector_map:
-                    raise QdrantStoreError(
-                        f"Unsupported named-vector collection format for {name}; expected named vectors "
-                        f"{list(self._named_vector_names())}."
-                    )
-                for vector_name in self._named_vector_names():
-                    params = vector_map.get(vector_name)
-                    if not isinstance(params, models.VectorParams):
-                        raise QdrantStoreError(
-                            f"Missing named vector '{vector_name}' in collection {name}; expected named vectors "
-                            f"{list(self._named_vector_names())}. Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
-                        )
-                    self._validate_vector_params(name, vector_name, params, vector_size, distance)
-            else:
-                if isinstance(vectors, models.VectorParams):
-                    self._validate_vector_params(name, "default", vectors, vector_size, distance)
-                elif hasattr(vectors, "items"):
-                    raise QdrantStoreError(
-                        f"Vector mode mismatch for collection {name}: existing=named vectors, expected=single vector. "
-                        f"Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
-                    )
-                else:
-                    raise QdrantStoreError("Unsupported collection vector format")
+            self._validate_vectors_config(name, vectors, vector_size, distance)
         except QdrantStoreError:
             if self.stage_logger:
                 self.stage_logger.log_stage_error(
@@ -238,6 +220,89 @@ class QdrantStore:
                 named_vectors_enabled=self.named_vectors_enabled,
                 vector_mode="named" if self.named_vectors_enabled else "single",
             )
+
+    def validate_collection_compatibility(self, vector_size: int) -> None:
+        """Validate existing collection vector mode/dimensions before expensive indexing work."""
+
+        name = self.settings.qdrant_collection
+        distance = DISTANCE_MAP[self.settings.qdrant_distance]
+        if self.stage_logger:
+            self.stage_logger.log_stage_start(
+                "qdrant_preflight_collection",
+                source=name,
+                vector_size=vector_size,
+                distance=self.settings.qdrant_distance,
+                named_vectors_enabled=self.named_vectors_enabled,
+                vector_mode="named" if self.named_vectors_enabled else "single",
+            )
+        try:
+            exists = self.client.collection_exists(name)
+            if not exists or self.settings.qdrant_recreate_collection:
+                if self.stage_logger:
+                    self.stage_logger.log_stage_end(
+                        "qdrant_preflight_collection",
+                        latency_ms=0,
+                        source=name,
+                        vector_size=vector_size,
+                        skipped=True,
+                        collection_exists=exists,
+                        recreate=self.settings.qdrant_recreate_collection,
+                    )
+                return
+            info = self.client.get_collection(name)
+            self._validate_vectors_config(name, info.config.params.vectors, vector_size, distance)
+        except QdrantStoreError:
+            raise
+        except Exception as exc:
+            raise QdrantStoreError(f"Failed to preflight collection {name}: {exc}") from exc
+        if self.stage_logger:
+            self.stage_logger.log_stage_end(
+                "qdrant_preflight_collection",
+                latency_ms=0,
+                source=name,
+                vector_size=vector_size,
+                named_vectors_enabled=self.named_vectors_enabled,
+                vector_mode="named" if self.named_vectors_enabled else "single",
+            )
+
+    def _validate_vectors_config(
+        self,
+        collection_name: str,
+        vectors: Any,
+        vector_size: int,
+        distance: models.Distance,
+    ) -> None:
+        if self.named_vectors_enabled:
+            if isinstance(vectors, models.VectorParams):
+                raise QdrantStoreError(
+                    f"Vector mode mismatch for collection {collection_name}: existing=single, expected named vectors "
+                    f"{list(self._named_vector_names())}. Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
+                )
+            vector_map = dict(vectors) if hasattr(vectors, "items") else None
+            if not vector_map:
+                raise QdrantStoreError(
+                    f"Unsupported named-vector collection format for {collection_name}; expected named vectors "
+                    f"{list(self._named_vector_names())}."
+                )
+            for vector_name in self._named_vector_names():
+                params = vector_map.get(vector_name)
+                if not isinstance(params, models.VectorParams):
+                    raise QdrantStoreError(
+                        f"Missing named vector '{vector_name}' in collection {collection_name}; expected named vectors "
+                        f"{list(self._named_vector_names())}. Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
+                    )
+                self._validate_vector_params(collection_name, vector_name, params, vector_size, distance)
+            return
+
+        if isinstance(vectors, models.VectorParams):
+            self._validate_vector_params(collection_name, "default", vectors, vector_size, distance)
+            return
+        if hasattr(vectors, "items"):
+            raise QdrantStoreError(
+                f"Vector mode mismatch for collection {collection_name}: existing=named vectors, expected=single vector. "
+                f"Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
+            )
+        raise QdrantStoreError("Unsupported collection vector format")
 
     @staticmethod
     def _validate_vector_params(
@@ -349,6 +414,14 @@ class QdrantStore:
                 payload = {
                     "text": node.text,
                     "image_path": node.image_path,
+                    "image_semantic_type": node.relationships.get("image_semantic_type"),
+                    "parent_image_node_id": node.relationships.get("parent_image_node_id"),
+                    "source_parser": node.relationships.get("source_parser"),
+                    "confidence": node.relationships.get("confidence"),
+                    "caption": node.relationships.get("caption"),
+                    "ocr_text": node.relationships.get("ocr_text"),
+                    "object_label": node.relationships.get("object_label"),
+                    "object_description": node.relationships.get("object_description"),
                     "table_markdown": node.table_markdown,
                     "formula_latex": node.formula_latex,
                     "relationships": node.relationships,
@@ -368,6 +441,18 @@ class QdrantStore:
                     # backward compatible nested metadata
                     "metadata": md.model_dump(),
                 }
+                for key in (
+                    "image_semantic_type",
+                    "parent_image_node_id",
+                    "source_parser",
+                    "confidence",
+                    "caption",
+                    "ocr_text",
+                    "object_label",
+                    "object_description",
+                ):
+                    if payload.get(key) is not None:
+                        payload["metadata"][key] = payload[key]
                 point_id = str(uuid.uuid5(uuid.NAMESPACE_URL, node.node_id))
                 point_vector: Any = self._vector_payload(vector, modality=node.modality)
                 points.append(models.PointStruct(id=point_id, vector=point_vector, payload=payload))

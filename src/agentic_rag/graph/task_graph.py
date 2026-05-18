@@ -7,8 +7,12 @@ from typing import Any, cast
 from langgraph.graph import END, StateGraph
 
 from agentic_rag.config import Settings
+from agentic_rag.graph.agent_evidence import AgentEvidenceCritic, merge_evidence_gate
+from agentic_rag.graph.agent_planner import AgentRetrievalPlanner, AgentRouteAnalyzer
+from agentic_rag.graph.agent_retry import AgentRetryAdvisor
 from agentic_rag.generation.prompt_builder import PromptBuilder
 from agentic_rag.graph.local_retry import LocalRetryPlanner
+from agentic_rag.graph.plan_validator import PlanValidator
 from agentic_rag.graph.task_graph_prep import TaskGraphState
 from agentic_rag.models.providers import EmbeddingProvider, LLMClient
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
@@ -68,6 +72,11 @@ class TaskGraphRAG:
         self.stage_logger = stage_logger
         self.evidence_evaluator = EvidenceEvaluator(settings)
         self.local_retry_planner = LocalRetryPlanner(settings)
+        self.plan_validator = PlanValidator(settings)
+        self.agent_route_analyzer = AgentRouteAnalyzer(settings, llm_client)
+        self.agent_retrieval_planner = AgentRetrievalPlanner(settings, llm_client)
+        self.agent_evidence_critic = AgentEvidenceCritic(settings, llm_client)
+        self.agent_retry_advisor = AgentRetryAdvisor(settings, llm_client)
         self.graph = self._compile_graph()
 
     def _log_start(self, stage: str, **fields: Any) -> StageTimer:
@@ -109,6 +118,8 @@ class TaskGraphRAG:
             "\u9875",
             "\u56fe\u4e2d",
             "\u8be5\u9875",
+            "\u53f3\u4e0a\u89d2",
+            "\u5de6\u4e0b\u89d2",
         )
         table_tokens = (
             "\u8868",
@@ -124,6 +135,20 @@ class TaskGraphRAG:
             "\u56fe\u50cf",
             "\u7167\u7247",
             "\u622a\u56fe",
+            "\u56fe\u4e2d",
+            "\u56fe ",
+            "\u56fe1",
+            "\u56fe2",
+            "\u56fe3",
+            "\u793a\u610f\u56fe",
+            "\u8d8b\u52bf\u56fe",
+            "\u89c6\u89c9",
+            "figure",
+            "fig.",
+            "chart",
+            "screenshot",
+            "diagram",
+            "photo",
         )
         formula_tokens = (
             "\u516c\u5f0f",
@@ -152,19 +177,13 @@ class TaskGraphRAG:
         route = (
             "table_first"
             if "table" in target_modalities
+            else "image_first"
+            if "image" in target_modalities
             else "page_first"
             if "page" in target_modalities
             else "text_first"
         )
-        self._log_end(
-            "query_analyze",
-            timer,
-            route=route,
-            query_text=question,
-            need_cross_doc=need_cross_doc,
-            need_page_level=need_page_level,
-        )
-        return {
+        result: TaskGraphState = {
             "intent": intent,
             "target_modalities": target_modalities,
             "need_cross_doc": need_cross_doc,
@@ -175,7 +194,42 @@ class TaskGraphRAG:
             "budget_tokens": self.settings.tg_budget_tokens,
             "budget_ms": self.settings.tg_budget_ms,
             "started_at_ms": state.get("started_at_ms", _now_ms()),
+            "agent_route_used": False,
+            "agent_route_confidence": 0.0,
+            "agent_route_reasoning": "",
+            "agent_fallback_reason": state.get("agent_fallback_reason"),
+            "plan_validation_errors": list(state.get("plan_validation_errors", []) or []),
         }
+        if self.settings.tg_agent_route_enabled or self.settings.tg_route_llm_enabled:
+            try:
+                decision = self.agent_route_analyzer.analyze(
+                    question=question,
+                    filters=state.get("filters"),
+                    rule_state=cast(dict[str, Any], result),
+                )
+                merge = self.plan_validator.merge_agent_route(cast(dict[str, Any], result), decision)
+                result.update(cast(TaskGraphState, merge.state))
+                result["agent_route_used"] = merge.used
+                result["agent_route_confidence"] = decision.confidence
+                result["agent_route_reasoning"] = decision.reasoning_summary
+                result["plan_validation_errors"] = [*result.get("plan_validation_errors", []), *merge.errors]
+                if not merge.used and merge.errors:
+                    result["agent_fallback_reason"] = ",".join(merge.errors)
+            except Exception as exc:
+                result["agent_fallback_reason"] = f"agent_route_failed:{type(exc).__name__}"
+                if not self.settings.tg_agent_fallback_to_rules:
+                    raise
+
+        self._log_end(
+            "query_analyze",
+            timer,
+            route=result.get("route", route),
+            query_text=question,
+            need_cross_doc=result.get("need_cross_doc", need_cross_doc),
+            need_page_level=result.get("need_page_level", need_page_level),
+            agent_route_used=result.get("agent_route_used", False),
+        )
+        return result
 
     def _task_router_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("task_route", route=state.get("route", ""))
@@ -218,6 +272,15 @@ class TaskGraphRAG:
                     filters=filters,
                 )
             )
+        if "image" in target:
+            tasks.append(
+                RetrievalTask(
+                    channel="image",
+                    query_text=question,
+                    top_k=self.settings.rrf_top_k,
+                    filters=filters,
+                )
+            )
         if state.get("need_cross_doc"):
             tasks.append(
                 RetrievalTask(
@@ -242,8 +305,37 @@ class TaskGraphRAG:
             query_text=question,
             tasks=tasks,
         )
+        agent_plan_used = False
+        agent_plan_reasoning = ""
+        plan_validation_errors = list(state.get("plan_validation_errors", []) or [])
+        agent_fallback_reason = state.get("agent_fallback_reason")
+        if self.settings.tg_agent_retrieval_planner_enabled:
+            try:
+                decision = self.agent_retrieval_planner.plan(
+                    question=question,
+                    filters=filters,
+                    state=cast(dict[str, Any], state),
+                    rule_plan=plan,
+                )
+                merge = self.plan_validator.merge_agent_plan(plan, decision)
+                plan = merge.plan
+                agent_plan_used = merge.used
+                agent_plan_reasoning = decision.reasoning_summary
+                plan_validation_errors.extend(merge.errors)
+                if not merge.used and merge.errors:
+                    agent_fallback_reason = ",".join(merge.errors)
+            except Exception as exc:
+                agent_fallback_reason = f"agent_plan_failed:{type(exc).__name__}"
+                if not self.settings.tg_agent_fallback_to_rules:
+                    raise
         self._log_end("task_route", timer, query_plan=plan.model_dump())
-        return {"retrieval_plan": plan.model_dump()}
+        return {
+            "retrieval_plan": plan.model_dump(),
+            "agent_plan_used": agent_plan_used,
+            "agent_plan_reasoning": agent_plan_reasoning,
+            "plan_validation_errors": plan_validation_errors,
+            "agent_fallback_reason": agent_fallback_reason,
+        }
 
     def _embed_query_node(self, state: TaskGraphState) -> TaskGraphState:
         question = state.get("question", "")
@@ -301,6 +393,27 @@ class TaskGraphRAG:
             plan=plan,
             filters=state.get("filters"),
         )
+        agent_evidence_used = bool(state.get("agent_evidence_used", False))
+        agent_evidence_reasoning = str(state.get("agent_evidence_reasoning", "") or "")
+        agent_gate_decision = state.get("agent_gate_decision")
+        unsupported_claims: list[str] = list(state.get("unsupported_claims", []) or [])
+        agent_fallback_reason = state.get("agent_fallback_reason")
+        if self.settings.tg_agent_evidence_critic_enabled:
+            try:
+                critique = self.agent_evidence_critic.critique(
+                    question=state.get("question", ""),
+                    pack=pack,
+                    route_hits=state.get("route_hits", {}),
+                )
+                pack = merge_evidence_gate(pack, critique, self.settings)
+                agent_evidence_used = True
+                agent_evidence_reasoning = critique.reasoning_summary
+                agent_gate_decision = critique.gate_decision
+                unsupported_claims = list(critique.unsupported_claims)
+            except Exception as exc:
+                agent_fallback_reason = f"agent_evidence_failed:{type(exc).__name__}"
+                if not self.settings.tg_agent_fallback_to_rules:
+                    raise
         evidence_ok = pack.gate_decision == "pass"
         refusal = pack.gate_decision == "refuse"
         refusal_reason = "evidence_conflict" if refusal and pack.conflict_level == "high" else None
@@ -315,6 +428,8 @@ class TaskGraphRAG:
             gate_decision=pack.gate_decision,
             conflict_level=pack.conflict_level,
             missing_slots=",".join(pack.missing_slots),
+            agent_evidence_used=agent_evidence_used,
+            agent_gate_decision=agent_gate_decision,
         )
         return {
             "evidence_pack": pack.model_dump(),
@@ -337,12 +452,35 @@ class TaskGraphRAG:
             "conflict_reasons": pack.conflict_reasons,
             "gate_decision": pack.gate_decision,
             "gate_reasons": pack.gate_reasons,
+            "agent_evidence_used": agent_evidence_used,
+            "agent_evidence_reasoning": agent_evidence_reasoning,
+            "agent_gate_decision": agent_gate_decision,
+            "unsupported_claims": unsupported_claims or pack.unsupported_claims,
+            "agent_fallback_reason": agent_fallback_reason,
         }
 
     def _local_retry_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("local_retry")
         decision = self.local_retry_planner.plan_retry(cast(dict[str, Any], state))
         plan = decision.plan
+        retry_plan_validation_errors: list[str] = []
+        agent_retry_used = False
+        agent_retry_reasoning = ""
+        agent_fallback_reason = state.get("agent_fallback_reason")
+        if self.settings.tg_agent_retry_advisor_enabled:
+            try:
+                advice = self.agent_retry_advisor.advise(state=cast(dict[str, Any], state), rule_plan=plan)
+                merge = self.plan_validator.merge_retry_advice(plan, advice)
+                plan = merge.plan
+                retry_plan_validation_errors.extend(merge.errors)
+                agent_retry_used = merge.used
+                agent_retry_reasoning = "; ".join(advice.reasons)
+                if not merge.used and merge.errors:
+                    agent_fallback_reason = ",".join(merge.errors)
+            except Exception as exc:
+                agent_fallback_reason = f"agent_retry_failed:{type(exc).__name__}"
+                if not self.settings.tg_agent_fallback_to_rules:
+                    raise
         self._log_end(
             "local_retry",
             timer,
@@ -355,15 +493,20 @@ class TaskGraphRAG:
             page_window=plan.page_window,
             retry_channels=",".join(plan.channels()),
             retry_top_k=",".join(f"{task.channel}:{task.top_k}" for task in plan.tasks),
+            agent_retry_used=agent_retry_used,
         )
         return {
             "retrieval_plan": plan.model_dump(),
             "retry_count": decision.retry_count,
             "evidence_gain": decision.evidence_gain,
-            "retry_actions": decision.retry_actions,
+            "retry_actions": list(plan.retry_actions or decision.retry_actions),
             "retry_history": plan.retry_history,
-            "rewritten_query_text": decision.rewritten_query_text,
+            "rewritten_query_text": plan.rewritten_query_text or decision.rewritten_query_text,
             "page_window": plan.page_window,
+            "agent_retry_used": agent_retry_used,
+            "agent_retry_reasoning": agent_retry_reasoning,
+            "retry_plan_validation_errors": retry_plan_validation_errors,
+            "agent_fallback_reason": agent_fallback_reason,
         }
 
     def _build_prompt_node(self, state: TaskGraphState) -> TaskGraphState:
@@ -444,6 +587,20 @@ class TaskGraphRAG:
                 "retry_history": state.get("retry_history", []),
                 "rewritten_query_text": state.get("rewritten_query_text"),
                 "page_window": state.get("page_window"),
+                "agent_route_used": state.get("agent_route_used", False),
+                "agent_route_confidence": state.get("agent_route_confidence", 0.0),
+                "agent_route_reasoning": state.get("agent_route_reasoning", ""),
+                "agent_plan_used": state.get("agent_plan_used", False),
+                "agent_plan_reasoning": state.get("agent_plan_reasoning", ""),
+                "agent_evidence_used": state.get("agent_evidence_used", False),
+                "agent_evidence_reasoning": state.get("agent_evidence_reasoning", ""),
+                "agent_gate_decision": state.get("agent_gate_decision"),
+                "unsupported_claims": state.get("unsupported_claims", []),
+                "agent_retry_used": state.get("agent_retry_used", False),
+                "agent_retry_reasoning": state.get("agent_retry_reasoning", ""),
+                "agent_fallback_reason": state.get("agent_fallback_reason"),
+                "plan_validation_errors": state.get("plan_validation_errors", []),
+                "retry_plan_validation_errors": state.get("retry_plan_validation_errors", []),
             },
         )
         for row in state.get("citations", []):

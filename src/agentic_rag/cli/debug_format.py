@@ -48,6 +48,13 @@ def format_taskgraph_debug(debug: dict[str, Any], *, max_items: int = 6) -> list
         f"- citation_ok={_format_bool(debug.get('citation_ok', False))}",
         f"- refusal={_format_bool(debug.get('refusal', False))}",
         f"- refusal_reason={debug.get('refusal_reason')}",
+        f"- agent_route_used={_format_bool(debug.get('agent_route_used', False))}",
+        f"- agent_plan_used={_format_bool(debug.get('agent_plan_used', False))}",
+        f"- agent_evidence_used={_format_bool(debug.get('agent_evidence_used', False))}",
+        f"- agent_retry_used={_format_bool(debug.get('agent_retry_used', False))}",
+        f"- agent_gate_decision={debug.get('agent_gate_decision')}",
+        f"- unsupported_claims={_format_sequence(debug.get('unsupported_claims'), max_items=max_items)}",
+        f"- agent_fallback_reason={debug.get('agent_fallback_reason')}",
     ]
     last_retry = _last_retry(debug.get("retry_history"))
     if last_retry:

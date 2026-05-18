@@ -121,6 +121,19 @@ class Settings(BaseSettings):
     )
     mineru_poll_interval_sec: int = Field(default=3, description="MinerU poll interval seconds")
     mineru_poll_timeout_sec: int = Field(default=600, description="MinerU poll timeout seconds")
+    mineru_poll_wait_forever: bool = Field(
+        default=False,
+        description="When true, keep polling MinerU task status without applying mineru_poll_timeout_sec",
+    )
+    mineru_download_wait_forever: bool = Field(
+        default=False,
+        description="When true, keep retrying MinerU result download until it succeeds",
+    )
+    mineru_download_max_retries: int = Field(default=3, description="MinerU result download retry count")
+    mineru_download_retry_interval_sec: int = Field(
+        default=10,
+        description="Seconds to wait between MinerU result download retry attempts",
+    )
     mineru_enable_table: bool = Field(default=True, description="Enable MinerU table extraction")
     mineru_enable_formula: bool = Field(default=True, description="Enable MinerU formula extraction")
     enable_formula_recognition: bool = Field(
@@ -166,6 +179,33 @@ class Settings(BaseSettings):
         default=True,
         description="Validate image file existence before image embedding request",
     )
+    image_enrichment_enabled: bool = Field(
+        default=False,
+        description="Enable optional pure-image enrichment nodes for caption/OCR/object evidence",
+    )
+    image_mineru_enrich_enabled: bool = Field(
+        default=False,
+        description="Use MinerU as an additional pure-image enrichment source",
+    )
+    image_vlm_caption_enabled: bool = Field(
+        default=False,
+        description="Use a VLM to generate image caption/object descriptions",
+    )
+    image_vlm_base_url: str = Field(
+        default="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        description="Image VLM OpenAI-compatible API base URL",
+    )
+    image_vlm_api_key: str = Field(default="", description="Image VLM API key")
+    image_vlm_model: str = Field(default="qwen3.6-plus", description="Image VLM model name")
+    image_vlm_timeout_sec: float = Field(default=60.0, description="Image VLM request timeout")
+    image_vlm_max_retries: int = Field(default=2, description="Image VLM retry count")
+    image_vlm_enable_thinking: bool = Field(
+        default=False,
+        description="Pass enable_thinking to compatible image VLM providers",
+    )
+    image_object_max_items: int = Field(default=12, description="Maximum object descriptions per image")
+    image_caption_max_chars: int = Field(default=1200, description="Maximum stored image caption length")
+    image_ocr_max_chars: int = Field(default=4000, description="Maximum stored image OCR text length")
     ingestion_timeout_sec: float = Field(default=120.0, description="Multimodal ingestion per-file timeout")
     ingestion_max_retries: int = Field(default=2, description="Multimodal ingestion retry count")
     ingestion_batch_size: int = Field(default=32, description="Multimodal upsert batch size")
@@ -251,6 +291,17 @@ class Settings(BaseSettings):
     tg_citation_strict: bool = Field(default=True, description="Require answer to include citation markers")
     tg_allow_refusal: bool = Field(default=True, description="Allow refusal when evidence remains insufficient")
     tg_route_llm_enabled: bool = Field(default=False, description="Use LLM-assisted route analysis (off by default)")
+    tg_agent_route_enabled: bool = Field(default=False, description="Enable constrained LLM route analysis")
+    tg_agent_retrieval_planner_enabled: bool = Field(default=False, description="Enable constrained LLM retrieval planning")
+    tg_agent_evidence_critic_enabled: bool = Field(default=False, description="Enable constrained LLM evidence critique")
+    tg_agent_retry_advisor_enabled: bool = Field(default=False, description="Enable constrained LLM retry advice")
+    tg_agent_max_context_hits: int = Field(default=8, description="Max evidence hits sent to TaskGraph agent critic")
+    tg_agent_timeout_sec: float = Field(default=30.0, description="Reserved timeout for TaskGraph agent calls")
+    tg_agent_max_retries: int = Field(default=1, description="Reserved retry count for TaskGraph agent calls")
+    tg_agent_strict_schema: bool = Field(default=True, description="Require strict schema validation for TaskGraph agent outputs")
+    tg_agent_fallback_to_rules: bool = Field(default=True, description="Fallback to rule logic when TaskGraph agent fails")
+    tg_agent_debug_prompts: bool = Field(default=False, description="Include agent prompt debug details")
+    tg_agent_min_route_confidence: float = Field(default=0.55, description="Minimum LLM route confidence to merge route decision")
     context_top_n: int = Field(default=6, description="How many chunks enter prompt context")
     prompt_max_context_chars: int = Field(default=12000, description="Max context characters in prompt")
 
@@ -296,11 +347,19 @@ class Settings(BaseSettings):
         "tg_retry_max_top_k",
         "tg_retry_page_window_step",
         "tg_retry_max_page_window",
+        "tg_agent_max_context_hits",
+        "tg_agent_max_retries",
         "embedding_batch_size",
         "image_embed_batch_size",
         "image_embed_max_retries",
+        "image_vlm_max_retries",
+        "image_object_max_items",
+        "image_caption_max_chars",
+        "image_ocr_max_chars",
         "mineru_poll_interval_sec",
         "mineru_poll_timeout_sec",
+        "mineru_download_max_retries",
+        "mineru_download_retry_interval_sec",
         "embedding_input_max_tokens",
         "embedding_input_safety_margin_tokens",
     )
@@ -338,7 +397,21 @@ class Settings(BaseSettings):
             raise ValueError("image_embed_timeout_sec must be > 0")
         return value
 
-    @field_validator("tg_min_coverage_ratio", "tg_min_gain_threshold", "tg_min_support_score", "tg_strong_support_score", "tg_conflict_numeric_tolerance")
+    @field_validator("image_vlm_timeout_sec")
+    @classmethod
+    def validate_image_vlm_timeout(cls, value: float) -> float:
+        if value <= 0:
+            raise ValueError("image_vlm_timeout_sec must be > 0")
+        return value
+
+    @field_validator(
+        "tg_min_coverage_ratio",
+        "tg_min_gain_threshold",
+        "tg_min_support_score",
+        "tg_strong_support_score",
+        "tg_conflict_numeric_tolerance",
+        "tg_agent_min_route_confidence",
+    )
     @classmethod
     def validate_ratio(cls, value: float) -> float:
         if value < 0:
@@ -350,6 +423,13 @@ class Settings(BaseSettings):
     def validate_retry_top_k_multiplier(cls, value: float) -> float:
         if value <= 1:
             raise ValueError("tg_retry_top_k_multiplier must be > 1")
+        return value
+
+    @field_validator("tg_agent_timeout_sec")
+    @classmethod
+    def validate_agent_timeout(cls, value: float) -> float:
+        if value <= 0:
+            raise ValueError("tg_agent_timeout_sec must be > 0")
         return value
 
 

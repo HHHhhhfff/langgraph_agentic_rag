@@ -29,6 +29,14 @@ class SearchHit(BaseModel):
     score_rrf: float | None = None
     modality: str = "text"
     image_path: str | None = None
+    image_semantic_type: str | None = None
+    parent_image_node_id: str | None = None
+    source_parser: str | None = None
+    confidence: float | None = None
+    caption: str | None = None
+    ocr_text: str | None = None
+    object_label: str | None = None
+    object_description: str | None = None
     table_markdown: str | None = None
     formula_latex: str | None = None
     relationships: dict[str, Any] = Field(default_factory=dict)

@@ -29,7 +29,7 @@ class MultiModalOrchestrator:
 
     def _adapter_for(self, path: Path):
         suffix = path.suffix.lower()
-        if suffix in {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"}:
+        if suffix in {".png", ".jpg", ".jpeg", ".jp2", ".webp", ".bmp", ".gif"}:
             return self.image_adapter
         if suffix in {".csv", ".tsv"}:
             return self.table_adapter
@@ -89,7 +89,13 @@ class MultiModalOrchestrator:
 
     def _parse_with_fallback(self, path: Path, adapter) -> MultimodalIngestionResult:
         suffix = path.suffix.lower()
-        is_doc_like = suffix in {".pdf", ".doc", ".docx", ".ppt", ".pptx", ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif", ".html", ".htm"}
+        image_like = suffix in {".png", ".jpg", ".jpeg", ".jp2", ".webp", ".bmp", ".gif"}
+        # Pure images always keep ImageAdapter's base whole-image node. Optional
+        # MinerU enrichment is handled inside ImageEnricher so it cannot replace
+        # the original image evidence.
+        if image_like:
+            return adapter.parse_file(path)
+        is_doc_like = suffix in {".pdf", ".doc", ".docx", ".ppt", ".pptx", ".html", ".htm"}
         if not (self.settings.enable_mineru and is_doc_like):
             return adapter.parse_file(path)
 

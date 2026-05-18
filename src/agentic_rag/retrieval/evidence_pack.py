@@ -31,4 +31,6 @@ class EvidencePack(BaseModel):
     conflict_reasons: list[str] = Field(default_factory=list)
     gate_decision: str = "retry"
     gate_reasons: list[str] = Field(default_factory=list)
+    unsupported_claims: list[str] = Field(default_factory=list)
+    agent_gate_decision: str | None = None
     notes: list[str] = Field(default_factory=list)

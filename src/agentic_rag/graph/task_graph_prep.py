@@ -52,6 +52,20 @@ class TaskGraphState(TypedDict, total=False):
     retry_history: list[dict[str, object]]
     rewritten_query_text: str | None
     page_window: int | None
+    agent_route_used: bool
+    agent_route_confidence: float
+    agent_route_reasoning: str
+    agent_plan_used: bool
+    agent_plan_reasoning: str
+    agent_evidence_used: bool
+    agent_evidence_reasoning: str
+    agent_gate_decision: str | None
+    unsupported_claims: list[str]
+    agent_retry_used: bool
+    agent_retry_reasoning: str
+    agent_fallback_reason: str | None
+    plan_validation_errors: list[str]
+    retry_plan_validation_errors: list[str]
     refusal: bool
     refusal_reason: str | None
 

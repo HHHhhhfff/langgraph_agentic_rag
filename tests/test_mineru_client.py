@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from agentic_rag.config import Settings
-from agentic_rag.ingestion.adapters.mineru_client import MinerUClient, MinerUClientError
+from agentic_rag.ingestion.adapters.mineru_client import MinerUClient, MinerUClientError, MinerURetryableError
 
 
 class DummyResp:
@@ -136,3 +136,44 @@ def test_mineru_poll_timeout(monkeypatch, tmp_path: Path):
 
     with pytest.raises(MinerUClientError):
         client.parse_local_file(file_path)
+
+
+def test_mineru_download_retries_until_success_when_wait_forever(monkeypatch):
+    settings = Settings(
+        mineru_download_wait_forever=True,
+        mineru_download_max_retries=1,
+        mineru_download_retry_interval_sec=1,
+    )
+    client = MinerUClient(settings)
+    attempts = {"count": 0}
+
+    def flaky_download():
+        attempts["count"] += 1
+        if attempts["count"] < 3:
+            raise MinerURetryableError("temporary cdn timeout")
+        return "markdown"
+
+    monkeypatch.setattr("time.sleep", lambda *_: None)
+
+    assert client._download_with_retry(flaky_download) == "markdown"  # noqa: SLF001 - retry policy test
+    assert attempts["count"] == 3
+
+
+def test_mineru_download_stops_after_configured_retries(monkeypatch):
+    settings = Settings(
+        mineru_download_wait_forever=False,
+        mineru_download_max_retries=2,
+        mineru_download_retry_interval_sec=1,
+    )
+    client = MinerUClient(settings)
+    attempts = {"count": 0}
+
+    def always_fails():
+        attempts["count"] += 1
+        raise MinerURetryableError("temporary cdn timeout")
+
+    monkeypatch.setattr("time.sleep", lambda *_: None)
+
+    with pytest.raises(MinerURetryableError):
+        client._download_with_retry(always_fails)  # noqa: SLF001 - retry policy test
+    assert attempts["count"] == 2

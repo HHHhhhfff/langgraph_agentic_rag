@@ -236,7 +236,7 @@ class MinerUClient:
     ) -> dict[str, Any]:
         start = time.perf_counter()
         last_body: dict[str, Any] | None = None
-        while (time.perf_counter() - start) < timeout_sec:
+        while self.settings.mineru_poll_wait_forever or (time.perf_counter() - start) < timeout_sec:
             body = fetch()
             last_body = body
             state = extract_state(body)
@@ -287,13 +287,10 @@ class MinerUClient:
         markdown = self._download_markdown_from_zip(zip_url)
         return MinerUParseResult(task_id=task_id, state=state, markdown_content=markdown, source_url=zip_url, raw=body)
 
-    @retry(
-        reraise=True,
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=1, max=6),
-        retry=retry_if_exception_type(MinerURetryableError),
-    )
     def _download_text(self, url: str) -> str:
+        return self._download_with_retry(lambda: self._download_text_once(url))
+
+    def _download_text_once(self, url: str) -> str:
         try:
             with httpx.Client(timeout=self.timeout) as client:
                 resp = client.get(url)
@@ -307,11 +304,15 @@ class MinerUClient:
             raise MinerURetryableError(f"HTTP error downloading {url}: {exc}") from exc
 
     def _download_markdown_from_zip(self, url: str) -> str:
+        content = self._download_with_retry(lambda: self._download_zip_bytes_once(url))
+        return self._extract_markdown_from_zip_bytes(content)
+
+    def _download_zip_bytes_once(self, url: str) -> bytes:
         try:
             with httpx.Client(timeout=self.timeout) as client:
                 resp = client.get(url)
             resp.raise_for_status()
-            content = resp.content
+            return resp.content
         except httpx.HTTPStatusError as exc:
             raise MinerURetryableError(
                 f"HTTP {exc.response.status_code} downloading {url}: {self._safe_excerpt(exc.response.text)}"
@@ -319,7 +320,16 @@ class MinerUClient:
         except httpx.HTTPError as exc:
             raise MinerURetryableError(f"HTTP error downloading {url}: {exc}") from exc
 
-        return self._extract_markdown_from_zip_bytes(content)
+    def _download_with_retry(self, download_fn):
+        attempts = 0
+        while True:
+            attempts += 1
+            try:
+                return download_fn()
+            except MinerURetryableError:
+                if not self.settings.mineru_download_wait_forever and attempts >= self.settings.mineru_download_max_retries:
+                    raise
+                time.sleep(self.settings.mineru_download_retry_interval_sec)
 
     @staticmethod
     def _extract_markdown_from_zip_bytes(content: bytes) -> str:

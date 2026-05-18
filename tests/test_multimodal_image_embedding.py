@@ -160,6 +160,70 @@ def test_image_embedding_fallback_to_caption(tmp_path: Path) -> None:
     assert any("Image file: img.png" in batch for batch in text_provider.calls)
 
 
+def test_image_derived_nodes_use_text_embedding(tmp_path: Path) -> None:
+    settings = Settings(
+        ingestion_engine="multimodal",
+        multimodal_enabled=True,
+        image_embed_mode="direct",
+        embedding_dimensions=None,
+    )
+    image_path = tmp_path / "img.png"
+    image_path.write_bytes(b"fake")
+    normalizer = NodeNormalizer()
+    whole = normalizer.normalize(
+        source=str(image_path),
+        parser_name="image_adapter",
+        chunk_index=0,
+        modality="image",
+        text="Image file: img.png",
+        image_path=str(image_path),
+        relationships={"image_semantic_type": "whole_image"},
+    )
+    caption = normalizer.normalize(
+        source=str(image_path),
+        parser_name="vlm:caption",
+        chunk_index=1,
+        modality="image",
+        text="A chart caption",
+        image_path=str(image_path),
+        relationships={"image_semantic_type": "caption", "parent_image_node_id": whole.node_id},
+    )
+    ocr = normalizer.normalize(
+        source=str(image_path),
+        parser_name="vlm:visible_text",
+        chunk_index=2,
+        modality="image",
+        text="OCR text",
+        image_path=str(image_path),
+        relationships={"image_semantic_type": "ocr", "parent_image_node_id": whole.node_id},
+    )
+    obj = normalizer.normalize(
+        source=str(image_path),
+        parser_name="vlm:object",
+        chunk_index=3,
+        modality="image",
+        text="object description",
+        image_path=str(image_path),
+        relationships={"image_semantic_type": "object", "parent_image_node_id": whole.node_id},
+    )
+
+    text_provider = DummyTextEmbedding()
+    image_provider = DummyImageEmbedding(vectors=[[9.0, 9.1, 9.2]])
+    store = DummyStore(settings)
+    builder = _build_builder(settings, text_provider, image_provider, store)
+    builder.multimodal_orchestrator = DummyOrchestrator(
+        MultimodalIngestionResult(nodes=[whole, caption, ocr, obj], failures=[])
+    )
+
+    summary = builder.build_from_directory(str(tmp_path))
+
+    assert summary.upserted == 4
+    assert image_provider.calls == [[str(image_path)]]
+    embedded_texts = [text for batch in text_provider.calls for text in batch]
+    assert embedded_texts == ["A chart caption", "OCR text", "object description"]
+    assert store.last_vectors[0] == [9.0, 9.1, 9.2]
+
+
 def test_image_embedding_no_fallback_records_failure(tmp_path: Path) -> None:
     settings = Settings(
         ingestion_engine="multimodal",

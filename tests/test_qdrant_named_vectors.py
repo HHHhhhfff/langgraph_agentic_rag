@@ -55,7 +55,10 @@ class ExistingSingleVectorClient:
 
 
 def test_named_vectors_reject_existing_single_vector_collection() -> None:
-    store = _store(Settings(enable_named_vectors=True), ExistingSingleVectorClient())
+    store = _store(
+        Settings(enable_named_vectors=True, qdrant_recreate_collection=False),
+        ExistingSingleVectorClient(),
+    )
 
     with pytest.raises(QdrantStoreError, match="existing=single"):
         store.ensure_collection(vector_size=3)
@@ -83,6 +86,14 @@ def test_upsert_chunks_writes_text_named_vector() -> None:
 
 
 def _node(node_id: str, modality: str) -> Node:
+    relationships = {}
+    if modality == "image":
+        relationships = {
+            "image_semantic_type": "caption",
+            "parent_image_node_id": "img:whole",
+            "source_parser": "vlm:caption",
+            "caption": "image caption",
+        }
     return Node(
         node_id=node_id,
         modality=modality,
@@ -96,6 +107,7 @@ def _node(node_id: str, modality: str) -> Node:
             chunk_index=0,
             modality=modality,
         ),
+        relationships=relationships,
     )
 
 
@@ -110,6 +122,9 @@ def test_upsert_nodes_writes_modality_named_vectors() -> None:
 
     point_vectors = [point.vector for point in client.points]
     assert point_vectors == [{"text": [1.0]}, {"table": [2.0]}, {"image": [3.0]}, {"text": [4.0]}]
+    image_payload = client.points[2].payload
+    assert image_payload["image_semantic_type"] == "caption"
+    assert image_payload["metadata"]["image_semantic_type"] == "caption"
 
 
 class SearchClient:
@@ -151,3 +166,39 @@ def test_named_vectors_disabled_keeps_single_vector_upsert() -> None:
     store.upsert_chunks([chunk], [[0.1, 0.2]], batch_size=1)
 
     assert client.points[0].vector == [0.1, 0.2]
+
+
+class ExistingSingleVectorDimClient:
+    def __init__(self, size: int):
+        self.size = size
+
+    def collection_exists(self, name):
+        return True
+
+    def get_collection(self, name):
+        return SimpleNamespace(
+            config=SimpleNamespace(
+                params=SimpleNamespace(
+                    vectors=models.VectorParams(size=self.size, distance=models.Distance.COSINE)
+                )
+            )
+        )
+
+
+def test_validate_collection_compatibility_detects_dimension_mismatch() -> None:
+    store = _store(
+        Settings(enable_named_vectors=False, qdrant_recreate_collection=False),
+        ExistingSingleVectorDimClient(size=1536),
+    )
+
+    with pytest.raises(QdrantStoreError, match="existing=1536, expected=1024"):
+        store.validate_collection_compatibility(vector_size=1024)
+
+
+def test_validate_collection_compatibility_passes_matching_dimension() -> None:
+    store = _store(
+        Settings(enable_named_vectors=False, qdrant_recreate_collection=False),
+        ExistingSingleVectorDimClient(size=1024),
+    )
+
+    store.validate_collection_compatibility(vector_size=1024)

@@ -7,6 +7,7 @@ from agentic_rag.config import Settings
 from agentic_rag.ingestion.chunker import ChunkConfig, TextChunker
 from agentic_rag.ingestion.multimodal_orchestrator import MultiModalOrchestrator
 from agentic_rag.ingestion.node_schema import Node
+from agentic_rag.ingestion.image_enrichment import IMAGE_SEMANTIC_WHOLE, image_semantic_type
 from agentic_rag.ingestion.parser import MarkdownParser
 from agentic_rag.models.providers import (
     EmbeddingProvider,
@@ -101,6 +102,7 @@ class IndexBuilder:
         return normalized, target_dim
 
     def build_from_directory(self, markdown_dir: str) -> IndexBuildSummary:
+        self._preflight_qdrant_vector_size()
         if self.stage_logger:
             mode = "multimodal" if self.settings.ingestion_engine == "multimodal" and self.settings.multimodal_enabled else "legacy"
             self.stage_logger.log_counter(
@@ -211,7 +213,10 @@ class IndexBuilder:
             if node.modality == "image":
                 image_path = node.image_path or node.metadata.source
                 fallback_text = node.text or f"Image file: {Path(image_path).name}"
-                if self.settings.image_embed_mode == "caption_text":
+                semantic_type = image_semantic_type(node) or IMAGE_SEMANTIC_WHOLE
+                if semantic_type != IMAGE_SEMANTIC_WHOLE:
+                    text_table_pairs.append((idx, fallback_text))
+                elif self.settings.image_embed_mode == "caption_text":
                     text_table_pairs.append((idx, fallback_text))
                 else:
                     image_pairs.append((idx, image_path, fallback_text))
@@ -417,6 +422,22 @@ class IndexBuilder:
                     error_type=type(exc).__name__,
                     error_msg=str(exc),
                 )
+
+    def _preflight_qdrant_vector_size(self) -> None:
+        expected_dim = self.settings.embedding_dimensions
+        if not expected_dim:
+            return
+        validate = getattr(self.store, "validate_collection_compatibility", None)
+        if validate is None:
+            return
+        try:
+            validate(vector_size=expected_dim)
+        except Exception as exc:
+            raise IndexBuildError(
+                "Qdrant collection vector dimension check failed before index build: "
+                f"{exc}. If you changed EMBEDDING_MODEL or EMBEDDING_DIMENSIONS, use a new "
+                "QDRANT_COLLECTION or set QDRANT_RECREATE_COLLECTION=true."
+            ) from exc
 
 
 def build_default_chunker(settings: Settings) -> TextChunker:

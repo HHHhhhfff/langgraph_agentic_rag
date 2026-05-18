@@ -224,7 +224,19 @@ class EvidenceEvaluator:
             requirements.append("table")
         if _contains_any(question, ("\u7b2c", "\u9875", "\u8be5\u9875", "\u4e0a\u4e0b\u6587", "\u56fe\u4e2d")):
             requirements.append("page")
-        if _contains_any(question, ("\u56fe\u7247", "\u56fe\u50cf", "\u622a\u56fe", "\u56fe\u4e2d")):
+        if _contains_any(
+            question,
+            (
+                "\u56fe\u7247",
+                "\u56fe\u50cf",
+                "\u622a\u56fe",
+                "\u56fe\u4e2d",
+                "\u793a\u610f\u56fe",
+                "\u8d8b\u52bf\u56fe",
+                "\u89c6\u89c9",
+                "\u7167\u7247",
+            ),
+        ) or any(token in lower for token in ("figure", "fig.", "chart", "screenshot", "diagram", "photo")):
             requirements.append("image")
         if _contains_any(question, ("\u516c\u5f0f", "\u65b9\u7a0b", "\u8868\u8fbe\u5f0f")) or "latex" in lower or "formula" in lower or "equation" in lower:
             requirements.append("formula")
