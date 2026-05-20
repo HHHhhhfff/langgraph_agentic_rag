@@ -195,6 +195,41 @@ Copy-Item .env.example .env
 
 如果使用阿里云百炼控制台创建的 API Key，需要同时切换 `BASE_URL` 到 DashScope；不要把百炼 Key 配到 `https://apirouter.ai/v1`，否则会返回 `401 无效的令牌`。
 
+依赖安装已包含 DashScope SDK：
+
+```bash
+py -3.11 -m pip install -r requirements.txt
+```
+
+`qwen3-vl-embedding` 暂不支持 DashScope OpenAI-compatible `/embeddings`，需要使用 DashScope 原生多模态 embedding provider：
+
+```env
+EMBEDDING_PROVIDER_TYPE=dashscope_multimodal
+IMAGE_EMBED_PROVIDER_TYPE=dashscope_multimodal
+DASHSCOPE_API_KEY=<your-bailian-api-key>
+DASHSCOPE_EMBEDDING_MODEL=qwen3-vl-embedding
+DASHSCOPE_EMBEDDING_DIMENSION=1024
+EMBEDDING_MODEL=qwen3-vl-embedding
+IMAGE_EMBED_MODEL=qwen3-vl-embedding
+EMBEDDING_DIMENSIONS=1024
+```
+
+说明：
+
+- 文本、caption、OCR、object 派生节点走 `embed_texts()`。
+- `whole_image` 整图节点走 `embed_images()`。
+- 两者使用同一 `qwen3-vl-embedding` 模型，保证处于同一语义空间。
+- 如果 `DASHSCOPE_EMBEDDING_DIMENSION` 与 `EMBEDDING_DIMENSIONS` 同时配置，二者必须一致。
+- 如果从 `text-embedding-v4` 或 OpenAI embedding 切到 `qwen3-vl-embedding`，需要新 Qdrant collection，或临时设置 `QDRANT_RECREATE_COLLECTION=true` 后重建索引。
+
+常见错误：
+
+```text
+Unsupported model `qwen3-vl-embedding` for OpenAI compatibility mode
+```
+
+原因是仍在使用 OpenAI-compatible `/embeddings`。解决方式是切换为 `EMBEDDING_PROVIDER_TYPE=dashscope_multimodal`，图片整图向量同时设置 `IMAGE_EMBED_PROVIDER_TYPE=dashscope_multimodal`。
+
 当前项目已用如下配置跑通 demo 索引与查询：
 
 ```env
@@ -284,6 +319,20 @@ RERANK_MODEL=qwen3-vl-rerank
   - EvidenceGate 判定证据至少部分支持问题所需的最低支持度分数
 - `TG_STRONG_SUPPORT_SCORE`
   - EvidenceGate 判定强支持证据的分数阈值
+- `TG_SUPPORT_W_TOP_HIT`
+  - 支持度分数中 top hit score 的权重，默认 `0.30`
+- `TG_SUPPORT_W_AVG_TOP`
+  - 支持度分数中 top hits 平均分的权重，默认 `0.20`
+- `TG_SUPPORT_W_BM25_VECTOR`
+  - 支持度分数中 BM25/vector 一致性的权重，默认 `0.15`
+- `TG_SUPPORT_W_RERANK`
+  - 支持度分数中 rerank 分数的权重，默认 `0.10`
+- `TG_SUPPORT_W_SOURCE_DIVERSITY`
+  - 支持度分数中来源多样性的权重，默认 `0.10`
+- `TG_SUPPORT_W_SLOT_COVERAGE`
+  - 支持度分数中 slot 覆盖的权重，默认 `0.10`
+- `TG_SUPPORT_W_KEYWORD`
+  - 支持度分数中关键词覆盖的权重，默认 `0.05`
 - `TG_CONFLICT_NUMERIC_TOLERANCE`
   - 数值冲突判断容差，默认 `0.0` 表示不同数值严格视为冲突候选
 - `TG_REQUIRED_SLOT_STRICT=true|false`
@@ -325,6 +374,18 @@ Agent 接入原则：
 - 系统仍负责 schema 校验、预算控制和检索执行。
 - `EvidenceGate` 与 `CitationVerify` 不可绕过。
 - 默认关闭所有 Agent 开关，保证旧行为稳定。
+
+证据充分性评分当前已拆成可配置权重，便于做消融实验：
+
+- `TG_SUPPORT_W_TOP_HIT`
+- `TG_SUPPORT_W_AVG_TOP`
+- `TG_SUPPORT_W_BM25_VECTOR`
+- `TG_SUPPORT_W_RERANK`
+- `TG_SUPPORT_W_SOURCE_DIVERSITY`
+- `TG_SUPPORT_W_SLOT_COVERAGE`
+- `TG_SUPPORT_W_KEYWORD`
+
+建议默认保持 `TG_SUPPORT_W_KEYWORD` 最低，只把它作为辅助项。
 
 ### 3.8 阶段日志观测配置（新增）
 
@@ -481,7 +542,7 @@ Qdrant payload 映射包含：
 - 解析为 markdown
 - 小表整体 chunk
 - 大表按行组 chunk
-- table node -> text embedding -> upsert
+- table node(modality=table) -> text embedding -> upsert to table named vector
 
 ### 6.5 公式
 

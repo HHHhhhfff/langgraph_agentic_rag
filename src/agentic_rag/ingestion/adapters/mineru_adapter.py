@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from agentic_rag.config import Settings
 from agentic_rag.ingestion.adapters.mineru_client import MinerUClient
@@ -9,6 +10,7 @@ from agentic_rag.ingestion.chunk_strategies import TableChunker, build_text_chun
 from agentic_rag.ingestion.formula_extractor import extract_formulas
 from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import IngestionFailure, MultimodalIngestionResult
+from agentic_rag.ingestion.table_extractor import extract_table_blocks, html_table_to_markdown, strip_table_blocks
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
 
 
@@ -83,7 +85,7 @@ class MinerUAdapter:
 
         try:
             markdown = parse_mineru_markdown(result, self.settings)
-            nodes = self._build_nodes_from_markdown(markdown, file_path)
+            nodes = self._build_nodes_from_markdown(markdown, file_path, structured_content=result.structured_content or [])
         except Exception as exc:
             if self.stage_logger:
                 self.stage_logger.log_stage_error(
@@ -244,15 +246,48 @@ class MinerUAdapter:
             )
         return result
 
-    def _build_nodes_from_markdown(self, markdown: str, file_path: Path):
-        lines = markdown.splitlines()
+    def _build_nodes_from_markdown(self, markdown: str, file_path: Path, structured_content: list[Any] | None = None):
+        structured_content = structured_content or []
         nodes = []
         idx = 0
         text_count = 0
         table_count = 0
         formula_count = 0
 
-        buffer: list[str] = []
+        table_texts: list[str] = []
+        for item in structured_content:
+            if isinstance(item, list):
+                for sub in item:
+                    if isinstance(sub, dict) and str(sub.get("type") or "").lower() == "table":
+                        table_html = str(sub.get("table_body") or sub.get("content") or "")
+                        table_md = html_table_to_markdown(table_html) or str(sub.get("content") or "").strip()
+                        if table_md:
+                            table_texts.append(table_md)
+            elif isinstance(item, dict):
+                if str(item.get("type") or "").lower() == "table":
+                    table_html = str(item.get("table_body") or item.get("content") or "")
+                    table_md = html_table_to_markdown(table_html) or str(item.get("content") or "").strip()
+                    if table_md:
+                        table_texts.append(table_md)
+
+        for table_md in table_texts:
+            for table_chunk in self.table_chunker.chunk_markdown_table(table_md):
+                nodes.append(
+                    self.normalizer.normalize(
+                        source=str(file_path),
+                        parser_name="mineru",
+                        chunk_index=idx,
+                        modality="table",
+                        text=table_chunk,
+                        table_markdown=table_chunk,
+                        title=file_path.stem,
+                    )
+                )
+                idx += 1
+                table_count += 1
+
+        table_blocks = extract_table_blocks(markdown)
+        clean_markdown = strip_table_blocks(markdown, table_blocks)
 
         def flush_text() -> None:
             nonlocal idx, text_count
@@ -274,7 +309,9 @@ class MinerUAdapter:
                 idx += 1
                 text_count += 1
 
+        buffer: list[str] = []
         i = 0
+        lines = clean_markdown.splitlines()
         while i < len(lines):
             line = lines[i]
             if "|" in line:
@@ -283,10 +320,12 @@ class MinerUAdapter:
                 while j < len(lines) and "|" in lines[j]:
                     table_block.append(lines[j])
                     j += 1
-                if len(table_block) >= 2 and any("---" in row for row in table_block):
+                candidate = "\n".join(table_block)
+                if len([ln for ln in table_block if ln.strip()]) >= 2 and (
+                    candidate.lstrip().startswith("<table") or any("---" in ln for ln in table_block)
+                ):
                     flush_text()
-                    table_md = "\n".join(table_block)
-                    for table_chunk in self.table_chunker.chunk_markdown_table(table_md):
+                    for table_chunk in self.table_chunker.chunk_markdown_table(candidate):
                         nodes.append(
                             self.normalizer.normalize(
                                 source=str(file_path),
@@ -307,8 +346,26 @@ class MinerUAdapter:
 
         flush_text()
 
+        if not nodes and table_blocks:
+            for block in table_blocks:
+                for table_chunk in self.table_chunker.chunk_markdown_table(block.markdown):
+                    nodes.append(
+                        self.normalizer.normalize(
+                            source=str(file_path),
+                            parser_name="mineru",
+                            chunk_index=idx,
+                            modality="table",
+                            text=table_chunk,
+                            table_markdown=table_chunk,
+                            title=file_path.stem,
+                        )
+                    )
+                    idx += 1
+                    table_count += 1
+
         if self.settings.enable_formula_recognition:
-            for formula in extract_formulas(markdown):
+            formula_source = strip_table_blocks(markdown, table_blocks)
+            for formula in extract_formulas(formula_source):
                 nodes.append(
                     self.normalizer.normalize(
                         source=str(file_path),

@@ -6,6 +6,7 @@ import frontmatter
 
 from agentic_rag.ingestion.formula_extractor import extract_formulas
 from agentic_rag.ingestion.chunk_strategies import build_text_chunk_strategy
+from agentic_rag.ingestion.table_extractor import extract_table_blocks, strip_table_blocks
 from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import MultimodalIngestionResult
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
@@ -49,9 +50,26 @@ class LlamaIndexAdapter:
         title = str(metadata.get("title") or file_path.stem)
         section = str(metadata.get("section")) if metadata.get("section") else None
 
-        chunks = self.strategy.chunk_text(content)
         nodes = []
         idx = 0
+        table_blocks = extract_table_blocks(content)
+        for block in table_blocks:
+            nodes.append(
+                self.normalizer.normalize(
+                    source=str(file_path),
+                    parser_name=f"llamaindex:{self.settings.text_chunk_parser}:table",
+                    chunk_index=idx,
+                    modality="table",
+                    text=block.markdown,
+                    table_markdown=block.markdown,
+                    title=title,
+                    section=section,
+                )
+            )
+            idx += 1
+
+        clean_content = strip_table_blocks(content, table_blocks)
+        chunks = self.strategy.chunk_text(clean_content)
         for chunk in chunks:
             nodes.append(
                 self.normalizer.normalize(
@@ -68,7 +86,7 @@ class LlamaIndexAdapter:
 
         formula_count = 0
         if self.settings.enable_formula_recognition:
-            for formula in extract_formulas(content):
+            for formula in extract_formulas(clean_content):
                 nodes.append(
                     self.normalizer.normalize(
                         source=str(file_path),
@@ -85,6 +103,13 @@ class LlamaIndexAdapter:
                 formula_count += 1
 
         if self.stage_logger:
+            self.stage_logger.log_counter(
+                "table_nodes",
+                source=str(file_path),
+                parser=f"llamaindex:{self.settings.text_chunk_parser}",
+                table_count=len(table_blocks),
+                modality="table",
+            )
             self.stage_logger.log_counter(
                 "llamaindex_text_chunks",
                 source=str(file_path),

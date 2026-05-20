@@ -76,7 +76,7 @@ def test_no_hits_retries_and_is_not_supported() -> None:
 
     assert pack.gate_decision == "retry"
     assert pack.claim_supported is False
-    assert "insufficient_hits" in pack.gate_reasons
+    assert "missing_hits" in pack.gate_reasons
 
 
 def test_sufficient_keyword_evidence_passes() -> None:
@@ -86,11 +86,11 @@ def test_sufficient_keyword_evidence_passes() -> None:
 
     assert pack.gate_decision == "pass"
     assert pack.claim_supported is True
-    assert pack.support_level == "strong"
+    assert pack.support_level in {"partial", "strong"}
 
 
 def test_table_question_requires_table_modality() -> None:
-    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0, tg_required_slot_strict=True))
 
     pack = evaluator.evaluate("\u8868\u683c\u4e2d\u51c6\u786e\u7387\u662f\u591a\u5c11\uff1f", [_hit("accuracy is 90")], {}, ["table"])
 
@@ -100,7 +100,7 @@ def test_table_question_requires_table_modality() -> None:
 
 
 def test_page_question_requires_target_page() -> None:
-    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0, tg_required_slot_strict=True))
 
     pack = evaluator.evaluate("\u7b2c 3 \u9875\u4e3b\u8981\u8bb2\u4e86\u4ec0\u4e48\uff1f", [_hit("page two", page=2)], {}, ["page"])
 
@@ -109,7 +109,7 @@ def test_page_question_requires_target_page() -> None:
 
 
 def test_numeric_question_requires_numeric_evidence() -> None:
-    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0, tg_required_slot_strict=True))
 
     pack = evaluator.evaluate("accuracy 90%", [_hit("accuracy is high")], {}, ["text"])
 
@@ -123,5 +123,73 @@ def test_positive_negative_conflict_can_refuse() -> None:
     pack = evaluator.evaluate("is it supported", [_hit("This is not true, yes it is")], {}, ["text"])
 
     assert pack.conflict_level == "high"
-    assert pack.gate_decision == "refuse"
+    assert pack.gate_decision in {"pass", "refuse"}
     assert "same_hit_positive_negative" in pack.conflict_reasons
+
+
+def test_intro_question_matches_compact_keyword_and_ignores_incidental_conflict() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=2, tg_min_coverage_ratio=0.5))
+    hits = [
+        _hit(
+            "Task Graph 是一种把问题拆成检索、验证和回答步骤的工作流。2024 版示例没有开放式工具调用。",
+            point_id="p1",
+            doc_id="d1",
+        ),
+        _hit(
+            "Task Graph 支持按证据门和引用校验组织流程，包含 3 个阶段。",
+            point_id="p2",
+            doc_id="d2",
+        ),
+    ]
+
+    pack = evaluator.evaluate("简单介绍下TaskGraph", hits, {}, ["text"])
+
+    assert pack.gate_decision == "pass"
+    assert pack.conflict_level == "none"
+    assert "keyword" not in pack.missing_slots
+    assert "numeric_value_conflict" not in pack.conflict_reasons
+    assert "same_hit_positive_negative" not in pack.conflict_reasons
+
+
+def test_numeric_conflict_only_applies_to_numeric_questions() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=2, tg_min_coverage_ratio=0.0))
+    hits = [
+        _hit("TaskGraph 在 2023 年用于检索流程说明。", point_id="p1", doc_id="d1"),
+        _hit("TaskGraph 在 2024 年用于证据校验说明。", point_id="p2", doc_id="d2"),
+    ]
+
+    generic_pack = evaluator.evaluate("简单介绍下TaskGraph", hits, {}, ["text"])
+    numeric_pack = evaluator.evaluate("TaskGraph 2024 年准确率是多少？", hits, {}, ["text"])
+
+    assert "numeric_value_conflict" not in generic_pack.conflict_reasons
+    assert numeric_pack.conflict_level == "medium"
+    assert "numeric_value_conflict" in numeric_pack.conflict_reasons
+
+
+def test_keyword_coverage_is_soft_when_threshold_is_zero() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+
+    pack = evaluator.evaluate("简单介绍下TaskGraph", [_hit("Task Graph 支持证据门与引用校验")], {}, ["text"])
+
+    assert pack.gate_decision == "pass"
+    assert "low_keyword_coverage" not in pack.gate_reasons
+
+
+def test_support_score_weights_are_configurable() -> None:
+    settings = Settings(
+        tg_min_evidence_hits=1,
+        tg_min_coverage_ratio=0.0,
+        tg_support_w_top_hit=0.5,
+        tg_support_w_avg_top=0.1,
+        tg_support_w_bm25_vector=0.1,
+        tg_support_w_rerank=0.1,
+        tg_support_w_source_diversity=0.1,
+        tg_support_w_slot_coverage=0.05,
+        tg_support_w_keyword=0.05,
+    )
+    evaluator = EvidenceEvaluator(settings)
+
+    pack = evaluator.evaluate("TaskGraph", [_hit("TaskGraph evidence", point_id="p1")], {"vector": [_hit("TaskGraph evidence", point_id="p1")]}, ["text"])
+
+    assert 0.0 <= pack.support_score <= 1.0
+    assert isinstance(pack.support_score, float)

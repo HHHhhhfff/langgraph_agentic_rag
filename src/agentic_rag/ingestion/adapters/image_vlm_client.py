@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, field_validator
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from agentic_rag.config import Settings
@@ -36,6 +36,27 @@ class ImageVLMDescription(BaseModel):
     visible_text_summary: str = ""
     objects: list[ImageObjectDescription] = Field(default_factory=list)
     confidence: float = 0.0
+
+    @field_validator("scene_type", mode="before")
+    @classmethod
+    def _normalize_scene_type(cls, value: object) -> str:
+        if value is None:
+            return "unknown"
+        raw = str(value).strip()
+        mapping = {
+            "\u7f51\u9875\u622a\u56fe": "screenshot",
+            "\u622a\u56fe": "screenshot",
+            "\u56fe\u8868": "chart",
+            "\u7167\u7247": "photo",
+            "\u6587\u6863": "document",
+            "chart": "chart",
+            "diagram": "diagram",
+            "screenshot": "screenshot",
+            "photo": "photo",
+            "document": "document",
+            "unknown": "unknown",
+        }
+        return mapping.get(raw, mapping.get(raw.lower(), "unknown"))
 
 
 class ImageVLMClient:
@@ -82,10 +103,10 @@ class ImageVLMClient:
                         {
                             "type": "text",
                             "text": (
-                                "请分析这张图片，只输出 JSON，不要输出 Markdown。"
-                                "字段必须包含 caption, scene_type, visible_text_summary, objects, confidence。"
-                                "objects 是对象数组，每项包含 label, description, confidence。"
-                                "不要生成最终问答答案，只描述图片中的可见内容、文字和关键对象。"
+                                "??????????? JSON????? Markdown?"
+                                "?????? caption, scene_type, visible_text_summary, objects, confidence?"
+                                "objects ?????????? label, description, confidence?"
+                                "?????????????????????????????"
                             ),
                         },
                         {"type": "image_url", "image_url": {"url": data_url}},
@@ -101,7 +122,7 @@ class ImageVLMClient:
             raw = extract_json_object(content)
             return ImageVLMDescription.model_validate(raw)
         except (JsonLLMError, ValidationError) as exc:
-            raise ImageVLMError(f"Image VLM JSON validation failed: {exc}") from exc
+            raise ImageVLMError(f"Image VLM JSON validation failed: {exc}. raw_excerpt={self._safe_excerpt(content)}") from exc
 
     def _image_to_data_url(self, image_path: Path) -> str:
         if not image_path.exists():
@@ -131,6 +152,10 @@ class ImageVLMClient:
                 if isinstance(item, dict)
             )
         raise ImageVLMError("Image VLM response missing text content")
+
+    @staticmethod
+    def _safe_excerpt(text: str, max_chars: int = 300) -> str:
+        return " ".join((text or "").split())[:max_chars]
 
 
 def image_vlm_description_to_json(description: ImageVLMDescription) -> str:

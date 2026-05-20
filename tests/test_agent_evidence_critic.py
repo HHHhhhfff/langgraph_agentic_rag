@@ -43,24 +43,49 @@ def test_agent_evidence_critic_parses_json() -> None:
     assert critique.missing_slots == ["numeric"]
 
 
-def test_merge_evidence_gate_is_conservative() -> None:
+def test_merge_evidence_gate_soft_fail_can_be_uplifted() -> None:
     critique = EvidenceCritique(
-        claim_supported=False,
-        support_level="partial",
-        support_score=0.5,
-        missing_slots=["numeric"],
-        unsupported_claims=["number missing"],
-        gate_decision="retry",
+        claim_supported=True,
+        support_level="strong",
+        support_score=0.9,
+        gate_decision="pass",
     )
 
-    merged = merge_evidence_gate(_pack("pass"), critique, Settings())
+    rule_pack = _pack("retry")
+    rule_pack.gate_reasons = ["low_keyword_coverage"]
+    rule_pack.missing_slots = []
+    rule_pack.conflict_level = "none"
 
-    assert merged.gate_decision == "retry"
-    assert merged.evidence_ok is False
-    assert "number missing" in merged.unsupported_claims
+    merged = merge_evidence_gate(rule_pack, critique, Settings())
+
+    assert merged.gate_decision == "pass"
+    assert merged.evidence_ok is True
+    assert merged.support_score >= rule_pack.support_score
+
+
+def test_merge_evidence_gate_allows_agent_uplift_on_soft_fail() -> None:
+    rule_pack = _pack("retry")
+    rule_pack.gate_reasons = ["low_keyword_coverage"]
+    rule_pack.missing_slots = []
+    rule_pack.conflict_level = "none"
+    critique = EvidenceCritique(
+        claim_supported=True,
+        support_level="strong",
+        support_score=0.9,
+        gate_decision="pass",
+    )
+
+    merged = merge_evidence_gate(rule_pack, critique, Settings())
+
+    assert merged.gate_decision == "pass"
+    assert merged.evidence_ok is True
+    assert merged.support_score >= rule_pack.support_score
 
 
 def test_merge_evidence_gate_high_conflict_refuses() -> None:
+    rule_pack = _pack("retry")
+    rule_pack.gate_reasons = ["missing_page"]
+    rule_pack.conflict_level = "high"
     critique = EvidenceCritique(
         conflict_detected=True,
         conflict_level="high",
@@ -68,7 +93,7 @@ def test_merge_evidence_gate_high_conflict_refuses() -> None:
         gate_decision="refuse",
     )
 
-    merged = merge_evidence_gate(_pack("pass"), critique, Settings(tg_allow_refusal=True))
+    merged = merge_evidence_gate(rule_pack, critique, Settings(tg_allow_refusal=True))
 
     assert merged.gate_decision == "refuse"
     assert merged.conflict_level == "high"

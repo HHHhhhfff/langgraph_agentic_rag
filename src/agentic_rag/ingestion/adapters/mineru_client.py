@@ -29,6 +29,7 @@ class MinerUParseResult:
     markdown_content: str
     source_url: str | None = None
     raw: dict[str, Any] | None = None
+    structured_content: list[Any] | None = None
 
 
 class MinerUClient:
@@ -265,7 +266,15 @@ class MinerUClient:
             raise MinerUClientError("MinerU agent missing markdown_url")
 
         markdown = self._download_text(markdown_url)
-        return MinerUParseResult(task_id=task_id, state=state, markdown_content=markdown, source_url=markdown_url, raw=body)
+        structured = self._extract_structured_content(data, markdown)
+        return MinerUParseResult(
+            task_id=task_id,
+            state=state,
+            markdown_content=markdown,
+            source_url=markdown_url,
+            raw=body,
+            structured_content=structured,
+        )
 
     def _precise_download_result(self, task_id: str, body: dict[str, Any]) -> MinerUParseResult:
         data = body.get("data") or {}
@@ -284,8 +293,15 @@ class MinerUClient:
         if not zip_url:
             raise MinerUClientError("MinerU precise result missing full_zip_url")
 
-        markdown = self._download_markdown_from_zip(zip_url)
-        return MinerUParseResult(task_id=task_id, state=state, markdown_content=markdown, source_url=zip_url, raw=body)
+        markdown, structured = self._download_markdown_and_structured_from_zip(zip_url)
+        return MinerUParseResult(
+            task_id=task_id,
+            state=state,
+            markdown_content=markdown,
+            source_url=zip_url,
+            raw=body,
+            structured_content=structured,
+        )
 
     def _download_text(self, url: str) -> str:
         return self._download_with_retry(lambda: self._download_text_once(url))
@@ -303,9 +319,9 @@ class MinerUClient:
         except httpx.HTTPError as exc:
             raise MinerURetryableError(f"HTTP error downloading {url}: {exc}") from exc
 
-    def _download_markdown_from_zip(self, url: str) -> str:
+    def _download_markdown_and_structured_from_zip(self, url: str) -> tuple[str, list[Any]]:
         content = self._download_with_retry(lambda: self._download_zip_bytes_once(url))
-        return self._extract_markdown_from_zip_bytes(content)
+        return self._extract_markdown_and_structured_from_zip_bytes(content)
 
     def _download_zip_bytes_once(self, url: str) -> bytes:
         try:
@@ -332,7 +348,7 @@ class MinerUClient:
                 time.sleep(self.settings.mineru_download_retry_interval_sec)
 
     @staticmethod
-    def _extract_markdown_from_zip_bytes(content: bytes) -> str:
+    def _extract_markdown_and_structured_from_zip_bytes(content: bytes) -> tuple[str, list[Any]]:
         import io
         import zipfile
 
@@ -345,9 +361,31 @@ class MinerUClient:
                     raise MinerUClientError("MinerU zip result missing markdown file")
                 with zf.open(md_candidates[0]) as f:
                     data = f.read()
-                return data.decode("utf-8", errors="ignore")
+                markdown = data.decode("utf-8", errors="ignore")
+                structured: list[Any] = []
+                for name in zf.namelist():
+                    if not name.lower().endswith((".json", ".md")):
+                        continue
+                    if name.lower().endswith(".md") and name != md_candidates[0]:
+                        continue
+                    if name.lower().endswith(".json"):
+                        try:
+                            structured.append(json.loads(zf.read(name).decode("utf-8", errors="ignore")))
+                        except Exception:
+                            continue
+                return markdown, structured
         except zipfile.BadZipFile as exc:
             raise MinerUClientError(f"MinerU zip parse failed: {exc}") from exc
+
+    def _extract_structured_content(self, data: dict[str, Any], markdown: str) -> list[Any]:
+        structured: list[Any] = []
+        for key in ("content_list", "content_list_v2", "model", "layout"):
+            value = data.get(key)
+            if value is not None:
+                structured.append(value)
+        if not structured and markdown:
+            structured.append(markdown)
+        return structured
 
 
 def dump_json(data: dict[str, Any]) -> str:

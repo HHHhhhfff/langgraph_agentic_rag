@@ -80,6 +80,16 @@ def main() -> int:
     print(f"- upserted: {summary.upserted}")
     print(f"- vector_size: {summary.vector_size}")
     print(f"- failed_files: {summary.failed_files}")
+    print(f"- named_vectors_enabled: {str(summary.named_vectors_enabled).lower()}")
+    if summary.named_vectors_enabled:
+        print("- named_vector_counts:")
+        if summary.named_vector_counts:
+            for name in sorted(summary.named_vector_counts):
+                print(f"  - {name}: {summary.named_vector_counts[name]}")
+        else:
+            print("  - (none)")
+    else:
+        print("- vector_mode: single")
     return 0
 
 

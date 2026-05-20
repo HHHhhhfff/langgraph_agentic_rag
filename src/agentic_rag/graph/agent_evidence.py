@@ -78,20 +78,29 @@ def merge_evidence_gate(rule_pack: EvidencePack, critique: EvidenceCritique, set
     merged.conflict_reasons = _dedupe([*merged.conflict_reasons, *critique.conflict_reasons])
     merged.gate_reasons = _dedupe([*merged.gate_reasons, *critique.recommended_retry_actions])
     merged.unsupported_claims = _dedupe([*merged.unsupported_claims, *critique.unsupported_claims])
-    merged.support_score = min(float(merged.support_score), max(0.0, min(1.0, float(critique.support_score))))
-    merged.support_level = _weaker_support(merged.support_level, critique.support_level)
-    merged.claim_supported = bool(merged.claim_supported and critique.claim_supported)
+    merged.support_score = max(float(merged.support_score), max(0.0, min(1.0, float(critique.support_score))))
+    merged.support_level = _stronger_support(merged.support_level, critique.support_level)
+    merged.claim_supported = bool(merged.claim_supported or critique.claim_supported)
     merged.conflict_detected = bool(merged.conflict_detected or critique.conflict_detected)
     merged.conflict_level = _max_conflict(merged.conflict_level, critique.conflict_level)
     merged.agent_gate_decision = critique.gate_decision
     merged.notes.append(f"agent_evidence_reasoning:{critique.reasoning_summary}")
 
-    if merged.conflict_level == "high" and settings.tg_allow_refusal:
+    rule_hard_fail = bool(
+        any(
+            slot in {"insufficient_hits", "missing_page", "missing_source", "missing_numeric"}
+            or slot.startswith("missing_modality:")
+            for slot in merged.gate_reasons
+        )
+    )
+    if rule_hard_fail and merged.conflict_level == "high" and settings.tg_allow_refusal:
         merged.gate_decision = "refuse"
-    elif rule_pack.gate_decision == "pass" and critique.gate_decision == "pass" and not merged.missing_slots:
+    elif rule_hard_fail:
+        merged.gate_decision = "retry"
+    elif critique.gate_decision == "pass" and merged.support_score >= settings.tg_min_support_score:
         merged.gate_decision = "pass"
     else:
-        merged.gate_decision = "retry"
+        merged.gate_decision = "pass" if rule_pack.gate_decision == "pass" or critique.gate_decision == "pass" else "retry"
     merged.evidence_ok = merged.gate_decision == "pass"
     if merged.gate_decision != "pass" and not merged.gate_reasons:
         merged.gate_reasons.append("agent_or_rule_requires_retry")
@@ -146,10 +155,10 @@ def _route_summary(route_hits: dict[str, list[SearchHit]]) -> dict[str, int]:
     return {channel: len(hits) for channel, hits in route_hits.items()}
 
 
-def _weaker_support(left: str, right: str) -> str:
+def _stronger_support(left: str, right: str) -> str:
     order = {"none": 0, "weak": 1, "partial": 2, "strong": 3}
     reverse = {value: key for key, value in order.items()}
-    return reverse[min(order.get(left, 0), order.get(right, 0))]
+    return reverse[max(order.get(left, 0), order.get(right, 0))]
 
 
 def _max_conflict(left: str, right: str) -> str:

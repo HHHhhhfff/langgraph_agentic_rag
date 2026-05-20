@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 from agentic_rag.config import Settings
 from agentic_rag.ingestion.chunker import ChunkConfig, TextChunker
@@ -8,6 +9,7 @@ from agentic_rag.ingestion.index_builder import IndexBuilder
 from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import IngestionFailure, MultimodalIngestionResult
 from agentic_rag.ingestion.parser import MarkdownParser
+from agentic_rag.cli import build_index
 from agentic_rag.models.providers import EmbeddingProvider, ImageEmbeddingProvider, ProviderError
 from agentic_rag.store.qdrant_store import QdrantStore
 
@@ -279,3 +281,46 @@ def test_formula_nodes_use_formula_latex_for_embedding(tmp_path: Path) -> None:
     assert summary.upserted == 1
     assert text_provider.calls[0] == ["E=mc^2"]
     assert store.last_nodes[0].modality == "formula"
+
+
+def test_build_index_cli_prints_named_vector_counts(monkeypatch, capsys) -> None:
+    summary = SimpleNamespace(
+        documents=2,
+        chunks=4,
+        vectors=4,
+        upserted=4,
+        vector_size=1024,
+        failed_files=0,
+        named_vectors_enabled=True,
+        named_vector_counts={"text": 2, "table": 1, "image": 1},
+    )
+
+    class DummyBuilder:
+        def build_from_directory(self, docs):
+            return summary
+
+    monkeypatch.setattr(build_index, "get_settings", lambda: SimpleNamespace())
+    monkeypatch.setattr(build_index, "build_stage_logger", lambda settings, run_id: SimpleNamespace(
+        add_listener=lambda *args, **kwargs: None,
+        log_stage_start=lambda *args, **kwargs: None,
+        log_stage_end=lambda *args, **kwargs: None,
+        log_stage_error=lambda *args, **kwargs: None,
+        log_counter=lambda *args, **kwargs: None,
+    ))
+    monkeypatch.setattr(build_index, "build_console_progress_reporter", lambda settings, run_id: SimpleNamespace(
+        handle_event=lambda *args, **kwargs: None
+    ))
+    monkeypatch.setattr(build_index, "MarkdownParser", lambda: None)
+    monkeypatch.setattr(build_index, "build_default_chunker", lambda settings: None)
+    monkeypatch.setattr(build_index, "build_embedding_provider", lambda settings: None)
+    monkeypatch.setattr(build_index, "QdrantStore", lambda settings: None)
+    monkeypatch.setattr(build_index, "IndexBuilder", lambda **kwargs: DummyBuilder())
+    monkeypatch.setattr("sys.argv", ["build_index", "--docs", "docs"])
+
+    assert build_index.main() == 0
+    out = capsys.readouterr().out
+    assert "Index build completed" in out
+    assert "- named_vectors_enabled: true" in out
+    assert "- named_vector_counts:" in out
+    assert "  - table: 1" in out
+    assert "  - image: 1" in out

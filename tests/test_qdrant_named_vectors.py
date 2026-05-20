@@ -64,6 +64,33 @@ def test_named_vectors_reject_existing_single_vector_collection() -> None:
         store.ensure_collection(vector_size=3)
 
 
+class ExistingNamedVectorMissingTableClient:
+    def collection_exists(self, name):
+        return True
+
+    def get_collection(self, name):
+        return SimpleNamespace(
+            config=SimpleNamespace(
+                params=SimpleNamespace(
+                    vectors={
+                        "text": models.VectorParams(size=3, distance=models.Distance.COSINE),
+                        "image": models.VectorParams(size=3, distance=models.Distance.COSINE),
+                    }
+                )
+            )
+        )
+
+
+def test_named_vectors_reject_missing_table_vector() -> None:
+    store = _store(
+        Settings(enable_named_vectors=True, qdrant_recreate_collection=False),
+        ExistingNamedVectorMissingTableClient(),
+    )
+
+    with pytest.raises(QdrantStoreError, match="Missing named vector 'table'"):
+        store.ensure_collection(vector_size=3)
+
+
 class RecordingUpsertClient:
     def __init__(self):
         self.points = []

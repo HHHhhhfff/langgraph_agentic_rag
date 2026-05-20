@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
+from collections import Counter
 
 from agentic_rag.config import Settings
 from agentic_rag.ingestion.chunker import ChunkConfig, TextChunker
@@ -38,6 +40,8 @@ class IndexBuildSummary:
     upserted: int
     vector_size: int
     failed_files: int = 0
+    named_vectors_enabled: bool = False
+    named_vector_counts: dict[str, int] = field(default_factory=dict)
 
 
 class IndexBuilder:
@@ -206,6 +210,7 @@ class IndexBuilder:
 
         vector_by_idx: dict[int, list[float]] = {}
         extra_failures = 0
+        named_vector_counts: Counter[str] = Counter()
 
         text_table_pairs: list[tuple[int, str]] = []
         image_pairs: list[tuple[int, str, str]] = []
@@ -288,6 +293,13 @@ class IndexBuilder:
                 continue
             surviving_nodes.append(node)
             surviving_vectors.append(vector)
+            if self.settings.enable_named_vectors:
+                if node.modality == "table":
+                    named_vector_counts[self.settings.named_vector_table_name] += 1
+                elif node.modality == "image":
+                    named_vector_counts[self.settings.named_vector_image_name] += 1
+                else:
+                    named_vector_counts[self.settings.named_vector_text_name] += 1
 
         if not surviving_nodes:
             raise IndexBuildError(
@@ -325,6 +337,8 @@ class IndexBuilder:
             upserted=upserted,
             vector_size=vector_size,
             failed_files=len(result.failures) + extra_failures,
+            named_vectors_enabled=self.settings.enable_named_vectors,
+            named_vector_counts=dict(named_vector_counts),
         )
 
     def _embed_image_pairs(

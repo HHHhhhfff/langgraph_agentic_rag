@@ -3,7 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,7 +30,11 @@ class Settings(BaseSettings):
     )
     qdrant_timeout_sec: float = Field(default=30.0, description="Qdrant request timeout in seconds")
 
-    # Embedding provider settings (OpenAI-compatible)
+    # Embedding provider settings
+    embedding_provider_type: Literal["openai_compatible", "dashscope_multimodal"] = Field(
+        default="openai_compatible",
+        description="Embedding provider backend",
+    )
     embedding_base_url: str = Field(
         default="https://api.openai.com/v1", description="Embedding API base URL"
     )
@@ -159,6 +163,10 @@ class Settings(BaseSettings):
         default="caption_text",
         description="Image embedding mode: direct placeholder or caption text embedding",
     )
+    image_embed_provider_type: Literal["openai_compatible", "dashscope_multimodal"] = Field(
+        default="openai_compatible",
+        description="Image embedding provider backend",
+    )
     image_embed_base_url: str = Field(
         default="https://dashscope.aliyuncs.com/compatible-mode/v1",
         description="Image embedding API base URL (OpenAI-Compatible)",
@@ -178,6 +186,15 @@ class Settings(BaseSettings):
     image_embed_require_file_exists: bool = Field(
         default=True,
         description="Validate image file existence before image embedding request",
+    )
+    dashscope_api_key: str = Field(default="", description="DashScope API key for native SDK providers")
+    dashscope_embedding_model: str = Field(
+        default="qwen3-vl-embedding",
+        description="DashScope native multimodal embedding model",
+    )
+    dashscope_embedding_dimension: int | None = Field(
+        default=None,
+        description="Optional DashScope multimodal embedding dimension",
     )
     image_enrichment_enabled: bool = Field(
         default=False,
@@ -281,6 +298,13 @@ class Settings(BaseSettings):
     tg_min_gain_threshold: float = Field(default=0.05, description="Minimum evidence gain threshold across retries")
     tg_min_support_score: float = Field(default=0.45, description="Minimum support score for evidence gate")
     tg_strong_support_score: float = Field(default=0.75, description="Support score threshold for strong evidence")
+    tg_support_w_top_hit: float = Field(default=0.30, description="Support score weight for top hit score")
+    tg_support_w_avg_top: float = Field(default=0.20, description="Support score weight for average top scores")
+    tg_support_w_bm25_vector: float = Field(default=0.15, description="Support score weight for bm25/vector consistency")
+    tg_support_w_rerank: float = Field(default=0.10, description="Support score weight for rerank score")
+    tg_support_w_source_diversity: float = Field(default=0.10, description="Support score weight for source diversity")
+    tg_support_w_slot_coverage: float = Field(default=0.10, description="Support score weight for slot coverage")
+    tg_support_w_keyword: float = Field(default=0.05, description="Support score weight for keyword coverage")
     tg_conflict_numeric_tolerance: float = Field(default=0.0, description="Numeric tolerance for evidence conflict checks")
     tg_required_slot_strict: bool = Field(default=True, description="Require all extracted evidence slots to be covered")
     tg_retry_top_k_multiplier: float = Field(default=1.5, description="Top-k multiplier applied by TaskGraph local retry")
@@ -323,7 +347,7 @@ class Settings(BaseSettings):
             raise ValueError("chunk_overlap must be smaller than chunk_size")
         return value
 
-    @field_validator("embedding_dimensions", mode="before")
+    @field_validator("embedding_dimensions", "dashscope_embedding_dimension", mode="before")
     @classmethod
     def empty_embedding_dimensions_to_none(cls, value):
         if value == "" or value is None:
@@ -404,11 +428,25 @@ class Settings(BaseSettings):
             raise ValueError("image_vlm_timeout_sec must be > 0")
         return value
 
+    @field_validator("dashscope_embedding_dimension")
+    @classmethod
+    def validate_dashscope_embedding_dimension(cls, value: int | None) -> int | None:
+        if value is not None and value <= 0:
+            raise ValueError("dashscope_embedding_dimension must be > 0")
+        return value
+
     @field_validator(
         "tg_min_coverage_ratio",
         "tg_min_gain_threshold",
         "tg_min_support_score",
         "tg_strong_support_score",
+        "tg_support_w_top_hit",
+        "tg_support_w_avg_top",
+        "tg_support_w_bm25_vector",
+        "tg_support_w_rerank",
+        "tg_support_w_source_diversity",
+        "tg_support_w_slot_coverage",
+        "tg_support_w_keyword",
         "tg_conflict_numeric_tolerance",
         "tg_agent_min_route_confidence",
     )
@@ -431,6 +469,18 @@ class Settings(BaseSettings):
         if value <= 0:
             raise ValueError("tg_agent_timeout_sec must be > 0")
         return value
+
+    @model_validator(mode="after")
+    def validate_dashscope_embedding_dimension_match(self):
+        if (
+            self.dashscope_embedding_dimension is not None
+            and self.embedding_dimensions is not None
+            and self.dashscope_embedding_dimension != self.embedding_dimensions
+        ):
+            raise ValueError(
+                "dashscope_embedding_dimension must match embedding_dimensions when both are set"
+            )
+        return self
 
 
 @lru_cache(maxsize=1)

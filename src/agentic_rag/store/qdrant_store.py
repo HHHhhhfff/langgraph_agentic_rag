@@ -273,23 +273,26 @@ class QdrantStore:
         distance: models.Distance,
     ) -> None:
         if self.named_vectors_enabled:
+            expected_vectors = list(self._named_vector_names())
             if isinstance(vectors, models.VectorParams):
                 raise QdrantStoreError(
                     f"Vector mode mismatch for collection {collection_name}: existing=single, expected named vectors "
-                    f"{list(self._named_vector_names())}. Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
+                    f"{expected_vectors}. This usually means the collection was created before named vectors were enabled. "
+                    f"Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
                 )
             vector_map = dict(vectors) if hasattr(vectors, "items") else None
             if not vector_map:
                 raise QdrantStoreError(
                     f"Unsupported named-vector collection format for {collection_name}; expected named vectors "
-                    f"{list(self._named_vector_names())}."
+                    f"{expected_vectors}."
                 )
-            for vector_name in self._named_vector_names():
+            for vector_name in expected_vectors:
                 params = vector_map.get(vector_name)
                 if not isinstance(params, models.VectorParams):
                     raise QdrantStoreError(
                         f"Missing named vector '{vector_name}' in collection {collection_name}; expected named vectors "
-                        f"{list(self._named_vector_names())}. Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
+                        f"{expected_vectors}. This collection schema cannot route table nodes to the table named vector. "
+                        f"Use a new collection or set QDRANT_RECREATE_COLLECTION=true."
                     )
                 self._validate_vector_params(collection_name, vector_name, params, vector_size, distance)
             return

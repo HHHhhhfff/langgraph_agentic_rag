@@ -615,7 +615,7 @@ class TaskGraphRAG:
     def _retry_decision(self, state: TaskGraphState) -> str:
         if state.get("refusal"):
             return "finalize"
-        if state.get("evidence_ok"):
+        if state.get("evidence_ok") or (self.settings.tg_agent_evidence_critic_enabled and state.get("agent_gate_decision") == "pass"):
             return "build_prompt"
         retry_count = int(state.get("retry_count", 0))
         if retry_count >= int(state.get("max_retries", self.settings.tg_max_retries)):

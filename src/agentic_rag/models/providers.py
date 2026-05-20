@@ -1,6 +1,9 @@
 ﻿from __future__ import annotations
 
 import base64
+from http import HTTPStatus
+import importlib
+import os
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -471,6 +474,244 @@ class OpenAICompatibleImageEmbeddingProvider(ImageEmbeddingProvider):
         return vectors
 
 
+class DashScopeMultimodalEmbeddingProvider(OpenAICompatibleEmbeddingProvider):
+    """Text embedding provider using DashScope native MultiModalEmbedding SDK."""
+
+    def __init__(self, settings: Settings):
+        self.settings = settings
+        self.stage_logger: StageLogger | None = None
+        self._hard_splitter = TokenHardSplitter(
+            TokenSplitConfig(
+                max_input_tokens=settings.embedding_input_max_tokens,
+                safety_margin_tokens=settings.embedding_input_safety_margin_tokens,
+            )
+        )
+        self.dashscope = _load_dashscope_module()
+
+    def _embed_batch_once(self, texts: list[str]) -> list[list[float]]:
+        payload = [{"text": text} for text in texts]
+        return _dashscope_multimodal_call(
+            dashscope_module=self.dashscope,
+            settings=self.settings,
+            input_payload=payload,
+            expected_count=len(texts),
+            api_key=_dashscope_api_key(self.settings, image=False),
+            model=_dashscope_model(self.settings, image=False),
+            dimension=_dashscope_dimension(self.settings),
+        )
+
+
+class DashScopeMultimodalImageEmbeddingProvider(ImageEmbeddingProvider):
+    """Image embedding provider using DashScope native MultiModalEmbedding SDK."""
+
+    def __init__(self, settings: Settings):
+        self.settings = settings
+        self.stage_logger: StageLogger | None = None
+        self.dashscope = _load_dashscope_module()
+
+    def set_stage_logger(self, stage_logger: StageLogger) -> None:
+        self.stage_logger = stage_logger
+
+    def _image_input(self, image_path: str) -> str:
+        if image_path.startswith(("http://", "https://", "data:")):
+            return image_path
+        path = Path(image_path)
+        if self.settings.image_embed_require_file_exists and not path.exists():
+            raise ProviderError(
+                f"Image file not found for DashScope multimodal embedding: {path}. "
+                "Use a valid local path or an accessible image URL."
+            )
+        if not path.exists():
+            raise ProviderError(
+                f"Image file not accessible for DashScope multimodal embedding: {path}. "
+                "Use a valid local path or an accessible image URL."
+            )
+        return str(path.resolve())
+
+    def _embed_batch_once(self, image_paths: list[str]) -> list[list[float]]:
+        payload = [{"image": self._image_input(path)} for path in image_paths]
+        return _dashscope_multimodal_call(
+            dashscope_module=self.dashscope,
+            settings=self.settings,
+            input_payload=payload,
+            expected_count=len(image_paths),
+            api_key=_dashscope_api_key(self.settings, image=True),
+            model=_dashscope_model(self.settings, image=True),
+            dimension=_dashscope_dimension(self.settings),
+        )
+
+    def embed_images(self, image_paths: list[str]) -> list[list[float]]:
+        if not image_paths:
+            return []
+        retry_call = retry(
+            reraise=True,
+            stop=stop_after_attempt(self.settings.image_embed_max_retries),
+            wait=wait_exponential(multiplier=1, min=1, max=8),
+            retry=retry_if_exception_type(ProviderError),
+        )(self._embed_batch_once)
+
+        batch_size = self.settings.image_embed_batch_size
+        vectors: list[list[float]] = []
+        for i in range(0, len(image_paths), batch_size):
+            batch = image_paths[i : i + batch_size]
+            timer = StageTimer.start_now()
+            if self.stage_logger:
+                self.stage_logger.log_stage_start(
+                    "image_embedding_batch",
+                    parser="dashscope_multimodal_embedding_provider",
+                    modality="image",
+                    image_count=len(batch),
+                    batch_index=i,
+                )
+            try:
+                out = retry_call(batch)
+            except Exception as exc:
+                if self.stage_logger:
+                    self.stage_logger.log_stage_error(
+                        "image_embedding_batch",
+                        exc,
+                        parser="dashscope_multimodal_embedding_provider",
+                        modality="image",
+                        image_count=len(batch),
+                        batch_index=i,
+                    )
+                raise
+            vectors.extend(out)
+            if self.stage_logger:
+                self.stage_logger.log_stage_end(
+                    "image_embedding_batch",
+                    latency_ms=timer.elapsed_ms(),
+                    parser="dashscope_multimodal_embedding_provider",
+                    modality="image",
+                    image_count=len(batch),
+                    vector_count=len(out),
+                    batch_index=i,
+                )
+        return vectors
+
+
+def _load_dashscope_module():
+    try:
+        return importlib.import_module("dashscope")
+    except ImportError as exc:
+        raise ProviderError(
+            "dashscope package is required for dashscope_multimodal provider. "
+            "Install with: pip install dashscope"
+        ) from exc
+
+
+def _dashscope_api_key(settings: Settings, *, image: bool) -> str:
+    key = settings.dashscope_api_key or (settings.image_embed_api_key if image else settings.embedding_api_key)
+    key = key or os.getenv("DASHSCOPE_API_KEY", "")
+    if not key:
+        raise ProviderError(
+            "DashScope API key is required for dashscope_multimodal provider. "
+            "Set DASHSCOPE_API_KEY or the corresponding provider API key."
+        )
+    return key
+
+
+def _dashscope_model(settings: Settings, *, image: bool) -> str:
+    model = settings.dashscope_embedding_model or (settings.image_embed_model if image else settings.embedding_model)
+    if not model:
+        raise ProviderError("DashScope embedding model is empty")
+    return model
+
+
+def _dashscope_dimension(settings: Settings) -> int | None:
+    return settings.dashscope_embedding_dimension or settings.embedding_dimensions
+
+
+def _dashscope_multimodal_call(
+    *,
+    dashscope_module,
+    settings: Settings,
+    input_payload: list[dict[str, str]],
+    expected_count: int,
+    api_key: str,
+    model: str,
+    dimension: int | None,
+) -> list[list[float]]:
+    kwargs: dict[str, Any] = {
+        "api_key": api_key,
+        "model": model,
+        "input": input_payload,
+    }
+    if dimension is not None:
+        kwargs["dimension"] = dimension
+    try:
+        response = dashscope_module.MultiModalEmbedding.call(**kwargs)
+    except Exception as exc:
+        raise ProviderError(f"DashScope multimodal embedding call failed: {exc}") from exc
+
+    _validate_dashscope_response(response)
+    output = _dashscope_response_value(response, "output")
+    vectors = _parse_dashscope_vectors(output)
+    if len(vectors) != expected_count:
+        raise ProviderError(
+            f"DashScope embedding count mismatch: expected={expected_count}, got={len(vectors)}"
+        )
+    return vectors
+
+
+def _validate_dashscope_response(response: Any) -> None:
+    status = _dashscope_response_value(response, "status_code")
+    if status == HTTPStatus.OK or status == HTTPStatus.OK.value or str(status) == str(HTTPStatus.OK.value):
+        return
+    message = _dashscope_response_value(response, "message") or _dashscope_response_value(response, "code") or ""
+    request_id = _dashscope_response_value(response, "request_id") or ""
+    raise ProviderError(
+        "DashScope multimodal embedding failed: "
+        f"status_code={status}, request_id={request_id}, message={_safe_excerpt(str(message))}"
+    )
+
+
+def _dashscope_response_value(response: Any, key: str) -> Any:
+    if isinstance(response, dict):
+        return response.get(key)
+    return getattr(response, key, None)
+
+
+def _parse_dashscope_vectors(output: Any) -> list[list[float]]:
+    if isinstance(output, dict):
+        for key in ("embeddings", "embedding", "data"):
+            if key in output:
+                try:
+                    return _coerce_embedding_rows(output[key])
+                except ProviderError:
+                    continue
+    if isinstance(output, list):
+        return _coerce_embedding_rows(output)
+    raise ProviderError(f"DashScope embedding response missing embeddings: {_safe_excerpt(str(output))}")
+
+
+def _coerce_embedding_rows(value: Any) -> list[list[float]]:
+    if _is_number_list(value):
+        return [[float(x) for x in value]]
+    if not isinstance(value, list):
+        raise ProviderError("DashScope embedding field is not a list")
+    vectors: list[list[float]] = []
+    for row in value:
+        if _is_number_list(row):
+            vectors.append([float(x) for x in row])
+            continue
+        if isinstance(row, dict):
+            embedding = row.get("embedding") or row.get("embeddings") or row.get("vector")
+            if _is_number_list(embedding):
+                vectors.append([float(x) for x in embedding])
+                continue
+        raise ProviderError(f"DashScope embedding row missing embedding: {_safe_excerpt(str(row))}")
+    return vectors
+
+
+def _is_number_list(value: Any) -> bool:
+    return isinstance(value, list) and bool(value) and all(isinstance(x, (int, float)) for x in value)
+
+
+def _safe_excerpt(text: str, max_chars: int = 400) -> str:
+    return " ".join((text or "").strip().split())[:max_chars]
+
+
 class OpenAICompatibleReranker(Reranker):
     """Reranker using OpenAI-compatible /rerank endpoint."""
 
@@ -590,12 +831,16 @@ class OpenAICompatibleLLMClient(LLMClient):
 def build_embedding_provider(settings: Settings) -> EmbeddingProvider:
     """Factory for embedding provider."""
 
+    if settings.embedding_provider_type == "dashscope_multimodal":
+        return DashScopeMultimodalEmbeddingProvider(settings)
     return OpenAICompatibleEmbeddingProvider(settings)
 
 
 def build_image_embedding_provider(settings: Settings) -> ImageEmbeddingProvider:
     """Factory for image embedding provider."""
 
+    if settings.image_embed_provider_type == "dashscope_multimodal":
+        return DashScopeMultimodalImageEmbeddingProvider(settings)
     return OpenAICompatibleImageEmbeddingProvider(settings)
 
 
