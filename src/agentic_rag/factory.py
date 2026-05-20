@@ -35,6 +35,7 @@ def build_task_graph() -> TaskGraphRAG:
         settings=settings,
         embedding_provider=embedding,
         retriever=retriever,
+        rerank_service=_rerank_service,
         llm_client=llm,
         prompt_builder=prompt_builder,
     )
@@ -49,6 +50,7 @@ def build_rag_graph() -> RAGGraph | TaskGraphRAG:
             settings=settings,
             embedding_provider=embedding,
             retriever=retriever,
+            rerank_service=rerank_service,
             llm_client=llm,
             prompt_builder=prompt_builder,
         )

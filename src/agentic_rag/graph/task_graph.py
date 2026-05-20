@@ -18,6 +18,7 @@ from agentic_rag.models.providers import EmbeddingProvider, LLMClient
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
 from agentic_rag.retrieval.evidence_gate import EvidenceEvaluator
 from agentic_rag.retrieval.evidence_pack import EvidencePack
+from agentic_rag.retrieval.rerank import RerankService
 from agentic_rag.retrieval.retrieval_plan import RetrievalPlan, RetrievalTask
 from agentic_rag.retrieval.retriever import MultiChannelRetriever
 from agentic_rag.schemas import Citation, RAGResult, SearchHit
@@ -62,6 +63,7 @@ class TaskGraphRAG:
         retriever: MultiChannelRetriever,
         llm_client: LLMClient,
         prompt_builder: PromptBuilder,
+        rerank_service: RerankService | None = None,
         stage_logger: StageLogger | None = None,
     ):
         self.settings = settings
@@ -69,6 +71,7 @@ class TaskGraphRAG:
         self.retriever = retriever
         self.llm_client = llm_client
         self.prompt_builder = prompt_builder
+        self.rerank_service = rerank_service
         self.stage_logger = stage_logger
         self.evidence_evaluator = EvidenceEvaluator(settings)
         self.local_retry_planner = LocalRetryPlanner(settings)
@@ -380,6 +383,32 @@ class TaskGraphRAG:
         expanded = state.get("expanded_hits", [])
         return {"expanded_hits": expanded}
 
+    def _rerank_node(self, state: TaskGraphState) -> TaskGraphState:
+        hits = state.get("expanded_hits", [])
+        if not self.settings.rerank_enabled or self.rerank_service is None:
+            return {
+                "reranked_hits": hits[: self.settings.context_top_n],
+                "expanded_hits": hits,
+                "used_rerank": False,
+                "rerank_fallback_reason": None if not self.settings.rerank_enabled else "rerank_service_unavailable",
+                "rerank_score_top": None,
+                "rerank_hit_count": 0,
+            }
+        result = self.rerank_service.rerank(state.get("question", ""), hits)
+        reranked = result.hits
+        top_score = None
+        if reranked:
+            raw_score = reranked[0].metadata.get("rerank_score", reranked[0].score)
+            top_score = float(raw_score) if isinstance(raw_score, (int, float)) else None
+        return {
+            "reranked_hits": reranked,
+            "expanded_hits": reranked,
+            "used_rerank": result.used_rerank,
+            "rerank_fallback_reason": result.fallback_reason,
+            "rerank_score_top": top_score,
+            "rerank_hit_count": len(reranked) if result.used_rerank else 0,
+        }
+
     def _evidence_gate_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("evidence_gate")
         hits = state.get("expanded_hits", [])
@@ -446,6 +475,12 @@ class TaskGraphRAG:
             "supporting_hit_ids": pack.supporting_hit_ids,
             "support_level": pack.support_level,
             "support_score": pack.support_score,
+            "support_features": pack.support_features,
+            "support_feature_weights": pack.support_feature_weights,
+            "support_feature_contributions": pack.support_feature_contributions,
+            "support_raw_features": pack.support_raw_features,
+            "support_normalized_features": pack.support_normalized_features,
+            "rerank_available": pack.rerank_available,
             "slot_coverage": pack.slot_coverage,
             "required_slots": pack.required_slots,
             "covered_slots": pack.covered_slots,
@@ -559,7 +594,7 @@ class TaskGraphRAG:
             answer=state.get("answer", self.settings.uncertain_answer_text),
             citations=[],
             retrieved_count=len(state.get("expanded_hits", [])),
-            used_rerank=False,
+            used_rerank=bool(state.get("used_rerank", False)),
             fallback_used=bool(state.get("retry_count", 0) > 0),
             debug={
                 "route": state.get("route"),
@@ -579,6 +614,12 @@ class TaskGraphRAG:
                 "supporting_hit_ids": state.get("supporting_hit_ids", []),
                 "support_level": state.get("support_level", "none"),
                 "support_score": state.get("support_score", 0.0),
+                "support_features": state.get("support_features", {}),
+                "support_feature_weights": state.get("support_feature_weights", {}),
+                "support_feature_contributions": state.get("support_feature_contributions", {}),
+                "support_raw_features": state.get("support_raw_features", {}),
+                "support_normalized_features": state.get("support_normalized_features", {}),
+                "rerank_available": state.get("rerank_available", False),
                 "slot_coverage": state.get("slot_coverage", {}),
                 "conflict_reasons": state.get("conflict_reasons", []),
                 "gate_decision": state.get("gate_decision", "retry"),
@@ -601,6 +642,9 @@ class TaskGraphRAG:
                 "agent_fallback_reason": state.get("agent_fallback_reason"),
                 "plan_validation_errors": state.get("plan_validation_errors", []),
                 "retry_plan_validation_errors": state.get("retry_plan_validation_errors", []),
+                "rerank_fallback_reason": state.get("rerank_fallback_reason"),
+                "rerank_score_top": state.get("rerank_score_top"),
+                "rerank_hit_count": state.get("rerank_hit_count", 0),
             },
         )
         for row in state.get("citations", []):
@@ -654,6 +698,7 @@ class TaskGraphRAG:
         graph.add_node("retrieve_fanout", self._retrieve_fanout_node)
         graph.add_node("retrieve_rrf", self._retrieve_rrf_node)
         graph.add_node("relationship_expand", self._relationship_expand_node)
+        graph.add_node("rerank", self._rerank_node)
         graph.add_node("evidence_gate", self._evidence_gate_node)
         graph.add_node("local_retry", self._local_retry_node)
         graph.add_node("build_prompt", self._build_prompt_node)
@@ -667,7 +712,8 @@ class TaskGraphRAG:
         graph.add_edge("embed_query", "retrieve_fanout")
         graph.add_edge("retrieve_fanout", "retrieve_rrf")
         graph.add_edge("retrieve_rrf", "relationship_expand")
-        graph.add_edge("relationship_expand", "evidence_gate")
+        graph.add_edge("relationship_expand", "rerank")
+        graph.add_edge("rerank", "evidence_gate")
         graph.add_conditional_edges(
             "evidence_gate",
             self._retry_decision,

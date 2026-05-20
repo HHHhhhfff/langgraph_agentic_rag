@@ -256,7 +256,11 @@ LLM_MODEL=qwen-plus
 
 RERANK_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 RERANK_API_KEY=<your-bailian-api-key>
-RERANK_MODEL=qwen3-vl-rerank
+RERANK_PROVIDER=dashscope
+RERANK_MODEL=qwen3-rerank
+RERANK_RETURN_DOCUMENTS=true
+RERANK_ENABLE_MULTIMODAL=false
+RERANK_INSTRUCT=Given a web search query, retrieve relevant passages that answer the query.
 ```
 
 说明：
@@ -264,6 +268,20 @@ RERANK_MODEL=qwen3-vl-rerank
 - `text-embedding-v4` 返回 1024 维向量，因此建议设置 `EMBEDDING_DIMENSIONS=1024`，并让 Qdrant collection 使用同样维度。
 - DashScope embedding 单批上限为 10 条；`EMBEDDING_BATCH_SIZE` 请设置为 `10` 或更小。
 - 如果更换 embedding 模型或维度，需要重建 Qdrant collection。可临时设置 `QDRANT_RECREATE_COLLECTION=true` 后重新构建索引。
+- `qwen3-rerank` 和 `qwen3-vl-rerank` 使用 DashScope `TextReRank` SDK 调用，不走 OpenAI-compatible rerank endpoint。
+- TaskGraph 会在 evidence gate 前执行 rerank；如果 rerank 失败，查询会回退到未 rerank 的候选集，并在 debug 中输出 `rerank_fallback_reason`。
+- 使用 `qwen3-vl-rerank` 时设置 `RERANK_MODEL=qwen3-vl-rerank`，并设置 `RERANK_ENABLE_MULTIMODAL=true`。本地图片无法直接作为远程 rerank 文档时，会回退到 caption/OCR 文本。
+
+Rerank 关键配置：
+
+- `RERANK_PROVIDER=dashscope`
+  - rerank 后端。`qwen3-rerank` / `qwen3-vl-rerank` 应使用 `dashscope`，只有接入其他兼容 `/rerank` endpoint 的服务时才设置为 `openai_compatible`。
+- `RERANK_RETURN_DOCUMENTS=true`
+  - 是否要求 DashScope rerank 返回命中的文档内容。主链路只依赖 `index` 和 `score`，但开启后更方便排查排序结果。
+- `RERANK_ENABLE_MULTIMODAL=false`
+  - 是否使用多模态 rerank payload。`qwen3-rerank` 保持 `false`，使用 `query=str` 和 `documents=list[str]`；`qwen3-vl-rerank` 设置为 `true`，使用 `query=dict` 和 `documents=list[dict]`。
+- `RERANK_INSTRUCT=...`
+  - 传给 `qwen3-rerank` 的检索排序指令，用于约束“按查询找相关段落”的排序目标。多模态 `qwen3-vl-rerank` 默认不传该字段。
 
 ### 3.5 现有配置仍生效
 
@@ -333,6 +351,18 @@ RERANK_MODEL=qwen3-vl-rerank
   - 支持度分数中 slot 覆盖的权重，默认 `0.10`
 - `TG_SUPPORT_W_KEYWORD`
   - 支持度分数中关键词覆盖的权重，默认 `0.05`
+- `TG_DEBUG_SUPPORT_FEATURES=true|false`
+  - 是否在 CLI TaskGraph Debug 中打印 `support_features`、有效权重和贡献值，便于观察量纲和调权重。
+- `TG_SUPPORT_SCORE_NORMALIZATION=rank|minmax|raw`
+  - top hit / avg top 的归一化方式。推荐 `rank`，避免 RRF 原始分数 `0.01~0.05` 直接拉低支持度。
+- `TG_SUPPORT_DISABLE_MISSING_RERANK_WEIGHT=true|false`
+  - rerank 未执行或无 `rerank_score` 时，是否从分母移除 rerank 权重。推荐 `true`。
+- `TG_SUPPORT_CONSISTENCY_MODE=overlap|score_span`
+  - BM25/vector 一致性计算方式。推荐 `overlap`，按 node/source 交集判断，不直接比较 BM25/vector/RRF 原始分数。
+- `TG_SUPPORT_SOURCE_DIVERSITY_MODE=auto|always|disabled`
+  - source diversity 是否参与评分。`auto` 只在跨文档/对比/冲突类问题中使用真实多样性，普通介绍类问题不惩罚单文档命中。
+- `TG_SUPPORT_SLOT_COVERAGE_HARD_ONLY=true|false`
+  - slot coverage 是否只统计页码、来源、数值、模态等 hard slots。推荐 `true`，避免 keyword coverage 被重复惩罚。
 - `TG_CONFLICT_NUMERIC_TOLERANCE`
   - 数值冲突判断容差，默认 `0.0` 表示不同数值严格视为冲突候选
 - `TG_REQUIRED_SLOT_STRICT=true|false`
@@ -386,6 +416,26 @@ Agent 接入原则：
 - `TG_SUPPORT_W_KEYWORD`
 
 建议默认保持 `TG_SUPPORT_W_KEYWORD` 最低，只把它作为辅助项。
+
+`support_score` 现在使用归一化后的同量纲特征计算。raw RRF/BM25/vector/rerank 分数会保留在 debug 中，但不会直接混算：
+
+- `support_features.top_hit_score`：归一化后的最佳命中质量，优先使用 rerank/vector 分数，否则按 rank quality 归一化 RRF。
+- `support_features.avg_top_score`：top hits 的归一化平均质量。
+- `support_features.score_consistency`：BM25/vector 通道一致性，默认按 node/source overlap 计算。
+- `support_features.rerank_top_score`：可用 rerank 分数；rerank 不可用时默认不计入分母。
+- `support_features.source_diversity`：有效来源多样性；普通介绍类问题默认不因单文档命中扣分。
+- `support_features.slot_coverage_ratio`：hard slot 覆盖率，默认不包含 keyword。
+- `support_features.keyword_coverage`：关键词覆盖率，低权重辅助信号。
+
+CLI debug 会输出：
+
+```text
+- support_features.top_hit_score=0.8123
+- support_features.avg_top_score=0.7442
+- support_features.score_consistency=0.5000
+- support_feature_weights.top_hit_score=0.3000
+- support_feature_contributions.top_hit_score=0.2437
+```
 
 ### 3.8 阶段日志观测配置（新增）
 
@@ -679,6 +729,7 @@ EMBEDDING_DIMENSIONS=1024
 ### 8.5 Rerank 失败
 
 不会中断主流程，会自动回退到未 rerank 结果。
+`qwen3-rerank` / `qwen3-vl-rerank` 应设置 `RERANK_PROVIDER=dashscope`。如果 debug 中 `used_rerank=false`，优先查看 `rerank_fallback_reason`，常见原因是未安装 `dashscope`、API Key 未配置或模型与 `RERANK_ENABLE_MULTIMODAL` 不匹配。
 
 ### 8.6 Embedding 返回 `401 无效的令牌`
 

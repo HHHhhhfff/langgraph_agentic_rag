@@ -193,3 +193,94 @@ def test_support_score_weights_are_configurable() -> None:
 
     assert 0.0 <= pack.support_score <= 1.0
     assert isinstance(pack.support_score, float)
+
+
+def test_support_score_normalizes_low_rrf_scores() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    hit = _hit("TaskGraph evidence", point_id="p1")
+    hit.score = 0.016
+    hit.score_rrf = 0.016
+    hit.score_vector = None
+
+    pack = evaluator.evaluate("TaskGraph", [hit], {"vector": [hit]}, ["text"])
+
+    assert pack.support_features["top_hit_score"] >= 0.9
+    assert pack.support_features["avg_top_score"] >= 0.9
+    assert pack.support_raw_features["top_rrf_score_raw"] == 0.016
+
+
+def test_missing_rerank_weight_is_removed_from_support_denominator() -> None:
+    settings = Settings(
+        tg_min_evidence_hits=1,
+        tg_min_coverage_ratio=0.0,
+        tg_support_w_rerank=0.5,
+        tg_support_disable_missing_rerank_weight=True,
+    )
+    evaluator = EvidenceEvaluator(settings)
+    hit = _hit("TaskGraph evidence", point_id="p1")
+
+    pack = evaluator.evaluate("TaskGraph", [hit], {"vector": [hit]}, ["text"])
+
+    assert pack.rerank_available is False
+    assert pack.support_feature_weights["rerank_top_score"] == 0.0
+
+
+def test_rerank_score_sets_rerank_feature() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    hit = _hit("TaskGraph evidence", point_id="p1")
+    hit.metadata["rerank_score"] = 0.87
+
+    pack = evaluator.evaluate("TaskGraph", [hit], {"vector": [hit]}, ["text"])
+
+    assert pack.rerank_available is True
+    assert pack.support_features["rerank_top_score"] == 0.87
+
+
+def test_overlap_consistency_uses_channel_overlap() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    vector_hit = _hit("TaskGraph evidence", point_id="same", channel="vector")
+    bm25_hit = _hit("TaskGraph evidence", point_id="same", channel="bm25")
+
+    pack = evaluator.evaluate("TaskGraph", [vector_hit], {"vector": [vector_hit], "bm25": [bm25_hit]}, ["text"])
+
+    assert pack.support_features["score_consistency"] == 1.0
+
+
+def test_single_channel_consistency_is_not_zero() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    hit = _hit("TaskGraph evidence", point_id="p1")
+
+    pack = evaluator.evaluate("TaskGraph", [hit], {"vector": [hit]}, ["text"])
+
+    assert pack.support_features["score_consistency"] == 0.5
+
+
+def test_source_diversity_auto_does_not_penalize_intro_question() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    hits = [_hit("TaskGraph evidence", point_id=f"p{i}", doc_id="one") for i in range(3)]
+
+    pack = evaluator.evaluate("简单介绍 TaskGraph", hits, {"vector": hits}, ["text"])
+
+    assert pack.support_raw_features["source_diversity_raw"] < 1.0
+    assert pack.support_features["source_diversity"] == 1.0
+
+
+def test_source_diversity_auto_uses_raw_for_cross_doc_question() -> None:
+    evaluator = EvidenceEvaluator(Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0))
+    hits = [_hit("TaskGraph evidence", point_id=f"p{i}", doc_id="one") for i in range(3)]
+    plan = RetrievalPlan(question="对比多个文档中的 TaskGraph", need_cross_doc=True)
+
+    pack = evaluator.evaluate("对比多个文档中的 TaskGraph", hits, {"vector": hits}, ["text"], plan=plan)
+
+    assert pack.support_features["source_diversity"] == pack.support_raw_features["source_diversity_raw"]
+
+
+def test_slot_coverage_hard_only_ignores_keyword_soft_slot() -> None:
+    evaluator = EvidenceEvaluator(
+        Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=1.0, tg_support_slot_coverage_hard_only=True)
+    )
+    hit = _hit("semantic evidence without literal token", point_id="p1")
+
+    pack = evaluator.evaluate("TaskGraph", [hit], {"vector": [hit]}, ["text"])
+
+    assert pack.support_features["slot_coverage_ratio"] == 1.0

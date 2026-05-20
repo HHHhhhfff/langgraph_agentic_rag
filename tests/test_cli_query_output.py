@@ -44,6 +44,18 @@ def test_format_taskgraph_debug_full_fields() -> None:
             "evidence_ok": True,
             "support_level": "strong",
             "support_score": 0.812345,
+            "rerank_available": False,
+            "support_features": {
+                "top_hit_score": 0.9,
+                "avg_top_score": 0.8,
+                "score_consistency": 0.5,
+                "rerank_top_score": 0.0,
+                "source_diversity": 1.0,
+                "slot_coverage_ratio": 1.0,
+                "keyword_coverage": 0.25,
+            },
+            "support_feature_weights": {"top_hit_score": 0.3},
+            "support_feature_contributions": {"top_hit_score": 0.27},
             "evidence_gaps": [],
             "missing_slots": [],
             "gate_reasons": [],
@@ -64,6 +76,10 @@ def test_format_taskgraph_debug_full_fields() -> None:
     assert "- gate_decision=pass" in text
     assert "- support_level=strong" in text
     assert "- support_score=0.8123" in text
+    assert "- support_features.top_hit_score=0.9000" in text
+    assert "- support_features.keyword_coverage=0.2500" in text
+    assert "- support_feature_weights.top_hit_score=0.3000" in text
+    assert "- support_feature_contributions.top_hit_score=0.2700" in text
     assert "- retry_actions=[rewrite_query,increase_top_k]" in text
     assert "- rewritten_query_text=table accuracy" in text
     assert "- citation_ok=true" in text

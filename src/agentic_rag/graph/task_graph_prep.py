@@ -28,6 +28,11 @@ class TaskGraphState(TypedDict, total=False):
     route_hits: dict[str, list[SearchHit]]
     fused_hits: list[SearchHit]
     expanded_hits: list[SearchHit]
+    reranked_hits: list[SearchHit]
+    used_rerank: bool
+    rerank_fallback_reason: str | None
+    rerank_score_top: float | None
+    rerank_hit_count: int
     evidence_pack: dict[str, Any]
     evidence_ok: bool
     evidence_gaps: list[str]
@@ -42,6 +47,12 @@ class TaskGraphState(TypedDict, total=False):
     supporting_hit_ids: list[str]
     support_level: str
     support_score: float
+    support_features: dict[str, float]
+    support_feature_weights: dict[str, float]
+    support_feature_contributions: dict[str, float]
+    support_raw_features: dict[str, float]
+    support_normalized_features: dict[str, float]
+    rerank_available: bool
     slot_coverage: dict[str, bool]
     required_slots: list[str]
     covered_slots: list[str]

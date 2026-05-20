@@ -25,6 +25,12 @@ class EvidencePack(BaseModel):
     supporting_hit_ids: list[str] = Field(default_factory=list)
     support_level: str = "none"
     support_score: float = 0.0
+    support_features: dict[str, float] = Field(default_factory=dict)
+    support_feature_weights: dict[str, float] = Field(default_factory=dict)
+    support_feature_contributions: dict[str, float] = Field(default_factory=dict)
+    support_raw_features: dict[str, float] = Field(default_factory=dict)
+    support_normalized_features: dict[str, float] = Field(default_factory=dict)
+    rerank_available: bool = False
     slot_coverage: dict[str, bool] = Field(default_factory=dict)
     required_slots: list[str] = Field(default_factory=list)
     covered_slots: list[str] = Field(default_factory=list)

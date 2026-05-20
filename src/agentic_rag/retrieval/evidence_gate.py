@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import math
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -120,6 +121,12 @@ class EvidenceFeatures(BaseModel):
     numeric_conflict_detected: bool = False
     should_check_conflicts: bool = False
     should_check_numeric: bool = False
+    raw_scores: dict[str, float] = Field(default_factory=dict)
+    normalized_scores: dict[str, float] = Field(default_factory=dict)
+    support_feature_values: dict[str, float] = Field(default_factory=dict)
+    support_feature_weights: dict[str, float] = Field(default_factory=dict)
+    support_feature_contributions: dict[str, float] = Field(default_factory=dict)
+    rerank_available: bool = False
 
 
 class EvidenceGuardResult(BaseModel):
@@ -236,6 +243,12 @@ class EvidenceEvaluator:
             supporting_hit_ids=supporting_hit_ids,
             support_level=support_level,
             support_score=support_score,
+            support_features=features.support_feature_values,
+            support_feature_weights=features.support_feature_weights,
+            support_feature_contributions=features.support_feature_contributions,
+            support_raw_features=features.raw_scores,
+            support_normalized_features=features.normalized_scores,
+            rerank_available=features.rerank_available,
             slot_coverage=slot_coverage,
             required_slots=required_slots,
             covered_slots=covered_slots,
@@ -308,15 +321,46 @@ class EvidenceEvaluator:
     ) -> EvidenceFeatures:
         modality_coverage = _modality_coverage(hits)
         keyword_coverage = self._keyword_coverage(slots.keyword_terms, hits)
-        top_hit_score = _top_score(hits)
-        avg_top_score = _avg_top_score(hits)
+        raw_scores = _raw_support_scores(hits)
+        normalized_hit_scores = _normalized_hit_scores(hits, self.settings.tg_support_score_normalization)
+        top_hit_score = max(normalized_hit_scores) if normalized_hit_scores else 0.0
+        avg_top_score = _avg_scores(normalized_hit_scores)
         bm25_top_score = _top_score(route_hits.get("bm25", []))
         vector_top_score = _top_score(route_hits.get("vector", []))
-        rerank_top_score = _top_score(route_hits.get("rerank", []))
-        score_consistency = _score_consistency([top_hit_score, bm25_top_score, vector_top_score, rerank_top_score])
-        source_diversity = _source_diversity(hits)
+        rerank_top_score = _rerank_top_score(hits, route_hits)
+        rerank_available = rerank_top_score > 0
+        score_consistency = self._score_consistency(
+            hits=hits,
+            route_hits=route_hits,
+            scores=[top_hit_score, bm25_top_score, vector_top_score, rerank_top_score],
+        )
+        source_diversity_raw = _source_diversity(hits)
+        source_diversity = self._effective_source_diversity(question, plan, source_diversity_raw)
         hard_missing_slots = self._hard_missing_slots(slots=slots, hits=hits, keyword_coverage=keyword_coverage, modality_coverage=modality_coverage)
         soft_missing_slots = self._soft_missing_slots(slots=slots, keyword_coverage=keyword_coverage)
+        slot_coverage_ratio = self._slot_coverage_ratio(slots, hard_missing_slots, soft_missing_slots)
+        raw_scores.update(
+            {
+                "top_hit_score_raw": _top_score(hits),
+                "avg_top_score_raw": _avg_top_score(hits),
+                "bm25_top_score_raw": bm25_top_score,
+                "vector_top_score_raw": vector_top_score,
+                "rerank_top_score_raw": rerank_top_score,
+                "source_diversity_raw": source_diversity_raw,
+                "keyword_coverage_raw": keyword_coverage,
+                "slot_coverage_ratio_raw": slot_coverage_ratio,
+            }
+        )
+        normalized_scores = {
+            "top_hit_score": _clip01(top_hit_score),
+            "avg_top_score": _clip01(avg_top_score),
+            "score_consistency": _clip01(score_consistency),
+            "rerank_top_score": _clip01(rerank_top_score),
+            "source_diversity": _clip01(source_diversity),
+            "slot_coverage_ratio": _clip01(slot_coverage_ratio),
+            "keyword_coverage": _clip01(keyword_coverage),
+            "source_diversity_raw": _clip01(source_diversity_raw),
+        }
         conflict_level, conflict_reasons = self._detect_conflicts(question, hits, plan)
         should_check_conflicts = _should_check_polarity_conflicts(question, plan)
         should_check_numeric = _should_check_numeric_conflicts(question, plan)
@@ -329,7 +373,7 @@ class EvidenceEvaluator:
             keyword_coverage=keyword_coverage,
             modality_requirements=slots.modality_requirements,
         )
-        return EvidenceFeatures(
+        features = EvidenceFeatures(
             hit_count=len(hits),
             top_hit_score=top_hit_score,
             avg_top_score=avg_top_score,
@@ -339,7 +383,7 @@ class EvidenceEvaluator:
             score_consistency=score_consistency,
             source_diversity=source_diversity,
             keyword_coverage=keyword_coverage,
-            slot_coverage_ratio=self._slot_coverage_ratio(slots, hard_missing_slots, soft_missing_slots),
+            slot_coverage_ratio=slot_coverage_ratio,
             hard_missing_slots=hard_missing_slots,
             soft_missing_slots=soft_missing_slots,
             advisory_reasons=advisory_reasons,
@@ -348,7 +392,15 @@ class EvidenceEvaluator:
             numeric_conflict_detected=numeric_conflict_detected,
             should_check_conflicts=should_check_conflicts,
             should_check_numeric=should_check_numeric,
+            raw_scores=raw_scores,
+            normalized_scores=normalized_scores,
+            support_feature_values=dict(normalized_scores),
+            rerank_available=rerank_available,
         )
+        feature_weights = self._support_feature_weights(features)
+        features.support_feature_weights = feature_weights
+        features.support_feature_contributions = self._support_feature_contributions(features, feature_weights)
+        return features
 
     def _hard_missing_slots(
         self,
@@ -384,10 +436,14 @@ class EvidenceEvaluator:
         return _dedupe(missing)
 
     def _slot_coverage_ratio(self, slots: QuerySlots, hard_missing_slots: list[str], soft_missing_slots: list[str]) -> float:
-        all_slots = [slot for slot in slots.required_slots if slot != "hits"]
+        if self.settings.tg_support_slot_coverage_hard_only:
+            all_slots = [slot for slot in slots.hard_slots if slot != "hits"]
+            missing = set(hard_missing_slots)
+        else:
+            all_slots = [slot for slot in slots.required_slots if slot != "hits"]
+            missing = set(hard_missing_slots) | set(soft_missing_slots)
         if not all_slots:
             return 1.0
-        missing = set(hard_missing_slots) | set(soft_missing_slots)
         covered = [slot for slot in all_slots if slot not in missing]
         return len(covered) / max(1, len(all_slots))
 
@@ -561,30 +617,72 @@ class EvidenceEvaluator:
             return "numeric_value_conflict"
         return None
 
+    def _score_consistency(self, *, hits: list[SearchHit], route_hits: dict[str, list[SearchHit]], scores: list[float]) -> float:
+        if self.settings.tg_support_consistency_mode == "score_span":
+            return _score_consistency(scores)
+        vector_hits = route_hits.get("vector", [])
+        bm25_hits = route_hits.get("bm25", [])
+        if not vector_hits and not bm25_hits:
+            return 0.0 if not hits else 0.5
+        if not vector_hits or not bm25_hits:
+            return 0.5
+        vector_ids = {_hit_identity(hit) for hit in vector_hits if _hit_identity(hit)}
+        bm25_ids = {_hit_identity(hit) for hit in bm25_hits if _hit_identity(hit)}
+        node_overlap = _overlap_ratio(vector_ids, bm25_ids)
+        vector_sources = {_hit_source(hit) or "" for hit in vector_hits}
+        bm25_sources = {_hit_source(hit) or "" for hit in bm25_hits}
+        vector_sources.discard("")
+        bm25_sources.discard("")
+        source_overlap = _overlap_ratio(vector_sources, bm25_sources)
+        return _clip01(max(node_overlap, 0.5 * source_overlap))
+
+    def _effective_source_diversity(self, question: str, plan: RetrievalPlan, raw: float) -> float:
+        mode = self.settings.tg_support_source_diversity_mode
+        if mode == "disabled":
+            return 1.0
+        if mode == "always":
+            return raw
+        if bool(getattr(plan, "need_cross_doc", False)) or _contains_any(
+            question,
+            ("\u5bf9\u6bd4", "\u5dee\u5f02", "\u591a\u4e2a\u6587\u6863", "\u51b2\u7a81", "\u6bd4\u8f83", "compare", "different"),
+        ):
+            return raw
+        return 1.0
+
+    def _support_feature_weights(self, features: EvidenceFeatures) -> dict[str, float]:
+        weights = {
+            "top_hit_score": self.settings.tg_support_w_top_hit,
+            "avg_top_score": self.settings.tg_support_w_avg_top,
+            "score_consistency": self.settings.tg_support_w_bm25_vector,
+            "rerank_top_score": self.settings.tg_support_w_rerank,
+            "source_diversity": self.settings.tg_support_w_source_diversity,
+            "slot_coverage_ratio": self.settings.tg_support_w_slot_coverage,
+            "keyword_coverage": self.settings.tg_support_w_keyword,
+        }
+        if self.settings.tg_support_disable_missing_rerank_weight and not features.rerank_available:
+            weights["rerank_top_score"] = 0.0
+        if self.settings.tg_support_source_diversity_mode == "disabled":
+            weights["source_diversity"] = 0.0
+        return {key: float(max(0.0, value)) for key, value in weights.items()}
+
+    def _support_feature_contributions(self, features: EvidenceFeatures, weights: dict[str, float]) -> dict[str, float]:
+        total = sum(weights.values())
+        if total <= 0:
+            return {key: 0.0 for key in weights}
+        return {
+            key: round(_clip01(features.support_feature_values.get(key, 0.0)) * weight / total, 4)
+            for key, weight in weights.items()
+        }
+
     def _support_score(self, features: EvidenceFeatures) -> float:
         if features.hit_count <= 0:
             return 0.0
-        weight_total = (
-            self.settings.tg_support_w_top_hit
-            + self.settings.tg_support_w_avg_top
-            + self.settings.tg_support_w_bm25_vector
-            + self.settings.tg_support_w_rerank
-            + self.settings.tg_support_w_source_diversity
-            + self.settings.tg_support_w_slot_coverage
-            + self.settings.tg_support_w_keyword
-        )
+        weights = features.support_feature_weights or self._support_feature_weights(features)
+        weight_total = sum(weights.values())
         if weight_total <= 0:
             return 0.0
-        score = (
-            self.settings.tg_support_w_top_hit * min(1.0, features.top_hit_score)
-            + self.settings.tg_support_w_avg_top * min(1.0, features.avg_top_score)
-            + self.settings.tg_support_w_bm25_vector * min(1.0, features.score_consistency)
-            + self.settings.tg_support_w_rerank * min(1.0, features.rerank_top_score)
-            + self.settings.tg_support_w_source_diversity * min(1.0, features.source_diversity)
-            + self.settings.tg_support_w_slot_coverage * min(1.0, features.slot_coverage_ratio)
-            + self.settings.tg_support_w_keyword * min(1.0, features.keyword_coverage)
-        )
-        score = score / weight_total
+        values = features.support_feature_values
+        score = sum(weights[key] * _clip01(values.get(key, 0.0)) for key in weights) / weight_total
         if features.conflict_level == "high":
             score *= 0.9
         elif features.conflict_level == "medium":
@@ -647,6 +745,87 @@ def _hit_score(hit: SearchHit) -> float:
         if isinstance(value, (int, float)):
             return float(value)
     return 0.0
+
+
+def _clip01(value: float) -> float:
+    try:
+        return max(0.0, min(1.0, float(value)))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _avg_scores(scores: list[float], limit: int = 5) -> float:
+    if not scores:
+        return 0.0
+    top_scores = sorted(scores, reverse=True)[: max(1, limit)]
+    return sum(top_scores) / len(top_scores)
+
+
+def _metadata_float(hit: SearchHit, key: str) -> float | None:
+    value = hit.metadata.get(key)
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
+def _rerank_score(hit: SearchHit) -> float | None:
+    return _metadata_float(hit, "rerank_score")
+
+
+def _normalized_hit_scores(hits: list[SearchHit], mode: str) -> list[float]:
+    if not hits:
+        return []
+    if mode == "raw":
+        return [_clip01(_hit_score(hit)) for hit in hits]
+    if mode == "minmax":
+        raw_values = [_hit_score(hit) for hit in hits]
+        lo = min(raw_values)
+        hi = max(raw_values)
+        if hi <= lo:
+            return [1.0 for _ in raw_values]
+        return [_clip01((value - lo) / (hi - lo)) for value in raw_values]
+    out: list[float] = []
+    for rank, hit in enumerate(hits, start=1):
+        rerank = _rerank_score(hit)
+        if rerank is not None:
+            out.append(_clip01(rerank))
+            continue
+        if isinstance(hit.score_vector, (int, float)):
+            out.append(_clip01(float(hit.score_vector)))
+            continue
+        if isinstance(hit.score, (int, float)) and not isinstance(hit.score_rrf, (int, float)):
+            out.append(_clip01(float(hit.score)))
+            continue
+        out.append(_clip01(1.0 / math.log2(rank + 1)))
+    return out
+
+
+def _raw_support_scores(hits: list[SearchHit]) -> dict[str, float]:
+    return {
+        "top_rrf_score_raw": max((float(hit.score_rrf) for hit in hits if isinstance(hit.score_rrf, (int, float))), default=0.0),
+        "top_vector_score_raw": max((float(hit.score_vector) for hit in hits if isinstance(hit.score_vector, (int, float))), default=0.0),
+        "top_bm25_score_raw": max((float(hit.score_bm25) for hit in hits if isinstance(hit.score_bm25, (int, float))), default=0.0),
+        "top_rerank_score_raw": max((_rerank_score(hit) or 0.0 for hit in hits), default=0.0),
+    }
+
+
+def _rerank_top_score(hits: list[SearchHit], route_hits: dict[str, list[SearchHit]]) -> float:
+    scores = [_rerank_score(hit) for hit in hits]
+    scores.extend(_rerank_score(hit) for hit in route_hits.get("rerank", []))
+    valid = [score for score in scores if isinstance(score, (int, float))]
+    return _clip01(max(valid)) if valid else 0.0
+
+
+def _hit_identity(hit: SearchHit) -> str:
+    return str(hit.node_id or hit.point_id or f"{hit.doc_id}:{hit.page}:{hit.text[:64]}")
+
+
+def _overlap_ratio(left: set[str], right: set[str]) -> float:
+    if not left and not right:
+        return 0.0
+    if not left or not right:
+        return 0.0
+    return len(left & right) / max(1, min(len(left), len(right)))
 
 
 def _score_consistency(scores: list[float]) -> float:

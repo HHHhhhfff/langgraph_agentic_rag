@@ -63,8 +63,12 @@ class Settings(BaseSettings):
         description="Safety margin tokens reserved under embedding max input limit",
     )
 
-    # Rerank provider settings (OpenAI-compatible)
+    # Rerank provider settings
     rerank_enabled: bool = Field(default=True, description="Enable rerank stage")
+    rerank_provider: Literal["", "dashscope", "openai_compatible"] = Field(
+        default="dashscope",
+        description="Rerank backend provider. Empty means auto-detect from model name.",
+    )
     rerank_base_url: str = Field(
         default="https://dashscope.aliyuncs.com/compatible-mode/v1",
         description="Rerank API base URL",
@@ -76,6 +80,12 @@ class Settings(BaseSettings):
     rerank_top_n: int = Field(default=8, description="How many reranked chunks to keep")
     rerank_timeout_sec: float = Field(default=30.0, description="Rerank request timeout")
     rerank_max_retries: int = Field(default=2, description="Rerank retry count")
+    rerank_return_documents: bool = Field(default=True, description="Ask rerank provider to return documents")
+    rerank_enable_multimodal: bool = Field(default=False, description="Use multimodal DashScope rerank payloads")
+    rerank_instruct: str = Field(
+        default="Given a web search query, retrieve relevant passages that answer the query.",
+        description="Optional DashScope qwen3-rerank instruction",
+    )
 
     # LLM generation provider settings (OpenAI-compatible)
     llm_base_url: str = Field(default="https://api.openai.com/v1", description="LLM API base URL")
@@ -305,6 +315,22 @@ class Settings(BaseSettings):
     tg_support_w_source_diversity: float = Field(default=0.10, description="Support score weight for source diversity")
     tg_support_w_slot_coverage: float = Field(default=0.10, description="Support score weight for slot coverage")
     tg_support_w_keyword: float = Field(default=0.05, description="Support score weight for keyword coverage")
+    tg_debug_support_features: bool = Field(default=True, description="Print support-score feature details in CLI debug")
+    tg_support_score_normalization: Literal["rank", "minmax", "raw"] = Field(
+        default="rank", description="Normalize retrieval scores for support_score"
+    )
+    tg_support_disable_missing_rerank_weight: bool = Field(
+        default=True, description="Remove rerank weight when rerank scores are unavailable"
+    )
+    tg_support_consistency_mode: Literal["overlap", "score_span"] = Field(
+        default="overlap", description="BM25/vector consistency calculation mode"
+    )
+    tg_support_source_diversity_mode: Literal["auto", "always", "disabled"] = Field(
+        default="auto", description="When source diversity contributes to support_score"
+    )
+    tg_support_slot_coverage_hard_only: bool = Field(
+        default=True, description="Only hard slots contribute to support slot coverage"
+    )
     tg_conflict_numeric_tolerance: float = Field(default=0.0, description="Numeric tolerance for evidence conflict checks")
     tg_required_slot_strict: bool = Field(default=True, description="Require all extracted evidence slots to be covered")
     tg_retry_top_k_multiplier: float = Field(default=1.5, description="Top-k multiplier applied by TaskGraph local retry")
@@ -358,6 +384,8 @@ class Settings(BaseSettings):
         "retrieval_top_k",
         "context_top_n",
         "bm25_top_k",
+        "rerank_top_n",
+        "rerank_max_retries",
         "page_top_k",
         "table_top_k",
         "rrf_k",

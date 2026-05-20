@@ -29,25 +29,31 @@ class RerankService:
         if not self.settings.rerank_enabled:
             return RerankResult(hits=hits[: self.settings.context_top_n], used_rerank=False)
 
-        docs = [h.text for h in hits]
         top_n = min(self.settings.rerank_top_n, len(hits))
         try:
-            rows = self.reranker.rerank(query=query, documents=docs, top_n=top_n)
+            if hasattr(self.reranker, "rerank_hits"):
+                rows = self.reranker.rerank_hits(query=query, hits=hits, top_n=top_n)
+            else:
+                docs = [_hit_rerank_text(h) for h in hits]
+                rows = self.reranker.rerank(query=query, documents=docs, top_n=top_n)
         except Exception as exc:
             return RerankResult(
                 hits=hits[: self.settings.context_top_n],
                 used_rerank=False,
-                fallback_reason=f"rerank_failed: {exc}",
+                fallback_reason=f"rerank_failed:{type(exc).__name__}: {_safe_excerpt(str(exc))}",
             )
 
         picked: list[SearchHit] = []
-        for row in rows:
+        for rank, row in enumerate(rows, start=1):
             idx = row.get("index")
             score = row.get("score")
             if not isinstance(idx, int) or idx < 0 or idx >= len(hits):
                 continue
             hit = hits[idx]
             hit.score = float(score) if isinstance(score, (int, float)) else hit.score
+            if isinstance(score, (int, float)):
+                hit.metadata["rerank_score"] = float(score)
+            hit.metadata["rerank_rank"] = rank
             picked.append(hit)
 
         if not picked:
@@ -58,3 +64,19 @@ class RerankService:
             )
 
         return RerankResult(hits=picked[: self.settings.context_top_n], used_rerank=True)
+
+
+def _hit_rerank_text(hit: SearchHit) -> str:
+    parts = [
+        hit.text or "",
+        hit.table_markdown or "",
+        hit.formula_latex or "",
+        hit.caption or "",
+        hit.ocr_text or "",
+        hit.object_description or "",
+    ]
+    return "\n".join(part for part in parts if part).strip()
+
+
+def _safe_excerpt(text: str, max_chars: int = 300) -> str:
+    return " ".join((text or "").strip().split())[:max_chars]

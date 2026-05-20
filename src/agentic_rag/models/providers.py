@@ -16,6 +16,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 from agentic_rag.config import Settings
 from agentic_rag.ingestion.token_splitter import TokenHardSplitter, TokenSplitConfig, looks_like_markdown_table
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
+from agentic_rag.schemas import SearchHit
 
 
 class ProviderError(RuntimeError):
@@ -81,6 +82,10 @@ class Reranker(ABC):
     @abstractmethod
     def rerank(self, query: str, documents: list[str], top_n: int) -> list[dict[str, Any]]:
         raise NotImplementedError
+
+    def rerank_hits(self, query: str, hits: list[SearchHit], top_n: int) -> list[dict[str, Any]]:
+        documents = [_hit_rerank_text(hit) for hit in hits]
+        return self.rerank(query=query, documents=documents, top_n=top_n)
 
 
 class LLMClient(ABC):
@@ -712,6 +717,94 @@ def _safe_excerpt(text: str, max_chars: int = 400) -> str:
     return " ".join((text or "").strip().split())[:max_chars]
 
 
+def _hit_rerank_text(hit: SearchHit) -> str:
+    parts = [
+        hit.text or "",
+        hit.table_markdown or "",
+        hit.formula_latex or "",
+        hit.caption or "",
+        hit.ocr_text or "",
+        hit.object_description or "",
+    ]
+    return "\n".join(part for part in parts if part).strip()
+
+
+def _is_http_url(value: str | None) -> bool:
+    return bool(value and re.match(r"^https?://", value.strip(), flags=re.I))
+
+
+def _hit_multimodal_rerank_document(hit: SearchHit) -> dict[str, str]:
+    if hit.modality == "image":
+        image_url = (
+            hit.metadata.get("image_url")
+            or hit.metadata.get("url")
+            or hit.metadata.get("source_url")
+            or hit.image_path
+        )
+        if isinstance(image_url, str) and _is_http_url(image_url):
+            return {"image": image_url}
+    text = _hit_rerank_text(hit)
+    return {"text": text or hit.point_id}
+
+
+def _object_to_plain_data(value: Any) -> Any:
+    if isinstance(value, dict):
+        return value
+    if isinstance(value, list):
+        return value
+    if hasattr(value, "to_dict"):
+        try:
+            return value.to_dict()
+        except Exception:
+            pass
+    if hasattr(value, "__dict__"):
+        return {k: v for k, v in vars(value).items() if not k.startswith("_")}
+    return value
+
+
+def _dig_value(data: Any, path: tuple[str, ...]) -> Any:
+    current = data
+    for key in path:
+        if isinstance(current, dict):
+            current = current.get(key)
+        else:
+            current = getattr(current, key, None)
+        if current is None:
+            return None
+    return current
+
+
+def _parse_dashscope_rerank_response(resp: Any) -> list[dict[str, Any]]:
+    data = _object_to_plain_data(resp)
+    candidates = [
+        _dig_value(resp, ("output", "results")),
+        _dig_value(data, ("output", "results")),
+        _dig_value(resp, ("data",)),
+        _dig_value(data, ("data",)),
+        _dig_value(resp, ("results",)),
+        _dig_value(data, ("results",)),
+    ]
+    rows = next((row for row in candidates if isinstance(row, list)), None)
+    if rows is None:
+        raise ProviderError(f"DashScope rerank response missing results: {_safe_excerpt(str(resp))}")
+    parsed: list[dict[str, Any]] = []
+    for row in rows:
+        row_data = _object_to_plain_data(row)
+        if not isinstance(row_data, dict):
+            continue
+        index = row_data.get("index")
+        score = row_data.get("relevance_score", row_data.get("score"))
+        if isinstance(index, int) and isinstance(score, (int, float)):
+            parsed.append(
+                {
+                    "index": index,
+                    "score": float(score),
+                    "document": row_data.get("document"),
+                }
+            )
+    return parsed
+
+
 class OpenAICompatibleReranker(Reranker):
     """Reranker using OpenAI-compatible /rerank endpoint."""
 
@@ -774,6 +867,126 @@ class OpenAICompatibleReranker(Reranker):
                 latency_ms=timer.elapsed_ms(),
                 parser="reranker_provider",
                 chunk_count=len(documents),
+            )
+        return out
+
+
+class DashScopeReranker(Reranker):
+    """Reranker using DashScope TextReRank SDK."""
+
+    def __init__(self, settings: Settings):
+        self.settings = settings
+        self.stage_logger: StageLogger | None = None
+
+    def set_stage_logger(self, stage_logger: StageLogger) -> None:
+        self.stage_logger = stage_logger
+
+    def _dashscope_module(self):
+        try:
+            return importlib.import_module("dashscope")
+        except ImportError as exc:
+            raise ProviderError("dashscope package is required for RERANK_PROVIDER=dashscope") from exc
+
+    def _is_multimodal(self) -> bool:
+        return bool(self.settings.rerank_enable_multimodal) or "vl-rerank" in self.settings.rerank_model.lower()
+
+    def _call_dashscope(self, *, query: Any, documents: list[Any], top_n: int, multimodal: bool) -> list[dict[str, Any]]:
+        dashscope = self._dashscope_module()
+        api_key = self.settings.rerank_api_key or os.getenv("DASHSCOPE_API_KEY", "")
+        if api_key:
+            dashscope.api_key = api_key
+        kwargs: dict[str, Any] = {
+            "model": self.settings.rerank_model,
+            "query": query,
+            "documents": documents,
+            "top_n": top_n,
+            "return_documents": self.settings.rerank_return_documents,
+        }
+        if not multimodal and self.settings.rerank_instruct:
+            kwargs["instruct"] = self.settings.rerank_instruct
+        resp = dashscope.TextReRank.call(**kwargs)
+        status_code = getattr(resp, "status_code", None)
+        if status_code is not None and status_code != HTTPStatus.OK:
+            raise ProviderError(f"DashScope rerank failed status={status_code}: {_safe_excerpt(str(resp))}")
+        return _parse_dashscope_rerank_response(resp)
+
+    def rerank(self, query: str, documents: list[str], top_n: int) -> list[dict[str, Any]]:
+        timer = StageTimer.start_now()
+        multimodal = self._is_multimodal()
+        payload_query: Any = {"text": query} if multimodal else query
+        payload_docs: list[Any] = [{"text": doc} for doc in documents] if multimodal else documents
+        if self.stage_logger:
+            self.stage_logger.log_stage_start(
+                "rerank_call",
+                parser="reranker_provider",
+                provider="dashscope",
+                model=self.settings.rerank_model,
+                document_count=len(documents),
+                top_n=top_n,
+                multimodal=multimodal,
+            )
+        retry_call = retry(
+            reraise=True,
+            stop=stop_after_attempt(self.settings.rerank_max_retries),
+            wait=wait_exponential(multiplier=1, min=1, max=4),
+            retry=retry_if_exception_type(ProviderError),
+        )(self._call_dashscope)
+        try:
+            out = retry_call(query=payload_query, documents=payload_docs, top_n=top_n, multimodal=multimodal)
+        except Exception as exc:
+            if self.stage_logger:
+                self.stage_logger.log_stage_error("rerank_call", exc, parser="reranker_provider", provider="dashscope")
+            raise
+        if self.stage_logger:
+            self.stage_logger.log_stage_end(
+                "rerank_call",
+                latency_ms=timer.elapsed_ms(),
+                parser="reranker_provider",
+                provider="dashscope",
+                model=self.settings.rerank_model,
+                document_count=len(documents),
+                top_n=top_n,
+                multimodal=multimodal,
+            )
+        return out
+
+    def rerank_hits(self, query: str, hits: list[SearchHit], top_n: int) -> list[dict[str, Any]]:
+        if not self._is_multimodal():
+            return self.rerank(query=query, documents=[_hit_rerank_text(hit) for hit in hits], top_n=top_n)
+        timer = StageTimer.start_now()
+        documents = [_hit_multimodal_rerank_document(hit) for hit in hits]
+        if self.stage_logger:
+            self.stage_logger.log_stage_start(
+                "rerank_call",
+                parser="reranker_provider",
+                provider="dashscope",
+                model=self.settings.rerank_model,
+                document_count=len(documents),
+                top_n=top_n,
+                multimodal=True,
+            )
+        retry_call = retry(
+            reraise=True,
+            stop=stop_after_attempt(self.settings.rerank_max_retries),
+            wait=wait_exponential(multiplier=1, min=1, max=4),
+            retry=retry_if_exception_type(ProviderError),
+        )(self._call_dashscope)
+        try:
+            out = retry_call(query={"text": query}, documents=documents, top_n=top_n, multimodal=True)
+        except Exception as exc:
+            if self.stage_logger:
+                self.stage_logger.log_stage_error("rerank_call", exc, parser="reranker_provider", provider="dashscope")
+            raise
+        if self.stage_logger:
+            self.stage_logger.log_stage_end(
+                "rerank_call",
+                latency_ms=timer.elapsed_ms(),
+                parser="reranker_provider",
+                provider="dashscope",
+                model=self.settings.rerank_model,
+                document_count=len(documents),
+                top_n=top_n,
+                multimodal=True,
             )
         return out
 
@@ -847,7 +1060,15 @@ def build_image_embedding_provider(settings: Settings) -> ImageEmbeddingProvider
 def build_reranker(settings: Settings) -> Reranker:
     """Factory for reranker provider."""
 
-    return OpenAICompatibleReranker(settings)
+    provider = settings.rerank_provider
+    model = settings.rerank_model.lower()
+    if not provider and model in {"qwen3-rerank", "qwen3-vl-rerank"}:
+        provider = "dashscope"
+    if provider == "dashscope":
+        return DashScopeReranker(settings)
+    if provider == "openai_compatible" or not provider:
+        return OpenAICompatibleReranker(settings)
+    raise ProviderError(f"Unsupported rerank provider: {settings.rerank_provider}")
 
 
 def build_llm_client(settings: Settings) -> LLMClient:

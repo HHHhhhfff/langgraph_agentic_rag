@@ -37,6 +37,23 @@ class DummyRetriever:
         )
 
 
+class DummyRerankService:
+    def __init__(self, fail: bool = False):
+        self.calls = []
+        self.fail = fail
+
+    def rerank(self, query: str, hits: list[SearchHit]):
+        from agentic_rag.retrieval.rerank import RerankResult
+
+        self.calls.append((query, hits))
+        if self.fail:
+            return RerankResult(hits=hits, used_rerank=False, fallback_reason="rerank_failed:test")
+        reranked = list(reversed(hits))
+        if reranked:
+            reranked[0].metadata["rerank_score"] = 0.99
+        return RerankResult(hits=reranked, used_rerank=True)
+
+
 def test_task_graph_happy_path() -> None:
     settings = Settings(
         tg_max_retries=2,
@@ -64,6 +81,56 @@ def test_task_graph_happy_path() -> None:
     assert isinstance(result.debug.get("support_score"), float)
     assert result.debug.get("gate_decision") == "pass"
     assert isinstance(result.debug.get("conflict_reasons"), list)
+
+
+def test_task_graph_uses_rerank_service_when_enabled() -> None:
+    settings = Settings(
+        rerank_enabled=True,
+        tg_max_retries=1,
+        tg_min_evidence_hits=1,
+        tg_min_coverage_ratio=0.0,
+        tg_citation_strict=False,
+    )
+    rerank_service = DummyRerankService()
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        rerank_service=rerank_service,
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    result = graph.invoke("TaskGraph")
+
+    assert rerank_service.calls
+    assert result.used_rerank is True
+    assert result.debug.get("rerank_hit_count") == 1
+    assert result.debug.get("rerank_score_top") == 0.99
+
+
+def test_task_graph_skips_rerank_when_disabled() -> None:
+    settings = Settings(
+        rerank_enabled=False,
+        tg_max_retries=1,
+        tg_min_evidence_hits=1,
+        tg_min_coverage_ratio=0.0,
+        tg_citation_strict=False,
+    )
+    rerank_service = DummyRerankService()
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        rerank_service=rerank_service,
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    result = graph.invoke("TaskGraph")
+
+    assert not rerank_service.calls
+    assert result.used_rerank is False
 
 
 class RetryAwareRetriever:

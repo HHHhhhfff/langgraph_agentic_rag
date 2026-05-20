@@ -37,25 +37,31 @@ def format_taskgraph_debug(debug: dict[str, Any], *, max_items: int = 6) -> list
         f"- evidence_ok={_format_bool(debug.get('evidence_ok', False))}",
         f"- support_level={debug.get('support_level', 'none')}",
         f"- support_score={_format_float(debug.get('support_score', 0.0))}",
-        f"- evidence_gaps={_format_sequence(debug.get('evidence_gaps'), max_items=max_items)}",
-        f"- missing_slots={_format_sequence(debug.get('missing_slots'), max_items=max_items)}",
-        f"- gate_reasons={_format_sequence(debug.get('gate_reasons'), max_items=max_items)}",
-        f"- conflict_level={debug.get('conflict_level', 'none')}",
-        f"- conflict_reasons={_format_sequence(debug.get('conflict_reasons'), max_items=max_items)}",
-        f"- retry_actions={_format_sequence(debug.get('retry_actions'), max_items=max_items)}",
-        f"- rewritten_query_text={debug.get('rewritten_query_text')}",
-        f"- page_window={debug.get('page_window')}",
-        f"- citation_ok={_format_bool(debug.get('citation_ok', False))}",
-        f"- refusal={_format_bool(debug.get('refusal', False))}",
-        f"- refusal_reason={debug.get('refusal_reason')}",
-        f"- agent_route_used={_format_bool(debug.get('agent_route_used', False))}",
-        f"- agent_plan_used={_format_bool(debug.get('agent_plan_used', False))}",
-        f"- agent_evidence_used={_format_bool(debug.get('agent_evidence_used', False))}",
-        f"- agent_retry_used={_format_bool(debug.get('agent_retry_used', False))}",
-        f"- agent_gate_decision={debug.get('agent_gate_decision')}",
-        f"- unsupported_claims={_format_sequence(debug.get('unsupported_claims'), max_items=max_items)}",
-        f"- agent_fallback_reason={debug.get('agent_fallback_reason')}",
     ]
+    if bool(debug.get("support_features")):
+        lines.extend(_format_support_feature_debug(debug))
+    lines.extend(
+        [
+            f"- evidence_gaps={_format_sequence(debug.get('evidence_gaps'), max_items=max_items)}",
+            f"- missing_slots={_format_sequence(debug.get('missing_slots'), max_items=max_items)}",
+            f"- gate_reasons={_format_sequence(debug.get('gate_reasons'), max_items=max_items)}",
+            f"- conflict_level={debug.get('conflict_level', 'none')}",
+            f"- conflict_reasons={_format_sequence(debug.get('conflict_reasons'), max_items=max_items)}",
+            f"- retry_actions={_format_sequence(debug.get('retry_actions'), max_items=max_items)}",
+            f"- rewritten_query_text={debug.get('rewritten_query_text')}",
+            f"- page_window={debug.get('page_window')}",
+            f"- citation_ok={_format_bool(debug.get('citation_ok', False))}",
+            f"- refusal={_format_bool(debug.get('refusal', False))}",
+            f"- refusal_reason={debug.get('refusal_reason')}",
+            f"- agent_route_used={_format_bool(debug.get('agent_route_used', False))}",
+            f"- agent_plan_used={_format_bool(debug.get('agent_plan_used', False))}",
+            f"- agent_evidence_used={_format_bool(debug.get('agent_evidence_used', False))}",
+            f"- agent_retry_used={_format_bool(debug.get('agent_retry_used', False))}",
+            f"- agent_gate_decision={debug.get('agent_gate_decision')}",
+            f"- unsupported_claims={_format_sequence(debug.get('unsupported_claims'), max_items=max_items)}",
+            f"- agent_fallback_reason={debug.get('agent_fallback_reason')}",
+        ]
+    )
     last_retry = _last_retry(debug.get("retry_history"))
     if last_retry:
         lines.extend(
@@ -65,6 +71,30 @@ def format_taskgraph_debug(debug: dict[str, Any], *, max_items: int = 6) -> list
                 f"- last_retry.top_k={_format_mapping(last_retry.get('top_k'), max_items=max_items)}",
             ]
         )
+    return lines
+
+
+def _format_support_feature_debug(debug: dict[str, Any]) -> list[str]:
+    lines = [f"- rerank_available={_format_bool(debug.get('rerank_available', False))}"]
+    for prefix, key in (
+        ("support_features", "support_features"),
+        ("support_feature_weights", "support_feature_weights"),
+        ("support_feature_contributions", "support_feature_contributions"),
+    ):
+        values = debug.get(key)
+        if not isinstance(values, dict):
+            continue
+        for name in (
+            "top_hit_score",
+            "avg_top_score",
+            "score_consistency",
+            "rerank_top_score",
+            "source_diversity",
+            "slot_coverage_ratio",
+            "keyword_coverage",
+        ):
+            if name in values:
+                lines.append(f"- {prefix}.{name}={_format_float(values.get(name))}")
     return lines
 
 
