@@ -190,6 +190,40 @@ def test_task_graph_final_snapshot_uses_retry_hits(tmp_path: Path) -> None:
     assert snapshots["final_after_retry"]["hits"][0]["point_id"] == "p2"
 
 
+def test_retrieval_history_records_final_snapshot_when_local_retry_disabled(tmp_path: Path) -> None:
+    settings = Settings(
+        retrieval_eval_log_enabled=True,
+        retrieval_eval_log_dir=str(tmp_path),
+        retrieval_eval_log_file="history.jsonl",
+        taskgraph_local_retry_enabled=False,
+        rerank_enabled=False,
+        tg_max_retries=1,
+        tg_min_evidence_hits=2,
+        tg_min_coverage_ratio=0.0,
+        tg_citation_strict=False,
+    )
+    retriever = RetryRetriever()
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=retriever,
+        rerank_service=None,
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    result = graph.invoke("TaskGraph")
+
+    record = json.loads((tmp_path / "history.jsonl").read_text(encoding="utf-8").splitlines()[0])
+    snapshots = {row["stage"]: row for row in record["snapshots"]}
+    assert result.debug["local_retry_skipped"] is True
+    assert retriever.calls == 1
+    assert "final_after_retry" in snapshots
+    assert snapshots["final_after_retry"]["hits"][0]["point_id"] == "p1"
+    assert record["taskgraph"]["local_retry_enabled"] is False
+    assert record["taskgraph"]["local_retry_skipped"] is True
+
+
 def test_clear_retrieval_history_script(tmp_path: Path) -> None:
     path = tmp_path / "history.jsonl"
     path.write_text('{"x":1}\n', encoding="utf-8")

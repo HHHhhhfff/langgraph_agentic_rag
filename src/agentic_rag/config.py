@@ -315,6 +315,14 @@ class Settings(BaseSettings):
     named_vector_fallback_to_text: bool = Field(default=True, description="Fallback unsupported vector channels to text named vector")
     retrieval_prepare_taskgraph: bool = Field(default=True, description="Expose retrieval prep interfaces for future TaskGraph")
     taskgraph_enabled: bool = Field(default=False, description="Enable TaskGraph execution path for query")
+    taskgraph_evidence_gate_enabled: bool = Field(
+        default=True,
+        description="Enable TaskGraph evidence gate for ablation experiments",
+    )
+    taskgraph_local_retry_enabled: bool = Field(
+        default=True,
+        description="Enable TaskGraph local retry for ablation experiments",
+    )
     tg_max_retries: int = Field(default=2, description="Max local retry loops in TaskGraph")
     tg_budget_tokens: int = Field(default=12000, description="Estimated token budget for one TaskGraph run")
     tg_budget_ms: int = Field(default=30000, description="Time budget in milliseconds for one TaskGraph run")

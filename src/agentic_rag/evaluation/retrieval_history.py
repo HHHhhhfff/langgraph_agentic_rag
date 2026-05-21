@@ -84,6 +84,10 @@ def build_query_record(
             "citation_ok": state.get("citation_ok", False),
             "used_rerank": state.get("used_rerank", False),
             "rerank_fallback_reason": state.get("rerank_fallback_reason"),
+            "evidence_gate_enabled": state.get("evidence_gate_enabled", True),
+            "local_retry_enabled": state.get("local_retry_enabled", True),
+            "evidence_gate_skipped": state.get("evidence_gate_skipped", False),
+            "local_retry_skipped": state.get("local_retry_skipped", False),
         },
         "snapshots": snapshots,
         "labels": {

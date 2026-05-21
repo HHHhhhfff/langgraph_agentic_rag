@@ -76,6 +76,10 @@ def test_format_taskgraph_debug_full_fields() -> None:
 
     assert "- route=table_first" in text
     assert "- executed_channels=vector,bm25,table" in text
+    assert "- evidence_gate_enabled=true" in text
+    assert "- evidence_gate_skipped=false" in text
+    assert "- local_retry_enabled=true" in text
+    assert "- local_retry_skipped=false" in text
     assert "- gate_decision=pass" in text
     assert "- support_level=strong" in text
     assert "- support_score=0.8123" in text

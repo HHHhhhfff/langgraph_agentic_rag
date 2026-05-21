@@ -126,6 +126,53 @@ class TaskGraphRAG:
         if self.progress:
             self.progress.fail(stage, reason)
 
+    def _evidence_gate_enabled(self) -> bool:
+        return bool(getattr(self.settings, "taskgraph_evidence_gate_enabled", True))
+
+    def _local_retry_enabled(self) -> bool:
+        return bool(getattr(self.settings, "taskgraph_local_retry_enabled", True))
+
+    def _should_skip_evidence_gate(self, state: TaskGraphState) -> bool:
+        return not self._evidence_gate_enabled()
+
+    def _should_skip_local_retry(self, state: TaskGraphState) -> bool:
+        return not self._local_retry_enabled()
+
+    def _skipped_evidence_state(self) -> TaskGraphState:
+        return {
+            "evidence_ok": True,
+            "evidence_gaps": [],
+            "refusal": False,
+            "refusal_reason": None,
+            "claim_supported": True,
+            "source_coverage": {},
+            "page_coverage": {},
+            "modality_coverage": {},
+            "conflict_level": "none",
+            "missing_slots": [],
+            "supporting_hit_ids": [],
+            "support_level": "skipped",
+            "support_score": 0.0,
+            "support_features": {},
+            "support_feature_weights": {},
+            "support_feature_contributions": {},
+            "support_raw_features": {},
+            "support_normalized_features": {},
+            "rerank_available": False,
+            "slot_coverage": {},
+            "required_slots": [],
+            "covered_slots": [],
+            "conflict_reasons": [],
+            "gate_decision": "skipped",
+            "gate_reasons": [],
+            "agent_evidence_used": False,
+            "agent_evidence_reasoning": "",
+            "agent_gate_decision": None,
+            "unsupported_claims": [],
+            "evidence_gate_enabled": False,
+            "evidence_gate_skipped": True,
+        }
+
     def _estimate_token_usage(self, state: TaskGraphState) -> int:
         question = state.get("question", "") or ""
         hits = state.get("expanded_hits", []) or []
@@ -437,6 +484,9 @@ class TaskGraphRAG:
     def _rerank_node(self, state: TaskGraphState) -> TaskGraphState:
         hits = state.get("expanded_hits", [])
         if not self.settings.rerank_enabled or self.rerank_service is None:
+            skipped_evidence = self._skipped_evidence_state() if self._should_skip_evidence_gate(state) else {}
+            if skipped_evidence:
+                self._progress_skip("evidence_gate")
             self._progress_done("retrieval")
             snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
             if self.settings.retrieval_eval_log_enabled:
@@ -459,9 +509,13 @@ class TaskGraphRAG:
                 "rerank_score_top": None,
                 "rerank_hit_count": 0,
                 "retrieval_eval_snapshots": snapshots,
+                **skipped_evidence,
             }
         result = self.rerank_service.rerank(state.get("question", ""), hits)
         reranked = result.hits
+        skipped_evidence = self._skipped_evidence_state() if self._should_skip_evidence_gate(state) else {}
+        if skipped_evidence:
+            self._progress_skip("evidence_gate")
         self._progress_done("retrieval")
         top_score = None
         if reranked:
@@ -487,9 +541,13 @@ class TaskGraphRAG:
             )
             if self.settings.retrieval_eval_log_enabled
             else state.get("retrieval_eval_snapshots", []),
+            **skipped_evidence,
         }
 
     def _evidence_gate_node(self, state: TaskGraphState) -> TaskGraphState:
+        if self._should_skip_evidence_gate(state):
+            self._progress_skip("evidence_gate")
+            return self._skipped_evidence_state()
         self._progress_start("evidence_gate")
         timer = self._log_start("evidence_gate")
         hits = state.get("expanded_hits", [])
@@ -625,6 +683,7 @@ class TaskGraphRAG:
             "agent_retry_reasoning": agent_retry_reasoning,
             "retry_plan_validation_errors": retry_plan_validation_errors,
             "agent_fallback_reason": agent_fallback_reason,
+            "local_retry_skipped": False,
         }
 
     def _build_prompt_node(self, state: TaskGraphState) -> TaskGraphState:
@@ -676,6 +735,8 @@ class TaskGraphRAG:
     def _finalize_node(self, state: TaskGraphState) -> TaskGraphState:
         if int(state.get("retry_count", 0) or 0) <= 0:
             self._progress_skip("local_retry")
+        if not self._local_retry_enabled():
+            self._progress_skip("local_retry")
         snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
         retrieval_eval_log_error = state.get("retrieval_eval_log_error")
         if self.settings.retrieval_eval_log_enabled:
@@ -709,6 +770,13 @@ class TaskGraphRAG:
             debug={
                 "route": state.get("route"),
                 "retry_count": state.get("retry_count", 0),
+                "evidence_gate_enabled": state.get("evidence_gate_enabled", self._evidence_gate_enabled()),
+                "evidence_gate_skipped": state.get("evidence_gate_skipped", not self._evidence_gate_enabled()),
+                "local_retry_enabled": state.get("local_retry_enabled", self._local_retry_enabled()),
+                "local_retry_skipped": state.get(
+                    "local_retry_skipped",
+                    (not self._local_retry_enabled()) or int(state.get("retry_count", 0) or 0) <= 0,
+                ),
                 "evidence_ok": state.get("evidence_ok", False),
                 "citation_ok": state.get("citation_ok", False),
                 "refusal": state.get("refusal", False),
@@ -769,6 +837,12 @@ class TaskGraphRAG:
         return {"result": result}
 
     def _retry_decision(self, state: TaskGraphState) -> str:
+        if self._should_skip_evidence_gate(state):
+            if self._local_retry_enabled() and int(state.get("retry_count", 0) or 0) <= 0:
+                return "local_retry"
+            return "build_prompt"
+        if self._should_skip_local_retry(state):
+            return "build_prompt"
         if state.get("refusal"):
             return "finalize"
         if state.get("evidence_ok") or (self.settings.tg_agent_evidence_critic_enabled and state.get("agent_gate_decision") == "pass"):
@@ -788,6 +862,8 @@ class TaskGraphRAG:
         return "local_retry"
 
     def _citation_decision(self, state: TaskGraphState) -> str:
+        if self._should_skip_local_retry(state):
+            return "finalize"
         if state.get("citation_ok"):
             return "finalize"
         retry_count = int(state.get("retry_count", 0))
@@ -801,6 +877,13 @@ class TaskGraphRAG:
         if self._estimate_token_usage(state) > token_budget:
             return "finalize"
         return "local_retry"
+
+    def _after_rerank_decision(self, state: TaskGraphState) -> str:
+        if self._evidence_gate_enabled():
+            return "evidence_gate"
+        if self._local_retry_enabled() and int(state.get("retry_count", 0) or 0) <= 0:
+            return "local_retry"
+        return "build_prompt"
 
     def _compile_graph(self):
         graph = StateGraph(TaskGraphState)
@@ -825,7 +908,11 @@ class TaskGraphRAG:
         graph.add_edge("retrieve_fanout", "retrieve_rrf")
         graph.add_edge("retrieve_rrf", "relationship_expand")
         graph.add_edge("relationship_expand", "rerank")
-        graph.add_edge("rerank", "evidence_gate")
+        graph.add_conditional_edges(
+            "rerank",
+            self._after_rerank_decision,
+            {"evidence_gate": "evidence_gate", "local_retry": "local_retry", "build_prompt": "build_prompt"},
+        )
         graph.add_conditional_edges(
             "evidence_gate",
             self._retry_decision,
@@ -851,6 +938,10 @@ class TaskGraphRAG:
             "evidence_gain": 1.0,
             "retrieval_eval_query_id": new_query_id(),
             "retrieval_eval_snapshots": [],
+            "evidence_gate_enabled": self._evidence_gate_enabled(),
+            "local_retry_enabled": self._local_retry_enabled(),
+            "evidence_gate_skipped": not self._evidence_gate_enabled(),
+            "local_retry_skipped": not self._local_retry_enabled(),
         }
         output = self.graph.invoke(state)
         result = output.get("result")

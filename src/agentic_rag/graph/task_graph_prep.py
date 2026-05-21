@@ -82,6 +82,10 @@ class TaskGraphState(TypedDict, total=False):
     retrieval_eval_query_id: str
     retrieval_eval_snapshots: list[dict[str, Any]]
     retrieval_eval_log_error: str | None
+    evidence_gate_enabled: bool
+    local_retry_enabled: bool
+    evidence_gate_skipped: bool
+    local_retry_skipped: bool
 
     context: str
     citations: list[dict[str, Any]]

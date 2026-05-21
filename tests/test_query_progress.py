@@ -96,3 +96,30 @@ def test_task_graph_progress_retry_query_shows_retry() -> None:
 
     assert "[5/6] 局部重检 ... retry 1" in stream.getvalue()
 
+
+def test_task_graph_progress_skips_disabled_evidence_gate_and_local_retry() -> None:
+    stream = StringIO()
+    progress = QueryProgress(stream=stream)
+    settings = Settings(
+        taskgraph_evidence_gate_enabled=False,
+        taskgraph_local_retry_enabled=False,
+        rerank_enabled=False,
+        tg_max_retries=1,
+        tg_min_evidence_hits=1,
+        tg_min_coverage_ratio=0.0,
+        tg_citation_strict=False,
+    )
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+        progress=progress,
+    )
+
+    graph.invoke("TaskGraph")
+
+    text = stream.getvalue()
+    assert "[4/6] 证据校验 ... skipped" in text
+    assert "[5/6] 局部重检 ... skipped" in text

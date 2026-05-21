@@ -19,7 +19,7 @@ class NoCitationLLM:
 
     def generate(self, prompt: str) -> str:
         self.calls += 1
-        return "答案但没有引用"
+        return "answer without citation"
 
 
 class StableRetriever:
@@ -32,7 +32,7 @@ class StableRetriever:
         hit = SearchHit(
             point_id="p1",
             node_id="n1",
-            text="证据内容",
+            text="evidence content",
             score=0.9,
             doc_id="d1",
             page=2,
@@ -63,10 +63,36 @@ def test_citation_verify_loopback_until_retry_limit() -> None:
         prompt_builder=PromptBuilder(settings),
     )
 
-    result = graph.invoke("请回答")
+    result = graph.invoke("question")
     assert result.debug.get("citation_ok") is False
     assert result.debug.get("retry_count") == 1
     assert llm.calls >= 1
     assert len(retriever.top_k_by_call) == 2
     assert retriever.top_k_by_call[1]["vector"] > retriever.top_k_by_call[0]["vector"]
+
+
+def test_citation_verify_does_not_loopback_when_local_retry_disabled() -> None:
+    settings = Settings(
+        taskgraph_local_retry_enabled=False,
+        tg_max_retries=1,
+        tg_min_evidence_hits=1,
+        tg_min_coverage_ratio=0.0,
+        tg_citation_strict=True,
+    )
+    llm = NoCitationLLM()
+    retriever = StableRetriever()
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=retriever,
+        llm_client=llm,
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    result = graph.invoke("question")
+
+    assert result.debug.get("citation_ok") is False
+    assert result.debug.get("retry_count") == 0
+    assert result.debug.get("local_retry_skipped") is True
+    assert len(retriever.top_k_by_call) == 1
 

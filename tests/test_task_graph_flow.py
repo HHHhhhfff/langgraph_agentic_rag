@@ -54,6 +54,32 @@ class DummyRerankService:
         return RerankResult(hits=reranked, used_rerank=True)
 
 
+class CountingEvidenceEvaluator:
+    def __init__(self, delegate):
+        self.delegate = delegate
+        self.calls = 0
+
+    def evaluate(self, *args, **kwargs):
+        self.calls += 1
+        return self.delegate.evaluate(*args, **kwargs)
+
+
+class FailingEvidenceEvaluator:
+    calls = 0
+
+    def evaluate(self, *args, **kwargs):
+        self.calls += 1
+        raise AssertionError("EvidenceEvaluator should not be called")
+
+
+class FailingLocalRetryPlanner:
+    calls = 0
+
+    def plan_retry(self, state):
+        self.calls += 1
+        raise AssertionError("LocalRetryPlanner should not be called")
+
+
 def test_task_graph_happy_path() -> None:
     settings = Settings(
         tg_max_retries=2,
@@ -243,4 +269,92 @@ def test_task_graph_local_retry_page_slot_sets_page_window() -> None:
     assert "page" in channels
     assert updated["retrieval_plan"]["page_window"] == 2
     assert updated["page_window"] == 2
+
+
+def test_task_graph_skips_evidence_gate_and_local_retry_when_disabled() -> None:
+    settings = Settings(
+        taskgraph_evidence_gate_enabled=False,
+        taskgraph_local_retry_enabled=False,
+        rerank_enabled=False,
+        tg_max_retries=1,
+        tg_citation_strict=False,
+    )
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+    graph.evidence_evaluator = FailingEvidenceEvaluator()
+    graph.local_retry_planner = FailingLocalRetryPlanner()
+
+    result = graph.invoke("TaskGraph")
+
+    assert result.answer
+    assert result.debug["evidence_gate_enabled"] is False
+    assert result.debug["evidence_gate_skipped"] is True
+    assert result.debug["local_retry_enabled"] is False
+    assert result.debug["local_retry_skipped"] is True
+    assert result.debug["gate_decision"] == "skipped"
+    assert result.debug["support_level"] == "skipped"
+    assert result.debug["support_score"] == 0.0
+    assert graph.evidence_evaluator.calls == 0
+    assert graph.local_retry_planner.calls == 0
+
+
+def test_task_graph_evidence_gate_disabled_local_retry_enabled_runs_once() -> None:
+    settings = Settings(
+        taskgraph_evidence_gate_enabled=False,
+        taskgraph_local_retry_enabled=True,
+        rerank_enabled=False,
+        tg_max_retries=2,
+        tg_citation_strict=False,
+    )
+    retriever = RetryAwareRetriever()
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=retriever,
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+    graph.evidence_evaluator = FailingEvidenceEvaluator()
+
+    result = graph.invoke("TaskGraph")
+
+    assert len(retriever.channels_by_call) == 2
+    assert result.debug["retry_count"] == 1
+    assert result.debug["evidence_gate_skipped"] is True
+    assert result.debug["local_retry_skipped"] is False
+    assert graph.evidence_evaluator.calls == 0
+
+
+def test_task_graph_local_retry_disabled_still_runs_evidence_gate() -> None:
+    settings = Settings(
+        taskgraph_evidence_gate_enabled=True,
+        taskgraph_local_retry_enabled=False,
+        rerank_enabled=False,
+        tg_max_retries=1,
+        tg_min_evidence_hits=2,
+        tg_min_coverage_ratio=0.0,
+        tg_citation_strict=False,
+    )
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+    graph.evidence_evaluator = CountingEvidenceEvaluator(graph.evidence_evaluator)
+    graph.local_retry_planner = FailingLocalRetryPlanner()
+
+    result = graph.invoke("TaskGraph")
+
+    assert graph.evidence_evaluator.calls == 1
+    assert graph.local_retry_planner.calls == 0
+    assert result.debug["evidence_gate_skipped"] is False
+    assert result.debug["local_retry_skipped"] is True
+    assert result.debug["retry_count"] == 0
 

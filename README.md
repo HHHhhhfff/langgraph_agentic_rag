@@ -351,6 +351,10 @@ py -3.11 scripts/clear_retrieval_history.py --path storage/retrieval_eval/retrie
 - `TASKGRAPH_ENABLED=true|false`
   - `false`（默认）：继续走旧 `rag_graph.py` 兼容路径
   - `true`：启用 `task_graph.py` 路径（CLI 入口不变）
+- `TASKGRAPH_EVIDENCE_GATE_ENABLED=true|false`
+  - TaskGraph 证据校验消融开关。默认 `true`，保持原链路。关闭后不会执行 EvidenceGate / AgentEvidenceCritic，debug 中 `support_score=0.0`、`support_level=skipped` 仅作为占位值，不代表真实证据充分。
+- `TASKGRAPH_LOCAL_RETRY_ENABLED=true|false`
+  - TaskGraph 局部重检消融开关。默认 `true`，保持原链路。关闭后即使 EvidenceGate 或 citation verify 建议 retry，也不会进入 `local_retry`。
 - `QUERY_PROGRESS_ENABLED=true|false`
   - 是否在普通 CLI query 输出中显示 TaskGraph 粗粒度进度。`--json` 会自动关闭，避免污染机器可读输出。
 - `QUERY_PROGRESS_STYLE=plain`
@@ -454,6 +458,13 @@ Query progress:
 ```
 
 如果触发局部重检，会显示类似 `[5/6] 局部重检 ... retry 1`。完整 6 阶段进度目前只覆盖 `TASKGRAPH_ENABLED=true` 的 TaskGraph 查询路径。
+
+消融实验链路说明：
+
+- 两个开关都开启：保持默认 TaskGraph 行为，`rerank -> evidence_gate -> local_retry 或 build_prompt`。
+- `TASKGRAPH_EVIDENCE_GATE_ENABLED=false` 且 `TASKGRAPH_LOCAL_RETRY_ENABLED=true`：跳过证据校验，`rerank -> local_retry -> retrieve_fanout -> rrf -> relationship_expand -> rerank -> build_prompt`，最多按 retry 预算受控执行，避免无限循环。
+- `TASKGRAPH_EVIDENCE_GATE_ENABLED=true` 且 `TASKGRAPH_LOCAL_RETRY_ENABLED=false`：正常执行证据校验，但不执行局部重检，EvidenceGate 建议 retry 时直接进入 `build_prompt`，便于比较无重检效果。
+- 两个开关都关闭：`question_analyze -> task_router -> retrieve_fanout -> rrf -> relationship_expand -> rerank -> build_prompt -> generate_answer -> citation_verify -> finalize`。
 
 证据充分性评分当前已拆成可配置权重，便于做消融实验：
 
