@@ -34,6 +34,7 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\activate
 py -3.11 -m pip install -U pip
 py -3.11 -m pip install -r requirements.txt
+py -3.11 -m pip install openai
 py -3.11 -m pip install -e .
 ```
 
