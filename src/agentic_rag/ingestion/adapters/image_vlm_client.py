@@ -105,6 +105,7 @@ class ImageVLMClient:
         payload: dict[str, Any] = {
             "model": self.settings.image_vlm_model,
             "stream": True,
+            "enable_thinking": bool(self.settings.image_vlm_enable_thinking),
             "messages": [
                 {
                     "role": "user",
@@ -119,7 +120,6 @@ class ImageVLMClient:
             ],
         }
         if self.settings.image_vlm_enable_thinking:
-            payload["enable_thinking"] = True
             payload["thinking_budget"] = 81920
         chunks = self.client.post_stream("chat/completions", payload)
         return self._extract_openai_stream_content(chunks)
@@ -145,9 +145,9 @@ class ImageVLMClient:
                 "model": self.settings.image_vlm_model,
                 "messages": messages,
                 "stream": True,
+                "enable_thinking": bool(self.settings.image_vlm_enable_thinking),
             }
             if self.settings.image_vlm_enable_thinking:
-                kwargs["enable_thinking"] = True
                 kwargs["thinking_budget"] = 81920
             response = dashscope.MultiModalConversation.call(**kwargs)
         except Exception as exc:

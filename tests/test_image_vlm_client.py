@@ -37,6 +37,8 @@ def test_openai_compatible_payload_uses_qwen_vl_plus_and_json_prompt(tmp_path, m
     assert captured["path"] == "chat/completions"
     assert captured["payload"]["model"] == "qwen3-vl-plus"
     assert captured["payload"]["stream"] is True
+    assert captured["payload"]["enable_thinking"] is False
+    assert "thinking_budget" not in captured["payload"]
     prompt = captured["payload"]["messages"][0]["content"][1]["text"]
     assert "请只输出一个 JSON 对象" in prompt
     assert "????" not in prompt
@@ -118,6 +120,8 @@ def test_dashscope_sdk_payload_and_response_parse(tmp_path, monkeypatch) -> None
     assert captured["api_key"] == "sk-test"
     assert captured["model"] == "qwen3-vl-plus"
     assert captured["stream"] is True
+    assert captured["enable_thinking"] is False
+    assert "thinking_budget" not in captured
     assert captured["messages"][0]["content"][0]["image"].startswith("data:image/png;base64,")
     assert fake_dashscope.base_http_api_url == "https://dashscope.aliyuncs.com/api/v1"
 
@@ -134,4 +138,3 @@ def test_image_vlm_json_validation_error_contains_raw_excerpt(tmp_path, monkeypa
 
     with pytest.raises(ImageVLMError, match="raw_excerpt=not json response"):
         client.describe_image(image)
-

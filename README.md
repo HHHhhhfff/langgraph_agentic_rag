@@ -181,7 +181,7 @@ Copy-Item .env.example .env
   - 视觉理解模型请求超时和重试次数。
 - `IMAGE_VLM_ENABLE_THINKING=true|false`
   - 是否向兼容的视觉理解模型传入 `enable_thinking` 参数，默认关闭。
-  - 开启时会随 `qwen3-vl-plus` 请求传入 `enable_thinking=true` 和 `thinking_budget=81920`，并忽略流式 chunk 中的 `reasoning_content`，只解析最终回复文本。
+  - 默认关闭时会显式传入 `enable_thinking=false`；开启时会随 `qwen3-vl-plus` 请求传入 `enable_thinking=true` 和 `thinking_budget=81920`，并忽略流式 chunk 中的 `reasoning_content`，只解析最终回复文本。
   - 建议索引构建阶段保持 `false`，避免 caption/OCR/object 增强产生额外延迟和不稳定输出。
 - VLM 调用失败不会中断索引构建；系统会跳过 caption/OCR/object 派生节点并保留 whole image 节点。`scene_type` 支持中文返回归一化，例如 `网页截图 -> screenshot`。
 - `IMAGE_OBJECT_MAX_ITEMS` / `IMAGE_CAPTION_MAX_CHARS` / `IMAGE_OCR_MAX_CHARS`
