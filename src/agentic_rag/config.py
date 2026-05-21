@@ -218,12 +218,20 @@ class Settings(BaseSettings):
         default=False,
         description="Use a VLM to generate image caption/object descriptions",
     )
+    image_vlm_provider: Literal["openai_compatible", "dashscope_sdk"] = Field(
+        default="openai_compatible",
+        description="Image VLM provider backend",
+    )
     image_vlm_base_url: str = Field(
         default="https://dashscope.aliyuncs.com/compatible-mode/v1",
         description="Image VLM OpenAI-compatible API base URL",
     )
+    image_vlm_dashscope_api_url: str = Field(
+        default="https://dashscope.aliyuncs.com/api/v1",
+        description="Image VLM DashScope SDK API URL",
+    )
     image_vlm_api_key: str = Field(default="", description="Image VLM API key")
-    image_vlm_model: str = Field(default="qwen3.6-plus", description="Image VLM model name")
+    image_vlm_model: str = Field(default="qwen3-vl-plus", description="Image VLM model name")
     image_vlm_timeout_sec: float = Field(default=60.0, description="Image VLM request timeout")
     image_vlm_max_retries: int = Field(default=2, description="Image VLM retry count")
     image_vlm_enable_thinking: bool = Field(
@@ -267,6 +275,13 @@ class Settings(BaseSettings):
         default=True,
         description="Whether to print batch-level progress events in console progress",
     )
+    retrieval_eval_log_enabled: bool = Field(default=False, description="Append retrieval history JSONL for later eval")
+    retrieval_eval_log_dir: str = Field(default="storage/retrieval_eval", description="Retrieval eval log directory")
+    retrieval_eval_log_file: str = Field(default="retrieval_history.jsonl", description="Retrieval eval JSONL file name")
+    retrieval_eval_max_text_chars: int = Field(default=2000, description="Max chars stored per retrieved hit text")
+    query_progress_enabled: bool = Field(default=True, description="Show coarse TaskGraph query progress in CLI")
+    query_progress_style: Literal["plain"] = Field(default="plain", description="Query progress output style")
+    query_progress_show_retry: bool = Field(default=True, description="Show local retry events in query progress")
     retrieval_top_k: int = Field(default=12, description="Vector retrieval top-k")
     retrieval_min_score: float = Field(default=0.15, description="Minimum accepted vector score")
     retrieval_filter_fallback: bool = Field(
@@ -414,6 +429,7 @@ class Settings(BaseSettings):
         "mineru_download_retry_interval_sec",
         "embedding_input_max_tokens",
         "embedding_input_safety_margin_tokens",
+        "retrieval_eval_max_text_chars",
     )
     @classmethod
     def validate_positive(cls, value: int) -> int:

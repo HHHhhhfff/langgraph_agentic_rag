@@ -86,6 +86,7 @@ class ImageEnricher:
         try:
             description = client.describe_image(path)
         except Exception as exc:
+            error_msg = _clip(str(exc), 500)
             if self.stage_logger:
                 self.stage_logger.log_warning(
                     "image_vlm_caption",
@@ -93,7 +94,12 @@ class ImageEnricher:
                     source=str(path),
                     modality="image",
                     error_type=type(exc).__name__,
-                    error_msg=str(exc),
+                    error_msg=error_msg,
+                    provider=self.settings.image_vlm_provider,
+                    model=self.settings.image_vlm_model,
+                    image_suffix=path.suffix.lower(),
+                    image_exists=path.exists(),
+                    image_size_bytes=path.stat().st_size if path.exists() else None,
                 )
             return []
 

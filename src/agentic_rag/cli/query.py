@@ -5,6 +5,7 @@ import json
 import sys
 
 from agentic_rag.cli.debug_format import build_query_debug_lines
+from agentic_rag.cli.query_progress import QueryProgress
 from agentic_rag.config import get_settings
 from agentic_rag.factory import build_rag_graph
 
@@ -18,7 +19,17 @@ def main() -> int:
     args = parser.parse_args()
 
     settings = get_settings()
-    graph = build_rag_graph()
+    progress = None
+    if (
+        not args.json
+        and getattr(settings, "taskgraph_enabled", False)
+        and getattr(settings, "query_progress_enabled", True)
+    ):
+        progress = QueryProgress(
+            style=getattr(settings, "query_progress_style", "plain"),
+            show_retry=getattr(settings, "query_progress_show_retry", True),
+        )
+    graph = build_rag_graph(progress=progress)
     filters = {}
     if args.source:
         filters["source"] = args.source

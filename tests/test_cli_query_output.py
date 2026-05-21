@@ -21,6 +21,9 @@ def _result(debug=None) -> RAGResult:
 def _settings(taskgraph_enabled: bool):
     return SimpleNamespace(
         taskgraph_enabled=taskgraph_enabled,
+        query_progress_enabled=True,
+        query_progress_style="plain",
+        query_progress_show_retry=True,
         uncertain_answer_text="uncertain",
     )
 
@@ -118,6 +121,17 @@ class DummyGraph:
         return self.result
 
 
+class DummyProgressGraph(DummyGraph):
+    def __init__(self, result: RAGResult, progress):
+        super().__init__(result)
+        self.progress = progress
+
+    def invoke(self, *, question, filters=None):
+        if self.progress:
+            self.progress.done("question_analyze")
+        return self.result
+
+
 def test_query_main_normal_output_includes_taskgraph_debug(monkeypatch, capsys) -> None:
     result = _result(
         {
@@ -130,24 +144,29 @@ def test_query_main_normal_output_includes_taskgraph_debug(monkeypatch, capsys) 
         }
     )
     monkeypatch.setattr(query, "get_settings", lambda: _settings(True))
-    monkeypatch.setattr(query, "build_rag_graph", lambda: DummyGraph(result))
+    monkeypatch.setattr(query, "build_rag_graph", lambda progress=None: DummyProgressGraph(result, progress))
     monkeypatch.setattr("sys.argv", ["query", "hello"])
 
     assert query.main() == 0
-    out = capsys.readouterr().out
+    captured = capsys.readouterr()
+    out = captured.out
     assert "TaskGraph Debug:" in out
     assert "- route=text_first" in out
     assert "- citation_ok=true" in out
+    assert "Query progress:" in captured.err
+    assert "[1/6] 问题分析 ... done" in captured.err
 
 
 def test_query_main_json_output_does_not_include_normal_debug(monkeypatch, capsys) -> None:
     result = _result({"route": "text_first", "citation_ok": True})
     monkeypatch.setattr(query, "get_settings", lambda: _settings(True))
-    monkeypatch.setattr(query, "build_rag_graph", lambda: DummyGraph(result))
+    monkeypatch.setattr(query, "build_rag_graph", lambda progress=None: DummyProgressGraph(result, progress))
     monkeypatch.setattr("sys.argv", ["query", "hello", "--json"])
 
     assert query.main() == 0
-    out = capsys.readouterr().out
+    captured = capsys.readouterr()
+    out = captured.out
     payload = json.loads(out)
     assert payload["debug"]["route"] == "text_first"
     assert "TaskGraph Debug:" not in out
+    assert "Query progress:" not in captured.err

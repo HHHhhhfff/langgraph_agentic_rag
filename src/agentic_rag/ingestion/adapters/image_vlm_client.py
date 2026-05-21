@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import base64
+import importlib
 import json
+import os
 from pathlib import Path
 from typing import Any, Literal
 
@@ -60,7 +62,7 @@ class ImageVLMDescription(BaseModel):
 
 
 class ImageVLMClient:
-    """OpenAI-compatible VLM client for image caption/object extraction."""
+    """VLM client for image caption/object extraction."""
 
     MIME_MAP = {
         ".jpg": "image/jpeg",
@@ -93,36 +95,89 @@ class ImageVLMClient:
 
     def _describe_once(self, image_path: Path) -> ImageVLMDescription:
         data_url = self._image_to_data_url(image_path)
+        if self.settings.image_vlm_provider == "dashscope_sdk":
+            content = self._describe_dashscope(data_url)
+            return self._parse_description(content)
+        content = self._describe_openai_compatible(data_url)
+        return self._parse_description(content)
+
+    def _describe_openai_compatible(self, data_url: str) -> str:
         payload: dict[str, Any] = {
             "model": self.settings.image_vlm_model,
-            "stream": False,
+            "stream": True,
             "messages": [
                 {
                     "role": "user",
                     "content": [
                         {
-                            "type": "text",
-                            "text": (
-                                "??????????? JSON????? Markdown?"
-                                "?????? caption, scene_type, visible_text_summary, objects, confidence?"
-                                "objects ?????????? label, description, confidence?"
-                                "?????????????????????????????"
-                            ),
+                            "type": "image_url",
+                            "image_url": {"url": data_url},
                         },
-                        {"type": "image_url", "image_url": {"url": data_url}},
+                        {"type": "text", "text": self._prompt()},
                     ],
                 }
             ],
         }
         if self.settings.image_vlm_enable_thinking:
-            payload["extra_body"] = {"enable_thinking": True}
-        data = self.client.post("chat/completions", payload)
-        content = self._extract_content(data)
+            payload["enable_thinking"] = True
+            payload["thinking_budget"] = 81920
+        chunks = self.client.post_stream("chat/completions", payload)
+        return self._extract_openai_stream_content(chunks)
+
+    def _describe_dashscope(self, data_url: str) -> str:
+        try:
+            dashscope = importlib.import_module("dashscope")
+        except ImportError as exc:
+            raise ImageVLMError("dashscope package is required for IMAGE_VLM_PROVIDER=dashscope_sdk") from exc
+        dashscope.base_http_api_url = self.settings.image_vlm_dashscope_api_url
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"image": data_url},
+                    {"text": self._prompt()},
+                ],
+            }
+        ]
+        try:
+            kwargs: dict[str, Any] = {
+                "api_key": self.settings.image_vlm_api_key or os.getenv("DASHSCOPE_API_KEY"),
+                "model": self.settings.image_vlm_model,
+                "messages": messages,
+                "stream": True,
+            }
+            if self.settings.image_vlm_enable_thinking:
+                kwargs["enable_thinking"] = True
+                kwargs["thinking_budget"] = 81920
+            response = dashscope.MultiModalConversation.call(**kwargs)
+        except Exception as exc:
+            message = str(exc)
+            if data_url.startswith("data:"):
+                message = f"DashScope SDK VLM rejected local data URL: {message}"
+            raise ImageVLMError(message) from exc
+        return self._extract_dashscope_stream_or_content(response)
+
+    def _parse_description(self, content: str) -> ImageVLMDescription:
         try:
             raw = extract_json_object(content)
             return ImageVLMDescription.model_validate(raw)
         except (JsonLLMError, ValidationError) as exc:
             raise ImageVLMError(f"Image VLM JSON validation failed: {exc}. raw_excerpt={self._safe_excerpt(content)}") from exc
+
+    def _prompt(self) -> str:
+        return (
+            "你是图像理解模型。请只输出一个 JSON 对象，不要输出 Markdown，不要输出解释文本。\n"
+            "JSON schema:\n"
+            "{\n"
+            '  "caption": "对图片内容的简洁描述",\n'
+            '  "scene_type": "chart|diagram|screenshot|photo|document|unknown",\n'
+            '  "visible_text_summary": "图片中可见文字/OCR 的摘要，没有则为空字符串",\n'
+            '  "objects": [{"label": "对象名称", "description": "对象说明", "confidence": 0.0}],\n'
+            '  "confidence": 0.0\n'
+            "}\n"
+            "要求：scene_type 必须使用英文枚举；网页截图用 screenshot；文档页面用 document；图表用 chart；"
+            f"confidence 取 0 到 1；objects 最多返回 {self.settings.image_object_max_items} 个。"
+        )
 
     def _image_to_data_url(self, image_path: Path) -> str:
         if not image_path.exists():
@@ -153,6 +208,75 @@ class ImageVLMClient:
             )
         raise ImageVLMError("Image VLM response missing text content")
 
+    @classmethod
+    def _extract_openai_stream_content(cls, chunks: Any) -> str:
+        answer_parts: list[str] = []
+        for chunk in chunks:
+            choices = chunk.get("choices") if isinstance(chunk, dict) else None
+            if not isinstance(choices, list) or not choices:
+                continue
+            first = choices[0]
+            if not isinstance(first, dict):
+                continue
+            delta = first.get("delta")
+            if not isinstance(delta, dict):
+                continue
+            content = delta.get("content")
+            if isinstance(content, str) and content:
+                answer_parts.append(content)
+            elif isinstance(content, list):
+                answer_parts.extend(
+                    str(item.get("text") or item.get("content") or "")
+                    for item in content
+                    if isinstance(item, dict)
+                )
+        text = "".join(answer_parts).strip()
+        if text:
+            return text
+        raise ImageVLMError("Image VLM streaming response missing answer content")
+
+    @staticmethod
+    def _extract_dashscope_content(response: Any) -> str:
+        content = _dig(response, ("output", "choices", 0, "message", "content"))
+        if isinstance(content, list):
+            text = "\n".join(str(item.get("text", "")) for item in content if isinstance(item, dict))
+            if text.strip():
+                return text
+        if isinstance(content, str):
+            return content
+        if isinstance(response, dict):
+            content = _dig(response, ("output", "choices", 0, "message", "content"))
+            if isinstance(content, list):
+                text = "\n".join(str(item.get("text", "")) for item in content if isinstance(item, dict))
+                if text.strip():
+                    return text
+            if isinstance(content, str):
+                return content
+        raise ImageVLMError("DashScope VLM response missing text content")
+
+    @classmethod
+    def _extract_dashscope_stream_or_content(cls, response: Any) -> str:
+        if isinstance(response, (dict, str)) or not hasattr(response, "__iter__"):
+            return cls._extract_dashscope_content(response)
+        answer_parts: list[str] = []
+        try:
+            for chunk in response:
+                content = _dig(chunk, ("output", "choices", 0, "message", "content"))
+                if isinstance(content, list):
+                    answer_parts.extend(
+                        str(item.get("text", ""))
+                        for item in content
+                        if isinstance(item, dict) and item.get("text")
+                    )
+                elif isinstance(content, str) and content:
+                    answer_parts.append(content)
+        except TypeError:
+            return cls._extract_dashscope_content(response)
+        text = "".join(answer_parts).strip()
+        if text:
+            return text
+        raise ImageVLMError("DashScope VLM streaming response missing answer content")
+
     @staticmethod
     def _safe_excerpt(text: str, max_chars: int = 300) -> str:
         return " ".join((text or "").split())[:max_chars]
@@ -162,3 +286,19 @@ def image_vlm_description_to_json(description: ImageVLMDescription) -> str:
     """Return compact JSON for metadata/debug output."""
 
     return json.dumps(description.model_dump(), ensure_ascii=False, separators=(",", ":"))
+
+
+def _dig(data: Any, path: tuple[Any, ...]) -> Any:
+    current = data
+    for key in path:
+        if isinstance(key, int):
+            if not isinstance(current, list) or key >= len(current):
+                return None
+            current = current[key]
+        elif isinstance(current, dict):
+            current = current.get(key)
+        else:
+            current = getattr(current, key, None)
+        if current is None:
+            return None
+    return current

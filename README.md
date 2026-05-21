@@ -172,13 +172,17 @@ Copy-Item .env.example .env
   - 是否用 MinerU 作为纯图片 OCR/结构解析增强源；需要同时开启 `ENABLE_MINERU=true`。
 - `IMAGE_VLM_CAPTION_ENABLED=true|false`
   - 是否调用视觉模型生成图片 caption、可见文字摘要和对象描述。
-- `IMAGE_VLM_BASE_URL` / `IMAGE_VLM_API_KEY` / `IMAGE_VLM_MODEL`
-  - 视觉理解模型配置，默认模型名为 `qwen3.6-plus`。
+- `IMAGE_VLM_PROVIDER=openai_compatible|dashscope_sdk`
+  - 图片 VLM 调用后端。`openai_compatible` 使用 `/chat/completions` 流式输出，适合本地图片 base64 data URL；`dashscope_sdk` 使用 `dashscope.MultiModalConversation.call` 流式输出。
+- `IMAGE_VLM_BASE_URL` / `IMAGE_VLM_DASHSCOPE_API_URL` / `IMAGE_VLM_API_KEY` / `IMAGE_VLM_MODEL`
+  - 视觉理解模型配置，默认模型名为 `qwen3-vl-plus`。`openai_compatible` 使用 `IMAGE_VLM_BASE_URL`，`dashscope_sdk` 使用 `IMAGE_VLM_DASHSCOPE_API_URL`。
 - `IMAGE_VLM_TIMEOUT_SEC` / `IMAGE_VLM_MAX_RETRIES`
   - 视觉理解模型请求超时和重试次数。
 - `IMAGE_VLM_ENABLE_THINKING=true|false`
   - 是否向兼容的视觉理解模型传入 `enable_thinking` 参数，默认关闭。
+  - 开启时会随 `qwen3-vl-plus` 请求传入 `enable_thinking=true` 和 `thinking_budget=81920`，并忽略流式 chunk 中的 `reasoning_content`，只解析最终回复文本。
   - 建议索引构建阶段保持 `false`，避免 caption/OCR/object 增强产生额外延迟和不稳定输出。
+- VLM 调用失败不会中断索引构建；系统会跳过 caption/OCR/object 派生节点并保留 whole image 节点。`scene_type` 支持中文返回归一化，例如 `网页截图 -> screenshot`。
 - `IMAGE_OBJECT_MAX_ITEMS` / `IMAGE_CAPTION_MAX_CHARS` / `IMAGE_OCR_MAX_CHARS`
   - 控制图片派生节点数量和文本长度。
 
@@ -316,11 +320,42 @@ Rerank 关键配置：
 - `NAMED_VECTOR_FALLBACK_TO_TEXT=true|false`
   - 未显式指定向量字段时是否回退到 text named vector。
 
-### 3.7 TaskGraph 可选路径配置（新增）
+### 3.7 召回历史日志配置（新增）
+
+- `RETRIEVAL_EVAL_LOG_ENABLED=true|false`
+  - 是否记录 TaskGraph query 的召回历史 JSONL。默认 `false`，不产生文件。
+- `RETRIEVAL_EVAL_LOG_DIR=storage/retrieval_eval`
+  - 召回历史日志目录。
+- `RETRIEVAL_EVAL_LOG_FILE=retrieval_history.jsonl`
+  - 召回历史 JSONL 文件名。每次 query append 一行，不覆盖历史。
+- `RETRIEVAL_EVAL_MAX_TEXT_CHARS=2000`
+  - 每个 hit 记录的 chunk 文本最大长度。
+
+该日志用于后续计算 Hit Rate、MRR、Precision、Recall、AP、nDCG 等检索评测指标。当前只记录 TaskGraph 路径。每条 JSONL record 包含 `initial_retrieval`、`rerank`、`final_after_retry` 三个 snapshot，hit 结构接近 LlamaIndex Node，并预留 `eval.is_relevant`、`eval.relevance_label`、`eval.graded_relevance` 字段供后续标注。
+
+清空历史文件：
+
+```powershell
+py -3.11 scripts/clear_retrieval_history.py
+```
+
+也可以指定路径：
+
+```powershell
+py -3.11 scripts/clear_retrieval_history.py --path storage/retrieval_eval/retrieval_history.jsonl
+```
+
+### 3.8 TaskGraph 可选路径配置（新增）
 
 - `TASKGRAPH_ENABLED=true|false`
   - `false`（默认）：继续走旧 `rag_graph.py` 兼容路径
   - `true`：启用 `task_graph.py` 路径（CLI 入口不变）
+- `QUERY_PROGRESS_ENABLED=true|false`
+  - 是否在普通 CLI query 输出中显示 TaskGraph 粗粒度进度。`--json` 会自动关闭，避免污染机器可读输出。
+- `QUERY_PROGRESS_STYLE=plain`
+  - 进度输出格式。当前仅支持 plain 文本，输出到 stderr。
+- `QUERY_PROGRESS_SHOW_RETRY=true|false`
+  - 是否显示局部重检阶段的 retry 次数。
 - `TG_MAX_RETRIES`
   - 局部重检最大轮次，超过后直接 finalize
 - `TG_BUDGET_TOKENS`
@@ -404,6 +439,20 @@ Agent 接入原则：
 - 系统仍负责 schema 校验、预算控制和检索执行。
 - `EvidenceGate` 与 `CitationVerify` 不可绕过。
 - 默认关闭所有 Agent 开关，保证旧行为稳定。
+
+TaskGraph query progress 会显示 6 个粗粒度阶段：
+
+```text
+Query progress:
+[1/6] 问题分析 ... done
+[2/6] 任务路由 ... done
+[3/6] 检索 ... done
+[4/6] 证据校验 ... done
+[5/6] 局部重检 ... skipped
+[6/6] 内容生成 ... done
+```
+
+如果触发局部重检，会显示类似 `[5/6] 局部重检 ... retry 1`。完整 6 阶段进度目前只覆盖 `TASKGRAPH_ENABLED=true` 的 TaskGraph 查询路径。
 
 证据充分性评分当前已拆成可配置权重，便于做消融实验：
 

@@ -79,6 +79,9 @@ class TaskGraphState(TypedDict, total=False):
     retry_plan_validation_errors: list[str]
     refusal: bool
     refusal_reason: str | None
+    retrieval_eval_query_id: str
+    retrieval_eval_snapshots: list[dict[str, Any]]
+    retrieval_eval_log_error: str | None
 
     context: str
     citations: list[dict[str, Any]]

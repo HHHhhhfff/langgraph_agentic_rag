@@ -7,6 +7,12 @@ from typing import Any, cast
 from langgraph.graph import END, StateGraph
 
 from agentic_rag.config import Settings
+from agentic_rag.evaluation.retrieval_history import (
+    RetrievalHistoryRecorder,
+    build_query_record,
+    build_snapshot,
+    new_query_id,
+)
 from agentic_rag.graph.agent_evidence import AgentEvidenceCritic, merge_evidence_gate
 from agentic_rag.graph.agent_planner import AgentRetrievalPlanner, AgentRouteAnalyzer
 from agentic_rag.graph.agent_retry import AgentRetryAdvisor
@@ -52,6 +58,11 @@ def _count_by_key(hits: list[SearchHit], key_fn) -> dict[str, int]:
     return counts
 
 
+def _replace_snapshot(snapshots: list[dict[str, Any]], snapshot: dict[str, Any]) -> list[dict[str, Any]]:
+    stage = snapshot.get("stage")
+    return [row for row in snapshots if row.get("stage") != stage] + [snapshot]
+
+
 class TaskGraphRAG:
     """TaskGraph-based constrained Agentic RAG pipeline."""
 
@@ -65,6 +76,7 @@ class TaskGraphRAG:
         prompt_builder: PromptBuilder,
         rerank_service: RerankService | None = None,
         stage_logger: StageLogger | None = None,
+        progress: Any | None = None,
     ):
         self.settings = settings
         self.embedding_provider = embedding_provider
@@ -73,6 +85,7 @@ class TaskGraphRAG:
         self.prompt_builder = prompt_builder
         self.rerank_service = rerank_service
         self.stage_logger = stage_logger
+        self.progress = progress
         self.evidence_evaluator = EvidenceEvaluator(settings)
         self.local_retry_planner = LocalRetryPlanner(settings)
         self.plan_validator = PlanValidator(settings)
@@ -80,6 +93,7 @@ class TaskGraphRAG:
         self.agent_retrieval_planner = AgentRetrievalPlanner(settings, llm_client)
         self.agent_evidence_critic = AgentEvidenceCritic(settings, llm_client)
         self.agent_retry_advisor = AgentRetryAdvisor(settings, llm_client)
+        self.retrieval_history_recorder = RetrievalHistoryRecorder(settings)
         self.graph = self._compile_graph()
 
     def _log_start(self, stage: str, **fields: Any) -> StageTimer:
@@ -91,6 +105,26 @@ class TaskGraphRAG:
     def _log_end(self, stage: str, timer: StageTimer, **fields: Any) -> None:
         if self.stage_logger:
             self.stage_logger.log_stage_end(stage, latency_ms=timer.elapsed_ms(), **fields)
+
+    def _progress_start(self, stage: str) -> None:
+        if self.progress:
+            self.progress.start(stage)
+
+    def _progress_done(self, stage: str) -> None:
+        if self.progress:
+            self.progress.done(stage)
+
+    def _progress_skip(self, stage: str) -> None:
+        if self.progress:
+            self.progress.skip(stage)
+
+    def _progress_retry(self, stage: str, retry_count: int) -> None:
+        if self.progress:
+            self.progress.retry(stage, retry_count)
+
+    def _progress_fail(self, stage: str, reason: str) -> None:
+        if self.progress:
+            self.progress.fail(stage, reason)
 
     def _estimate_token_usage(self, state: TaskGraphState) -> int:
         question = state.get("question", "") or ""
@@ -104,6 +138,7 @@ class TaskGraphRAG:
         return max(1, text_chars // 4)
 
     def _question_analyze_node(self, state: TaskGraphState) -> TaskGraphState:
+        self._progress_start("question_analyze")
         timer = self._log_start("query_analyze", query_text=state.get("question", ""))
         question = (state.get("question") or "").strip()
         lower = question.lower()
@@ -232,9 +267,11 @@ class TaskGraphRAG:
             need_page_level=result.get("need_page_level", need_page_level),
             agent_route_used=result.get("agent_route_used", False),
         )
+        self._progress_done("question_analyze")
         return result
 
     def _task_router_node(self, state: TaskGraphState) -> TaskGraphState:
+        self._progress_start("task_router")
         timer = self._log_start("task_route", route=state.get("route", ""))
         question = state.get("question", "")
         filters = cast(dict[str, object], state.get("filters") or {})
@@ -332,6 +369,7 @@ class TaskGraphRAG:
                 if not self.settings.tg_agent_fallback_to_rules:
                     raise
         self._log_end("task_route", timer, query_plan=plan.model_dump())
+        self._progress_done("task_router")
         return {
             "retrieval_plan": plan.model_dump(),
             "agent_plan_used": agent_plan_used,
@@ -348,6 +386,7 @@ class TaskGraphRAG:
         return {"query_vector": vectors[0]}
 
     def _retrieve_fanout_node(self, state: TaskGraphState) -> TaskGraphState:
+        self._progress_start("retrieval")
         timer = self._log_start("retrieve_fanout", query_text=state.get("question", ""))
         question = state.get("question", "")
         query_vector = state.get("query_vector") or []
@@ -365,12 +404,24 @@ class TaskGraphRAG:
             timer,
             evidence_count=sum(len(v) for v in result.route_hits.values()),
         )
+        snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
+        if self.settings.retrieval_eval_log_enabled and not any(s.get("stage") == "initial_retrieval" for s in snapshots):
+            snapshots.append(
+                build_snapshot(
+                    stage="initial_retrieval",
+                    query_text=question,
+                    hits=result.expanded_hits or result.hits,
+                    max_text_chars=self.settings.retrieval_eval_max_text_chars,
+                    used_rerank=False,
+                )
+            )
         return {
             "route_hits": result.route_hits,
             "fused_hits": result.hits,
             "expanded_hits": result.expanded_hits,
             "evidence_gain": state.get("evidence_gain", 1.0),
             "executed_channels": result.executed_channels,
+            "retrieval_eval_snapshots": snapshots,
         }
 
     def _retrieve_rrf_node(self, state: TaskGraphState) -> TaskGraphState:
@@ -386,6 +437,20 @@ class TaskGraphRAG:
     def _rerank_node(self, state: TaskGraphState) -> TaskGraphState:
         hits = state.get("expanded_hits", [])
         if not self.settings.rerank_enabled or self.rerank_service is None:
+            self._progress_done("retrieval")
+            snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
+            if self.settings.retrieval_eval_log_enabled:
+                snapshots = _replace_snapshot(
+                    snapshots,
+                    build_snapshot(
+                        stage="rerank",
+                        query_text=state.get("question", ""),
+                        hits=hits[: self.settings.context_top_n],
+                        max_text_chars=self.settings.retrieval_eval_max_text_chars,
+                        used_rerank=False,
+                        rerank_fallback_reason=None if not self.settings.rerank_enabled else "rerank_service_unavailable",
+                    ),
+                )
             return {
                 "reranked_hits": hits[: self.settings.context_top_n],
                 "expanded_hits": hits,
@@ -393,9 +458,11 @@ class TaskGraphRAG:
                 "rerank_fallback_reason": None if not self.settings.rerank_enabled else "rerank_service_unavailable",
                 "rerank_score_top": None,
                 "rerank_hit_count": 0,
+                "retrieval_eval_snapshots": snapshots,
             }
         result = self.rerank_service.rerank(state.get("question", ""), hits)
         reranked = result.hits
+        self._progress_done("retrieval")
         top_score = None
         if reranked:
             raw_score = reranked[0].metadata.get("rerank_score", reranked[0].score)
@@ -407,9 +474,23 @@ class TaskGraphRAG:
             "rerank_fallback_reason": result.fallback_reason,
             "rerank_score_top": top_score,
             "rerank_hit_count": len(reranked) if result.used_rerank else 0,
+            "retrieval_eval_snapshots": _replace_snapshot(
+                list(state.get("retrieval_eval_snapshots", []) or []),
+                build_snapshot(
+                    stage="rerank",
+                    query_text=state.get("question", ""),
+                    hits=reranked,
+                    max_text_chars=self.settings.retrieval_eval_max_text_chars,
+                    used_rerank=result.used_rerank,
+                    rerank_fallback_reason=result.fallback_reason,
+                ),
+            )
+            if self.settings.retrieval_eval_log_enabled
+            else state.get("retrieval_eval_snapshots", []),
         }
 
     def _evidence_gate_node(self, state: TaskGraphState) -> TaskGraphState:
+        self._progress_start("evidence_gate")
         timer = self._log_start("evidence_gate")
         hits = state.get("expanded_hits", [])
         plan_raw = state.get("retrieval_plan") or {}
@@ -460,6 +541,7 @@ class TaskGraphRAG:
             agent_evidence_used=agent_evidence_used,
             agent_gate_decision=agent_gate_decision,
         )
+        self._progress_done("evidence_gate")
         return {
             "evidence_pack": pack.model_dump(),
             "evidence_ok": evidence_ok,
@@ -497,6 +579,7 @@ class TaskGraphRAG:
     def _local_retry_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("local_retry")
         decision = self.local_retry_planner.plan_retry(cast(dict[str, Any], state))
+        self._progress_retry("local_retry", decision.retry_count)
         plan = decision.plan
         retry_plan_validation_errors: list[str] = []
         agent_retry_used = False
@@ -545,6 +628,7 @@ class TaskGraphRAG:
         }
 
     def _build_prompt_node(self, state: TaskGraphState) -> TaskGraphState:
+        self._progress_start("generation")
         hits = state.get("expanded_hits", [])
         context, citations = self.prompt_builder.build_context(hits)
         prompt = self.prompt_builder.build_prompt(question=state.get("question", ""), context=context)
@@ -590,6 +674,32 @@ class TaskGraphRAG:
         return {"citation_ok": ok}
 
     def _finalize_node(self, state: TaskGraphState) -> TaskGraphState:
+        if int(state.get("retry_count", 0) or 0) <= 0:
+            self._progress_skip("local_retry")
+        snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
+        retrieval_eval_log_error = state.get("retrieval_eval_log_error")
+        if self.settings.retrieval_eval_log_enabled:
+            snapshots = _replace_snapshot(
+                snapshots,
+                build_snapshot(
+                    stage="final_after_retry",
+                    query_text=state.get("rewritten_query_text") or state.get("question", ""),
+                    hits=state.get("expanded_hits", []),
+                    max_text_chars=self.settings.retrieval_eval_max_text_chars,
+                    used_rerank=bool(state.get("used_rerank", False)),
+                    rerank_fallback_reason=state.get("rerank_fallback_reason"),
+                ),
+            )
+            try:
+                record = build_query_record(
+                    query_id=state.get("retrieval_eval_query_id") or new_query_id(),
+                    question=state.get("question", ""),
+                    state=cast(dict[str, Any], state),
+                    snapshots=snapshots,
+                )
+                self.retrieval_history_recorder.append(record)
+            except Exception as exc:
+                retrieval_eval_log_error = f"{type(exc).__name__}: {exc}"
         result = RAGResult(
             answer=state.get("answer", self.settings.uncertain_answer_text),
             citations=[],
@@ -645,6 +755,7 @@ class TaskGraphRAG:
                 "rerank_fallback_reason": state.get("rerank_fallback_reason"),
                 "rerank_score_top": state.get("rerank_score_top"),
                 "rerank_hit_count": state.get("rerank_hit_count", 0),
+                "retrieval_eval_log_error": retrieval_eval_log_error,
             },
         )
         for row in state.get("citations", []):
@@ -654,6 +765,7 @@ class TaskGraphRAG:
                 continue
         if state.get("refusal") and self.settings.tg_allow_refusal:
             result.answer = self.settings.uncertain_answer_text
+        self._progress_done("generation")
         return {"result": result}
 
     def _retry_decision(self, state: TaskGraphState) -> str:
@@ -737,6 +849,8 @@ class TaskGraphRAG:
             "retry_count": 0,
             "started_at_ms": _now_ms(),
             "evidence_gain": 1.0,
+            "retrieval_eval_query_id": new_query_id(),
+            "retrieval_eval_snapshots": [],
         }
         output = self.graph.invoke(state)
         result = output.get("result")

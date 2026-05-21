@@ -92,7 +92,10 @@ def test_evidence_gate_conflict_can_refuse() -> None:
         tg_max_retries=1,
         tg_min_evidence_hits=1,
         tg_min_coverage_ratio=0.0,
+        tg_min_support_score=0.1,
         tg_allow_refusal=True,
+        tg_agent_evidence_critic_enabled=False,
+        tg_agent_retry_advisor_enabled=False,
     )
     graph = _build_graph(settings, ConflictRetriever())
     result = graph.invoke("是否成立")

@@ -3,6 +3,7 @@
 import base64
 from http import HTTPStatus
 import importlib
+import json
 import os
 import re
 from abc import ABC, abstractmethod
@@ -58,6 +59,36 @@ class OpenAICompatibleClient:
             raise ProviderError(f"HTTP error calling {url}: {exc}") from exc
         except ValueError as exc:
             raise ProviderError(f"Invalid JSON from {url}: {exc}") from exc
+
+    def post_stream(self, path: str, payload: dict[str, Any]):
+        """Yield JSON objects from an OpenAI-compatible SSE streaming response."""
+
+        url = f"{self.base_url.rstrip('/')}/{path.lstrip('/')}"
+        try:
+            with httpx.Client(timeout=self.timeout) as client:
+                with client.stream("POST", url, headers=self._headers(), json=payload) as response:
+                    response.raise_for_status()
+                    for raw_line in response.iter_lines():
+                        line = (raw_line or "").strip()
+                        if not line:
+                            continue
+                        if line.startswith("data:"):
+                            line = line[5:].strip()
+                        if line == "[DONE]":
+                            break
+                        try:
+                            yield json.loads(line)
+                        except ValueError as exc:
+                            raise ProviderError(
+                                f"Invalid streaming JSON from {url}: {self._safe_response_excerpt(line)}"
+                            ) from exc
+        except httpx.HTTPStatusError as exc:
+            excerpt = self._safe_response_excerpt(exc.response.text)
+            raise ProviderError(
+                f"HTTP {exc.response.status_code} calling {url}: {excerpt}"
+            ) from exc
+        except httpx.HTTPError as exc:
+            raise ProviderError(f"HTTP error calling {url}: {exc}") from exc
 
 
 class EmbeddingProvider(ABC):

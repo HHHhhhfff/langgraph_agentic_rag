@@ -27,7 +27,7 @@ def _build_shared_components():
     return settings, embedding, llm, retriever, rerank_service, prompt_builder
 
 
-def build_task_graph() -> TaskGraphRAG:
+def build_task_graph(progress=None) -> TaskGraphRAG:
     """Create configured TaskGraph RAG instance."""
 
     settings, embedding, llm, retriever, _rerank_service, prompt_builder = _build_shared_components()
@@ -38,10 +38,11 @@ def build_task_graph() -> TaskGraphRAG:
         rerank_service=_rerank_service,
         llm_client=llm,
         prompt_builder=prompt_builder,
+        progress=progress,
     )
 
 
-def build_rag_graph() -> RAGGraph | TaskGraphRAG:
+def build_rag_graph(progress=None) -> RAGGraph | TaskGraphRAG:
     """Create configured graph instance with optional TaskGraph path."""
 
     settings, embedding, llm, retriever, rerank_service, prompt_builder = _build_shared_components()
@@ -53,6 +54,7 @@ def build_rag_graph() -> RAGGraph | TaskGraphRAG:
             rerank_service=rerank_service,
             llm_client=llm,
             prompt_builder=prompt_builder,
+            progress=progress,
         )
     return RAGGraph(
         settings=settings,
