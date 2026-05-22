@@ -1,0 +1,7 @@
+runs/
+eval_docs/
+eval_cases/
+query_records/
+__pycache__/
+*.tmp
+*.log
