@@ -126,6 +126,10 @@ Copy-Item .env.example .env
   - 是否用 Markdown 表格作为结构化表格未覆盖时的 fallback。
 - `MINERU_TABLE_SECOND_PASS_ENABLED=false`
   - 是否启用旧的 `clean_markdown` 二次表格扫描。默认关闭，避免同一 PDF 表格被多路径重复 chunk。
+- `MINERU_STRUCTURED_TABLE_COALESCE_ENABLED=true|false`
+  - 是否归并 MinerU `structured_content` 内部由多份 JSON 来源重复描述的同一物理表格。只在 MinerU 单次解析结果内部生效，不做全局表格去重。
+- `MINERU_STRUCTURED_TABLE_COALESCE_KEEP_CHART=true|false`
+  - structured table 归并时是否保留 chart/table-like block，避免把图表结构化结果误删。
 - `ENABLE_FORMULA_RECOGNITION=true|false`
   - 是否从解析后的 Markdown/文本中抽取 LaTeX/MathML 公式节点
 - `FORMULA_NODE_MIN_CHARS=8`

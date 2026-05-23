@@ -12,6 +12,20 @@ from agentic_rag.ingestion.node_schema import MultimodalIngestionResult
 from agentic_rag.ingestion.table_extractor import extract_table_blocks, html_table_to_markdown
 
 
+def _make_mineru_adapter(settings: Settings | None = None) -> MinerUAdapter:
+    adapter = object.__new__(MinerUAdapter)
+    adapter.settings = settings or Settings(_env_file=None)
+    adapter.stage_logger = None
+    adapter.run_id = ""
+    from agentic_rag.ingestion.chunk_strategies import TableChunker, build_text_chunk_strategy
+    from agentic_rag.ingestion.node_normalizer import NodeNormalizer
+
+    adapter.normalizer = NodeNormalizer()
+    adapter.text_strategy = build_text_chunk_strategy(adapter.settings)
+    adapter.table_chunker = TableChunker()
+    return adapter
+
+
 def test_extract_table_blocks_supports_markdown_and_html() -> None:
     text = """hello
 
@@ -144,6 +158,108 @@ def test_mineru_adapter_skips_markdown_table_covered_by_structured_table(tmp_pat
     assert len(table_nodes) == 1
     assert table_nodes[0].metadata.page == 1
     assert table_nodes[0].relationships["mineru_block_type"] == "table"
+
+
+def test_mineru_adapter_coalesces_duplicate_structured_tables(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    markdown = "Intro text."
+    path.write_text(markdown, encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    table_html = (
+        "<table>"
+        "<tr><td>month</td><td>sales</td></tr>"
+        "<tr><td>Jan</td><td>100</td></tr>"
+        "<tr><td>Feb</td><td>120</td></tr>"
+        "</table>"
+    )
+    structured_content = [
+        {"type": "table", "table_body": table_html, "page_idx": 0},
+        {"type": "table", "content": {"html": table_html, "table_type": "simple_table"}},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=structured_content)  # noqa: SLF001
+    table_nodes = [node for node in nodes if node.modality == "table"]
+
+    assert len(table_nodes) == 1
+    assert table_nodes[0].metadata.page == 1
+    assert table_nodes[0].relationships["structured_duplicate_count"] == 2
+    assert table_nodes[0].relationships["mineru_raw_type"] == "table"
+    assert table_nodes[0].relationships["page_source"] == "structured"
+
+
+def test_mineru_adapter_can_disable_structured_table_coalescing(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    markdown = "Intro text."
+    path.write_text(markdown, encoding="utf-8")
+    adapter = _make_mineru_adapter(
+        Settings(_env_file=None, mineru_structured_table_coalesce_enabled=False)
+    )
+    table_html = (
+        "<table>"
+        "<tr><td>month</td><td>sales</td></tr>"
+        "<tr><td>Jan</td><td>100</td></tr>"
+        "</table>"
+    )
+    structured_content = [
+        {"type": "table", "table_body": table_html, "page_idx": 0},
+        {"type": "table", "content": {"html": table_html}},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=structured_content)  # noqa: SLF001
+
+    assert len([node for node in nodes if node.modality == "table"]) == 2
+
+
+def test_mineru_adapter_keeps_chart_table_like_structured_blocks(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    markdown = "Intro text."
+    path.write_text(markdown, encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    table_html = (
+        "<table>"
+        "<tr><td>month</td><td>sales</td></tr>"
+        "<tr><td>Jan</td><td>100</td></tr>"
+        "</table>"
+    )
+    structured_content = [
+        {"type": "table", "table_body": table_html, "page_idx": 0},
+        {"type": "chart_table", "content": {"html": table_html}, "page_idx": 1},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=structured_content)  # noqa: SLF001
+    table_nodes = [node for node in nodes if node.modality == "table"]
+
+    assert len(table_nodes) == 2
+    assert {node.metadata.page for node in table_nodes} == {1, 2}
+
+
+def test_mineru_adapter_keeps_same_page_tables_with_different_values(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    markdown = "Intro text."
+    path.write_text(markdown, encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    first_html = (
+        "<table>"
+        "<tr><td>month</td><td>sales</td></tr>"
+        "<tr><td>Jan</td><td>100</td></tr>"
+        "</table>"
+    )
+    second_html = (
+        "<table>"
+        "<tr><td>month</td><td>sales</td></tr>"
+        "<tr><td>Jan</td><td>900</td></tr>"
+        "</table>"
+    )
+    structured_content = [
+        {"type": "table", "table_body": first_html, "page_idx": 0, "bbox": [0, 0, 100, 100]},
+        {"type": "table", "table_body": second_html, "page_idx": 0, "bbox": [120, 0, 220, 100]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=structured_content)  # noqa: SLF001
+    table_nodes = [node for node in nodes if node.modality == "table"]
+
+    assert len(table_nodes) == 2
+    assert len({node.table_markdown for node in table_nodes if node.table_markdown}) == 2
 
 
 def test_mineru_adapter_formula_filters_and_groups_display_formulas(tmp_path: Path) -> None:

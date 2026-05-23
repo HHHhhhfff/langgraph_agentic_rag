@@ -25,6 +25,10 @@ class MinerUStructuredBlock:
     text: str
     page: int | None = None
     section: str | None = None
+    bbox: list[float] | None = None
+    source_kind: str | None = None
+    raw_type: str | None = None
+    structured_duplicate_count: int = 1
 
 
 class MinerUAdapter:
@@ -265,6 +269,11 @@ class MinerUAdapter:
 
         structured_blocks = _extract_structured_blocks(structured_content)
         table_blocks_with_metadata = [block for block in structured_blocks if block.type == "table"]
+        if self.settings.mineru_structured_table_coalesce_enabled:
+            table_blocks_with_metadata = _coalesce_structured_table_blocks(
+                table_blocks_with_metadata,
+                keep_chart=self.settings.mineru_structured_table_coalesce_keep_chart,
+            )
         table_blocks = extract_table_blocks(markdown)
         covered_table_fingerprints: set[str] = set()
 
@@ -483,8 +492,16 @@ class MinerUAdapter:
 
 def _extract_structured_blocks(structured_content: list[Any]) -> list[MinerUStructuredBlock]:
     blocks: list[MinerUStructuredBlock] = []
-    for item in structured_content:
-        blocks.extend(_walk_structured_item(item, inherited_page=None, inherited_section=None))
+    for idx, item in enumerate(structured_content):
+        source_kind = _infer_structured_source_kind(item, idx)
+        blocks.extend(
+            _walk_structured_item(
+                item,
+                inherited_page=None,
+                inherited_section=None,
+                source_kind=source_kind,
+            )
+        )
     return [block for block in blocks if block.text]
 
 
@@ -493,6 +510,7 @@ def _walk_structured_item(
     *,
     inherited_page: int | None,
     inherited_section: str | None,
+    source_kind: str | None,
 ) -> list[MinerUStructuredBlock]:
     if isinstance(item, list):
         blocks: list[MinerUStructuredBlock] = []
@@ -502,36 +520,77 @@ def _walk_structured_item(
                     sub,
                     inherited_page=inherited_page,
                     inherited_section=inherited_section,
+                    source_kind=source_kind,
                 )
             )
         return blocks
     if not isinstance(item, dict):
         return []
 
+    if "structured_content" in item and isinstance(item.get("structured_content"), (list, dict)):
+        return _walk_structured_item(
+            item.get("structured_content"),
+            inherited_page=inherited_page,
+            inherited_section=inherited_section,
+            source_kind=_infer_structured_source_kind(item, 0),
+        )
+
     page = _extract_page(item)
     if page is None:
         page = inherited_page
     section = _extract_section(item) or inherited_section
-    item_type = _normalize_block_type(item.get("type") or item.get("category") or item.get("role"))
+    raw_type = _raw_block_type(item)
+    item_type = _normalize_block_type(raw_type)
+    bbox = _extract_bbox(item)
 
     blocks: list[MinerUStructuredBlock] = []
     text = _extract_block_text(item, item_type)
     if text:
-        blocks.append(MinerUStructuredBlock(type=item_type, text=text, page=page, section=section))
+        blocks.append(
+            MinerUStructuredBlock(
+                type=item_type,
+                text=text,
+                page=page,
+                section=section,
+                bbox=bbox,
+                source_kind=source_kind,
+                raw_type=str(raw_type or item_type).strip().lower(),
+            )
+        )
+        if item_type == "table":
+            return blocks
 
     for key in ("children", "blocks", "content", "items", "spans", "lines", "layout"):
         value = item.get(key)
         if isinstance(value, (list, dict)):
-            blocks.extend(_walk_structured_item(value, inherited_page=page, inherited_section=section))
+            blocks.extend(
+                _walk_structured_item(
+                    value,
+                    inherited_page=page,
+                    inherited_section=section,
+                    source_kind="nested_content" if key == "content" else source_kind,
+                )
+            )
     return blocks
 
 
 def _extract_block_text(item: dict[str, Any], item_type: str) -> str:
     if item_type == "table":
-        table_html = str(item.get("table_body") or item.get("html") or item.get("content") or "")
-        table_md = html_table_to_markdown(table_html)
-        if table_md:
-            return table_md
+        table_values: list[Any] = [item.get("table_body"), item.get("html"), item.get("content")]
+        content = item.get("content")
+        if isinstance(content, dict):
+            table_values.extend(
+                content.get(key)
+                for key in ("table_body", "html", "markdown", "md", "text", "content")
+            )
+        for value in table_values:
+            if not isinstance(value, str) or not value.strip():
+                continue
+            table_md = html_table_to_markdown(value)
+            if table_md:
+                return table_md
+            if "|" in value:
+                return value.strip()
 
     for key in (
         "text",
@@ -609,6 +668,243 @@ def _normalize_block_type(value: Any) -> str:
     return "text"
 
 
+def _infer_structured_source_kind(item: Any, idx: int) -> str:
+    if isinstance(item, dict):
+        source = item.get("source") or item.get("filename") or item.get("file_name") or item.get("name")
+        source_kind = _source_kind_from_name(source)
+        if source_kind:
+            return source_kind
+
+        keys = {str(key).lower() for key in item}
+        if "content_list_v2" in keys:
+            return "content_list_v2"
+        if "content_list" in keys:
+            return "content_list"
+        if "layout" in keys:
+            return "layout"
+        if "model" in keys or "middle" in keys or "pages" in keys:
+            return "model"
+        if {"type", "table_body"} & keys or {"type", "page_idx"} <= keys:
+            return "content_list"
+        content = item.get("content")
+        if isinstance(content, dict) and {"html", "table_type"} & {str(key).lower() for key in content}:
+            return "model"
+    if isinstance(item, list):
+        sample = [sub for sub in item[:5] if isinstance(sub, dict)]
+        if sample and any("table_body" in sub or "page_idx" in sub for sub in sample):
+            return "content_list"
+    return f"structured_json_{idx}"
+
+
+def _source_kind_from_name(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    name = value.replace("\\", "/").lower()
+    if "content_list_v2" in name:
+        return "content_list_v2"
+    if "content_list" in name:
+        return "content_list"
+    if "layout" in name:
+        return "layout"
+    if "middle" in name or "model" in name:
+        return "model"
+    return None
+
+
+def _raw_block_type(item: dict[str, Any]) -> Any:
+    for key in ("type", "block_type", "layout_type", "category", "kind", "sub_type"):
+        value = item.get(key)
+        if isinstance(value, str) and value.strip():
+            return value
+    content = item.get("content")
+    if isinstance(content, dict):
+        table_type = content.get("table_type")
+        if isinstance(table_type, str) and table_type.strip():
+            return table_type
+        if any(isinstance(content.get(key), str) and content.get(key).strip() for key in ("html", "table_body")):
+            return "table"
+    if any(isinstance(item.get(key), str) and item.get(key).strip() for key in ("table_body", "html")):
+        return "table"
+    return None
+
+
+def _extract_bbox(item: dict[str, Any]) -> list[float] | None:
+    for key in ("bbox", "box", "bounding_box", "position"):
+        bbox = _coerce_bbox(item.get(key))
+        if bbox is not None:
+            return bbox
+    metadata = item.get("metadata") or item.get("meta")
+    if isinstance(metadata, dict):
+        return _extract_bbox(metadata)
+    return None
+
+
+def _coerce_bbox(value: Any) -> list[float] | None:
+    if isinstance(value, dict):
+        if all(key in value for key in ("x", "y", "width", "height")):
+            x = _coerce_float(value.get("x"))
+            y = _coerce_float(value.get("y"))
+            width = _coerce_float(value.get("width"))
+            height = _coerce_float(value.get("height"))
+            if None not in (x, y, width, height):
+                return [x, y, x + width, y + height]
+        if all(key in value for key in ("x0", "y0", "x1", "y1")):
+            coords = [_coerce_float(value.get(key)) for key in ("x0", "y0", "x1", "y1")]
+            if all(coord is not None for coord in coords):
+                return [coord for coord in coords if coord is not None]
+    if isinstance(value, list):
+        if value and all(isinstance(item, list) and len(item) >= 2 for item in value):
+            xs = [_coerce_float(item[0]) for item in value]
+            ys = [_coerce_float(item[1]) for item in value]
+            if all(coord is not None for coord in xs + ys):
+                numeric_xs = [coord for coord in xs if coord is not None]
+                numeric_ys = [coord for coord in ys if coord is not None]
+                return [min(numeric_xs), min(numeric_ys), max(numeric_xs), max(numeric_ys)]
+        numbers: list[float] = []
+        for item in value:
+            if isinstance(item, list):
+                for sub in item:
+                    number = _coerce_float(sub)
+                    if number is not None:
+                        numbers.append(number)
+            else:
+                number = _coerce_float(item)
+                if number is not None:
+                    numbers.append(number)
+        if len(numbers) >= 4:
+            return numbers[:4]
+    return None
+
+
+def _coerce_float(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def _coalesce_structured_table_blocks(
+    blocks: list[MinerUStructuredBlock],
+    *,
+    keep_chart: bool,
+) -> list[MinerUStructuredBlock]:
+    kept: list[MinerUStructuredBlock] = []
+    for block in blocks:
+        if not _table_fingerprint(block.text):
+            kept.append(block)
+            continue
+        match_idx = next(
+            (
+                idx
+                for idx, existing in enumerate(kept)
+                if _can_coalesce_structured_table(existing, block, keep_chart=keep_chart)
+            ),
+            None,
+        )
+        if match_idx is None:
+            kept.append(block)
+            continue
+
+        existing = kept[match_idx]
+        duplicate_count = existing.structured_duplicate_count + block.structured_duplicate_count
+        if _structured_table_quality_key(block) > _structured_table_quality_key(existing):
+            block.structured_duplicate_count = duplicate_count
+            kept[match_idx] = block
+        else:
+            existing.structured_duplicate_count = duplicate_count
+    return kept
+
+
+def _can_coalesce_structured_table(
+    existing: MinerUStructuredBlock,
+    candidate: MinerUStructuredBlock,
+    *,
+    keep_chart: bool,
+) -> bool:
+    if _table_fingerprint(existing.text) != _table_fingerprint(candidate.text):
+        return False
+    if keep_chart and (_is_chart_like_block(existing) or _is_chart_like_block(candidate)):
+        return False
+    if existing.page is not None and candidate.page is not None and existing.page != candidate.page:
+        return False
+    if not _bbox_compatible(existing.bbox, candidate.bbox):
+        return False
+    if (
+        existing.page is not None
+        and candidate.page is not None
+        and existing.page == candidate.page
+        and existing.bbox is None
+        and candidate.bbox is None
+        and existing.source_kind == candidate.source_kind
+    ):
+        return False
+    return True
+
+
+def _is_chart_like_block(block: MinerUStructuredBlock) -> bool:
+    raw = str(block.raw_type or "").lower()
+    source = str(block.source_kind or "").lower()
+    return "chart" in raw or "chart" in source
+
+
+def _bbox_compatible(left: list[float] | None, right: list[float] | None) -> bool:
+    if left is None or right is None:
+        return True
+    return _bbox_iou(left, right) >= 0.8 or _bbox_close(left, right)
+
+
+def _bbox_iou(left: list[float], right: list[float]) -> float:
+    lx0, ly0, lx1, ly1 = _normalize_bbox(left)
+    rx0, ry0, rx1, ry1 = _normalize_bbox(right)
+    inter_x0 = max(lx0, rx0)
+    inter_y0 = max(ly0, ry0)
+    inter_x1 = min(lx1, rx1)
+    inter_y1 = min(ly1, ry1)
+    inter_area = max(0.0, inter_x1 - inter_x0) * max(0.0, inter_y1 - inter_y0)
+    left_area = max(0.0, lx1 - lx0) * max(0.0, ly1 - ly0)
+    right_area = max(0.0, rx1 - rx0) * max(0.0, ry1 - ry0)
+    union = left_area + right_area - inter_area
+    return inter_area / union if union > 0 else 0.0
+
+
+def _bbox_close(left: list[float], right: list[float]) -> bool:
+    normalized_left = _normalize_bbox(left)
+    normalized_right = _normalize_bbox(right)
+    return all(abs(a - b) <= 2.0 for a, b in zip(normalized_left, normalized_right, strict=True))
+
+
+def _normalize_bbox(bbox: list[float]) -> tuple[float, float, float, float]:
+    x0, y0, x1, y1 = (float(value) for value in bbox[:4])
+    return min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)
+
+
+def _structured_table_quality_key(block: MinerUStructuredBlock) -> tuple[int, int, int, int]:
+    return (
+        1 if block.page is not None else 0,
+        1 if block.bbox is not None else 0,
+        _source_priority(block.source_kind),
+        len(block.text or ""),
+    )
+
+
+def _source_priority(source_kind: str | None) -> int:
+    priorities = {
+        "content_list": 100,
+        "content_list_v2": 90,
+        "model": 70,
+        "layout": 60,
+        "nested_content": 40,
+        "unknown": 10,
+    }
+    return priorities.get(str(source_kind or "unknown"), 10)
+
+
 def _infer_block_for_text(text: str, blocks: list[MinerUStructuredBlock]) -> MinerUStructuredBlock | None:
     needle = _compact_text(text)
     if not needle:
@@ -670,9 +966,17 @@ def _mineru_relationships(block: MinerUStructuredBlock | None) -> dict[str, Any]
     if block is None:
         return relationships
     relationships["mineru_block_type"] = block.type
+    if block.raw_type:
+        relationships["mineru_raw_type"] = block.raw_type
+    if block.source_kind:
+        relationships["mineru_source_kind"] = block.source_kind
+    if block.structured_duplicate_count > 1:
+        relationships["structured_duplicate_count"] = block.structured_duplicate_count
     if block.page is not None:
         relationships["page"] = block.page
         relationships["page_node_id"] = f"page:{block.page}"
+        if block.source_kind or block.raw_type:
+            relationships["page_source"] = "structured"
     return relationships
 
 

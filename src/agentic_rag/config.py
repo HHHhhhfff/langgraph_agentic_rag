@@ -162,6 +162,14 @@ class Settings(BaseSettings):
         default=False,
         description="Enable legacy second-pass markdown table scan after extract_table_blocks",
     )
+    mineru_structured_table_coalesce_enabled: bool = Field(
+        default=True,
+        description="Coalesce duplicate table blocks that come from multiple MinerU structured JSON sources",
+    )
+    mineru_structured_table_coalesce_keep_chart: bool = Field(
+        default=True,
+        description="Keep chart/table-like structured blocks separate during MinerU table coalescing",
+    )
     enable_formula_recognition: bool = Field(
         default=True,
         description="Extract LaTeX/MathML formulas from parsed text into formula nodes",
