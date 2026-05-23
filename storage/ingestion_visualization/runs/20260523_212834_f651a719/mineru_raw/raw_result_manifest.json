@@ -1,0 +1,48 @@
+{
+  "files": [
+    {
+      "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+      "task_id": "batch:5bcfc89d-5526-4cf8-addf-e7939426f05d:2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "d6cfa70a8922434d71dd4c325b1c9c2c",
+        "data": {
+          "batch_id": "5bcfc89d-5526-4cf8-addf-e7939426f05d",
+          "extract_result": [
+            {
+              "file_name": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\测试文档.pdf",
+      "task_id": "batch:36ca19dd-8acc-4f64-b18e-f4f29a092fac:测试文档.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "7e9b0d5e6f2664514fe3d9b057b47699",
+        "data": {
+          "batch_id": "36ca19dd-8acc-4f64-b18e-f4f29a092fac",
+          "extract_result": [
+            {
+              "file_name": "测试文档.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

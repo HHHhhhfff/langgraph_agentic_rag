@@ -150,10 +150,31 @@ class Settings(BaseSettings):
     )
     mineru_enable_table: bool = Field(default=True, description="Enable MinerU table extraction")
     mineru_enable_formula: bool = Field(default=True, description="Enable MinerU formula extraction")
+    mineru_table_structured_first: bool = Field(
+        default=True,
+        description="Prefer structured MinerU table blocks before markdown table fallback",
+    )
+    mineru_table_markdown_fallback: bool = Field(
+        default=True,
+        description="Build table nodes from markdown tables not covered by structured MinerU table blocks",
+    )
+    mineru_table_second_pass_enabled: bool = Field(
+        default=False,
+        description="Enable legacy second-pass markdown table scan after extract_table_blocks",
+    )
     enable_formula_recognition: bool = Field(
         default=True,
         description="Extract LaTeX/MathML formulas from parsed text into formula nodes",
     )
+    formula_node_min_chars: int = Field(default=8, description="Minimum formula length for standalone formula nodes")
+    formula_inline_as_text_only: bool = Field(
+        default=True,
+        description="Keep inline formulas inside text nodes instead of standalone formula nodes",
+    )
+    formula_skip_inline_references: bool = Field(default=True, description="Skip citation-like inline formulas")
+    formula_skip_superscript_notes: bool = Field(default=True, description="Skip author-note superscript formulas")
+    formula_group_display_enabled: bool = Field(default=True, description="Group adjacent display formulas")
+    formula_group_max_gap_lines: int = Field(default=2, description="Maximum blank lines between display formulas to group")
     mineru_is_ocr: bool = Field(default=False, description="Enable MinerU OCR")
     mineru_language: str = Field(default="ch", description="MinerU language")
     mineru_page_range: str = Field(default="", description="MinerU page range")
@@ -164,6 +185,18 @@ class Settings(BaseSettings):
     mineru_fallback_to_existing: bool = Field(
         default=True,
         description="Fallback to existing parsers when MinerU fails",
+    )
+    mineru_context_link_enabled: bool = Field(
+        default=True,
+        description="Add explicit prev/next/page/context relationships to MinerU nodes",
+    )
+    mineru_context_window_chars: int = Field(
+        default=800,
+        description="Context window size recorded for MinerU table/formula relationship links",
+    )
+    mineru_same_page_link_max_nodes: int = Field(
+        default=30,
+        description="Maximum same-page node ids stored in MinerU node relationships",
     )
     enable_image_caption: bool = Field(
         default=True,
@@ -332,6 +365,14 @@ class Settings(BaseSettings):
     rrf_top_k: int = Field(default=12, description="RRF fused top-k")
     rel_expand_steps: int = Field(default=1, description="Relationship expansion steps")
     rel_expand_pages: int = Field(default=1, description="Page expansion window")
+    rel_expand_explicit_relationships: bool = Field(
+        default=True,
+        description="Expand retrieval hits using explicit node relationship fields",
+    )
+    rel_expand_same_page_relationships: bool = Field(
+        default=True,
+        description="Expand retrieval hits using same_page_node_ids relationship fields",
+    )
     enable_named_vectors: bool = Field(default=False, description="Enable Qdrant named vectors abstraction")
     named_vector_text_name: str = Field(default="text", description="Qdrant named vector key for text nodes")
     named_vector_table_name: str = Field(default="table", description="Qdrant named vector key for table nodes")
@@ -455,10 +496,14 @@ class Settings(BaseSettings):
         "image_object_max_items",
         "image_caption_max_chars",
         "image_ocr_max_chars",
+        "formula_node_min_chars",
+        "formula_group_max_gap_lines",
         "mineru_poll_interval_sec",
         "mineru_poll_timeout_sec",
         "mineru_download_max_retries",
         "mineru_download_retry_interval_sec",
+        "mineru_context_window_chars",
+        "mineru_same_page_link_max_nodes",
         "embedding_input_max_tokens",
         "embedding_input_safety_margin_tokens",
         "retrieval_eval_max_text_chars",

@@ -1,22 +1,22 @@
 {
   "files": [
     {
-      "source": "data\\demo_docs\\测试文档.docx",
-      "task_id": "batch:ae3e74fa-bd63-48ed-abb9-ec497d7e842c:测试文档.docx",
+      "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+      "task_id": "batch:6a22332e-562e-4c93-aee9-545078a5f709:2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
       "state": "done",
-      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/dcc51729-d62b-41bd-a772-2218976f24ed.zip",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip",
       "raw": {
         "code": 0,
         "msg": "ok",
-        "trace_id": "979a03cb3dac07704eeff43c8b2b7e1c",
+        "trace_id": "2f75759a5ef33c7bfc15031de1ffc66c",
         "data": {
-          "batch_id": "ae3e74fa-bd63-48ed-abb9-ec497d7e842c",
+          "batch_id": "6a22332e-562e-4c93-aee9-545078a5f709",
           "extract_result": [
             {
-              "file_name": "测试文档.docx",
+              "file_name": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
               "state": "done",
               "err_msg": "",
-              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/dcc51729-d62b-41bd-a772-2218976f24ed.zip"
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip"
             }
           ]
         }
@@ -24,15 +24,15 @@
     },
     {
       "source": "data\\demo_docs\\测试文档.pdf",
-      "task_id": "batch:f113a5e9-0ab6-48a0-ad6f-78cbc41ea8ac:测试文档.pdf",
+      "task_id": "batch:4c2e0967-7faf-483a-af9d-6983066a34bd:测试文档.pdf",
       "state": "done",
       "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip",
       "raw": {
         "code": 0,
         "msg": "ok",
-        "trace_id": "a83a60c073f151585d181f01519b32b3",
+        "trace_id": "e7061b3574e29035815c265d9d9a18f3",
         "data": {
-          "batch_id": "f113a5e9-0ab6-48a0-ad6f-78cbc41ea8ac",
+          "batch_id": "4c2e0967-7faf-483a-af9d-6983066a34bd",
           "extract_result": [
             {
               "file_name": "测试文档.pdf",

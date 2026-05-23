@@ -8,6 +8,23 @@ from agentic_rag.schemas import SearchHit
 class RelationshipExpander:
     """Expand seed hits by page order and relationship graph."""
 
+    SINGLE_RELATION_KEYS = (
+        "parent_id",
+        "prev_id",
+        "next_id",
+        "context_prev_node_id",
+        "context_next_node_id",
+        "doc_prev_node_id",
+        "doc_next_node_id",
+    )
+    LIST_RELATION_KEYS = (
+        "child_ids",
+        "context_node_ids",
+        "same_page_node_ids",
+        "related_table_node_ids",
+        "related_formula_node_ids",
+    )
+
     def __init__(self, all_hits: list[SearchHit]):
         self.all_hits = list(all_hits)
         self.by_node: dict[str, SearchHit] = {}
@@ -41,21 +58,7 @@ class RelationshipExpander:
                             if key not in results:
                                 add(neighbor)
                                 next_frontier.append(neighbor)
-                rel = seed.relationships or {}
-                for key_name in ("parent_id", "prev_id", "next_id"):
-                    raw = rel.get(key_name)
-                    rel_ids = raw if isinstance(raw, list) else [raw]
-                    for rid in rel_ids:
-                        if isinstance(rid, str) and rid in self.by_node:
-                            neighbor = self.by_node[rid]
-                            key = neighbor.node_id or neighbor.point_id
-                            if key not in results:
-                                add(neighbor)
-                                next_frontier.append(neighbor)
-                child_ids = rel.get("child_ids", [])
-                if not isinstance(child_ids, list):
-                    child_ids = [child_ids]
-                for rid in child_ids:
+                for rid in self._relationship_ids(seed.relationships or {}):
                     if isinstance(rid, str) and rid in self.by_node:
                         neighbor = self.by_node[rid]
                         key = neighbor.node_id or neighbor.point_id
@@ -67,3 +70,20 @@ class RelationshipExpander:
         expanded = list(results.values())
         expanded.sort(key=lambda h: (h.score_rrf or h.score, h.score), reverse=True)
         return expanded
+
+    @classmethod
+    def _relationship_ids(cls, relationships: dict) -> list[str]:
+        ids: list[str] = []
+        for key_name in cls.SINGLE_RELATION_KEYS:
+            raw = relationships.get(key_name)
+            if isinstance(raw, str):
+                ids.append(raw)
+            elif isinstance(raw, list):
+                ids.extend(item for item in raw if isinstance(item, str))
+        for key_name in cls.LIST_RELATION_KEYS:
+            raw = relationships.get(key_name, [])
+            if isinstance(raw, str):
+                ids.append(raw)
+            elif isinstance(raw, list):
+                ids.extend(item for item in raw if isinstance(item, str))
+        return ids

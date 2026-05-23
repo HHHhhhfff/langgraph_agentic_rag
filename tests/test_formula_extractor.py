@@ -25,3 +25,29 @@ def test_extract_formulas_skips_overlapping_inline_matches() -> None:
     assert len(formulas) == 1
     assert formulas[0].kind == "display"
     assert formulas[0].formula_latex == "a_i=b_i+c_i"
+
+
+def test_extract_formulas_filters_references_superscripts_and_short_inline() -> None:
+    text = r"$[12]$ $^{1,2,*}$ $Q$ $E=mc^2$ $$x+y=z$$"
+
+    formulas = extract_formulas(
+        text,
+        min_chars=8,
+        inline_as_text_only=True,
+        skip_inline_references=True,
+        skip_superscript_notes=True,
+    )
+
+    assert len(formulas) == 1
+    assert formulas[0].formula_latex == "x+y=z"
+
+
+def test_extract_formulas_groups_adjacent_display_formulas() -> None:
+    text = "$$a=b$$\n\n$$b=c$$\n\nparagraph\n\n$$c=d$$"
+
+    formulas = extract_formulas(text, group_display=True, group_max_gap_lines=2)
+
+    assert len(formulas) == 2
+    assert formulas[0].formula_count == 2
+    assert formulas[0].formula_latex == "a=b\n\nb=c"
+    assert formulas[1].formula_count == 1

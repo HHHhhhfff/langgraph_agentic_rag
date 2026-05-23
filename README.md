@@ -120,8 +120,26 @@ Copy-Item .env.example .env
   - 是否开启表格解析
 - `MINERU_ENABLE_FORMULA=true|false`
   - 是否开启公式解析
+- `MINERU_TABLE_STRUCTURED_FIRST=true|false`
+  - 是否优先使用 MinerU `structured_content` 中的结构化表格。
+- `MINERU_TABLE_MARKDOWN_FALLBACK=true|false`
+  - 是否用 Markdown 表格作为结构化表格未覆盖时的 fallback。
+- `MINERU_TABLE_SECOND_PASS_ENABLED=false`
+  - 是否启用旧的 `clean_markdown` 二次表格扫描。默认关闭，避免同一 PDF 表格被多路径重复 chunk。
 - `ENABLE_FORMULA_RECOGNITION=true|false`
   - 是否从解析后的 Markdown/文本中抽取 LaTeX/MathML 公式节点
+- `FORMULA_NODE_MIN_CHARS=8`
+  - 独立 formula Node 的最小公式长度。
+- `FORMULA_INLINE_AS_TEXT_ONLY=true`
+  - 是否让行内短公式保留在 text Node 中，不单独生成 formula Node。
+- `FORMULA_SKIP_INLINE_REFERENCES=true`
+  - 是否跳过 `$[12]$`、`$[3–8]$` 这类引用型公式候选。
+- `FORMULA_SKIP_SUPERSCRIPT_NOTES=true`
+  - 是否跳过 `$^{1,2,*}$`、`$^{3,\dagger}$` 这类作者脚注/上标。
+- `FORMULA_GROUP_DISPLAY_ENABLED=true`
+  - 是否合并连续 display formula，减少公式推导链被拆碎。
+- `FORMULA_GROUP_MAX_GAP_LINES=2`
+  - 连续 display formula 分组允许的最大空行数。
 - `MINERU_IS_OCR=true|false`
   - 是否开启 OCR
 - `MINERU_LANGUAGE`
@@ -132,6 +150,12 @@ Copy-Item .env.example .env
   - 精准模式额外导出格式（如 `docx,html`）
 - `MINERU_FALLBACK_TO_EXISTING=true|false`
   - MinerU 失败后是否回退现有解析链路（LlamaParse/Unstructured）
+- `MINERU_CONTEXT_LINK_ENABLED=true|false`
+  - 是否为 MinerU 生成的 Node 补充真实上下文关系，包括 `prev_id/next_id`、同页关系、表格/公式与前后文本关系。
+- `MINERU_CONTEXT_WINDOW_CHARS=800`
+  - 写入表格/公式上下文关系时记录的上下文窗口大小。
+- `MINERU_SAME_PAGE_LINK_MAX_NODES=30`
+  - 每个 Node 的 `same_page_node_ids` 最多保存多少个同页 Node ID。
 - `ENABLE_IMAGE_CAPTION=true|false`
   - 图片是否生成 caption 文本
 - `IMAGE_EMBED_MODE=direct|caption_text`
@@ -361,6 +385,10 @@ Rerank 关键配置：
 - `RETRIEVAL_INDEX_FALLBACK_TO_SCROLL=true|false`
   - `true`：本地索引缺失或损坏时，查询阶段 fallback 到 Qdrant `scroll_hits()` 临时构建。
   - `false`：本地索引不可用时直接报错，便于生产环境暴露索引构建问题。
+- `REL_EXPAND_EXPLICIT_RELATIONSHIPS=true|false`
+  - 是否让 relationship expansion 消费显式关系字段，例如 `context_node_ids`、`related_table_node_ids`、`related_formula_node_ids`、`doc_prev_node_id`。
+- `REL_EXPAND_SAME_PAGE_RELATIONSHIPS=true|false`
+  - 是否让 relationship expansion 消费 `same_page_node_ids`。
 - `ENABLE_NAMED_VECTORS=true|false`
   - 默认 `false`，保持旧单向量 Qdrant collection 兼容。
   - 开启后 Qdrant collection 使用 `text/table/image` 三个 named vectors。

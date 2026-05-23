@@ -266,12 +266,18 @@ class MinerUAdapter:
         structured_blocks = _extract_structured_blocks(structured_content)
         table_blocks_with_metadata = [block for block in structured_blocks if block.type == "table"]
         table_blocks = extract_table_blocks(markdown)
-        seen_table_texts: set[str] = set()
+        covered_table_fingerprints: set[str] = set()
 
-        for table_block in table_blocks_with_metadata:
+        if self.settings.mineru_table_structured_first:
+            table_source_blocks = table_blocks_with_metadata
+        else:
+            table_source_blocks = []
+
+        for table_block in table_source_blocks:
             table_md = table_block.text
-            seen_table_texts.add(_compact_text(table_md))
+            _add_table_fingerprint(covered_table_fingerprints, table_md)
             for table_chunk in self.table_chunker.chunk_markdown_table(table_md):
+                _add_table_fingerprint(covered_table_fingerprints, table_chunk)
                 nodes.append(
                     self.normalizer.normalize(
                         source=str(file_path),
@@ -289,12 +295,20 @@ class MinerUAdapter:
                 idx += 1
                 table_count += 1
 
-        for block in table_blocks:
+        if self.settings.mineru_table_markdown_fallback:
+            markdown_table_blocks = table_blocks
+        else:
+            markdown_table_blocks = []
+
+        for block in markdown_table_blocks:
             compact_markdown = _compact_text(block.markdown)
-            if not compact_markdown or compact_markdown in seen_table_texts:
+            if not compact_markdown or _table_fingerprint(block.markdown) in covered_table_fingerprints:
                 continue
-            seen_table_texts.add(compact_markdown)
+            _add_table_fingerprint(covered_table_fingerprints, block.markdown)
             for table_chunk in self.table_chunker.chunk_markdown_table(block.markdown):
+                if _table_fingerprint(table_chunk) in covered_table_fingerprints and _table_fingerprint(table_chunk) != _table_fingerprint(block.markdown):
+                    continue
+                _add_table_fingerprint(covered_table_fingerprints, table_chunk)
                 matched_block = _infer_block_for_text(table_chunk, structured_blocks) or _infer_block_for_text(
                     block.markdown, structured_blocks
                 )
@@ -355,7 +369,7 @@ class MinerUAdapter:
         lines = clean_markdown.splitlines()
         while i < len(lines):
             line = lines[i]
-            if "|" in line:
+            if self.settings.mineru_table_second_pass_enabled and "|" in line:
                 table_block = [line]
                 j = i + 1
                 while j < len(lines) and "|" in lines[j]:
@@ -365,8 +379,14 @@ class MinerUAdapter:
                 if len([ln for ln in table_block if ln.strip()]) >= 2 and (
                     candidate.lstrip().startswith("<table") or any("---" in ln for ln in table_block)
                 ):
+                    if _table_fingerprint(candidate) in covered_table_fingerprints:
+                        i = j
+                        continue
                     flush_text()
                     for table_chunk in self.table_chunker.chunk_markdown_table(candidate):
+                        if _table_fingerprint(table_chunk) in covered_table_fingerprints:
+                            continue
+                        _add_table_fingerprint(covered_table_fingerprints, table_chunk)
                         matched_block = _infer_block_for_text(table_chunk, structured_blocks) or _infer_block_for_text(
                             candidate, structured_blocks
                         )
@@ -400,10 +420,29 @@ class MinerUAdapter:
 
         if self.settings.enable_formula_recognition:
             formula_source = strip_table_blocks(markdown, table_blocks)
-            for formula in extract_formulas(formula_source):
-                matched_block = _infer_block_for_text(formula.text, structured_blocks)
+            for formula in extract_formulas(
+                formula_source,
+                min_chars=self.settings.formula_node_min_chars,
+                inline_as_text_only=self.settings.formula_inline_as_text_only,
+                skip_inline_references=self.settings.formula_skip_inline_references,
+                skip_superscript_notes=self.settings.formula_skip_superscript_notes,
+                group_display=self.settings.formula_group_display_enabled,
+                group_max_gap_lines=self.settings.formula_group_max_gap_lines,
+            ):
+                matched_block = (
+                    _infer_block_for_text(formula.raw, structured_blocks)
+                    or _infer_block_for_text(formula.formula_latex, structured_blocks)
+                    or _infer_block_for_text(formula.text, structured_blocks)
+                )
                 page = matched_block.page if matched_block else None
                 section = matched_block.section if matched_block else None
+                relationships = _mineru_relationships(
+                    matched_block
+                    or MinerUStructuredBlock(type="formula", text=formula.text, page=page, section=section)
+                )
+                if formula.formula_count > 1:
+                    relationships["formula_group"] = True
+                    relationships["formula_count"] = formula.formula_count
                 nodes.append(
                     self.normalizer.normalize(
                         source=str(file_path),
@@ -415,10 +454,7 @@ class MinerUAdapter:
                         page=page,
                         title=file_path.stem,
                         section=section,
-                        relationships=_mineru_relationships(
-                            matched_block
-                            or MinerUStructuredBlock(type="formula", text=formula.text, page=page, section=section)
-                        ),
+                        relationships=relationships,
                     )
                 )
                 idx += 1
@@ -433,6 +469,13 @@ class MinerUAdapter:
                 table_count=table_count,
                 image_count=0,
                 formula_count=formula_count,
+            )
+
+        if self.settings.mineru_context_link_enabled:
+            nodes = _link_mineru_nodes(
+                nodes,
+                context_window_chars=self.settings.mineru_context_window_chars,
+                same_page_link_max_nodes=self.settings.mineru_same_page_link_max_nodes,
             )
 
         return nodes
@@ -593,6 +636,25 @@ def _compact_text(text: str) -> str:
     return "".join(str(text or "").split())
 
 
+def _table_fingerprint(text: str) -> str:
+    rows: list[str] = []
+    for line in str(text or "").splitlines():
+        stripped = line.strip()
+        if not stripped or "|" not in stripped:
+            continue
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        if cells and all(cell and set(cell) <= {"-", ":", " "} for cell in cells):
+            continue
+        rows.append("|".join("".join(cell.split()) for cell in cells))
+    return "\n".join(rows) if rows else _compact_text(text)
+
+
+def _add_table_fingerprint(fingerprints: set[str], text: str) -> None:
+    fingerprint = _table_fingerprint(text)
+    if fingerprint:
+        fingerprints.add(fingerprint)
+
+
 def _section_from_markdown(text: str) -> str | None:
     for line in str(text or "").splitlines():
         stripped = line.strip()
@@ -609,5 +671,122 @@ def _mineru_relationships(block: MinerUStructuredBlock | None) -> dict[str, Any]
         return relationships
     relationships["mineru_block_type"] = block.type
     if block.page is not None:
+        relationships["page"] = block.page
         relationships["page_node_id"] = f"page:{block.page}"
     return relationships
+
+
+def _link_mineru_nodes(
+    nodes,
+    *,
+    context_window_chars: int,
+    same_page_link_max_nodes: int,
+):
+    if not nodes:
+        return nodes
+
+    linked = [node.model_copy(deep=True) for node in nodes]
+    linked.sort(key=lambda node: (node.metadata.source, node.metadata.doc_id, node.metadata.chunk_index))
+
+    by_page: dict[tuple[str, int], list] = {}
+    for node in linked:
+        if node.metadata.page is None:
+            continue
+        by_page.setdefault((node.metadata.doc_id, node.metadata.page), []).append(node)
+
+    text_nodes = [node for node in linked if node.modality == "text"]
+    table_nodes = [node for node in linked if node.modality == "table"]
+    formula_nodes = [node for node in linked if node.modality == "formula"]
+
+    for idx, node in enumerate(linked):
+        rel = dict(node.relationships or {})
+        if idx > 0:
+            prev_id = linked[idx - 1].node_id
+            rel["prev_id"] = prev_id
+            rel["doc_prev_node_id"] = prev_id
+        if idx + 1 < len(linked):
+            next_id = linked[idx + 1].node_id
+            rel["next_id"] = next_id
+            rel["doc_next_node_id"] = next_id
+        if node.metadata.page is not None:
+            rel["page"] = node.metadata.page
+            rel["page_node_id"] = f"{node.metadata.doc_id}:page:{node.metadata.page}"
+            same_page_ids = [
+                other.node_id
+                for other in by_page.get((node.metadata.doc_id, node.metadata.page), [])
+                if other.node_id != node.node_id
+            ]
+            if same_page_link_max_nodes > 0:
+                same_page_ids = same_page_ids[:same_page_link_max_nodes]
+            if same_page_ids:
+                rel["same_page_node_ids"] = same_page_ids
+        node.relationships.clear()
+        node.relationships.update(rel)
+
+    for node in linked:
+        if node.modality not in {"table", "formula"}:
+            continue
+        prev_text = _nearest_text_node(node, text_nodes, direction=-1)
+        next_text = _nearest_text_node(node, text_nodes, direction=1)
+        context_ids = []
+        rel = dict(node.relationships or {})
+        if prev_text is not None:
+            rel["context_prev_node_id"] = prev_text.node_id
+            context_ids.append(prev_text.node_id)
+        if next_text is not None:
+            rel["context_next_node_id"] = next_text.node_id
+            context_ids.append(next_text.node_id)
+        if context_ids:
+            rel["context_node_ids"] = context_ids
+            rel["context_window_chars"] = context_window_chars
+        node.relationships.clear()
+        node.relationships.update(rel)
+
+        for text_node in [candidate for candidate in (prev_text, next_text) if candidate is not None]:
+            text_rel = dict(text_node.relationships or {})
+            key = "related_table_node_ids" if node.modality == "table" else "related_formula_node_ids"
+            related = text_rel.get(key, [])
+            if not isinstance(related, list):
+                related = [related]
+            if node.node_id not in related:
+                related.append(node.node_id)
+            text_rel[key] = [item for item in related if isinstance(item, str)]
+            text_node.relationships.clear()
+            text_node.relationships.update(text_rel)
+
+    # Prefer deterministic table/formula relation ordering on text nodes.
+    for node in text_nodes:
+        rel = dict(node.relationships or {})
+        for key, candidates in (
+            ("related_table_node_ids", table_nodes),
+            ("related_formula_node_ids", formula_nodes),
+        ):
+            ids = rel.get(key)
+            if isinstance(ids, list):
+                order = {candidate.node_id: idx for idx, candidate in enumerate(candidates)}
+                rel[key] = sorted({item for item in ids if isinstance(item, str)}, key=lambda item: order.get(item, 10**9))
+        node.relationships.clear()
+        node.relationships.update(rel)
+
+    return sorted(linked, key=lambda node: node.metadata.chunk_index)
+
+
+def _nearest_text_node(node, text_nodes: list, *, direction: int):
+    same_doc = [candidate for candidate in text_nodes if candidate.metadata.doc_id == node.metadata.doc_id]
+    if direction < 0:
+        candidates = [
+            candidate
+            for candidate in same_doc
+            if candidate.metadata.chunk_index < node.metadata.chunk_index
+        ]
+        if not candidates:
+            return None
+        return max(candidates, key=lambda candidate: candidate.metadata.chunk_index)
+    candidates = [
+        candidate
+        for candidate in same_doc
+        if candidate.metadata.chunk_index > node.metadata.chunk_index
+    ]
+    if not candidates:
+        return None
+    return min(candidates, key=lambda candidate: candidate.metadata.chunk_index)

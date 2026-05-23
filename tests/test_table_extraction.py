@@ -108,6 +108,78 @@ plain text
     assert "accuracy" in (table_nodes[0].table_markdown or "")
 
 
+def test_mineru_adapter_skips_markdown_table_covered_by_structured_table(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    markdown = """Intro
+
+| 月份 | 销售额(万元) |
+| --- | --- |
+| 1月 | 100 |
+| 2月 | 120 |
+"""
+    path.write_text(markdown, encoding="utf-8")
+    adapter = object.__new__(MinerUAdapter)
+    settings = Settings(_env_file=None, mineru_table_second_pass_enabled=False)
+    adapter.settings = settings
+    adapter.stage_logger = None
+    adapter.run_id = ""
+    from agentic_rag.ingestion.chunk_strategies import TableChunker, build_text_chunk_strategy
+    from agentic_rag.ingestion.node_normalizer import NodeNormalizer
+
+    adapter.normalizer = NodeNormalizer()
+    adapter.text_strategy = build_text_chunk_strategy(settings)
+    adapter.table_chunker = TableChunker()
+
+    structured_content = [
+        {
+            "type": "table",
+            "table_body": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr></table>",
+            "page_idx": 0,
+        }
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=structured_content)  # noqa: SLF001
+    table_nodes = [node for node in nodes if node.modality == "table"]
+
+    assert len(table_nodes) == 1
+    assert table_nodes[0].metadata.page == 1
+    assert table_nodes[0].relationships["mineru_block_type"] == "table"
+
+
+def test_mineru_adapter_formula_filters_and_groups_display_formulas(tmp_path: Path) -> None:
+    path = tmp_path / "formula.md"
+    markdown = r"""A. Author $^{1,2,*}$ cites $[12]$ and inline $E=mc^2$.
+
+$$
+a=b
+$$
+
+$$
+b=c
+$$
+"""
+    path.write_text(markdown, encoding="utf-8")
+    adapter = object.__new__(MinerUAdapter)
+    settings = Settings(_env_file=None)
+    adapter.settings = settings
+    adapter.stage_logger = None
+    adapter.run_id = ""
+    from agentic_rag.ingestion.chunk_strategies import TableChunker, build_text_chunk_strategy
+    from agentic_rag.ingestion.node_normalizer import NodeNormalizer
+
+    adapter.normalizer = NodeNormalizer()
+    adapter.text_strategy = build_text_chunk_strategy(settings)
+    adapter.table_chunker = TableChunker()
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=[])  # noqa: SLF001
+    formula_nodes = [node for node in nodes if node.modality == "formula"]
+
+    assert len(formula_nodes) == 1
+    assert formula_nodes[0].formula_latex == "a=b\n\nb=c"
+    assert formula_nodes[0].relationships["formula_group"] is True
+    assert formula_nodes[0].relationships["formula_count"] == 2
+
+
 def test_mineru_adapter_preserves_structured_page_and_section_metadata(tmp_path: Path) -> None:
     path = tmp_path / "docx.md"
     path.write_text("# Intro\n\nTaskGraph text evidence.\n", encoding="utf-8")
@@ -140,9 +212,50 @@ def test_mineru_adapter_preserves_structured_page_and_section_metadata(tmp_path:
     assert text_node.metadata.page == 2
     assert text_node.metadata.section == "Intro"
     assert text_node.relationships["source_parser"] == "mineru"
-    assert text_node.relationships["page_node_id"] == "page:2"
+    assert text_node.relationships["page_node_id"] == f"{text_node.metadata.doc_id}:page:2"
     assert table_node.metadata.page == 3
     assert table_node.metadata.section == "Tables"
+
+
+def test_mineru_adapter_links_context_relationships(tmp_path: Path) -> None:
+    path = tmp_path / "docx.md"
+    path.write_text(
+        """Before table explanation.
+
+| metric | value |
+| --- | --- |
+| accuracy | 95 |
+
+After table explanation.
+
+$$
+E=mc^2
+$$
+""",
+        encoding="utf-8",
+    )
+    adapter = object.__new__(MinerUAdapter)
+    settings = Settings(_env_file=None, mineru_context_link_enabled=True)
+    adapter.settings = settings
+    adapter.stage_logger = None
+    adapter.run_id = ""
+    from agentic_rag.ingestion.chunk_strategies import TableChunker, build_text_chunk_strategy
+    from agentic_rag.ingestion.node_normalizer import NodeNormalizer
+
+    adapter.normalizer = NodeNormalizer()
+    adapter.text_strategy = build_text_chunk_strategy(settings)
+    adapter.table_chunker = TableChunker()
+
+    nodes = adapter._build_nodes_from_markdown(path.read_text(encoding="utf-8"), path, structured_content=[])  # noqa: SLF001
+    table_node = next(node for node in nodes if node.modality == "table")
+    formula_node = next(node for node in nodes if node.modality == "formula")
+    text_nodes = [node for node in nodes if node.modality == "text"]
+
+    assert table_node.relationships.get("context_node_ids")
+    assert table_node.relationships.get("prev_id") or table_node.relationships.get("next_id")
+    assert formula_node.relationships.get("context_node_ids")
+    assert any(table_node.node_id in node.relationships.get("related_table_node_ids", []) for node in text_nodes)
+    assert any(formula_node.node_id in node.relationships.get("related_formula_node_ids", []) for node in text_nodes)
 
 
 def test_llamaparse_adapter_preserves_doc_metadata_page_and_section(tmp_path: Path, monkeypatch) -> None:
