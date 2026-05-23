@@ -145,7 +145,58 @@ Copy-Item .env.example .env
 - `INGESTION_BATCH_SIZE`
   - 多模态节点批量 upsert 大小
 
-### 3.3 图像向量配置（新增）
+### 3.3 向量入库阶段观察器
+
+用于只观察多模态解析、chunk 切块、Node 构建、metadata、relationships、本地索引预览和 Qdrant payload 预览，不写入 Qdrant，不污染现有索引。
+
+- `INGESTION_INSPECT_OUTPUT_DIR=storage/ingestion_visualization`
+  - inspect 报告输出根目录。
+- `INGESTION_INSPECT_MAX_TEXT_CHARS=4000`
+  - `nodes.jsonl` 和 HTML 中单个文本字段最大保留字符数。
+- `INGESTION_INSPECT_INCLUDE_MINERU_RAW=true`
+  - 保存 MinerU raw markdown、预处理 markdown、structured content 和 raw result manifest。
+- `INGESTION_INSPECT_RENDER_PDF_PAGES=false`
+  - 是否渲染 PDF 页面截图。需要额外安装 `PyMuPDF`：`pip install pymupdf`。
+- `INGESTION_INSPECT_INCLUDE_EMBEDDING_PREVIEW=true`
+  - 输出 `vector_name/vector_dim/embedding_text_excerpt`，不保存完整向量。
+- `INGESTION_INSPECT_INCLUDE_FULL_VECTORS=false`
+  - 保留开关，默认关闭，避免报告过大。
+
+命令示例：
+
+```powershell
+py -3.11 -m agentic_rag.cli.inspect_ingestion data/demo_docs/xxx.pdf
+py -3.11 -m agentic_rag.cli.inspect_ingestion data/demo_docs/xxx.pdf --render-pages
+py -3.11 -m agentic_rag.cli.inspect_ingestion data/demo_docs --output storage/ingestion_visualization
+```
+
+输出目录：
+
+```text
+storage/ingestion_visualization/runs/{run_id}/
+  manifest.json
+  nodes.jsonl
+  nodes.pretty.json
+  chunks.html
+  document_map.html
+  mineru_raw/
+  pages/
+  previews/
+    qdrant_payload_preview.jsonl
+    retrieval_index_preview.json
+    embedding_preview.jsonl
+    block_map.json
+```
+
+说明：
+
+- `chunks.html` 按 Node 展示 chunk，颜色区分 `text/table/formula/image`，并标记 `page=null`、`section=null`、`relationships={}`。
+- `document_map.html` 按文档页或文本流展示 Node；PDF 可选页面截图，DOCX 只显示文本流。
+- `mineru_raw/structured_content.json` 用于排查 MinerU 是否返回页码、表格、公式、图片和 bbox。
+- `qdrant_payload_preview.jsonl` 模拟 Qdrant payload，但不包含真实向量。
+- `retrieval_index_preview.json` 预览 BM25/page/table 本地索引来源。
+
+### 3.4 图像向量配置（新增）
 
 - `IMAGE_EMBED_BASE_URL`
   - 图像 embedding 服务地址（OpenAI-Compatible）。

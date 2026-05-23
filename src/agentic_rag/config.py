@@ -244,6 +244,30 @@ class Settings(BaseSettings):
     ingestion_timeout_sec: float = Field(default=120.0, description="Multimodal ingestion per-file timeout")
     ingestion_max_retries: int = Field(default=2, description="Multimodal ingestion retry count")
     ingestion_batch_size: int = Field(default=32, description="Multimodal upsert batch size")
+    ingestion_inspect_output_dir: str = Field(
+        default="storage/ingestion_visualization",
+        description="Output directory for inspect-only ingestion visualization reports",
+    )
+    ingestion_inspect_max_text_chars: int = Field(
+        default=4000,
+        description="Max text chars stored per node in ingestion inspection reports",
+    )
+    ingestion_inspect_include_mineru_raw: bool = Field(
+        default=True,
+        description="Save MinerU raw markdown and structured content in ingestion inspection reports",
+    )
+    ingestion_inspect_render_pdf_pages: bool = Field(
+        default=False,
+        description="Render PDF pages in ingestion inspection reports when PyMuPDF is installed",
+    )
+    ingestion_inspect_include_embedding_preview: bool = Field(
+        default=True,
+        description="Include embedding text/vector metadata preview without full vectors",
+    )
+    ingestion_inspect_include_full_vectors: bool = Field(
+        default=False,
+        description="Reserved switch for full vector export; defaults to false to avoid large reports",
+    )
     enable_stage_log: bool = Field(default=False, description="Enable structured stage logging")
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         default="INFO",
@@ -438,6 +462,7 @@ class Settings(BaseSettings):
         "embedding_input_max_tokens",
         "embedding_input_safety_margin_tokens",
         "retrieval_eval_max_text_chars",
+        "ingestion_inspect_max_text_chars",
     )
     @classmethod
     def validate_positive(cls, value: int) -> int:

@@ -33,7 +33,9 @@ def test_openai_compatible_payload_uses_qwen_vl_plus_and_json_prompt(tmp_path, m
         yield {"choices": [{"delta": {"content": '"visible_text_summary":"","objects":[],"confidence":0.9}'}}]}
 
     monkeypatch.setattr("agentic_rag.models.providers.OpenAICompatibleClient.post_stream", fake_post_stream)
-    client = ImageVLMClient(Settings(image_vlm_provider="openai_compatible", image_vlm_enable_thinking=False))
+    client = ImageVLMClient(
+        Settings(_env_file=None, image_vlm_provider="openai_compatible", image_vlm_enable_thinking=False)
+    )
 
     desc = client.describe_image(image)
 
@@ -68,7 +70,9 @@ def test_openai_compatible_thinking_payload_uses_top_level_fields(tmp_path, monk
         }
 
     monkeypatch.setattr("agentic_rag.models.providers.OpenAICompatibleClient.post_stream", fake_post_stream)
-    client = ImageVLMClient(Settings(image_vlm_provider="openai_compatible", image_vlm_enable_thinking=True))
+    client = ImageVLMClient(
+        Settings(_env_file=None, image_vlm_provider="openai_compatible", image_vlm_enable_thinking=True)
+    )
 
     desc = client.describe_image(image)
 
@@ -117,7 +121,7 @@ def test_dashscope_sdk_payload_and_response_parse(tmp_path, monkeypatch) -> None
     fake_dashscope = SimpleNamespace(MultiModalConversation=FakeMultiModalConversation, base_http_api_url="")
     monkeypatch.setitem(sys.modules, "dashscope", fake_dashscope)
     client = ImageVLMClient(
-        Settings(image_vlm_provider="dashscope_sdk", image_vlm_api_key="sk-test", image_vlm_enable_thinking=False)
+        Settings(_env_file=None, image_vlm_provider="dashscope_sdk", image_vlm_api_key="sk-test", image_vlm_enable_thinking=False)
     )
 
     desc = client.describe_image(image)
