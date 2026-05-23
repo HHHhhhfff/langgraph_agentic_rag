@@ -1,6 +1,7 @@
 ﻿from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
@@ -86,7 +87,9 @@ class LlamaParseAdapter:
         table_count = 0
         formula_count = 0
         for doc in docs:
-            page = None
+            doc_metadata = _doc_metadata(doc)
+            page = _extract_page(doc_metadata)
+            section = _extract_section(doc_metadata)
             content = str(getattr(doc, "text", "") or "").strip()
             if not content:
                 continue
@@ -104,6 +107,7 @@ class LlamaParseAdapter:
                             table_markdown=table_md,
                             page=page,
                             title=file_path.stem,
+                            section=section,
                         )
                     )
                     chunk_index += 1
@@ -121,6 +125,7 @@ class LlamaParseAdapter:
                             formula_latex=formula.formula_latex,
                             page=page,
                             title=file_path.stem,
+                            section=section,
                         )
                     )
                     chunk_index += 1
@@ -137,6 +142,7 @@ class LlamaParseAdapter:
                         text=chunk,
                         page=page,
                         title=file_path.stem,
+                        section=section,
                     )
                 )
                 chunk_index += 1
@@ -159,3 +165,41 @@ class LlamaParseAdapter:
                 chunk_count=len(nodes),
             )
         return MultimodalIngestionResult(nodes=nodes, failures=[])
+
+
+def _doc_metadata(doc: Any) -> dict[str, Any]:
+    metadata = getattr(doc, "metadata", None) or getattr(doc, "extra_info", None) or {}
+    return dict(metadata) if isinstance(metadata, dict) else {}
+
+
+def _extract_page(metadata: dict[str, Any]) -> int | None:
+    for key in ("page", "page_number", "page_num", "page_label", "page_idx", "page_index"):
+        value = metadata.get(key)
+        page = _coerce_page(value, zero_based=key in {"page_idx", "page_index"})
+        if page is not None:
+            return page
+    return None
+
+
+def _coerce_page(value: Any, *, zero_based: bool = False) -> int | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value + 1 if zero_based and value >= 0 else value
+    if isinstance(value, float) and value.is_integer():
+        page = int(value)
+        return page + 1 if zero_based and page >= 0 else page
+    if isinstance(value, str):
+        digits = "".join(ch for ch in value if ch.isdigit())
+        if digits:
+            page = int(digits)
+            return page + 1 if zero_based and page >= 0 else page
+    return None
+
+
+def _extract_section(metadata: dict[str, Any]) -> str | None:
+    for key in ("section", "section_title", "heading", "header", "title"):
+        value = metadata.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None

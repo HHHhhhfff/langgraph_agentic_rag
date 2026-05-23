@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,14 @@ from agentic_rag.observability.stage_logger import StageLogger, StageTimer
 
 class MinerUAdapterError(RuntimeError):
     """Raised for MinerU adapter errors."""
+
+
+@dataclass(slots=True)
+class MinerUStructuredBlock:
+    type: str
+    text: str
+    page: int | None = None
+    section: str | None = None
 
 
 class MinerUAdapter:
@@ -254,23 +263,11 @@ class MinerUAdapter:
         table_count = 0
         formula_count = 0
 
-        table_texts: list[str] = []
-        for item in structured_content:
-            if isinstance(item, list):
-                for sub in item:
-                    if isinstance(sub, dict) and str(sub.get("type") or "").lower() == "table":
-                        table_html = str(sub.get("table_body") or sub.get("content") or "")
-                        table_md = html_table_to_markdown(table_html) or str(sub.get("content") or "").strip()
-                        if table_md:
-                            table_texts.append(table_md)
-            elif isinstance(item, dict):
-                if str(item.get("type") or "").lower() == "table":
-                    table_html = str(item.get("table_body") or item.get("content") or "")
-                    table_md = html_table_to_markdown(table_html) or str(item.get("content") or "").strip()
-                    if table_md:
-                        table_texts.append(table_md)
+        structured_blocks = _extract_structured_blocks(structured_content)
+        table_blocks_with_metadata = [block for block in structured_blocks if block.type == "table"]
 
-        for table_md in table_texts:
+        for table_block in table_blocks_with_metadata:
+            table_md = table_block.text
             for table_chunk in self.table_chunker.chunk_markdown_table(table_md):
                 nodes.append(
                     self.normalizer.normalize(
@@ -280,7 +277,10 @@ class MinerUAdapter:
                         modality="table",
                         text=table_chunk,
                         table_markdown=table_chunk,
+                        page=table_block.page,
                         title=file_path.stem,
+                        section=table_block.section,
+                        relationships=_mineru_relationships(table_block),
                     )
                 )
                 idx += 1
@@ -296,6 +296,9 @@ class MinerUAdapter:
             if not text:
                 return
             for chunk in self.text_strategy.chunk_text(text):
+                matched_block = _infer_block_for_text(chunk, structured_blocks) or _infer_block_for_text(text, structured_blocks)
+                page = matched_block.page if matched_block else None
+                section = (matched_block.section if matched_block else None) or _section_from_markdown(chunk)
                 nodes.append(
                     self.normalizer.normalize(
                         source=str(file_path),
@@ -303,7 +306,12 @@ class MinerUAdapter:
                         chunk_index=idx,
                         modality="text",
                         text=chunk,
+                        page=page,
                         title=file_path.stem,
+                        section=section,
+                        relationships=_mineru_relationships(
+                            matched_block or MinerUStructuredBlock(type="text", text=chunk, page=page, section=section)
+                        ),
                     )
                 )
                 idx += 1
@@ -326,6 +334,11 @@ class MinerUAdapter:
                 ):
                     flush_text()
                     for table_chunk in self.table_chunker.chunk_markdown_table(candidate):
+                        matched_block = _infer_block_for_text(table_chunk, structured_blocks) or _infer_block_for_text(
+                            candidate, structured_blocks
+                        )
+                        page = matched_block.page if matched_block else None
+                        section = (matched_block.section if matched_block else None) or _section_from_markdown(candidate)
                         nodes.append(
                             self.normalizer.normalize(
                                 source=str(file_path),
@@ -334,7 +347,13 @@ class MinerUAdapter:
                                 modality="table",
                                 text=table_chunk,
                                 table_markdown=table_chunk,
+                                page=page,
                                 title=file_path.stem,
+                                section=section,
+                                relationships=_mineru_relationships(
+                                    matched_block
+                                    or MinerUStructuredBlock(type="table", text=table_chunk, page=page, section=section)
+                                ),
                             )
                         )
                         idx += 1
@@ -349,6 +368,11 @@ class MinerUAdapter:
         if not nodes and table_blocks:
             for block in table_blocks:
                 for table_chunk in self.table_chunker.chunk_markdown_table(block.markdown):
+                    matched_block = _infer_block_for_text(table_chunk, structured_blocks) or _infer_block_for_text(
+                        block.markdown, structured_blocks
+                    )
+                    page = matched_block.page if matched_block else None
+                    section = (matched_block.section if matched_block else None) or _section_from_markdown(block.markdown)
                     nodes.append(
                         self.normalizer.normalize(
                             source=str(file_path),
@@ -357,7 +381,13 @@ class MinerUAdapter:
                             modality="table",
                             text=table_chunk,
                             table_markdown=table_chunk,
+                            page=page,
                             title=file_path.stem,
+                            section=section,
+                            relationships=_mineru_relationships(
+                                matched_block
+                                or MinerUStructuredBlock(type="table", text=table_chunk, page=page, section=section)
+                            ),
                         )
                     )
                     idx += 1
@@ -366,6 +396,9 @@ class MinerUAdapter:
         if self.settings.enable_formula_recognition:
             formula_source = strip_table_blocks(markdown, table_blocks)
             for formula in extract_formulas(formula_source):
+                matched_block = _infer_block_for_text(formula.text, structured_blocks)
+                page = matched_block.page if matched_block else None
+                section = matched_block.section if matched_block else None
                 nodes.append(
                     self.normalizer.normalize(
                         source=str(file_path),
@@ -374,7 +407,13 @@ class MinerUAdapter:
                         modality="formula",
                         text=formula.text,
                         formula_latex=formula.formula_latex,
+                        page=page,
                         title=file_path.stem,
+                        section=section,
+                        relationships=_mineru_relationships(
+                            matched_block
+                            or MinerUStructuredBlock(type="formula", text=formula.text, page=page, section=section)
+                        ),
                     )
                 )
                 idx += 1
@@ -392,3 +431,178 @@ class MinerUAdapter:
             )
 
         return nodes
+
+
+def _extract_structured_blocks(structured_content: list[Any]) -> list[MinerUStructuredBlock]:
+    blocks: list[MinerUStructuredBlock] = []
+    for item in structured_content:
+        blocks.extend(_walk_structured_item(item, inherited_page=None, inherited_section=None))
+    return [block for block in blocks if block.text]
+
+
+def _walk_structured_item(
+    item: Any,
+    *,
+    inherited_page: int | None,
+    inherited_section: str | None,
+) -> list[MinerUStructuredBlock]:
+    if isinstance(item, list):
+        blocks: list[MinerUStructuredBlock] = []
+        for sub in item:
+            blocks.extend(
+                _walk_structured_item(
+                    sub,
+                    inherited_page=inherited_page,
+                    inherited_section=inherited_section,
+                )
+            )
+        return blocks
+    if not isinstance(item, dict):
+        return []
+
+    page = _extract_page(item)
+    if page is None:
+        page = inherited_page
+    section = _extract_section(item) or inherited_section
+    item_type = _normalize_block_type(item.get("type") or item.get("category") or item.get("role"))
+
+    blocks: list[MinerUStructuredBlock] = []
+    text = _extract_block_text(item, item_type)
+    if text:
+        blocks.append(MinerUStructuredBlock(type=item_type, text=text, page=page, section=section))
+
+    for key in ("children", "blocks", "content", "items", "spans", "lines", "layout"):
+        value = item.get(key)
+        if isinstance(value, (list, dict)):
+            blocks.extend(_walk_structured_item(value, inherited_page=page, inherited_section=section))
+    return blocks
+
+
+def _extract_block_text(item: dict[str, Any], item_type: str) -> str:
+    if item_type == "table":
+        table_html = str(item.get("table_body") or item.get("html") or item.get("content") or "")
+        table_md = html_table_to_markdown(table_html)
+        if table_md:
+            return table_md
+
+    for key in (
+        "text",
+        "content",
+        "md",
+        "markdown",
+        "table_body",
+        "latex",
+        "formula",
+        "caption",
+        "title",
+    ):
+        value = item.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""
+
+
+def _extract_page(item: dict[str, Any]) -> int | None:
+    for key in (
+        "page",
+        "page_no",
+        "page_number",
+        "page_num",
+        "page_idx",
+        "page_index",
+        "page_id",
+    ):
+        page = _coerce_page(item.get(key), zero_based=key in {"page_idx", "page_index"})
+        if page is not None:
+            return page
+    metadata = item.get("metadata") or item.get("meta")
+    if isinstance(metadata, dict):
+        return _extract_page(metadata)
+    return None
+
+
+def _coerce_page(value: Any, *, zero_based: bool = False) -> int | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value + 1 if zero_based and value >= 0 else value
+    if isinstance(value, float) and value.is_integer():
+        page = int(value)
+        return page + 1 if zero_based and page >= 0 else page
+    if isinstance(value, str):
+        digits = "".join(ch for ch in value if ch.isdigit())
+        if digits:
+            page = int(digits)
+            return page + 1 if zero_based and page >= 0 else page
+    return None
+
+
+def _extract_section(item: dict[str, Any]) -> str | None:
+    for key in ("section", "section_title", "heading", "header", "title"):
+        value = item.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    metadata = item.get("metadata") or item.get("meta")
+    if isinstance(metadata, dict):
+        return _extract_section(metadata)
+    return None
+
+
+def _normalize_block_type(value: Any) -> str:
+    raw = str(value or "text").strip().lower()
+    if "table" in raw:
+        return "table"
+    if "formula" in raw or "equation" in raw:
+        return "formula"
+    if "title" in raw or "heading" in raw:
+        return "heading"
+    if "image" in raw or "figure" in raw:
+        return "image"
+    return "text"
+
+
+def _infer_block_for_text(text: str, blocks: list[MinerUStructuredBlock]) -> MinerUStructuredBlock | None:
+    needle = _compact_text(text)
+    if not needle:
+        return None
+    best: tuple[int, MinerUStructuredBlock] | None = None
+    for block in blocks:
+        if block.page is None and block.section is None:
+            continue
+        haystack = _compact_text(block.text)
+        if not haystack:
+            continue
+        score = 0
+        if needle in haystack or haystack in needle:
+            score = min(len(needle), len(haystack))
+        elif len(needle) >= 40 and needle[:40] in haystack:
+            score = 40
+        elif len(haystack) >= 40 and haystack[:40] in needle:
+            score = 40
+        if score and (best is None or score > best[0]):
+            best = (score, block)
+    return best[1] if best else None
+
+
+def _compact_text(text: str) -> str:
+    return "".join(str(text or "").split())
+
+
+def _section_from_markdown(text: str) -> str | None:
+    for line in str(text or "").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            title = stripped.lstrip("#").strip()
+            if title:
+                return title
+    return None
+
+
+def _mineru_relationships(block: MinerUStructuredBlock | None) -> dict[str, Any]:
+    relationships: dict[str, Any] = {"source_parser": "mineru"}
+    if block is None:
+        return relationships
+    relationships["mineru_block_type"] = block.type
+    if block.page is not None:
+        relationships["page_node_id"] = f"page:{block.page}"
+    return relationships
