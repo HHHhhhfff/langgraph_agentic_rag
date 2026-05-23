@@ -75,6 +75,39 @@ def test_mineru_adapter_extracts_html_table_nodes(tmp_path: Path) -> None:
     assert any(node.modality == "text" for node in nodes)
 
 
+def test_mineru_adapter_keeps_markdown_table_when_text_nodes_exist(tmp_path: Path) -> None:
+    path = tmp_path / "docx.md"
+    path.write_text(
+        """# Section
+
+plain text
+
+| metric | value |
+| --- | --- |
+| accuracy | 95 |
+""",
+        encoding="utf-8",
+    )
+    adapter = object.__new__(MinerUAdapter)
+    settings = Settings()
+    adapter.settings = settings
+    adapter.stage_logger = None
+    adapter.run_id = ""
+    from agentic_rag.ingestion.chunk_strategies import TableChunker, build_text_chunk_strategy
+    from agentic_rag.ingestion.node_normalizer import NodeNormalizer
+
+    adapter.normalizer = NodeNormalizer()
+    adapter.text_strategy = build_text_chunk_strategy(settings)
+    adapter.table_chunker = TableChunker()
+
+    nodes = adapter._build_nodes_from_markdown(path.read_text(encoding="utf-8"), path, structured_content=[])  # noqa: SLF001
+
+    assert any(node.modality == "text" for node in nodes)
+    table_nodes = [node for node in nodes if node.modality == "table"]
+    assert len(table_nodes) == 1
+    assert "accuracy" in (table_nodes[0].table_markdown or "")
+
+
 def test_mineru_adapter_preserves_structured_page_and_section_metadata(tmp_path: Path) -> None:
     path = tmp_path / "docx.md"
     path.write_text("# Intro\n\nTaskGraph text evidence.\n", encoding="utf-8")

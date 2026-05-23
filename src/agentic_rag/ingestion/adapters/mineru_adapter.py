@@ -265,9 +265,12 @@ class MinerUAdapter:
 
         structured_blocks = _extract_structured_blocks(structured_content)
         table_blocks_with_metadata = [block for block in structured_blocks if block.type == "table"]
+        table_blocks = extract_table_blocks(markdown)
+        seen_table_texts: set[str] = set()
 
         for table_block in table_blocks_with_metadata:
             table_md = table_block.text
+            seen_table_texts.add(_compact_text(table_md))
             for table_chunk in self.table_chunker.chunk_markdown_table(table_md):
                 nodes.append(
                     self.normalizer.normalize(
@@ -286,7 +289,37 @@ class MinerUAdapter:
                 idx += 1
                 table_count += 1
 
-        table_blocks = extract_table_blocks(markdown)
+        for block in table_blocks:
+            compact_markdown = _compact_text(block.markdown)
+            if not compact_markdown or compact_markdown in seen_table_texts:
+                continue
+            seen_table_texts.add(compact_markdown)
+            for table_chunk in self.table_chunker.chunk_markdown_table(block.markdown):
+                matched_block = _infer_block_for_text(table_chunk, structured_blocks) or _infer_block_for_text(
+                    block.markdown, structured_blocks
+                )
+                page = matched_block.page if matched_block else None
+                section = (matched_block.section if matched_block else None) or _section_from_markdown(block.markdown)
+                nodes.append(
+                    self.normalizer.normalize(
+                        source=str(file_path),
+                        parser_name="mineru",
+                        chunk_index=idx,
+                        modality="table",
+                        text=table_chunk,
+                        table_markdown=table_chunk,
+                        page=page,
+                        title=file_path.stem,
+                        section=section,
+                        relationships=_mineru_relationships(
+                            matched_block
+                            or MinerUStructuredBlock(type="table", text=table_chunk, page=page, section=section)
+                        ),
+                    )
+                )
+                idx += 1
+                table_count += 1
+
         clean_markdown = strip_table_blocks(markdown, table_blocks)
 
         def flush_text() -> None:
@@ -364,34 +397,6 @@ class MinerUAdapter:
             i += 1
 
         flush_text()
-
-        if not nodes and table_blocks:
-            for block in table_blocks:
-                for table_chunk in self.table_chunker.chunk_markdown_table(block.markdown):
-                    matched_block = _infer_block_for_text(table_chunk, structured_blocks) or _infer_block_for_text(
-                        block.markdown, structured_blocks
-                    )
-                    page = matched_block.page if matched_block else None
-                    section = (matched_block.section if matched_block else None) or _section_from_markdown(block.markdown)
-                    nodes.append(
-                        self.normalizer.normalize(
-                            source=str(file_path),
-                            parser_name="mineru",
-                            chunk_index=idx,
-                            modality="table",
-                            text=table_chunk,
-                            table_markdown=table_chunk,
-                            page=page,
-                            title=file_path.stem,
-                            section=section,
-                            relationships=_mineru_relationships(
-                                matched_block
-                                or MinerUStructuredBlock(type="table", text=table_chunk, page=page, section=section)
-                            ),
-                        )
-                    )
-                    idx += 1
-                    table_count += 1
 
         if self.settings.enable_formula_recognition:
             formula_source = strip_table_blocks(markdown, table_blocks)
