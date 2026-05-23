@@ -10,11 +10,15 @@ from agentic_rag.ingestion.adapters.image_vlm_client import ImageVLMClient, Imag
 
 
 def _write_png(path):
-    path.write_bytes(b"fake image")
+    from PIL import Image
+
+    image = Image.new("RGB", (1, 1), color=(255, 255, 255))
+    image.save(path, format="PNG")
 
 
-def test_default_image_vlm_model_is_qwen_vl_plus() -> None:
-    assert Settings().image_vlm_model == "qwen3-vl-plus"
+def test_default_image_vlm_model_is_qwen_vl_plus(monkeypatch) -> None:
+    monkeypatch.delenv("IMAGE_VLM_MODEL", raising=False)
+    assert Settings(_env_file=None).image_vlm_model == "qwen3-vl-plus"
 
 
 def test_openai_compatible_payload_uses_qwen_vl_plus_and_json_prompt(tmp_path, monkeypatch) -> None:
@@ -124,8 +128,51 @@ def test_dashscope_sdk_payload_and_response_parse(tmp_path, monkeypatch) -> None
     assert captured["stream"] is True
     assert captured["enable_thinking"] is False
     assert "thinking_budget" not in captured
-    assert captured["messages"][0]["content"][0]["image"].startswith("data:image/png;base64,")
+    assert captured["messages"][0]["content"][0]["image"].startswith("file:///")
     assert fake_dashscope.base_http_api_url == "https://dashscope.aliyuncs.com/api/v1"
+
+
+def test_image_vlm_rejects_invalid_local_image_before_provider_call(tmp_path, monkeypatch) -> None:
+    image = tmp_path / "img.png"
+    image.write_bytes(b"fake image")
+    calls = 0
+
+    def fake_post_stream(self, path, payload):
+        nonlocal calls
+        calls += 1
+        yield {"choices": [{"delta": {"content": "{}"}}]}
+
+    monkeypatch.setattr("agentic_rag.models.providers.OpenAICompatibleClient.post_stream", fake_post_stream)
+    client = ImageVLMClient(Settings(image_vlm_provider="openai_compatible"))
+
+    with pytest.raises(ImageVLMError, match="Invalid or unreadable image file"):
+        client.describe_image(image)
+    assert calls == 0
+
+
+def test_image_vlm_uses_detected_mime_not_suffix(tmp_path, monkeypatch) -> None:
+    image = tmp_path / "img.jpg"
+    _write_png(image)
+    captured = {}
+
+    def fake_post_stream(self, path, payload):
+        captured["payload"] = payload
+        yield {
+            "choices": [
+                {
+                    "delta": {
+                        "content": '{"caption":"cap","scene_type":"photo","visible_text_summary":"","objects":[],"confidence":0.8}'
+                    }
+                }
+            ]
+        }
+
+    monkeypatch.setattr("agentic_rag.models.providers.OpenAICompatibleClient.post_stream", fake_post_stream)
+    client = ImageVLMClient(Settings(image_vlm_provider="openai_compatible"))
+
+    client.describe_image(image)
+
+    assert captured["payload"]["messages"][0]["content"][0]["image_url"]["url"].startswith("data:image/png;base64,")
 
 
 def test_image_vlm_json_validation_error_contains_raw_excerpt(tmp_path, monkeypatch) -> None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+from dataclasses import dataclass
 import importlib
 import json
 import os
@@ -17,6 +18,15 @@ from agentic_rag.models.providers import OpenAICompatibleClient, ProviderError
 
 class ImageVLMError(RuntimeError):
     """Raised when image VLM caption generation fails."""
+
+
+@dataclass(slots=True)
+class LocalImageReference:
+    path: Path
+    mime: str
+    data_url: str
+    file_uri: str
+    size_bytes: int
 
 
 SceneType = Literal["chart", "diagram", "screenshot", "photo", "document", "unknown"]
@@ -67,12 +77,25 @@ class ImageVLMClient:
     MIME_MAP = {
         ".jpg": "image/jpeg",
         ".jpeg": "image/jpeg",
+        ".jpe": "image/jpeg",
         ".png": "image/png",
-        ".jp2": "image/jp2",
         ".webp": "image/webp",
         ".bmp": "image/bmp",
-        ".gif": "image/gif",
+        ".tif": "image/tiff",
+        ".tiff": "image/tiff",
+        ".heic": "image/heic",
     }
+    FORMAT_MIME_MAP = {
+        "JPEG": "image/jpeg",
+        "PNG": "image/png",
+        "WEBP": "image/webp",
+        "BMP": "image/bmp",
+        "TIFF": "image/tiff",
+        "HEIC": "image/heic",
+        "HEIF": "image/heic",
+    }
+    MAX_LOCAL_IMAGE_BYTES = 10 * 1024 * 1024
+    MAX_BASE64_CHARS = 10 * 1024 * 1024
 
     def __init__(self, settings: Settings):
         self.settings = settings
@@ -94,11 +117,11 @@ class ImageVLMClient:
         return retry_call(Path(image_path))
 
     def _describe_once(self, image_path: Path) -> ImageVLMDescription:
-        data_url = self._image_to_data_url(image_path)
+        image_ref = self._prepare_local_image(image_path)
         if self.settings.image_vlm_provider == "dashscope_sdk":
-            content = self._describe_dashscope(data_url)
+            content = self._describe_dashscope(image_ref.file_uri)
             return self._parse_description(content)
-        content = self._describe_openai_compatible(data_url)
+        content = self._describe_openai_compatible(image_ref.data_url)
         return self._parse_description(content)
 
     def _describe_openai_compatible(self, data_url: str) -> str:
@@ -124,7 +147,7 @@ class ImageVLMClient:
         chunks = self.client.post_stream("chat/completions", payload)
         return self._extract_openai_stream_content(chunks)
 
-    def _describe_dashscope(self, data_url: str) -> str:
+    def _describe_dashscope(self, image_ref: str) -> str:
         try:
             dashscope = importlib.import_module("dashscope")
         except ImportError as exc:
@@ -134,7 +157,7 @@ class ImageVLMClient:
             {
                 "role": "user",
                 "content": [
-                    {"image": data_url},
+                    {"image": image_ref},
                     {"text": self._prompt()},
                 ],
             }
@@ -152,8 +175,10 @@ class ImageVLMClient:
             response = dashscope.MultiModalConversation.call(**kwargs)
         except Exception as exc:
             message = str(exc)
-            if data_url.startswith("data:"):
+            if image_ref.startswith("data:"):
                 message = f"DashScope SDK VLM rejected local data URL: {message}"
+            elif image_ref.startswith("file:"):
+                message = f"DashScope SDK VLM rejected local file URI: {message}"
             raise ImageVLMError(message) from exc
         return self._extract_dashscope_stream_or_content(response)
 
@@ -179,15 +204,92 @@ class ImageVLMClient:
             f"confidence 取 0 到 1；objects 最多返回 {self.settings.image_object_max_items} 个。"
         )
 
-    def _image_to_data_url(self, image_path: Path) -> str:
+    def _prepare_local_image(self, image_path: Path) -> LocalImageReference:
         if not image_path.exists():
             raise ImageVLMError(f"Image file not found: {image_path}")
-        mime = self.MIME_MAP.get(image_path.suffix.lower(), "application/octet-stream")
         try:
-            encoded = base64.b64encode(image_path.read_bytes()).decode("utf-8")
+            content = image_path.read_bytes()
         except Exception as exc:
             raise ImageVLMError(f"Failed to read image file {image_path}: {exc}") from exc
-        return f"data:{mime};base64,{encoded}"
+        if not content:
+            raise ImageVLMError(f"Image file is empty: {image_path}")
+        mime = self._detect_image_mime(image_path, content)
+        if len(content) > self.MAX_LOCAL_IMAGE_BYTES:
+            raise ImageVLMError(
+                f"Image file is too large for qwen3-vl-plus local input: {image_path} "
+                f"size_bytes={len(content)} limit_bytes={self.MAX_LOCAL_IMAGE_BYTES}"
+            )
+        encoded = base64.b64encode(content).decode("utf-8")
+        if len(encoded) > self.MAX_BASE64_CHARS:
+            raise ImageVLMError(
+                f"Image file is too large for qwen3-vl-plus base64 input: {image_path} "
+                f"base64_chars={len(encoded)} limit_chars={self.MAX_BASE64_CHARS}"
+            )
+        return LocalImageReference(
+            path=image_path,
+            mime=mime,
+            data_url=f"data:{mime};base64,{encoded}",
+            file_uri=image_path.resolve().as_uri(),
+            size_bytes=len(content),
+        )
+
+    @classmethod
+    def _detect_image_mime(cls, image_path: Path, content: bytes) -> str:
+        pil_mime = cls._detect_image_mime_with_pillow(image_path)
+        magic_mime = cls._detect_image_mime_by_magic(content)
+        mime = pil_mime or magic_mime
+        if mime is None:
+            header = content[:16].hex()
+            raise ImageVLMError(
+                f"Invalid or unsupported local image format for qwen3-vl-plus: {image_path} "
+                f"suffix={image_path.suffix.lower() or '<none>'} header_hex={header}. "
+                f"Supported local image MIME types: {', '.join(sorted(set(cls.MIME_MAP.values())))}"
+            )
+        return mime
+
+    @classmethod
+    def _detect_image_mime_with_pillow(cls, image_path: Path) -> str | None:
+        try:
+            from PIL import Image
+        except ImportError:
+            return None
+        try:
+            with Image.open(image_path) as image:
+                image_format = str(image.format or "").upper()
+                image.verify()
+        except Exception as exc:
+            raise ImageVLMError(f"Invalid or unreadable image file for qwen3-vl-plus: {image_path}: {exc}") from exc
+        mime = cls.FORMAT_MIME_MAP.get(image_format)
+        if mime is None:
+            raise ImageVLMError(
+                f"Unsupported local image format for qwen3-vl-plus: {image_path} "
+                f"detected_format={image_format or '<unknown>'}. "
+                f"Supported local image MIME types: {', '.join(sorted(set(cls.MIME_MAP.values())))}"
+            )
+        return mime
+
+    @staticmethod
+    def _detect_image_mime_by_magic(content: bytes) -> str | None:
+        if content.startswith(b"\xff\xd8\xff"):
+            return "image/jpeg"
+        if content.startswith(b"\x89PNG\r\n\x1a\n"):
+            return "image/png"
+        if len(content) >= 12 and content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+            return "image/webp"
+        if content.startswith(b"BM"):
+            return "image/bmp"
+        if content.startswith(b"II*\x00") or content.startswith(b"MM\x00*"):
+            return "image/tiff"
+        if len(content) >= 12 and content[4:8] == b"ftyp" and content[8:12] in {
+            b"heic",
+            b"heix",
+            b"hevc",
+            b"hevx",
+            b"mif1",
+            b"msf1",
+        }:
+            return "image/heic"
+        return None
 
     @staticmethod
     def _extract_content(data: dict[str, Any]) -> str:
