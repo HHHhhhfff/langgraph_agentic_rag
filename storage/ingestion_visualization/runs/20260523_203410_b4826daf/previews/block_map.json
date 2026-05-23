@@ -1,0 +1,8680 @@
+{
+  "source": "data\\demo_docs",
+  "blocks": [
+    {
+      "block_id": "mineru:block:0",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:1",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        38.0,
+        150.0,
+        54.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:2",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        63.0,
+        58.0,
+        412.0,
+        75.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:3",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        80.0,
+        181.0,
+        95.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:4",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        101.0,
+        393.0,
+        113.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:5",
+      "page": 1,
+      "type": "table",
+      "bbox": [
+        59.0,
+        127.0,
+        217.0,
+        226.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:table:0",
+        "11848f8e85db2e916e4adaa1950d6910:table:0"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:6",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        240.0,
+        181.0,
+        256.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:7",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        261.0,
+        125.0,
+        273.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:8",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        66.0,
+        281.0,
+        351.0,
+        316.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:9",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        60.0,
+        323.0,
+        338.0,
+        336.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:10",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        341.0,
+        220.0,
+        356.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:11",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        60.0,
+        361.0,
+        171.0,
+        375.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:12",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        382.0,
+        98.0,
+        394.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:13",
+      "page": 1,
+      "type": "formula",
+      "bbox": [
+        58.0,
+        398.0,
+        114.0,
+        414.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:14",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        423.0,
+        98.0,
+        434.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:15",
+      "page": 1,
+      "type": "formula",
+      "bbox": [
+        58.0,
+        438.0,
+        234.0,
+        453.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:16",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        60.0,
+        462.0,
+        222.0,
+        474.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:17",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        481.0,
+        299.0,
+        495.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:18",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        501.0,
+        98.0,
+        512.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:19",
+      "page": 1,
+      "type": "formula",
+      "bbox": [
+        59.0,
+        513.0,
+        174.0,
+        539.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:20",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        543.0,
+        98.0,
+        555.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:21",
+      "page": 1,
+      "type": "formula",
+      "bbox": [
+        59.0,
+        558.0,
+        147.0,
+        573.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:22",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        60.0,
+        582.0,
+        202.0,
+        594.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:23",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        60.0,
+        600.0,
+        141.0,
+        615.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:24",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        66.0,
+        622.0,
+        392.0,
+        656.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:25",
+      "page": 2,
+      "type": "text",
+      "bbox": [
+        64.0,
+        17.0,
+        777.0,
+        229.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:26",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.06,
+        0.039,
+        0.151,
+        0.055
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:27",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.064,
+        0.059,
+        0.413,
+        0.076
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:28",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.06,
+        0.081,
+        0.182,
+        0.096
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:29",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.059,
+        0.102,
+        0.394,
+        0.114
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:30",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        0.06,
+        0.128,
+        0.218,
+        0.227
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:31",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.06,
+        0.241,
+        0.182,
+        0.257
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:32",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.06,
+        0.262,
+        0.125,
+        0.274
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:33",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.067,
+        0.282,
+        0.352,
+        0.294
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:34",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.068,
+        0.295,
+        0.245,
+        0.305
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:35",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.068,
+        0.306,
+        0.205,
+        0.317
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:36",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.067,
+        0.282,
+        0.352,
+        0.317
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:37",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.061,
+        0.324,
+        0.339,
+        0.337
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:38",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.06,
+        0.342,
+        0.221,
+        0.357
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:39",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.061,
+        0.362,
+        0.172,
+        0.376
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:40",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.06,
+        0.383,
+        0.099,
+        0.395
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:41",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        0.059,
+        0.399,
+        0.115,
+        0.415
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:42",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.06,
+        0.424,
+        0.099,
+        0.435
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:43",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        0.059,
+        0.439,
+        0.236,
+        0.454
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:44",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.061,
+        0.463,
+        0.223,
+        0.475
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:45",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.059,
+        0.482,
+        0.3,
+        0.496
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:46",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.06,
+        0.502,
+        0.099,
+        0.513
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:47",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        0.06,
+        0.514,
+        0.175,
+        0.54
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:48",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.06,
+        0.544,
+        0.099,
+        0.556
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:49",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        0.06,
+        0.559,
+        0.148,
+        0.574
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:50",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.061,
+        0.583,
+        0.203,
+        0.595
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:51",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.061,
+        0.601,
+        0.142,
+        0.616
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:52",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.067,
+        0.623,
+        0.393,
+        0.634
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:53",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.068,
+        0.635,
+        0.305,
+        0.645
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:54",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.068,
+        0.646,
+        0.329,
+        0.657
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:55",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.067,
+        0.623,
+        0.393,
+        0.657
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:56",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.065,
+        0.018,
+        0.778,
+        0.23
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:57",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        59.0,
+        38.0,
+        150.0,
+        54.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:58",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:59",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:60",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        63.0,
+        58.0,
+        412.0,
+        75.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:61",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:62",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:63",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        59.0,
+        80.0,
+        181.0,
+        95.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:64",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:65",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:66",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        58.0,
+        101.0,
+        393.0,
+        113.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:67",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:68",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:69",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        59.0,
+        127.0,
+        217.0,
+        226.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:70",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:71",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:72",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        59.0,
+        240.0,
+        181.0,
+        256.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:73",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:74",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:75",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        59.0,
+        261.0,
+        125.0,
+        273.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:76",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:77",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:78",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        66.0,
+        281.0,
+        351.0,
+        316.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:79",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:80",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:81",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:82",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:83",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:84",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:85",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:86",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        60.0,
+        323.0,
+        338.0,
+        336.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:87",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:88",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:89",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        59.0,
+        341.0,
+        220.0,
+        356.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:90",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:91",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:92",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        60.0,
+        361.0,
+        171.0,
+        375.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:93",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:94",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:95",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        59.0,
+        382.0,
+        98.0,
+        394.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:96",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:97",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:98",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        58.0,
+        398.0,
+        114.0,
+        414.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:99",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:100",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:101",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        59.0,
+        423.0,
+        98.0,
+        434.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:102",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:103",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:104",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        58.0,
+        438.0,
+        234.0,
+        453.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:105",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:106",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:107",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        60.0,
+        462.0,
+        222.0,
+        474.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:108",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:109",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:110",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        58.0,
+        481.0,
+        299.0,
+        495.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:111",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:112",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:113",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        59.0,
+        501.0,
+        98.0,
+        512.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:114",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:115",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:116",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        59.0,
+        513.0,
+        174.0,
+        539.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:117",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:118",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:119",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        59.0,
+        543.0,
+        98.0,
+        555.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:120",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:121",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:122",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        59.0,
+        558.0,
+        147.0,
+        573.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:123",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:124",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:125",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        60.0,
+        582.0,
+        202.0,
+        594.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:126",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:127",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:128",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        60.0,
+        600.0,
+        141.0,
+        615.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:129",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:130",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:131",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        66.0,
+        622.0,
+        392.0,
+        656.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:132",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:133",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:134",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:135",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:136",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:137",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:138",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:139",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        64.0,
+        17.0,
+        777.0,
+        229.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:140",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:141",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:142",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:143",
+      "page": 1,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:144",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        67.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:145",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        67.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:146",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        67.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:147",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        50.0,
+        72.0,
+        327.0,
+        93.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:148",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        50.0,
+        72.0,
+        327.0,
+        93.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:149",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        50.0,
+        72.0,
+        327.0,
+        93.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:150",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        99.0,
+        144.0,
+        117.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:151",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        99.0,
+        144.0,
+        117.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:152",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        99.0,
+        144.0,
+        117.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:153",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        124.0,
+        312.0,
+        139.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:154",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        124.0,
+        312.0,
+        139.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:155",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        124.0,
+        312.0,
+        139.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:156",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        47.0,
+        156.0,
+        172.0,
+        277.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:157",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        47.0,
+        156.0,
+        172.0,
+        277.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:158",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        156.0,
+        172.0,
+        277.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:159",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        47.0,
+        156.0,
+        172.0,
+        277.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:160",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        294.0,
+        144.0,
+        314.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:161",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        294.0,
+        144.0,
+        314.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:162",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        294.0,
+        144.0,
+        314.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:163",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        320.0,
+        99.0,
+        335.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:164",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        320.0,
+        99.0,
+        335.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:165",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        320.0,
+        99.0,
+        335.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:166",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        345.0,
+        278.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:167",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        345.0,
+        278.0,
+        359.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:168",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        345.0,
+        278.0,
+        359.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:169",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        345.0,
+        278.0,
+        359.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:170",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        361.0,
+        194.0,
+        373.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:171",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        361.0,
+        194.0,
+        373.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:172",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        361.0,
+        194.0,
+        373.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:173",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        162.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:174",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        162.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:175",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        162.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:176",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        396.0,
+        268.0,
+        412.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:177",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        396.0,
+        268.0,
+        412.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:178",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        396.0,
+        268.0,
+        412.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:179",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        418.0,
+        175.0,
+        436.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:180",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        418.0,
+        175.0,
+        436.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:181",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        418.0,
+        175.0,
+        436.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:182",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        48.0,
+        443.0,
+        136.0,
+        460.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:183",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        443.0,
+        136.0,
+        460.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:184",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        443.0,
+        136.0,
+        460.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:185",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        468.0,
+        78.0,
+        483.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:186",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        468.0,
+        78.0,
+        483.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:187",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        468.0,
+        78.0,
+        483.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:188",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        488.0,
+        91.0,
+        507.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:189",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        488.0,
+        91.0,
+        507.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:190",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        488.0,
+        91.0,
+        507.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:191",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        518.0,
+        78.0,
+        532.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:192",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        518.0,
+        78.0,
+        532.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:193",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        518.0,
+        78.0,
+        532.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:194",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        537.0,
+        186.0,
+        555.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:195",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        537.0,
+        186.0,
+        555.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:196",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        537.0,
+        186.0,
+        555.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:197",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        566.0,
+        176.0,
+        581.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:198",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        566.0,
+        176.0,
+        581.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:199",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        566.0,
+        176.0,
+        581.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:200",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        589.0,
+        237.0,
+        607.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:201",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        589.0,
+        237.0,
+        607.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:202",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        589.0,
+        237.0,
+        607.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:203",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        614.0,
+        78.0,
+        627.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:204",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        614.0,
+        78.0,
+        627.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:205",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        614.0,
+        78.0,
+        627.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:206",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        47.0,
+        629.0,
+        138.0,
+        660.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:207",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        629.0,
+        138.0,
+        660.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:208",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        47.0,
+        629.0,
+        138.0,
+        660.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:209",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        665.0,
+        78.0,
+        680.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:210",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        665.0,
+        78.0,
+        680.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:211",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        665.0,
+        78.0,
+        680.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:212",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        47.0,
+        684.0,
+        117.0,
+        702.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:213",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        684.0,
+        117.0,
+        702.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:214",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        47.0,
+        684.0,
+        117.0,
+        702.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:215",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        713.0,
+        160.0,
+        728.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:216",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        713.0,
+        160.0,
+        728.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:217",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        713.0,
+        160.0,
+        728.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:218",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        48.0,
+        735.0,
+        112.0,
+        753.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:219",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        735.0,
+        112.0,
+        753.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:220",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        735.0,
+        112.0,
+        753.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:221",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        762.0,
+        311.0,
+        804.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:222",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        762.0,
+        311.0,
+        776.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:223",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        762.0,
+        311.0,
+        776.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:224",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        762.0,
+        311.0,
+        776.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:225",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        777.0,
+        241.0,
+        789.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:226",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        777.0,
+        241.0,
+        789.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:227",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        777.0,
+        241.0,
+        789.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:228",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        790.0,
+        260.0,
+        804.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:229",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        790.0,
+        260.0,
+        804.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:230",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        790.0,
+        260.0,
+        804.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:231",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        67.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:232",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        67.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:233",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        67.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:234",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        50.0,
+        72.0,
+        327.0,
+        93.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:235",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        50.0,
+        72.0,
+        327.0,
+        93.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:236",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        50.0,
+        72.0,
+        327.0,
+        93.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:237",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        99.0,
+        144.0,
+        117.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:238",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        99.0,
+        144.0,
+        117.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:239",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        99.0,
+        144.0,
+        117.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:240",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        124.0,
+        312.0,
+        139.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:241",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        124.0,
+        312.0,
+        139.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:242",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        124.0,
+        312.0,
+        139.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:243",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        47.0,
+        156.0,
+        172.0,
+        277.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:244",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        47.0,
+        156.0,
+        172.0,
+        277.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:245",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        156.0,
+        172.0,
+        277.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:246",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        47.0,
+        156.0,
+        172.0,
+        277.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:247",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        294.0,
+        144.0,
+        314.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:248",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        294.0,
+        144.0,
+        314.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:249",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        294.0,
+        144.0,
+        314.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:250",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        320.0,
+        99.0,
+        335.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:251",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        320.0,
+        99.0,
+        335.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:252",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        320.0,
+        99.0,
+        335.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:253",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        345.0,
+        278.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:254",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        345.0,
+        278.0,
+        359.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:255",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        345.0,
+        278.0,
+        359.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:256",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        345.0,
+        278.0,
+        359.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:257",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        361.0,
+        194.0,
+        373.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:258",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        361.0,
+        194.0,
+        373.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:259",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        361.0,
+        194.0,
+        373.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:260",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        162.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:261",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        162.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:262",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        162.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:263",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        396.0,
+        268.0,
+        412.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:264",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        396.0,
+        268.0,
+        412.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:265",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        396.0,
+        268.0,
+        412.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:266",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        418.0,
+        175.0,
+        436.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:267",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        418.0,
+        175.0,
+        436.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:268",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        418.0,
+        175.0,
+        436.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:269",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        48.0,
+        443.0,
+        136.0,
+        460.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:270",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        443.0,
+        136.0,
+        460.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:271",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        443.0,
+        136.0,
+        460.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:272",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        468.0,
+        78.0,
+        483.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:273",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        468.0,
+        78.0,
+        483.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:274",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        468.0,
+        78.0,
+        483.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:275",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        488.0,
+        91.0,
+        507.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:276",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        488.0,
+        91.0,
+        507.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:277",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        488.0,
+        91.0,
+        507.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:278",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        518.0,
+        78.0,
+        532.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:279",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        518.0,
+        78.0,
+        532.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:280",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        518.0,
+        78.0,
+        532.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:281",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        537.0,
+        186.0,
+        555.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:282",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        537.0,
+        186.0,
+        555.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:283",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        537.0,
+        186.0,
+        555.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:284",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        566.0,
+        176.0,
+        581.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:285",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        566.0,
+        176.0,
+        581.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:286",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        566.0,
+        176.0,
+        581.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:287",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        589.0,
+        237.0,
+        607.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:288",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        589.0,
+        237.0,
+        607.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:289",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        589.0,
+        237.0,
+        607.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:290",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        614.0,
+        78.0,
+        627.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:291",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        614.0,
+        78.0,
+        627.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:292",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        614.0,
+        78.0,
+        627.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:293",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        47.0,
+        629.0,
+        138.0,
+        660.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:294",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        629.0,
+        138.0,
+        660.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:295",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        47.0,
+        629.0,
+        138.0,
+        660.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:296",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        665.0,
+        78.0,
+        680.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:297",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        665.0,
+        78.0,
+        680.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:298",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        665.0,
+        78.0,
+        680.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:299",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        47.0,
+        684.0,
+        117.0,
+        702.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:300",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        684.0,
+        117.0,
+        702.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:301",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        47.0,
+        684.0,
+        117.0,
+        702.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:302",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        713.0,
+        160.0,
+        728.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:303",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        713.0,
+        160.0,
+        728.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:304",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        713.0,
+        160.0,
+        728.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:305",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        48.0,
+        735.0,
+        112.0,
+        753.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:306",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        735.0,
+        112.0,
+        753.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:307",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        735.0,
+        112.0,
+        753.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:308",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        762.0,
+        311.0,
+        804.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:309",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        762.0,
+        311.0,
+        776.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:310",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        762.0,
+        311.0,
+        776.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:311",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        762.0,
+        311.0,
+        776.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:312",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        777.0,
+        241.0,
+        789.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:313",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        777.0,
+        241.0,
+        789.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:314",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        777.0,
+        241.0,
+        789.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:315",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        790.0,
+        260.0,
+        804.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:316",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        790.0,
+        260.0,
+        804.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:317",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        790.0,
+        260.0,
+        804.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:318",
+      "page": 2,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:319",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        22.0,
+        616.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:320",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        22.0,
+        616.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:321",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        22.0,
+        616.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:322",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        22.0,
+        616.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:323",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        22.0,
+        616.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:324",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        22.0,
+        616.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:325",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        22.0,
+        616.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:326",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        22.0,
+        616.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:327",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:328",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        59.0,
+        38.0,
+        150.0,
+        55.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:329",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        64.0,
+        64.0,
+        401.0,
+        81.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:330",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        89.0,
+        181.0,
+        105.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:331",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        113.0,
+        367.0,
+        125.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:332",
+      "page": 1,
+      "type": "table",
+      "bbox": [
+        60.0,
+        142.0,
+        217.0,
+        243.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:table:0",
+        "11848f8e85db2e916e4adaa1950d6910:table:0"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:333",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        258.0,
+        181.0,
+        274.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:334",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        283.0,
+        123.0,
+        294.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:335",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        66.0,
+        305.0,
+        339.0,
+        345.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:336",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        61.0,
+        356.0,
+        330.0,
+        368.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:337",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        377.0,
+        220.0,
+        392.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:338",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        401.0,
+        171.0,
+        415.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:339",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        425.0,
+        95.0,
+        436.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:340",
+      "page": 1,
+      "type": "formula",
+      "bbox": [
+        58.0,
+        445.0,
+        113.0,
+        460.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:341",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        468.0,
+        95.0,
+        479.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:342",
+      "page": 1,
+      "type": "formula",
+      "bbox": [
+        58.0,
+        488.0,
+        234.0,
+        502.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:343",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        60.0,
+        510.0,
+        220.0,
+        522.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:344",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        56.0,
+        531.0,
+        286.0,
+        546.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:345",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        555.0,
+        95.0,
+        566.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:346",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        574.0,
+        171.0,
+        590.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:347",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        599.0,
+        95.0,
+        611.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:348",
+      "page": 1,
+      "type": "formula",
+      "bbox": [
+        60.0,
+        619.0,
+        147.0,
+        633.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:349",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        60.0,
+        641.0,
+        195.0,
+        652.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:350",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        58.0,
+        662.0,
+        141.0,
+        677.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:351",
+      "page": 1,
+      "type": "text",
+      "bbox": [
+        66.0,
+        687.0,
+        387.0,
+        727.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:352",
+      "page": 2,
+      "type": "text",
+      "bbox": [
+        64.0,
+        42.0,
+        777.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:353",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        59.0,
+        38.0,
+        150.0,
+        55.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:354",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:355",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:356",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        64.0,
+        64.0,
+        401.0,
+        81.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:357",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:358",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:359",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        58.0,
+        89.0,
+        181.0,
+        105.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:360",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:361",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:362",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        58.0,
+        113.0,
+        367.0,
+        125.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:363",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:364",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:365",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        60.0,
+        142.0,
+        217.0,
+        243.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:366",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:367",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:368",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        58.0,
+        258.0,
+        181.0,
+        274.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:369",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:370",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:371",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        58.0,
+        283.0,
+        123.0,
+        294.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:372",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:373",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:374",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        66.0,
+        305.0,
+        339.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:375",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:376",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:377",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:378",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:379",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:380",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:381",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:382",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        61.0,
+        356.0,
+        330.0,
+        368.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:383",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:384",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:385",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        58.0,
+        377.0,
+        220.0,
+        392.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:386",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:387",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:388",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        58.0,
+        401.0,
+        171.0,
+        415.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:389",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:390",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:391",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        58.0,
+        425.0,
+        95.0,
+        436.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:392",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:393",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:394",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        58.0,
+        445.0,
+        113.0,
+        460.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:395",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:396",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:397",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        58.0,
+        468.0,
+        95.0,
+        479.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:398",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:399",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:400",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        58.0,
+        488.0,
+        234.0,
+        502.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:401",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:402",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:403",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        60.0,
+        510.0,
+        220.0,
+        522.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:404",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:405",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:406",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        56.0,
+        531.0,
+        286.0,
+        546.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:407",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:408",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:409",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        58.0,
+        555.0,
+        95.0,
+        566.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:410",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:411",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:412",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        58.0,
+        574.0,
+        171.0,
+        590.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:413",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:414",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:415",
+      "page": null,
+      "type": "formula",
+      "bbox": null,
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:416",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        58.0,
+        599.0,
+        95.0,
+        611.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:417",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:418",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:419",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        60.0,
+        619.0,
+        147.0,
+        633.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:420",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:421",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:422",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        60.0,
+        641.0,
+        195.0,
+        652.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:423",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:424",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:425",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        58.0,
+        662.0,
+        141.0,
+        677.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:426",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:427",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:428",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        66.0,
+        687.0,
+        387.0,
+        727.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:429",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:430",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:431",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:432",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:433",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:434",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:435",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:436",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        64.0,
+        42.0,
+        777.0,
+        281.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:437",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:438",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:439",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:440",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.06,
+        0.039,
+        0.151,
+        0.056
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:441",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.065,
+        0.065,
+        0.402,
+        0.082
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:442",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.059,
+        0.09,
+        0.182,
+        0.106
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:443",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.059,
+        0.114,
+        0.368,
+        0.126
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:444",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        0.061,
+        0.143,
+        0.218,
+        0.244
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:445",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.059,
+        0.259,
+        0.182,
+        0.275
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:446",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.059,
+        0.284,
+        0.124,
+        0.295
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:447",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.067,
+        0.306,
+        0.34,
+        0.346
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:448",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.067,
+        0.306,
+        0.34,
+        0.317
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:449",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.068,
+        0.32,
+        0.243,
+        0.332
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:450",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.068,
+        0.335,
+        0.202,
+        0.346
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:451",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.062,
+        0.357,
+        0.331,
+        0.369
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:452",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.059,
+        0.378,
+        0.221,
+        0.393
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:453",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.059,
+        0.402,
+        0.172,
+        0.416
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:454",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.059,
+        0.426,
+        0.096,
+        0.437
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:455",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        0.059,
+        0.446,
+        0.114,
+        0.461
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:456",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.059,
+        0.469,
+        0.096,
+        0.48
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:457",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        0.059,
+        0.489,
+        0.236,
+        0.503
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:458",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.061,
+        0.511,
+        0.222,
+        0.523
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:459",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.058,
+        0.532,
+        0.287,
+        0.547
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:460",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.059,
+        0.556,
+        0.096,
+        0.567
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:461",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.059,
+        0.575,
+        0.172,
+        0.591
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:462",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.059,
+        0.6,
+        0.096,
+        0.612
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:463",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        0.061,
+        0.62,
+        0.148,
+        0.634
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:464",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.061,
+        0.642,
+        0.196,
+        0.653
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:465",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        0.059,
+        0.663,
+        0.142,
+        0.678
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:466",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.067,
+        0.688,
+        0.388,
+        0.728
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:467",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.067,
+        0.688,
+        0.388,
+        0.699
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:468",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.068,
+        0.703,
+        0.304,
+        0.714
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:469",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.068,
+        0.717,
+        0.331,
+        0.728
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:470",
+      "page": null,
+      "type": "image",
+      "bbox": [
+        0.37,
+        0.026,
+        0.516,
+        0.042
+      ],
+      "node_ids": [
+        "74a7b4254241fcee2502e32817dc61ab:image:0",
+        "74a7b4254241fcee2502e32817dc61ab:image:1",
+        "74a7b4254241fcee2502e32817dc61ab:image:2",
+        "74a7b4254241fcee2502e32817dc61ab:image:3"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:471",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        0.065,
+        0.043,
+        0.778,
+        0.282
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:472",
+      "page": null,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:473",
+      "page": 1,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:text:4",
+        "11848f8e85db2e916e4adaa1950d6910:text:4"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:474",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        68.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:475",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        68.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:476",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        68.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:477",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        51.0,
+        79.0,
+        318.0,
+        100.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:478",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        79.0,
+        318.0,
+        100.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:479",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        79.0,
+        318.0,
+        100.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:480",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        110.0,
+        144.0,
+        129.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:481",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        110.0,
+        144.0,
+        129.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:482",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        110.0,
+        144.0,
+        129.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:483",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        139.0,
+        291.0,
+        154.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:484",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        139.0,
+        291.0,
+        154.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:485",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        139.0,
+        291.0,
+        154.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:486",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        48.0,
+        175.0,
+        172.0,
+        298.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:487",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        48.0,
+        175.0,
+        172.0,
+        298.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:488",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        175.0,
+        172.0,
+        298.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:489",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        48.0,
+        175.0,
+        172.0,
+        298.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:490",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        317.0,
+        144.0,
+        336.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:491",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        317.0,
+        144.0,
+        336.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:492",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        317.0,
+        144.0,
+        336.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:493",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        347.0,
+        98.0,
+        361.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:494",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        347.0,
+        98.0,
+        361.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:495",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        347.0,
+        98.0,
+        361.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:496",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        269.0,
+        423.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:497",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        269.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:498",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        269.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:499",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        269.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:500",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        391.0,
+        192.0,
+        406.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:501",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        391.0,
+        192.0,
+        406.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:502",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        391.0,
+        192.0,
+        406.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:503",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        410.0,
+        159.0,
+        423.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:504",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        410.0,
+        159.0,
+        423.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:505",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        410.0,
+        159.0,
+        423.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:506",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        49.0,
+        436.0,
+        262.0,
+        451.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:507",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        49.0,
+        436.0,
+        262.0,
+        451.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:508",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        49.0,
+        436.0,
+        262.0,
+        451.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:509",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        462.0,
+        175.0,
+        481.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:510",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        462.0,
+        175.0,
+        481.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:511",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        462.0,
+        175.0,
+        481.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:512",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        492.0,
+        136.0,
+        509.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:513",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        492.0,
+        136.0,
+        509.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:514",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        492.0,
+        136.0,
+        509.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:515",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        521.0,
+        76.0,
+        534.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:516",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        521.0,
+        76.0,
+        534.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:517",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        521.0,
+        76.0,
+        534.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:518",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        545.0,
+        90.0,
+        564.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:519",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        545.0,
+        90.0,
+        564.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:520",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        545.0,
+        90.0,
+        564.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:521",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        574.0,
+        76.0,
+        587.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:522",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        574.0,
+        76.0,
+        587.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:523",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        574.0,
+        76.0,
+        587.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:524",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        598.0,
+        186.0,
+        615.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:525",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        598.0,
+        186.0,
+        615.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:526",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        598.0,
+        186.0,
+        615.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:527",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        625.0,
+        175.0,
+        640.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:528",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        625.0,
+        175.0,
+        640.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:529",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        625.0,
+        175.0,
+        640.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:530",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        45.0,
+        651.0,
+        227.0,
+        669.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:531",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        45.0,
+        651.0,
+        227.0,
+        669.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:532",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        45.0,
+        651.0,
+        227.0,
+        669.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:533",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        680.0,
+        76.0,
+        694.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:534",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        680.0,
+        76.0,
+        694.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:535",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        680.0,
+        76.0,
+        694.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:536",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        703.0,
+        136.0,
+        723.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:537",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        703.0,
+        136.0,
+        723.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:538",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        703.0,
+        136.0,
+        723.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:539",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        703.0,
+        136.0,
+        723.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:540",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        734.0,
+        76.0,
+        749.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:541",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        734.0,
+        76.0,
+        749.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:542",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        734.0,
+        76.0,
+        749.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:543",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        48.0,
+        758.0,
+        117.0,
+        776.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:544",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        758.0,
+        117.0,
+        776.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:545",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        48.0,
+        758.0,
+        117.0,
+        776.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:546",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        785.0,
+        155.0,
+        799.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:547",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        785.0,
+        155.0,
+        799.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:548",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        785.0,
+        155.0,
+        799.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:549",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        811.0,
+        112.0,
+        829.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:550",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        811.0,
+        112.0,
+        829.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:551",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        811.0,
+        112.0,
+        829.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:552",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        842.0,
+        307.0,
+        891.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:553",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        842.0,
+        307.0,
+        855.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:554",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        842.0,
+        307.0,
+        855.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:555",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        842.0,
+        307.0,
+        855.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:556",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        860.0,
+        240.0,
+        873.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:557",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        860.0,
+        240.0,
+        873.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:558",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        860.0,
+        240.0,
+        873.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:559",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        877.0,
+        262.0,
+        891.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:560",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        877.0,
+        262.0,
+        891.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:561",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        877.0,
+        262.0,
+        891.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:562",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        68.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:563",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        68.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:564",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        47.0,
+        47.0,
+        119.0,
+        68.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:565",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        51.0,
+        79.0,
+        318.0,
+        100.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:566",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        79.0,
+        318.0,
+        100.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:567",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        79.0,
+        318.0,
+        100.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:568",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        110.0,
+        144.0,
+        129.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:569",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        110.0,
+        144.0,
+        129.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:570",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        110.0,
+        144.0,
+        129.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:571",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        139.0,
+        291.0,
+        154.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:572",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        139.0,
+        291.0,
+        154.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:573",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        139.0,
+        291.0,
+        154.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:574",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        48.0,
+        175.0,
+        172.0,
+        298.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:575",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        48.0,
+        175.0,
+        172.0,
+        298.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:576",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        175.0,
+        172.0,
+        298.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:577",
+      "page": null,
+      "type": "table",
+      "bbox": [
+        48.0,
+        175.0,
+        172.0,
+        298.0
+      ],
+      "node_ids": [
+        "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "11848f8e85db2e916e4adaa1950d6910:table:1",
+        "11848f8e85db2e916e4adaa1950d6910:table:2"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:578",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        317.0,
+        144.0,
+        336.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:579",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        317.0,
+        144.0,
+        336.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:580",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        317.0,
+        144.0,
+        336.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:581",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        347.0,
+        98.0,
+        361.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:582",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        347.0,
+        98.0,
+        361.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:583",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        347.0,
+        98.0,
+        361.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:584",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        269.0,
+        423.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:585",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        269.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:586",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        269.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:587",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        374.0,
+        269.0,
+        388.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:588",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        391.0,
+        192.0,
+        406.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:589",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        391.0,
+        192.0,
+        406.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:590",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        391.0,
+        192.0,
+        406.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:591",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        410.0,
+        159.0,
+        423.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:592",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        410.0,
+        159.0,
+        423.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:593",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        410.0,
+        159.0,
+        423.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:594",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        49.0,
+        436.0,
+        262.0,
+        451.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:595",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        49.0,
+        436.0,
+        262.0,
+        451.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:596",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        49.0,
+        436.0,
+        262.0,
+        451.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:597",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        462.0,
+        175.0,
+        481.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:598",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        462.0,
+        175.0,
+        481.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:599",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        462.0,
+        175.0,
+        481.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:600",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        492.0,
+        136.0,
+        509.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:601",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        492.0,
+        136.0,
+        509.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:602",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        492.0,
+        136.0,
+        509.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:603",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        521.0,
+        76.0,
+        534.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:604",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        521.0,
+        76.0,
+        534.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:605",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        521.0,
+        76.0,
+        534.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:606",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        545.0,
+        90.0,
+        564.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:607",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        545.0,
+        90.0,
+        564.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:608",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        545.0,
+        90.0,
+        564.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:609",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        574.0,
+        76.0,
+        587.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:610",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        574.0,
+        76.0,
+        587.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:611",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        574.0,
+        76.0,
+        587.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:612",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        598.0,
+        186.0,
+        615.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:613",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        598.0,
+        186.0,
+        615.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:614",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        598.0,
+        186.0,
+        615.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:615",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        625.0,
+        175.0,
+        640.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:616",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        625.0,
+        175.0,
+        640.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:617",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        625.0,
+        175.0,
+        640.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:618",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        45.0,
+        651.0,
+        227.0,
+        669.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:619",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        45.0,
+        651.0,
+        227.0,
+        669.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:620",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        45.0,
+        651.0,
+        227.0,
+        669.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:621",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        680.0,
+        76.0,
+        694.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:622",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        680.0,
+        76.0,
+        694.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:623",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        680.0,
+        76.0,
+        694.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:624",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        703.0,
+        136.0,
+        723.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:625",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        703.0,
+        136.0,
+        723.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:626",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        703.0,
+        136.0,
+        723.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:627",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        46.0,
+        703.0,
+        136.0,
+        723.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:628",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        734.0,
+        76.0,
+        749.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:629",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        734.0,
+        76.0,
+        749.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:630",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        734.0,
+        76.0,
+        749.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:631",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        48.0,
+        758.0,
+        117.0,
+        776.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:632",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        758.0,
+        117.0,
+        776.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:633",
+      "page": null,
+      "type": "formula",
+      "bbox": [
+        48.0,
+        758.0,
+        117.0,
+        776.0
+      ],
+      "node_ids": [
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:5",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:6",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:7",
+        "13a66d5f4df7e38f1349a137ea1c844c:formula:8",
+        "11848f8e85db2e916e4adaa1950d6910:formula:5",
+        "11848f8e85db2e916e4adaa1950d6910:formula:6",
+        "11848f8e85db2e916e4adaa1950d6910:formula:7",
+        "11848f8e85db2e916e4adaa1950d6910:formula:8",
+        "74a7b4254241fcee2502e32817dc61ab:formula:5"
+      ],
+      "has_node": true
+    },
+    {
+      "block_id": "mineru:block:634",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        785.0,
+        155.0,
+        799.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:635",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        785.0,
+        155.0,
+        799.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:636",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        48.0,
+        785.0,
+        155.0,
+        799.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:637",
+      "page": null,
+      "type": "heading",
+      "bbox": [
+        46.0,
+        811.0,
+        112.0,
+        829.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:638",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        811.0,
+        112.0,
+        829.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:639",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        46.0,
+        811.0,
+        112.0,
+        829.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:640",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        842.0,
+        307.0,
+        891.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:641",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        842.0,
+        307.0,
+        855.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:642",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        842.0,
+        307.0,
+        855.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:643",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        842.0,
+        307.0,
+        855.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:644",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        860.0,
+        240.0,
+        873.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:645",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        860.0,
+        240.0,
+        873.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:646",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        860.0,
+        240.0,
+        873.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:647",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        877.0,
+        262.0,
+        891.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:648",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        877.0,
+        262.0,
+        891.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:649",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        53.0,
+        877.0,
+        262.0,
+        891.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:650",
+      "page": 2,
+      "type": "text",
+      "bbox": null,
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:651",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        52.0,
+        616.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:652",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        293.0,
+        31.0,
+        408.0,
+        51.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:653",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        293.0,
+        31.0,
+        408.0,
+        51.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:654",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        293.0,
+        31.0,
+        408.0,
+        51.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:655",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        52.0,
+        616.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:656",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        52.0,
+        616.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:657",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        52.0,
+        616.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:658",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        52.0,
+        616.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:659",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        293.0,
+        31.0,
+        408.0,
+        51.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:660",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        293.0,
+        31.0,
+        408.0,
+        51.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:661",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        293.0,
+        31.0,
+        408.0,
+        51.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:662",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        52.0,
+        616.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:663",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        52.0,
+        616.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    },
+    {
+      "block_id": "mineru:block:664",
+      "page": null,
+      "type": "text",
+      "bbox": [
+        51.0,
+        52.0,
+        616.0,
+        345.0
+      ],
+      "node_ids": [],
+      "has_node": false
+    }
+  ]
+}

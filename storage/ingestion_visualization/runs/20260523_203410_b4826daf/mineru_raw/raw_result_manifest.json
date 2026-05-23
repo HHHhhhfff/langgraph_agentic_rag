@@ -1,0 +1,48 @@
+{
+  "files": [
+    {
+      "source": "data\\demo_docs\\测试文档.docx",
+      "task_id": "batch:ae3e74fa-bd63-48ed-abb9-ec497d7e842c:测试文档.docx",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/dcc51729-d62b-41bd-a772-2218976f24ed.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "979a03cb3dac07704eeff43c8b2b7e1c",
+        "data": {
+          "batch_id": "ae3e74fa-bd63-48ed-abb9-ec497d7e842c",
+          "extract_result": [
+            {
+              "file_name": "测试文档.docx",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/dcc51729-d62b-41bd-a772-2218976f24ed.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\测试文档.pdf",
+      "task_id": "batch:f113a5e9-0ab6-48a0-ad6f-78cbc41ea8ac:测试文档.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "a83a60c073f151585d181f01519b32b3",
+        "data": {
+          "batch_id": "f113a5e9-0ab6-48a0-ad6f-78cbc41ea8ac",
+          "extract_result": [
+            {
+              "file_name": "测试文档.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

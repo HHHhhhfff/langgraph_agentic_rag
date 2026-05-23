@@ -1,0 +1,6619 @@
+[
+  {
+    "source": "data\\demo_docs\\测试文档.docx",
+    "structured_content": [
+      [
+        {
+          "type": "text",
+          "text": "测试文档 ",
+          "text_level": 1,
+          "bbox": [
+            59,
+            38,
+            150,
+            54
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "2025年前五个月产品A销售分析",
+          "text_level": 1,
+          "bbox": [
+            63,
+            58,
+            412,
+            75
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "一、数据概览",
+          "text_level": 1,
+          "bbox": [
+            59,
+            80,
+            181,
+            95
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "根据图表，产品 A 在 2025 年 1 月至 5 月的销售额如下：",
+          "bbox": [
+            58,
+            101,
+            393,
+            113
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "table",
+          "img_path": "images/ded44dffb33387c52a85a4871201b1bfe0e4a80ddac8b38474a2c0cb15bdef7d.jpg",
+          "table_caption": [],
+          "table_footnote": [],
+          "table_body": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>",
+          "bbox": [
+            59,
+            127,
+            217,
+            226
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "二、趋势分析",
+          "text_level": 1,
+          "bbox": [
+            59,
+            240,
+            181,
+            256
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "整体来看：",
+          "bbox": [
+            59,
+            261,
+            125,
+            273
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "list",
+          "sub_type": "text",
+          "list_items": [
+            "1月到3月：销售额持续增长，3月达到峰值 ",
+            "3月之后：销售额开始下降",
+            "5月：接近年初水平"
+          ],
+          "bbox": [
+            66,
+            281,
+            351,
+            316
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "说明产品可能在 3 月存在促销或旺季因素。",
+          "bbox": [
+            60,
+            323,
+            338,
+            336
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "三、简单计算分析",
+          "text_level": 1,
+          "bbox": [
+            59,
+            341,
+            220,
+            356
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "1. 平均销售额",
+          "text_level": 1,
+          "bbox": [
+            60,
+            361,
+            171,
+            375
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "公式：",
+          "bbox": [
+            59,
+            382,
+            98,
+            394
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "equation",
+          "text": "$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$",
+          "text_format": "latex",
+          "bbox": [
+            58,
+            398,
+            114,
+            414
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "计算：",
+          "bbox": [
+            59,
+            423,
+            98,
+            434
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "equation",
+          "text": "$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$",
+          "text_format": "latex",
+          "bbox": [
+            58,
+            438,
+            234,
+            453
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "平均销售额为 178 万元",
+          "bbox": [
+            60,
+            462,
+            222,
+            474
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "2. 增长率（以 2 月 → 3 月为例）",
+          "text_level": 1,
+          "bbox": [
+            58,
+            481,
+            299,
+            495
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "公式：",
+          "bbox": [
+            59,
+            501,
+            98,
+            512
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "equation",
+          "text": "$$\n\\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}\n$$",
+          "text_format": "latex",
+          "bbox": [
+            59,
+            513,
+            174,
+            539
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "计算：",
+          "bbox": [
+            59,
+            543,
+            98,
+            555
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "equation",
+          "text": "$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$",
+          "text_format": "latex",
+          "bbox": [
+            59,
+            558,
+            147,
+            573
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "2月到3月增长显著",
+          "bbox": [
+            60,
+            582,
+            202,
+            594
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "四、结论",
+          "text_level": 1,
+          "bbox": [
+            60,
+            600,
+            141,
+            615
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "list",
+          "sub_type": "text",
+          "list_items": [
+            "3月为销售高峰，应重点分析原因（活动/市场需求）",
+            "后续月份下滑明显，需考虑优化策略",
+            "建议关注季节性波动并制定对应营销方案"
+          ],
+          "bbox": [
+            66,
+            622,
+            392,
+            656
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "chart",
+          "img_path": "images/c3fd36eb2da4ba166bce14469958b9191f49d153a593e26669f0c8a670cde1e2.jpg",
+          "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |",
+          "chart_caption": [],
+          "chart_footnote": [],
+          "sub_type": "line",
+          "bbox": [
+            64,
+            17,
+            777,
+            229
+          ],
+          "page_idx": 1
+        }
+      ],
+      [
+        [
+          {
+            "type": "title",
+            "bbox": [
+              0.06,
+              0.039,
+              0.151,
+              0.055
+            ],
+            "angle": 0,
+            "content": "测试文档"
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.064,
+              0.059,
+              0.413,
+              0.076
+            ],
+            "angle": 0,
+            "content": "2025年前五个月产品A销售分析"
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.06,
+              0.081,
+              0.182,
+              0.096
+            ],
+            "angle": 0,
+            "content": "一、数据概览"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.059,
+              0.102,
+              0.394,
+              0.114
+            ],
+            "angle": 0,
+            "content": "根据图表，产品 A 在 2025 年 1 月至 5 月的销售额如下：",
+            "merge_prev": false
+          },
+          {
+            "type": "table",
+            "bbox": [
+              0.06,
+              0.128,
+              0.218,
+              0.227
+            ],
+            "angle": 0,
+            "content": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>"
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.06,
+              0.241,
+              0.182,
+              0.257
+            ],
+            "angle": 0,
+            "content": "二、趋势分析"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.06,
+              0.262,
+              0.125,
+              0.274
+            ],
+            "angle": 0,
+            "content": "整体来看：",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.067,
+              0.282,
+              0.352,
+              0.294
+            ],
+            "angle": 0,
+            "content": "1月到3月：销售额持续增长，3月达到峰值",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.068,
+              0.295,
+              0.245,
+              0.305
+            ],
+            "angle": 0,
+            "content": "3月之后：销售额开始下降",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.068,
+              0.306,
+              0.205,
+              0.317
+            ],
+            "angle": 0,
+            "content": "5月：接近年初水平",
+            "merge_prev": false
+          },
+          {
+            "type": "list",
+            "bbox": [
+              0.067,
+              0.282,
+              0.352,
+              0.317
+            ],
+            "angle": 0,
+            "content": null
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.061,
+              0.324,
+              0.339,
+              0.337
+            ],
+            "angle": 0,
+            "content": "说明产品可能在 3 月存在促销或旺季因素。",
+            "merge_prev": false
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.06,
+              0.342,
+              0.221,
+              0.357
+            ],
+            "angle": 0,
+            "content": "三、简单计算分析"
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.061,
+              0.362,
+              0.172,
+              0.376
+            ],
+            "angle": 0,
+            "content": "1. 平均销售额"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.06,
+              0.383,
+              0.099,
+              0.395
+            ],
+            "angle": 0,
+            "content": "公式：",
+            "merge_prev": false
+          },
+          {
+            "type": "equation",
+            "bbox": [
+              0.059,
+              0.399,
+              0.115,
+              0.415
+            ],
+            "angle": 0,
+            "content": "\\[\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n\\]"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.06,
+              0.424,
+              0.099,
+              0.435
+            ],
+            "angle": 0,
+            "content": "计算：",
+            "merge_prev": false
+          },
+          {
+            "type": "equation",
+            "bbox": [
+              0.059,
+              0.439,
+              0.236,
+              0.454
+            ],
+            "angle": 0,
+            "content": "\\[\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n\\]"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.061,
+              0.463,
+              0.223,
+              0.475
+            ],
+            "angle": 0,
+            "content": "平均销售额为 178 万元",
+            "merge_prev": false
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.059,
+              0.482,
+              0.3,
+              0.496
+            ],
+            "angle": 0,
+            "content": "2. 增长率（以 2 月 → 3 月为例）"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.06,
+              0.502,
+              0.099,
+              0.513
+            ],
+            "angle": 0,
+            "content": "公式：",
+            "merge_prev": false
+          },
+          {
+            "type": "equation",
+            "bbox": [
+              0.06,
+              0.514,
+              0.175,
+              0.54
+            ],
+            "angle": 0,
+            "content": "\\[\n\\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}\n\\]"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.06,
+              0.544,
+              0.099,
+              0.556
+            ],
+            "angle": 0,
+            "content": "计算：",
+            "merge_prev": false
+          },
+          {
+            "type": "equation",
+            "bbox": [
+              0.06,
+              0.559,
+              0.148,
+              0.574
+            ],
+            "angle": 0,
+            "content": "\\[\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n\\]"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.061,
+              0.583,
+              0.203,
+              0.595
+            ],
+            "angle": 0,
+            "content": "2月到3月增长显著",
+            "merge_prev": false
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.061,
+              0.601,
+              0.142,
+              0.616
+            ],
+            "angle": 0,
+            "content": "四、结论"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.067,
+              0.623,
+              0.393,
+              0.634
+            ],
+            "angle": 0,
+            "content": "3月为销售高峰，应重点分析原因（活动/市场需求）",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.068,
+              0.635,
+              0.305,
+              0.645
+            ],
+            "angle": 0,
+            "content": "后续月份下滑明显，需考虑优化策略",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.068,
+              0.646,
+              0.329,
+              0.657
+            ],
+            "angle": 0,
+            "content": "建议关注季节性波动并制定对应营销方案",
+            "merge_prev": false
+          },
+          {
+            "type": "list",
+            "bbox": [
+              0.067,
+              0.623,
+              0.393,
+              0.657
+            ],
+            "angle": 0,
+            "content": null
+          }
+        ],
+        [
+          {
+            "type": "chart",
+            "bbox": [
+              0.065,
+              0.018,
+              0.778,
+              0.23
+            ],
+            "angle": 0,
+            "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |",
+            "sub_type": "line"
+          }
+        ]
+      ],
+      [
+        [
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "测试文档 "
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              59,
+              38,
+              150,
+              54
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "2025年前五个月产品A销售分析"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              63,
+              58,
+              412,
+              75
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "一、数据概览"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              59,
+              80,
+              181,
+              95
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "根据图表，产品 A 在 2025 年 1 月至 5 月的销售额如下："
+                }
+              ]
+            },
+            "bbox": [
+              58,
+              101,
+              393,
+              113
+            ]
+          },
+          {
+            "type": "table",
+            "content": {
+              "image_source": {
+                "path": "images/ded44dffb33387c52a85a4871201b1bfe0e4a80ddac8b38474a2c0cb15bdef7d.jpg"
+              },
+              "table_caption": [],
+              "table_footnote": [],
+              "html": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>",
+              "table_type": "simple_table",
+              "table_nest_level": 1
+            },
+            "bbox": [
+              59,
+              127,
+              217,
+              226
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "二、趋势分析"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              59,
+              240,
+              181,
+              256
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "整体来看："
+                }
+              ]
+            },
+            "bbox": [
+              59,
+              261,
+              125,
+              273
+            ]
+          },
+          {
+            "type": "list",
+            "content": {
+              "list_type": "text_list",
+              "list_items": [
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "1月到3月：销售额持续增长，3月达到峰值 "
+                    }
+                  ]
+                },
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "3月之后：销售额开始下降"
+                    }
+                  ]
+                },
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "5月：接近年初水平"
+                    }
+                  ]
+                }
+              ]
+            },
+            "bbox": [
+              66,
+              281,
+              351,
+              316
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "说明产品可能在 3 月存在促销或旺季因素。"
+                }
+              ]
+            },
+            "bbox": [
+              60,
+              323,
+              338,
+              336
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "三、简单计算分析"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              59,
+              341,
+              220,
+              356
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "1. 平均销售额"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              60,
+              361,
+              171,
+              375
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "公式："
+                }
+              ]
+            },
+            "bbox": [
+              59,
+              382,
+              98,
+              394
+            ]
+          },
+          {
+            "type": "equation_interline",
+            "content": {
+              "math_content": "\\bar {x} = \\frac {\\sum x _ {i}}{n}",
+              "math_type": "latex",
+              "image_source": {
+                "path": "images/150192cde72c450e183d395cc6b516acd29cf2660d6b677e465e003bb06f604c.jpg"
+              }
+            },
+            "bbox": [
+              58,
+              398,
+              114,
+              414
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "计算："
+                }
+              ]
+            },
+            "bbox": [
+              59,
+              423,
+              98,
+              434
+            ]
+          },
+          {
+            "type": "equation_interline",
+            "content": {
+              "math_content": "\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+              "math_type": "latex",
+              "image_source": {
+                "path": "images/7800b60b32a63f3974515d1f11b63b35355fc9f28609115dd98231dc234a1f20.jpg"
+              }
+            },
+            "bbox": [
+              58,
+              438,
+              234,
+              453
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "平均销售额为 178 万元"
+                }
+              ]
+            },
+            "bbox": [
+              60,
+              462,
+              222,
+              474
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "2. 增长率（以 2 月 → 3 月为例）"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              58,
+              481,
+              299,
+              495
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "公式："
+                }
+              ]
+            },
+            "bbox": [
+              59,
+              501,
+              98,
+              512
+            ]
+          },
+          {
+            "type": "equation_interline",
+            "content": {
+              "math_content": "\\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}",
+              "math_type": "latex",
+              "image_source": {
+                "path": "images/697fd34c11ea020bce9f1b5516d3bca41c42697be39b8efe80e27e1c532c2d0f.jpg"
+              }
+            },
+            "bbox": [
+              59,
+              513,
+              174,
+              539
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "计算："
+                }
+              ]
+            },
+            "bbox": [
+              59,
+              543,
+              98,
+              555
+            ]
+          },
+          {
+            "type": "equation_interline",
+            "content": {
+              "math_content": "\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7",
+              "math_type": "latex",
+              "image_source": {
+                "path": "images/96759baebf2cf68f233840d6c318e088813254d364cd25c533c93f2ebc559e43.jpg"
+              }
+            },
+            "bbox": [
+              59,
+              558,
+              147,
+              573
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "2月到3月增长显著"
+                }
+              ]
+            },
+            "bbox": [
+              60,
+              582,
+              202,
+              594
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "四、结论"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              60,
+              600,
+              141,
+              615
+            ]
+          },
+          {
+            "type": "list",
+            "content": {
+              "list_type": "text_list",
+              "list_items": [
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "3月为销售高峰，应重点分析原因（活动/市场需求）"
+                    }
+                  ]
+                },
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "后续月份下滑明显，需考虑优化策略"
+                    }
+                  ]
+                },
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "建议关注季节性波动并制定对应营销方案"
+                    }
+                  ]
+                }
+              ]
+            },
+            "bbox": [
+              66,
+              622,
+              392,
+              656
+            ]
+          }
+        ],
+        [
+          {
+            "type": "chart",
+            "content": {
+              "image_source": {
+                "path": "images/c3fd36eb2da4ba166bce14469958b9191f49d153a593e26669f0c8a670cde1e2.jpg"
+              },
+              "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |",
+              "chart_caption": [],
+              "chart_footnote": []
+            },
+            "sub_type": "line",
+            "bbox": [
+              64,
+              17,
+              777,
+              229
+            ]
+          }
+        ]
+      ],
+      {
+        "pdf_info": [
+          {
+            "preproc_blocks": [
+              {
+                "bbox": [
+                  47,
+                  47,
+                  119,
+                  67
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      47,
+                      119,
+                      67
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          47,
+                          119,
+                          67
+                        ],
+                        "type": "text",
+                        "content": "测试文档"
+                      }
+                    ]
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "bbox": [
+                  50,
+                  72,
+                  327,
+                  93
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      50,
+                      72,
+                      327,
+                      93
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          50,
+                          72,
+                          327,
+                          93
+                        ],
+                        "type": "text",
+                        "content": "2025年前五个月产品A销售分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 1
+              },
+              {
+                "bbox": [
+                  47,
+                  99,
+                  144,
+                  117
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      99,
+                      144,
+                      117
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          99,
+                          144,
+                          117
+                        ],
+                        "type": "text",
+                        "content": "一、数据概览"
+                      }
+                    ]
+                  }
+                ],
+                "index": 2
+              },
+              {
+                "bbox": [
+                  46,
+                  124,
+                  312,
+                  139
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      124,
+                      312,
+                      139
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          124,
+                          312,
+                          139
+                        ],
+                        "type": "text",
+                        "content": "根据图表，产品 A 在 2025 年 1 月至 5 月的销售额如下："
+                      }
+                    ]
+                  }
+                ],
+                "index": 3,
+                "merge_prev": false
+              },
+              {
+                "type": "table",
+                "bbox": [
+                  47,
+                  156,
+                  172,
+                  277
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      47,
+                      156,
+                      172,
+                      277
+                    ],
+                    "type": "table_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          47,
+                          156,
+                          172,
+                          277
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              47,
+                              156,
+                              172,
+                              277
+                            ],
+                            "type": "table",
+                            "html": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>",
+                            "image_path": "ded44dffb33387c52a85a4871201b1bfe0e4a80ddac8b38474a2c0cb15bdef7d.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 4
+                  }
+                ],
+                "index": 4
+              },
+              {
+                "bbox": [
+                  47,
+                  294,
+                  144,
+                  314
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      294,
+                      144,
+                      314
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          294,
+                          144,
+                          314
+                        ],
+                        "type": "text",
+                        "content": "二、趋势分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 5
+              },
+              {
+                "bbox": [
+                  47,
+                  320,
+                  99,
+                  335
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      320,
+                      99,
+                      335
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          320,
+                          99,
+                          335
+                        ],
+                        "type": "text",
+                        "content": "整体来看："
+                      }
+                    ]
+                  }
+                ],
+                "index": 6,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  53,
+                  345,
+                  278,
+                  388
+                ],
+                "type": "list",
+                "angle": 0,
+                "index": 10,
+                "blocks": [
+                  {
+                    "bbox": [
+                      53,
+                      345,
+                      278,
+                      359
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          345,
+                          278,
+                          359
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              345,
+                              278,
+                              359
+                            ],
+                            "type": "text",
+                            "content": "1月到3月：销售额持续增长，3月达到峰值"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 7,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      361,
+                      194,
+                      373
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          361,
+                          194,
+                          373
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              361,
+                              194,
+                              373
+                            ],
+                            "type": "text",
+                            "content": "3月之后：销售额开始下降"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 8,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      374,
+                      162,
+                      388
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          374,
+                          162,
+                          388
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              374,
+                              162,
+                              388
+                            ],
+                            "type": "text",
+                            "content": "5月：接近年初水平"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 9,
+                    "merge_prev": false
+                  }
+                ],
+                "sub_type": "text"
+              },
+              {
+                "bbox": [
+                  48,
+                  396,
+                  268,
+                  412
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      396,
+                      268,
+                      412
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          396,
+                          268,
+                          412
+                        ],
+                        "type": "text",
+                        "content": "说明产品可能在 3 月存在促销或旺季因素。"
+                      }
+                    ]
+                  }
+                ],
+                "index": 11,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  47,
+                  418,
+                  175,
+                  436
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      418,
+                      175,
+                      436
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          418,
+                          175,
+                          436
+                        ],
+                        "type": "text",
+                        "content": "三、简单计算分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 12
+              },
+              {
+                "bbox": [
+                  48,
+                  443,
+                  136,
+                  460
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      443,
+                      136,
+                      460
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          443,
+                          136,
+                          460
+                        ],
+                        "type": "text",
+                        "content": "1. 平均销售额"
+                      }
+                    ]
+                  }
+                ],
+                "index": 13
+              },
+              {
+                "bbox": [
+                  47,
+                  468,
+                  78,
+                  483
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      468,
+                      78,
+                      483
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          468,
+                          78,
+                          483
+                        ],
+                        "type": "text",
+                        "content": "公式："
+                      }
+                    ]
+                  }
+                ],
+                "index": 14,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  488,
+                  91,
+                  507
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      488,
+                      91,
+                      507
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          488,
+                          91,
+                          507
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\bar {x} = \\frac {\\sum x _ {i}}{n}",
+                        "image_path": "150192cde72c450e183d395cc6b516acd29cf2660d6b677e465e003bb06f604c.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 15
+              },
+              {
+                "bbox": [
+                  47,
+                  518,
+                  78,
+                  532
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      518,
+                      78,
+                      532
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          518,
+                          78,
+                          532
+                        ],
+                        "type": "text",
+                        "content": "计算："
+                      }
+                    ]
+                  }
+                ],
+                "index": 16,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  537,
+                  186,
+                  555
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      537,
+                      186,
+                      555
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          537,
+                          186,
+                          555
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+                        "image_path": "7800b60b32a63f3974515d1f11b63b35355fc9f28609115dd98231dc234a1f20.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 17
+              },
+              {
+                "bbox": [
+                  48,
+                  566,
+                  176,
+                  581
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      566,
+                      176,
+                      581
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          566,
+                          176,
+                          581
+                        ],
+                        "type": "text",
+                        "content": "平均销售额为 178 万元"
+                      }
+                    ]
+                  }
+                ],
+                "index": 18,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  589,
+                  237,
+                  607
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      589,
+                      237,
+                      607
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          589,
+                          237,
+                          607
+                        ],
+                        "type": "text",
+                        "content": "2. 增长率（以 2 月 → 3 月为例）"
+                      }
+                    ]
+                  }
+                ],
+                "index": 19
+              },
+              {
+                "bbox": [
+                  47,
+                  614,
+                  78,
+                  627
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      614,
+                      78,
+                      627
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          614,
+                          78,
+                          627
+                        ],
+                        "type": "text",
+                        "content": "公式："
+                      }
+                    ]
+                  }
+                ],
+                "index": 20,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  47,
+                  629,
+                  138,
+                  660
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      629,
+                      138,
+                      660
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          629,
+                          138,
+                          660
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}",
+                        "image_path": "697fd34c11ea020bce9f1b5516d3bca41c42697be39b8efe80e27e1c532c2d0f.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 21
+              },
+              {
+                "bbox": [
+                  47,
+                  665,
+                  78,
+                  680
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      665,
+                      78,
+                      680
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          665,
+                          78,
+                          680
+                        ],
+                        "type": "text",
+                        "content": "计算："
+                      }
+                    ]
+                  }
+                ],
+                "index": 22,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  47,
+                  684,
+                  117,
+                  702
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      684,
+                      117,
+                      702
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          684,
+                          117,
+                          702
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7",
+                        "image_path": "96759baebf2cf68f233840d6c318e088813254d364cd25c533c93f2ebc559e43.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 23
+              },
+              {
+                "bbox": [
+                  48,
+                  713,
+                  160,
+                  728
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      713,
+                      160,
+                      728
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          713,
+                          160,
+                          728
+                        ],
+                        "type": "text",
+                        "content": "2月到3月增长显著"
+                      }
+                    ]
+                  }
+                ],
+                "index": 24,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  48,
+                  735,
+                  112,
+                  753
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      735,
+                      112,
+                      753
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          735,
+                          112,
+                          753
+                        ],
+                        "type": "text",
+                        "content": "四、结论"
+                      }
+                    ]
+                  }
+                ],
+                "index": 25
+              },
+              {
+                "bbox": [
+                  53,
+                  762,
+                  311,
+                  804
+                ],
+                "type": "list",
+                "angle": 0,
+                "index": 29,
+                "blocks": [
+                  {
+                    "bbox": [
+                      53,
+                      762,
+                      311,
+                      776
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          762,
+                          311,
+                          776
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              762,
+                              311,
+                              776
+                            ],
+                            "type": "text",
+                            "content": "3月为销售高峰，应重点分析原因（活动/市场需求）"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 26,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      777,
+                      241,
+                      789
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          777,
+                          241,
+                          789
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              777,
+                              241,
+                              789
+                            ],
+                            "type": "text",
+                            "content": "后续月份下滑明显，需考虑优化策略"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 27,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      790,
+                      260,
+                      804
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          790,
+                          260,
+                          804
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              790,
+                              260,
+                              804
+                            ],
+                            "type": "text",
+                            "content": "建议关注季节性波动并制定对应营销方案"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 28,
+                    "merge_prev": false
+                  }
+                ],
+                "sub_type": "text"
+              }
+            ],
+            "discarded_blocks": [],
+            "page_size": [
+              792,
+              1224
+            ],
+            "page_idx": 0,
+            "para_blocks": [
+              {
+                "bbox": [
+                  47,
+                  47,
+                  119,
+                  67
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      47,
+                      119,
+                      67
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          47,
+                          119,
+                          67
+                        ],
+                        "type": "text",
+                        "content": "测试文档"
+                      }
+                    ]
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "bbox": [
+                  50,
+                  72,
+                  327,
+                  93
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      50,
+                      72,
+                      327,
+                      93
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          50,
+                          72,
+                          327,
+                          93
+                        ],
+                        "type": "text",
+                        "content": "2025年前五个月产品A销售分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 1
+              },
+              {
+                "bbox": [
+                  47,
+                  99,
+                  144,
+                  117
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      99,
+                      144,
+                      117
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          99,
+                          144,
+                          117
+                        ],
+                        "type": "text",
+                        "content": "一、数据概览"
+                      }
+                    ]
+                  }
+                ],
+                "index": 2
+              },
+              {
+                "bbox": [
+                  46,
+                  124,
+                  312,
+                  139
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      124,
+                      312,
+                      139
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          124,
+                          312,
+                          139
+                        ],
+                        "type": "text",
+                        "content": "根据图表，产品 A 在 2025 年 1 月至 5 月的销售额如下："
+                      }
+                    ]
+                  }
+                ],
+                "index": 3,
+                "merge_prev": false
+              },
+              {
+                "type": "table",
+                "bbox": [
+                  47,
+                  156,
+                  172,
+                  277
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      47,
+                      156,
+                      172,
+                      277
+                    ],
+                    "type": "table_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          47,
+                          156,
+                          172,
+                          277
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              47,
+                              156,
+                              172,
+                              277
+                            ],
+                            "type": "table",
+                            "html": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>",
+                            "image_path": "ded44dffb33387c52a85a4871201b1bfe0e4a80ddac8b38474a2c0cb15bdef7d.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 4
+                  }
+                ],
+                "index": 4
+              },
+              {
+                "bbox": [
+                  47,
+                  294,
+                  144,
+                  314
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      294,
+                      144,
+                      314
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          294,
+                          144,
+                          314
+                        ],
+                        "type": "text",
+                        "content": "二、趋势分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 5
+              },
+              {
+                "bbox": [
+                  47,
+                  320,
+                  99,
+                  335
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      320,
+                      99,
+                      335
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          320,
+                          99,
+                          335
+                        ],
+                        "type": "text",
+                        "content": "整体来看："
+                      }
+                    ]
+                  }
+                ],
+                "index": 6,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  53,
+                  345,
+                  278,
+                  388
+                ],
+                "type": "list",
+                "angle": 0,
+                "index": 10,
+                "blocks": [
+                  {
+                    "bbox": [
+                      53,
+                      345,
+                      278,
+                      359
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          345,
+                          278,
+                          359
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              345,
+                              278,
+                              359
+                            ],
+                            "type": "text",
+                            "content": "1月到3月：销售额持续增长，3月达到峰值"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 7,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      361,
+                      194,
+                      373
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          361,
+                          194,
+                          373
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              361,
+                              194,
+                              373
+                            ],
+                            "type": "text",
+                            "content": "3月之后：销售额开始下降"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 8,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      374,
+                      162,
+                      388
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          374,
+                          162,
+                          388
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              374,
+                              162,
+                              388
+                            ],
+                            "type": "text",
+                            "content": "5月：接近年初水平"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 9,
+                    "merge_prev": false
+                  }
+                ],
+                "sub_type": "text"
+              },
+              {
+                "bbox": [
+                  48,
+                  396,
+                  268,
+                  412
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      396,
+                      268,
+                      412
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          396,
+                          268,
+                          412
+                        ],
+                        "type": "text",
+                        "content": "说明产品可能在 3 月存在促销或旺季因素。"
+                      }
+                    ]
+                  }
+                ],
+                "index": 11,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  47,
+                  418,
+                  175,
+                  436
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      418,
+                      175,
+                      436
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          418,
+                          175,
+                          436
+                        ],
+                        "type": "text",
+                        "content": "三、简单计算分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 12
+              },
+              {
+                "bbox": [
+                  48,
+                  443,
+                  136,
+                  460
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      443,
+                      136,
+                      460
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          443,
+                          136,
+                          460
+                        ],
+                        "type": "text",
+                        "content": "1. 平均销售额"
+                      }
+                    ]
+                  }
+                ],
+                "index": 13
+              },
+              {
+                "bbox": [
+                  47,
+                  468,
+                  78,
+                  483
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      468,
+                      78,
+                      483
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          468,
+                          78,
+                          483
+                        ],
+                        "type": "text",
+                        "content": "公式："
+                      }
+                    ]
+                  }
+                ],
+                "index": 14,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  488,
+                  91,
+                  507
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      488,
+                      91,
+                      507
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          488,
+                          91,
+                          507
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\bar {x} = \\frac {\\sum x _ {i}}{n}",
+                        "image_path": "150192cde72c450e183d395cc6b516acd29cf2660d6b677e465e003bb06f604c.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 15
+              },
+              {
+                "bbox": [
+                  47,
+                  518,
+                  78,
+                  532
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      518,
+                      78,
+                      532
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          518,
+                          78,
+                          532
+                        ],
+                        "type": "text",
+                        "content": "计算："
+                      }
+                    ]
+                  }
+                ],
+                "index": 16,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  537,
+                  186,
+                  555
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      537,
+                      186,
+                      555
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          537,
+                          186,
+                          555
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+                        "image_path": "7800b60b32a63f3974515d1f11b63b35355fc9f28609115dd98231dc234a1f20.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 17
+              },
+              {
+                "bbox": [
+                  48,
+                  566,
+                  176,
+                  581
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      566,
+                      176,
+                      581
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          566,
+                          176,
+                          581
+                        ],
+                        "type": "text",
+                        "content": "平均销售额为 178 万元"
+                      }
+                    ]
+                  }
+                ],
+                "index": 18,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  589,
+                  237,
+                  607
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      589,
+                      237,
+                      607
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          589,
+                          237,
+                          607
+                        ],
+                        "type": "text",
+                        "content": "2. 增长率（以 2 月 → 3 月为例）"
+                      }
+                    ]
+                  }
+                ],
+                "index": 19
+              },
+              {
+                "bbox": [
+                  47,
+                  614,
+                  78,
+                  627
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      614,
+                      78,
+                      627
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          614,
+                          78,
+                          627
+                        ],
+                        "type": "text",
+                        "content": "公式："
+                      }
+                    ]
+                  }
+                ],
+                "index": 20,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  47,
+                  629,
+                  138,
+                  660
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      629,
+                      138,
+                      660
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          629,
+                          138,
+                          660
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}",
+                        "image_path": "697fd34c11ea020bce9f1b5516d3bca41c42697be39b8efe80e27e1c532c2d0f.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 21
+              },
+              {
+                "bbox": [
+                  47,
+                  665,
+                  78,
+                  680
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      665,
+                      78,
+                      680
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          665,
+                          78,
+                          680
+                        ],
+                        "type": "text",
+                        "content": "计算："
+                      }
+                    ]
+                  }
+                ],
+                "index": 22,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  47,
+                  684,
+                  117,
+                  702
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      684,
+                      117,
+                      702
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          684,
+                          117,
+                          702
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7",
+                        "image_path": "96759baebf2cf68f233840d6c318e088813254d364cd25c533c93f2ebc559e43.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 23
+              },
+              {
+                "bbox": [
+                  48,
+                  713,
+                  160,
+                  728
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      713,
+                      160,
+                      728
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          713,
+                          160,
+                          728
+                        ],
+                        "type": "text",
+                        "content": "2月到3月增长显著"
+                      }
+                    ]
+                  }
+                ],
+                "index": 24,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  48,
+                  735,
+                  112,
+                  753
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      735,
+                      112,
+                      753
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          735,
+                          112,
+                          753
+                        ],
+                        "type": "text",
+                        "content": "四、结论"
+                      }
+                    ]
+                  }
+                ],
+                "index": 25
+              },
+              {
+                "bbox": [
+                  53,
+                  762,
+                  311,
+                  804
+                ],
+                "type": "list",
+                "angle": 0,
+                "index": 29,
+                "blocks": [
+                  {
+                    "bbox": [
+                      53,
+                      762,
+                      311,
+                      776
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          762,
+                          311,
+                          776
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              762,
+                              311,
+                              776
+                            ],
+                            "type": "text",
+                            "content": "3月为销售高峰，应重点分析原因（活动/市场需求）"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 26,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      777,
+                      241,
+                      789
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          777,
+                          241,
+                          789
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              777,
+                              241,
+                              789
+                            ],
+                            "type": "text",
+                            "content": "后续月份下滑明显，需考虑优化策略"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 27,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      790,
+                      260,
+                      804
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          790,
+                          260,
+                          804
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              790,
+                              260,
+                              804
+                            ],
+                            "type": "text",
+                            "content": "建议关注季节性波动并制定对应营销方案"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 28,
+                    "merge_prev": false
+                  }
+                ],
+                "sub_type": "text"
+              }
+            ]
+          },
+          {
+            "preproc_blocks": [
+              {
+                "type": "chart",
+                "bbox": [
+                  51,
+                  22,
+                  616,
+                  281
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      51,
+                      22,
+                      616,
+                      281
+                    ],
+                    "type": "chart_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          51,
+                          22,
+                          616,
+                          281
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              51,
+                              22,
+                              616,
+                              281
+                            ],
+                            "type": "chart",
+                            "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |",
+                            "image_path": "c3fd36eb2da4ba166bce14469958b9191f49d153a593e26669f0c8a670cde1e2.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 0
+                  }
+                ],
+                "index": 0,
+                "sub_type": "line"
+              }
+            ],
+            "discarded_blocks": [],
+            "page_size": [
+              792,
+              1224
+            ],
+            "page_idx": 1,
+            "para_blocks": [
+              {
+                "type": "chart",
+                "bbox": [
+                  51,
+                  22,
+                  616,
+                  281
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      51,
+                      22,
+                      616,
+                      281
+                    ],
+                    "type": "chart_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          51,
+                          22,
+                          616,
+                          281
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              51,
+                              22,
+                              616,
+                              281
+                            ],
+                            "type": "chart",
+                            "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |",
+                            "image_path": "c3fd36eb2da4ba166bce14469958b9191f49d153a593e26669f0c8a670cde1e2.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 0
+                  }
+                ],
+                "index": 0,
+                "sub_type": "line"
+              }
+            ]
+          }
+        ],
+        "_backend": "hybrid",
+        "_ocr_enable": true,
+        "_vlm_ocr_enable": true,
+        "_version_name": "3.1.8"
+      }
+    ]
+  },
+  {
+    "source": "data\\demo_docs\\测试文档.pdf",
+    "structured_content": [
+      [
+        {
+          "type": "text",
+          "text": "测试文档 ",
+          "text_level": 1,
+          "bbox": [
+            59,
+            38,
+            150,
+            55
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "2025年前五个月产品A销售分析",
+          "text_level": 1,
+          "bbox": [
+            64,
+            64,
+            401,
+            81
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "一、数据概览",
+          "text_level": 1,
+          "bbox": [
+            58,
+            89,
+            181,
+            105
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "根据图表，产品A在2025年1月至5月的销售额如下：",
+          "bbox": [
+            58,
+            113,
+            367,
+            125
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "table",
+          "img_path": "images/4d63dab416d59c175524132055e17d8ac25d25016fc3c396d62ccc9820b3f728.jpg",
+          "table_caption": [],
+          "table_footnote": [],
+          "table_body": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>",
+          "bbox": [
+            60,
+            142,
+            217,
+            243
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "二、趋势分析",
+          "text_level": 1,
+          "bbox": [
+            58,
+            258,
+            181,
+            274
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "整体来看：",
+          "bbox": [
+            58,
+            283,
+            123,
+            294
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "list",
+          "sub_type": "text",
+          "list_items": [
+            "- 1月到3月：销售额持续增长，3月达到峰值 ",
+            "- 3月之后：销售额开始下降",
+            "5月：接近年初水平"
+          ],
+          "bbox": [
+            66,
+            305,
+            339,
+            345
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "说明产品可能在3月存在促销或旺季因素。",
+          "bbox": [
+            61,
+            356,
+            330,
+            368
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "三、简单计算分析",
+          "text_level": 1,
+          "bbox": [
+            58,
+            377,
+            220,
+            392
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "1. 平均销售额",
+          "text_level": 1,
+          "bbox": [
+            58,
+            401,
+            171,
+            415
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "公式:",
+          "bbox": [
+            58,
+            425,
+            95,
+            436
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "equation",
+          "text": "$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$",
+          "text_format": "latex",
+          "bbox": [
+            58,
+            445,
+            113,
+            460
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "计算：",
+          "bbox": [
+            58,
+            468,
+            95,
+            479
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "equation",
+          "text": "$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$",
+          "text_format": "latex",
+          "bbox": [
+            58,
+            488,
+            234,
+            502
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "平均销售额为 178万元",
+          "bbox": [
+            60,
+            510,
+            220,
+            522
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "2. 增长率（以2月→3月为例）",
+          "text_level": 1,
+          "bbox": [
+            56,
+            531,
+            286,
+            546
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "公式:",
+          "bbox": [
+            58,
+            555,
+            95,
+            566
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "增长率 $= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}$ ",
+          "bbox": [
+            58,
+            574,
+            171,
+            590
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "计算：",
+          "bbox": [
+            58,
+            599,
+            95,
+            611
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "equation",
+          "text": "$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$",
+          "text_format": "latex",
+          "bbox": [
+            60,
+            619,
+            147,
+            633
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "2月到3月增长显著",
+          "bbox": [
+            60,
+            641,
+            195,
+            652
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "四、结论",
+          "text_level": 1,
+          "bbox": [
+            58,
+            662,
+            141,
+            677
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "list",
+          "sub_type": "text",
+          "list_items": [
+            "- 3月为销售高峰，应重点分析原因（活动/市场需求）",
+            "- 后续月份下滑明显，需考虑优化策略",
+            "- 建议关注季节性波动并制定对应营销方案"
+          ],
+          "bbox": [
+            66,
+            687,
+            387,
+            727
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "chart",
+          "img_path": "images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg",
+          "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 320           |\n| 4月  | 240           |\n| 5月  | 110           |",
+          "chart_caption": [
+            "2025年销售额"
+          ],
+          "chart_footnote": [],
+          "sub_type": "line",
+          "bbox": [
+            64,
+            42,
+            777,
+            281
+          ],
+          "page_idx": 1
+        }
+      ],
+      [
+        [
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "测试文档 "
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              59,
+              38,
+              150,
+              55
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "2025年前五个月产品A销售分析"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              64,
+              64,
+              401,
+              81
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "一、数据概览"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              58,
+              89,
+              181,
+              105
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "根据图表，产品A在2025年1月至5月的销售额如下："
+                }
+              ]
+            },
+            "bbox": [
+              58,
+              113,
+              367,
+              125
+            ]
+          },
+          {
+            "type": "table",
+            "content": {
+              "image_source": {
+                "path": "images/4d63dab416d59c175524132055e17d8ac25d25016fc3c396d62ccc9820b3f728.jpg"
+              },
+              "table_caption": [],
+              "table_footnote": [],
+              "html": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>",
+              "table_type": "simple_table",
+              "table_nest_level": 1
+            },
+            "bbox": [
+              60,
+              142,
+              217,
+              243
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "二、趋势分析"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              58,
+              258,
+              181,
+              274
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "整体来看："
+                }
+              ]
+            },
+            "bbox": [
+              58,
+              283,
+              123,
+              294
+            ]
+          },
+          {
+            "type": "list",
+            "content": {
+              "list_type": "text_list",
+              "list_items": [
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "- 1月到3月：销售额持续增长，3月达到峰值 "
+                    }
+                  ]
+                },
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "- 3月之后：销售额开始下降"
+                    }
+                  ]
+                },
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "5月：接近年初水平"
+                    }
+                  ]
+                }
+              ]
+            },
+            "bbox": [
+              66,
+              305,
+              339,
+              345
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "说明产品可能在3月存在促销或旺季因素。"
+                }
+              ]
+            },
+            "bbox": [
+              61,
+              356,
+              330,
+              368
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "三、简单计算分析"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              58,
+              377,
+              220,
+              392
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "1. 平均销售额"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              58,
+              401,
+              171,
+              415
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "公式:"
+                }
+              ]
+            },
+            "bbox": [
+              58,
+              425,
+              95,
+              436
+            ]
+          },
+          {
+            "type": "equation_interline",
+            "content": {
+              "math_content": "\\bar {x} = \\frac {\\sum x _ {i}}{n}",
+              "math_type": "latex",
+              "image_source": {
+                "path": "images/f09a89e18593c99d00ab8542b4b4b5b4b86d95bb7b6dc2c4d1a27f286cababed.jpg"
+              }
+            },
+            "bbox": [
+              58,
+              445,
+              113,
+              460
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "计算："
+                }
+              ]
+            },
+            "bbox": [
+              58,
+              468,
+              95,
+              479
+            ]
+          },
+          {
+            "type": "equation_interline",
+            "content": {
+              "math_content": "\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+              "math_type": "latex",
+              "image_source": {
+                "path": "images/ab76bf6e3c670bc8a2829dc439d7ebf0893e7ed300d86a21e43d1bc871f0ba73.jpg"
+              }
+            },
+            "bbox": [
+              58,
+              488,
+              234,
+              502
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "平均销售额为 178万元"
+                }
+              ]
+            },
+            "bbox": [
+              60,
+              510,
+              220,
+              522
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "2. 增长率（以2月→3月为例）"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              56,
+              531,
+              286,
+              546
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "公式:"
+                }
+              ]
+            },
+            "bbox": [
+              58,
+              555,
+              95,
+              566
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "增长率  "
+                },
+                {
+                  "type": "equation_inline",
+                  "content": "= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}"
+                }
+              ]
+            },
+            "bbox": [
+              58,
+              574,
+              171,
+              590
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "计算："
+                }
+              ]
+            },
+            "bbox": [
+              58,
+              599,
+              95,
+              611
+            ]
+          },
+          {
+            "type": "equation_interline",
+            "content": {
+              "math_content": "\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7",
+              "math_type": "latex",
+              "image_source": {
+                "path": "images/9b0c34e8c8483913ec15b6fb1c3cfaaa4336e087821e7d8e72c1f27b0225ba48.jpg"
+              }
+            },
+            "bbox": [
+              60,
+              619,
+              147,
+              633
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "2月到3月增长显著"
+                }
+              ]
+            },
+            "bbox": [
+              60,
+              641,
+              195,
+              652
+            ]
+          },
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "四、结论"
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              58,
+              662,
+              141,
+              677
+            ]
+          },
+          {
+            "type": "list",
+            "content": {
+              "list_type": "text_list",
+              "list_items": [
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "- 3月为销售高峰，应重点分析原因（活动/市场需求）"
+                    }
+                  ]
+                },
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "- 后续月份下滑明显，需考虑优化策略"
+                    }
+                  ]
+                },
+                {
+                  "item_type": "text",
+                  "item_content": [
+                    {
+                      "type": "text",
+                      "content": "- 建议关注季节性波动并制定对应营销方案"
+                    }
+                  ]
+                }
+              ]
+            },
+            "bbox": [
+              66,
+              687,
+              387,
+              727
+            ]
+          }
+        ],
+        [
+          {
+            "type": "chart",
+            "content": {
+              "image_source": {
+                "path": "images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg"
+              },
+              "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 320           |\n| 4月  | 240           |\n| 5月  | 110           |",
+              "chart_caption": [
+                {
+                  "type": "text",
+                  "content": "2025年销售额"
+                }
+              ],
+              "chart_footnote": []
+            },
+            "sub_type": "line",
+            "bbox": [
+              64,
+              42,
+              777,
+              281
+            ]
+          }
+        ]
+      ],
+      [
+        [
+          {
+            "type": "title",
+            "bbox": [
+              0.06,
+              0.039,
+              0.151,
+              0.056
+            ],
+            "angle": 0,
+            "content": "测试文档"
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.065,
+              0.065,
+              0.402,
+              0.082
+            ],
+            "angle": 0,
+            "content": "2025年前五个月产品A销售分析"
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.059,
+              0.09,
+              0.182,
+              0.106
+            ],
+            "angle": 0,
+            "content": "一、数据概览"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.059,
+              0.114,
+              0.368,
+              0.126
+            ],
+            "angle": 0,
+            "content": "根据图表，产品A在2025年1月至5月的销售额如下：",
+            "merge_prev": false
+          },
+          {
+            "type": "table",
+            "bbox": [
+              0.061,
+              0.143,
+              0.218,
+              0.244
+            ],
+            "angle": 0,
+            "content": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>"
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.059,
+              0.259,
+              0.182,
+              0.275
+            ],
+            "angle": 0,
+            "content": "二、趋势分析"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.059,
+              0.284,
+              0.124,
+              0.295
+            ],
+            "angle": 0,
+            "content": "整体来看：",
+            "merge_prev": false
+          },
+          {
+            "type": "list",
+            "bbox": [
+              0.067,
+              0.306,
+              0.34,
+              0.346
+            ],
+            "angle": 0,
+            "content": null
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.067,
+              0.306,
+              0.34,
+              0.317
+            ],
+            "angle": 0,
+            "content": "- 1月到3月：销售额持续增长，3月达到峰值",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.068,
+              0.32,
+              0.243,
+              0.332
+            ],
+            "angle": 0,
+            "content": "- 3月之后：销售额开始下降",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.068,
+              0.335,
+              0.202,
+              0.346
+            ],
+            "angle": 0,
+            "content": "5月：接近年初水平",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.062,
+              0.357,
+              0.331,
+              0.369
+            ],
+            "angle": 0,
+            "content": "说明产品可能在3月存在促销或旺季因素。",
+            "merge_prev": false
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.059,
+              0.378,
+              0.221,
+              0.393
+            ],
+            "angle": 0,
+            "content": "三、简单计算分析"
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.059,
+              0.402,
+              0.172,
+              0.416
+            ],
+            "angle": 0,
+            "content": "1. 平均销售额"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.059,
+              0.426,
+              0.096,
+              0.437
+            ],
+            "angle": 0,
+            "content": "公式:",
+            "merge_prev": false
+          },
+          {
+            "type": "equation",
+            "bbox": [
+              0.059,
+              0.446,
+              0.114,
+              0.461
+            ],
+            "angle": 0,
+            "content": "\\[\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n\\]"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.059,
+              0.469,
+              0.096,
+              0.48
+            ],
+            "angle": 0,
+            "content": "计算：",
+            "merge_prev": false
+          },
+          {
+            "type": "equation",
+            "bbox": [
+              0.059,
+              0.489,
+              0.236,
+              0.503
+            ],
+            "angle": 0,
+            "content": "\\[\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n\\]"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.061,
+              0.511,
+              0.222,
+              0.523
+            ],
+            "angle": 0,
+            "content": "平均销售额为 178万元",
+            "merge_prev": false
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.058,
+              0.532,
+              0.287,
+              0.547
+            ],
+            "angle": 0,
+            "content": "2. 增长率（以2月→3月为例）"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.059,
+              0.556,
+              0.096,
+              0.567
+            ],
+            "angle": 0,
+            "content": "公式:",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.059,
+              0.575,
+              0.172,
+              0.591
+            ],
+            "angle": 0,
+            "content": "增长率 \\(= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}\\)",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.059,
+              0.6,
+              0.096,
+              0.612
+            ],
+            "angle": 0,
+            "content": "计算：",
+            "merge_prev": false
+          },
+          {
+            "type": "equation",
+            "bbox": [
+              0.061,
+              0.62,
+              0.148,
+              0.634
+            ],
+            "angle": 0,
+            "content": "\\[\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n\\]"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.061,
+              0.642,
+              0.196,
+              0.653
+            ],
+            "angle": 0,
+            "content": "2月到3月增长显著",
+            "merge_prev": false
+          },
+          {
+            "type": "title",
+            "bbox": [
+              0.059,
+              0.663,
+              0.142,
+              0.678
+            ],
+            "angle": 0,
+            "content": "四、结论"
+          },
+          {
+            "type": "list",
+            "bbox": [
+              0.067,
+              0.688,
+              0.388,
+              0.728
+            ],
+            "angle": 0,
+            "content": null
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.067,
+              0.688,
+              0.388,
+              0.699
+            ],
+            "angle": 0,
+            "content": "- 3月为销售高峰，应重点分析原因（活动/市场需求）",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.068,
+              0.703,
+              0.304,
+              0.714
+            ],
+            "angle": 0,
+            "content": "- 后续月份下滑明显，需考虑优化策略",
+            "merge_prev": false
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.068,
+              0.717,
+              0.331,
+              0.728
+            ],
+            "angle": 0,
+            "content": "- 建议关注季节性波动并制定对应营销方案",
+            "merge_prev": false
+          }
+        ],
+        [
+          {
+            "type": "image_caption",
+            "bbox": [
+              0.37,
+              0.026,
+              0.516,
+              0.042
+            ],
+            "angle": 0,
+            "content": "2025年销售额"
+          },
+          {
+            "type": "chart",
+            "bbox": [
+              0.065,
+              0.043,
+              0.778,
+              0.282
+            ],
+            "angle": 0,
+            "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 320           |\n| 4月  | 240           |\n| 5月  | 110           |",
+            "sub_type": "line"
+          }
+        ]
+      ],
+      {
+        "pdf_info": [
+          {
+            "preproc_blocks": [
+              {
+                "bbox": [
+                  47,
+                  47,
+                  119,
+                  68
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      47,
+                      119,
+                      68
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          47,
+                          119,
+                          68
+                        ],
+                        "type": "text",
+                        "content": "测试文档"
+                      }
+                    ]
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "bbox": [
+                  51,
+                  79,
+                  318,
+                  100
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      51,
+                      79,
+                      318,
+                      100
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          51,
+                          79,
+                          318,
+                          100
+                        ],
+                        "type": "text",
+                        "content": "2025年前五个月产品A销售分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 1
+              },
+              {
+                "bbox": [
+                  46,
+                  110,
+                  144,
+                  129
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      110,
+                      144,
+                      129
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          110,
+                          144,
+                          129
+                        ],
+                        "type": "text",
+                        "content": "一、数据概览"
+                      }
+                    ]
+                  }
+                ],
+                "index": 2
+              },
+              {
+                "bbox": [
+                  46,
+                  139,
+                  291,
+                  154
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      139,
+                      291,
+                      154
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          139,
+                          291,
+                          154
+                        ],
+                        "type": "text",
+                        "content": "根据图表，产品A在2025年1月至5月的销售额如下："
+                      }
+                    ]
+                  }
+                ],
+                "index": 3,
+                "merge_prev": false
+              },
+              {
+                "type": "table",
+                "bbox": [
+                  48,
+                  175,
+                  172,
+                  298
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      48,
+                      175,
+                      172,
+                      298
+                    ],
+                    "type": "table_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          48,
+                          175,
+                          172,
+                          298
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              48,
+                              175,
+                              172,
+                              298
+                            ],
+                            "type": "table",
+                            "html": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>",
+                            "image_path": "4d63dab416d59c175524132055e17d8ac25d25016fc3c396d62ccc9820b3f728.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 4
+                  }
+                ],
+                "index": 4
+              },
+              {
+                "bbox": [
+                  46,
+                  317,
+                  144,
+                  336
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      317,
+                      144,
+                      336
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          317,
+                          144,
+                          336
+                        ],
+                        "type": "text",
+                        "content": "二、趋势分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 5
+              },
+              {
+                "bbox": [
+                  46,
+                  347,
+                  98,
+                  361
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      347,
+                      98,
+                      361
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          347,
+                          98,
+                          361
+                        ],
+                        "type": "text",
+                        "content": "整体来看："
+                      }
+                    ]
+                  }
+                ],
+                "index": 6,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  53,
+                  374,
+                  269,
+                  423
+                ],
+                "type": "list",
+                "angle": 0,
+                "index": 7,
+                "blocks": [
+                  {
+                    "bbox": [
+                      53,
+                      374,
+                      269,
+                      388
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          374,
+                          269,
+                          388
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              374,
+                              269,
+                              388
+                            ],
+                            "type": "text",
+                            "content": "- 1月到3月：销售额持续增长，3月达到峰值"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 8,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      391,
+                      192,
+                      406
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          391,
+                          192,
+                          406
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              391,
+                              192,
+                              406
+                            ],
+                            "type": "text",
+                            "content": "- 3月之后：销售额开始下降"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 9,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      410,
+                      159,
+                      423
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          410,
+                          159,
+                          423
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              410,
+                              159,
+                              423
+                            ],
+                            "type": "text",
+                            "content": "5月：接近年初水平"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 10,
+                    "merge_prev": false
+                  }
+                ],
+                "sub_type": "text"
+              },
+              {
+                "bbox": [
+                  49,
+                  436,
+                  262,
+                  451
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      49,
+                      436,
+                      262,
+                      451
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          49,
+                          436,
+                          262,
+                          451
+                        ],
+                        "type": "text",
+                        "content": "说明产品可能在3月存在促销或旺季因素。"
+                      }
+                    ]
+                  }
+                ],
+                "index": 11,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  462,
+                  175,
+                  481
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      462,
+                      175,
+                      481
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          462,
+                          175,
+                          481
+                        ],
+                        "type": "text",
+                        "content": "三、简单计算分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 12
+              },
+              {
+                "bbox": [
+                  46,
+                  492,
+                  136,
+                  509
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      492,
+                      136,
+                      509
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          492,
+                          136,
+                          509
+                        ],
+                        "type": "text",
+                        "content": "1. 平均销售额"
+                      }
+                    ]
+                  }
+                ],
+                "index": 13
+              },
+              {
+                "bbox": [
+                  46,
+                  521,
+                  76,
+                  534
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      521,
+                      76,
+                      534
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          521,
+                          76,
+                          534
+                        ],
+                        "type": "text",
+                        "content": "公式:"
+                      }
+                    ]
+                  }
+                ],
+                "index": 14,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  545,
+                  90,
+                  564
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      545,
+                      90,
+                      564
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          545,
+                          90,
+                          564
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\bar {x} = \\frac {\\sum x _ {i}}{n}",
+                        "image_path": "f09a89e18593c99d00ab8542b4b4b5b4b86d95bb7b6dc2c4d1a27f286cababed.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 15
+              },
+              {
+                "bbox": [
+                  46,
+                  574,
+                  76,
+                  587
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      574,
+                      76,
+                      587
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          574,
+                          76,
+                          587
+                        ],
+                        "type": "text",
+                        "content": "计算："
+                      }
+                    ]
+                  }
+                ],
+                "index": 16,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  598,
+                  186,
+                  615
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      598,
+                      186,
+                      615
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          598,
+                          186,
+                          615
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+                        "image_path": "ab76bf6e3c670bc8a2829dc439d7ebf0893e7ed300d86a21e43d1bc871f0ba73.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 17
+              },
+              {
+                "bbox": [
+                  48,
+                  625,
+                  175,
+                  640
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      625,
+                      175,
+                      640
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          625,
+                          175,
+                          640
+                        ],
+                        "type": "text",
+                        "content": "平均销售额为 178万元"
+                      }
+                    ]
+                  }
+                ],
+                "index": 18,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  45,
+                  651,
+                  227,
+                  669
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      45,
+                      651,
+                      227,
+                      669
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          45,
+                          651,
+                          227,
+                          669
+                        ],
+                        "type": "text",
+                        "content": "2. 增长率（以2月→3月为例）"
+                      }
+                    ]
+                  }
+                ],
+                "index": 19
+              },
+              {
+                "bbox": [
+                  46,
+                  680,
+                  76,
+                  694
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      680,
+                      76,
+                      694
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          680,
+                          76,
+                          694
+                        ],
+                        "type": "text",
+                        "content": "公式:"
+                      }
+                    ]
+                  }
+                ],
+                "index": 20,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  703,
+                  136,
+                  723
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      703,
+                      136,
+                      723
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          703,
+                          136,
+                          723
+                        ],
+                        "type": "text",
+                        "content": "增长率 "
+                      },
+                      {
+                        "bbox": [
+                          46,
+                          703,
+                          136,
+                          723
+                        ],
+                        "type": "inline_equation",
+                        "content": "= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}"
+                      }
+                    ]
+                  }
+                ],
+                "index": 21,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  734,
+                  76,
+                  749
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      734,
+                      76,
+                      749
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          734,
+                          76,
+                          749
+                        ],
+                        "type": "text",
+                        "content": "计算："
+                      }
+                    ]
+                  }
+                ],
+                "index": 22,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  48,
+                  758,
+                  117,
+                  776
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      758,
+                      117,
+                      776
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          758,
+                          117,
+                          776
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7",
+                        "image_path": "9b0c34e8c8483913ec15b6fb1c3cfaaa4336e087821e7d8e72c1f27b0225ba48.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 23
+              },
+              {
+                "bbox": [
+                  48,
+                  785,
+                  155,
+                  799
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      785,
+                      155,
+                      799
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          785,
+                          155,
+                          799
+                        ],
+                        "type": "text",
+                        "content": "2月到3月增长显著"
+                      }
+                    ]
+                  }
+                ],
+                "index": 24,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  811,
+                  112,
+                  829
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      811,
+                      112,
+                      829
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          811,
+                          112,
+                          829
+                        ],
+                        "type": "text",
+                        "content": "四、结论"
+                      }
+                    ]
+                  }
+                ],
+                "index": 25
+              },
+              {
+                "bbox": [
+                  53,
+                  842,
+                  307,
+                  891
+                ],
+                "type": "list",
+                "angle": 0,
+                "index": 26,
+                "blocks": [
+                  {
+                    "bbox": [
+                      53,
+                      842,
+                      307,
+                      855
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          842,
+                          307,
+                          855
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              842,
+                              307,
+                              855
+                            ],
+                            "type": "text",
+                            "content": "- 3月为销售高峰，应重点分析原因（活动/市场需求）"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 27,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      860,
+                      240,
+                      873
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          860,
+                          240,
+                          873
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              860,
+                              240,
+                              873
+                            ],
+                            "type": "text",
+                            "content": "- 后续月份下滑明显，需考虑优化策略"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 28,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      877,
+                      262,
+                      891
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          877,
+                          262,
+                          891
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              877,
+                              262,
+                              891
+                            ],
+                            "type": "text",
+                            "content": "- 建议关注季节性波动并制定对应营销方案"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 29,
+                    "merge_prev": false
+                  }
+                ],
+                "sub_type": "text"
+              }
+            ],
+            "discarded_blocks": [],
+            "page_size": [
+              792,
+              1224
+            ],
+            "page_idx": 0,
+            "para_blocks": [
+              {
+                "bbox": [
+                  47,
+                  47,
+                  119,
+                  68
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      47,
+                      119,
+                      68
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          47,
+                          119,
+                          68
+                        ],
+                        "type": "text",
+                        "content": "测试文档"
+                      }
+                    ]
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "bbox": [
+                  51,
+                  79,
+                  318,
+                  100
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      51,
+                      79,
+                      318,
+                      100
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          51,
+                          79,
+                          318,
+                          100
+                        ],
+                        "type": "text",
+                        "content": "2025年前五个月产品A销售分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 1
+              },
+              {
+                "bbox": [
+                  46,
+                  110,
+                  144,
+                  129
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      110,
+                      144,
+                      129
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          110,
+                          144,
+                          129
+                        ],
+                        "type": "text",
+                        "content": "一、数据概览"
+                      }
+                    ]
+                  }
+                ],
+                "index": 2
+              },
+              {
+                "bbox": [
+                  46,
+                  139,
+                  291,
+                  154
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      139,
+                      291,
+                      154
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          139,
+                          291,
+                          154
+                        ],
+                        "type": "text",
+                        "content": "根据图表，产品A在2025年1月至5月的销售额如下："
+                      }
+                    ]
+                  }
+                ],
+                "index": 3,
+                "merge_prev": false
+              },
+              {
+                "type": "table",
+                "bbox": [
+                  48,
+                  175,
+                  172,
+                  298
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      48,
+                      175,
+                      172,
+                      298
+                    ],
+                    "type": "table_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          48,
+                          175,
+                          172,
+                          298
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              48,
+                              175,
+                              172,
+                              298
+                            ],
+                            "type": "table",
+                            "html": "<table><tr><td>月份</td><td>销售额(万元)</td></tr><tr><td>1月</td><td>100</td></tr><tr><td>2月</td><td>120</td></tr><tr><td>3月</td><td>320</td></tr><tr><td>4月</td><td>240</td></tr><tr><td>5月</td><td>110</td></tr></table>",
+                            "image_path": "4d63dab416d59c175524132055e17d8ac25d25016fc3c396d62ccc9820b3f728.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 4
+                  }
+                ],
+                "index": 4
+              },
+              {
+                "bbox": [
+                  46,
+                  317,
+                  144,
+                  336
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      317,
+                      144,
+                      336
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          317,
+                          144,
+                          336
+                        ],
+                        "type": "text",
+                        "content": "二、趋势分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 5
+              },
+              {
+                "bbox": [
+                  46,
+                  347,
+                  98,
+                  361
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      347,
+                      98,
+                      361
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          347,
+                          98,
+                          361
+                        ],
+                        "type": "text",
+                        "content": "整体来看："
+                      }
+                    ]
+                  }
+                ],
+                "index": 6,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  53,
+                  374,
+                  269,
+                  423
+                ],
+                "type": "list",
+                "angle": 0,
+                "index": 7,
+                "blocks": [
+                  {
+                    "bbox": [
+                      53,
+                      374,
+                      269,
+                      388
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          374,
+                          269,
+                          388
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              374,
+                              269,
+                              388
+                            ],
+                            "type": "text",
+                            "content": "- 1月到3月：销售额持续增长，3月达到峰值"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 8,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      391,
+                      192,
+                      406
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          391,
+                          192,
+                          406
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              391,
+                              192,
+                              406
+                            ],
+                            "type": "text",
+                            "content": "- 3月之后：销售额开始下降"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 9,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      410,
+                      159,
+                      423
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          410,
+                          159,
+                          423
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              410,
+                              159,
+                              423
+                            ],
+                            "type": "text",
+                            "content": "5月：接近年初水平"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 10,
+                    "merge_prev": false
+                  }
+                ],
+                "sub_type": "text"
+              },
+              {
+                "bbox": [
+                  49,
+                  436,
+                  262,
+                  451
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      49,
+                      436,
+                      262,
+                      451
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          49,
+                          436,
+                          262,
+                          451
+                        ],
+                        "type": "text",
+                        "content": "说明产品可能在3月存在促销或旺季因素。"
+                      }
+                    ]
+                  }
+                ],
+                "index": 11,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  462,
+                  175,
+                  481
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      462,
+                      175,
+                      481
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          462,
+                          175,
+                          481
+                        ],
+                        "type": "text",
+                        "content": "三、简单计算分析"
+                      }
+                    ]
+                  }
+                ],
+                "index": 12
+              },
+              {
+                "bbox": [
+                  46,
+                  492,
+                  136,
+                  509
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      492,
+                      136,
+                      509
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          492,
+                          136,
+                          509
+                        ],
+                        "type": "text",
+                        "content": "1. 平均销售额"
+                      }
+                    ]
+                  }
+                ],
+                "index": 13
+              },
+              {
+                "bbox": [
+                  46,
+                  521,
+                  76,
+                  534
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      521,
+                      76,
+                      534
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          521,
+                          76,
+                          534
+                        ],
+                        "type": "text",
+                        "content": "公式:"
+                      }
+                    ]
+                  }
+                ],
+                "index": 14,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  545,
+                  90,
+                  564
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      545,
+                      90,
+                      564
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          545,
+                          90,
+                          564
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\bar {x} = \\frac {\\sum x _ {i}}{n}",
+                        "image_path": "f09a89e18593c99d00ab8542b4b4b5b4b86d95bb7b6dc2c4d1a27f286cababed.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 15
+              },
+              {
+                "bbox": [
+                  46,
+                  574,
+                  76,
+                  587
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      574,
+                      76,
+                      587
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          574,
+                          76,
+                          587
+                        ],
+                        "type": "text",
+                        "content": "计算："
+                      }
+                    ]
+                  }
+                ],
+                "index": 16,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  598,
+                  186,
+                  615
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      598,
+                      186,
+                      615
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          598,
+                          186,
+                          615
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+                        "image_path": "ab76bf6e3c670bc8a2829dc439d7ebf0893e7ed300d86a21e43d1bc871f0ba73.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 17
+              },
+              {
+                "bbox": [
+                  48,
+                  625,
+                  175,
+                  640
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      625,
+                      175,
+                      640
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          625,
+                          175,
+                          640
+                        ],
+                        "type": "text",
+                        "content": "平均销售额为 178万元"
+                      }
+                    ]
+                  }
+                ],
+                "index": 18,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  45,
+                  651,
+                  227,
+                  669
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      45,
+                      651,
+                      227,
+                      669
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          45,
+                          651,
+                          227,
+                          669
+                        ],
+                        "type": "text",
+                        "content": "2. 增长率（以2月→3月为例）"
+                      }
+                    ]
+                  }
+                ],
+                "index": 19
+              },
+              {
+                "bbox": [
+                  46,
+                  680,
+                  76,
+                  694
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      680,
+                      76,
+                      694
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          680,
+                          76,
+                          694
+                        ],
+                        "type": "text",
+                        "content": "公式:"
+                      }
+                    ]
+                  }
+                ],
+                "index": 20,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  703,
+                  136,
+                  723
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      703,
+                      136,
+                      723
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          703,
+                          136,
+                          723
+                        ],
+                        "type": "text",
+                        "content": "增长率 "
+                      },
+                      {
+                        "bbox": [
+                          46,
+                          703,
+                          136,
+                          723
+                        ],
+                        "type": "inline_equation",
+                        "content": "= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}"
+                      }
+                    ]
+                  }
+                ],
+                "index": 21,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  734,
+                  76,
+                  749
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      734,
+                      76,
+                      749
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          734,
+                          76,
+                          749
+                        ],
+                        "type": "text",
+                        "content": "计算："
+                      }
+                    ]
+                  }
+                ],
+                "index": 22,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  48,
+                  758,
+                  117,
+                  776
+                ],
+                "type": "interline_equation",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      758,
+                      117,
+                      776
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          758,
+                          117,
+                          776
+                        ],
+                        "type": "interline_equation",
+                        "content": "\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7",
+                        "image_path": "9b0c34e8c8483913ec15b6fb1c3cfaaa4336e087821e7d8e72c1f27b0225ba48.jpg"
+                      }
+                    ]
+                  }
+                ],
+                "index": 23
+              },
+              {
+                "bbox": [
+                  48,
+                  785,
+                  155,
+                  799
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      48,
+                      785,
+                      155,
+                      799
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          48,
+                          785,
+                          155,
+                          799
+                        ],
+                        "type": "text",
+                        "content": "2月到3月增长显著"
+                      }
+                    ]
+                  }
+                ],
+                "index": 24,
+                "merge_prev": false
+              },
+              {
+                "bbox": [
+                  46,
+                  811,
+                  112,
+                  829
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      46,
+                      811,
+                      112,
+                      829
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          46,
+                          811,
+                          112,
+                          829
+                        ],
+                        "type": "text",
+                        "content": "四、结论"
+                      }
+                    ]
+                  }
+                ],
+                "index": 25
+              },
+              {
+                "bbox": [
+                  53,
+                  842,
+                  307,
+                  891
+                ],
+                "type": "list",
+                "angle": 0,
+                "index": 26,
+                "blocks": [
+                  {
+                    "bbox": [
+                      53,
+                      842,
+                      307,
+                      855
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          842,
+                          307,
+                          855
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              842,
+                              307,
+                              855
+                            ],
+                            "type": "text",
+                            "content": "- 3月为销售高峰，应重点分析原因（活动/市场需求）"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 27,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      860,
+                      240,
+                      873
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          860,
+                          240,
+                          873
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              860,
+                              240,
+                              873
+                            ],
+                            "type": "text",
+                            "content": "- 后续月份下滑明显，需考虑优化策略"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 28,
+                    "merge_prev": false
+                  },
+                  {
+                    "bbox": [
+                      53,
+                      877,
+                      262,
+                      891
+                    ],
+                    "type": "text",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          53,
+                          877,
+                          262,
+                          891
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              53,
+                              877,
+                              262,
+                              891
+                            ],
+                            "type": "text",
+                            "content": "- 建议关注季节性波动并制定对应营销方案"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 29,
+                    "merge_prev": false
+                  }
+                ],
+                "sub_type": "text"
+              }
+            ]
+          },
+          {
+            "preproc_blocks": [
+              {
+                "type": "chart",
+                "bbox": [
+                  51,
+                  52,
+                  616,
+                  345
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      293,
+                      31,
+                      408,
+                      51
+                    ],
+                    "type": "chart_caption",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          293,
+                          31,
+                          408,
+                          51
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              293,
+                              31,
+                              408,
+                              51
+                            ],
+                            "type": "text",
+                            "content": "2025年销售额"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 0
+                  },
+                  {
+                    "bbox": [
+                      51,
+                      52,
+                      616,
+                      345
+                    ],
+                    "type": "chart_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          51,
+                          52,
+                          616,
+                          345
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              51,
+                              52,
+                              616,
+                              345
+                            ],
+                            "type": "chart",
+                            "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 320           |\n| 4月  | 240           |\n| 5月  | 110           |",
+                            "image_path": "f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 1
+                  }
+                ],
+                "index": 1,
+                "sub_type": "line"
+              }
+            ],
+            "discarded_blocks": [],
+            "page_size": [
+              792,
+              1224
+            ],
+            "page_idx": 1,
+            "para_blocks": [
+              {
+                "type": "chart",
+                "bbox": [
+                  51,
+                  52,
+                  616,
+                  345
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      293,
+                      31,
+                      408,
+                      51
+                    ],
+                    "type": "chart_caption",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          293,
+                          31,
+                          408,
+                          51
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              293,
+                              31,
+                              408,
+                              51
+                            ],
+                            "type": "text",
+                            "content": "2025年销售额"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 0
+                  },
+                  {
+                    "bbox": [
+                      51,
+                      52,
+                      616,
+                      345
+                    ],
+                    "type": "chart_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          51,
+                          52,
+                          616,
+                          345
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              51,
+                              52,
+                              616,
+                              345
+                            ],
+                            "type": "chart",
+                            "content": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 320           |\n| 4月  | 240           |\n| 5月  | 110           |",
+                            "image_path": "f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 1
+                  }
+                ],
+                "index": 1,
+                "sub_type": "line"
+              }
+            ]
+          }
+        ],
+        "_backend": "hybrid",
+        "_ocr_enable": true,
+        "_vlm_ocr_enable": true,
+        "_version_name": "3.1.8"
+      }
+    ]
+  }
+]

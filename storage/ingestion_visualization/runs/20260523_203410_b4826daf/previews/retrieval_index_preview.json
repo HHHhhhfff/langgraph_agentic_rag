@@ -1,0 +1,171 @@
+{
+  "bm25": {
+    "count": 25,
+    "sample_hits": [
+      {
+        "point_id": "3f96fd62-2666-531f-bc49-87527dafef78",
+        "node_id": "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "doc_id": "e6b1c215b9ac657c34c7712465b5414a",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\Linux常用命令整理\\测试表格.md",
+        "chunk_index": 0,
+        "text_excerpt": "|   |   |   |   |\n|---|---|---|---|\n|**研究题目**|面向复杂文档问答的 Task Graph 驱动 Agentic RAG 工作流稳定性提升研究|   |   |\n|**课题类型**|综合应用类|   |   |\n|**应用场景与**<br><br>**演示方式**|知识学习助手验证场景；录屏演示与实验数据对比|**指导教师/带教学长**|陈玮/白洋|\n|**小组成员**|**姓名**|**学号**|**专业**|\n|**1**|凌成|2024213810|智能科学与技术+数学与应用数学|\n|**2**|何怀峰|2024213814|智能科学与技术+数学与应用数学|\n|**3**|周湘江|2024213781|智能科学与技术+数学与应用数学|\n|**4**|雷真欣|2024214969|机械设计制造及其自动化|"
+      },
+      {
+        "point_id": "47bc9229-3c0e-53d9-ad22-c9960e3d9b95",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:0",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": 1,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 0,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |"
+      },
+      {
+        "point_id": "b6d4ca3f-7986-5a91-b51a-376676661877",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 1,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |"
+      },
+      {
+        "point_id": "3045dccc-fccb-5517-8e04-87a72b9ec1f4",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 2,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |"
+      },
+      {
+        "point_id": "fbf0cf67-3abe-581d-819f-02f98d4e5aa4",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:3",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": 2,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 3,
+        "text_excerpt": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |"
+      }
+    ]
+  },
+  "page": {
+    "count": 9,
+    "pages": [
+      1,
+      2
+    ],
+    "sample_hits": [
+      {
+        "point_id": "3f96fd62-2666-531f-bc49-87527dafef78",
+        "node_id": "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "doc_id": "e6b1c215b9ac657c34c7712465b5414a",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\Linux常用命令整理\\测试表格.md",
+        "chunk_index": 0,
+        "text_excerpt": "|   |   |   |   |\n|---|---|---|---|\n|**研究题目**|面向复杂文档问答的 Task Graph 驱动 Agentic RAG 工作流稳定性提升研究|   |   |\n|**课题类型**|综合应用类|   |   |\n|**应用场景与**<br><br>**演示方式**|知识学习助手验证场景；录屏演示与实验数据对比|**指导教师/带教学长**|陈玮/白洋|\n|**小组成员**|**姓名**|**学号**|**专业**|\n|**1**|凌成|2024213810|智能科学与技术+数学与应用数学|\n|**2**|何怀峰|2024213814|智能科学与技术+数学与应用数学|\n|**3**|周湘江|2024213781|智能科学与技术+数学与应用数学|\n|**4**|雷真欣|2024214969|机械设计制造及其自动化|"
+      },
+      {
+        "point_id": "47bc9229-3c0e-53d9-ad22-c9960e3d9b95",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:0",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": 1,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 0,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |\n# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品 A 在 2025 年 1 月至 5 月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n1月到3月：销售额持续增长，3月达到峰值   \n3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在 3 月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式：\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178 万元\n\n# 2. 增长率（以 2 月 → 3 月为例）\n\n公式：\n\n$$\n\\text {增长率} = \\begin{array}{c} \\text {\n...[truncated 310 chars]"
+      },
+      {
+        "point_id": "b6d4ca3f-7986-5a91-b51a-376676661877",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 1,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |\n| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n\\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7"
+      },
+      {
+        "point_id": "fbf0cf67-3abe-581d-819f-02f98d4e5aa4",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:3",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": 2,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 3,
+        "text_excerpt": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |"
+      },
+      {
+        "point_id": "b7736d87-e366-5aeb-a21b-00c4dfe1ec6e",
+        "node_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+        "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+        "page": 1,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.pdf",
+        "chunk_index": 0,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |\n# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品A在2025年1月至5月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n- 1月到3月：销售额持续增长，3月达到峰值   \n- 3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在3月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式:\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178万元\n\n# 2. 增长率（以2月→3月为例）\n\n公式:\n\n增长率 $= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}$\n\n计算：\n\n...[truncated 276 chars]"
+      }
+    ]
+  },
+  "table": {
+    "count": 9,
+    "sample_hits": [
+      {
+        "point_id": "3f96fd62-2666-531f-bc49-87527dafef78",
+        "node_id": "e6b1c215b9ac657c34c7712465b5414a:table:0",
+        "doc_id": "e6b1c215b9ac657c34c7712465b5414a",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\Linux常用命令整理\\测试表格.md",
+        "chunk_index": 0,
+        "text_excerpt": "|   |   |   |   |\n|---|---|---|---|\n|**研究题目**|面向复杂文档问答的 Task Graph 驱动 Agentic RAG 工作流稳定性提升研究|   |   |\n|**课题类型**|综合应用类|   |   |\n|**应用场景与**<br><br>**演示方式**|知识学习助手验证场景；录屏演示与实验数据对比|**指导教师/带教学长**|陈玮/白洋|\n|**小组成员**|**姓名**|**学号**|**专业**|\n|**1**|凌成|2024213810|智能科学与技术+数学与应用数学|\n|**2**|何怀峰|2024213814|智能科学与技术+数学与应用数学|\n|**3**|周湘江|2024213781|智能科学与技术+数学与应用数学|\n|**4**|雷真欣|2024214969|机械设计制造及其自动化|"
+      },
+      {
+        "point_id": "47bc9229-3c0e-53d9-ad22-c9960e3d9b95",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:0",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": 1,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 0,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |"
+      },
+      {
+        "point_id": "b6d4ca3f-7986-5a91-b51a-376676661877",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:1",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 1,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |"
+      },
+      {
+        "point_id": "3045dccc-fccb-5517-8e04-87a72b9ec1f4",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:2",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 2,
+        "text_excerpt": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |"
+      },
+      {
+        "point_id": "fbf0cf67-3abe-581d-819f-02f98d4e5aa4",
+        "node_id": "13a66d5f4df7e38f1349a137ea1c844c:table:3",
+        "doc_id": "13a66d5f4df7e38f1349a137ea1c844c",
+        "page": 2,
+        "modality": "table",
+        "source": "data\\demo_docs\\测试文档.docx",
+        "chunk_index": 3,
+        "text_excerpt": "| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |"
+      }
+    ]
+  }
+}

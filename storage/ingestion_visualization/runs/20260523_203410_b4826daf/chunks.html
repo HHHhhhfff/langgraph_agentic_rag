@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ingestion Chunks</title>
+  <style>
+    :root { --ink:#1d252c; --muted:#667085; --bg:#f6f2ea; --card:#fffaf0; --text:#d8ebff; --table:#e1f7df; --formula:#fff1b8; --image:#ffe0d4; }
+    body { margin:0; font-family: Georgia, 'Times New Roman', serif; color:var(--ink); background:linear-gradient(135deg,#f6f2ea,#e8f0ee); }
+    header { padding:28px 36px; background:#263238; color:#fff; }
+    main { padding:24px; max-width:1280px; margin:0 auto; }
+    .node { border:1px solid rgba(0,0,0,.12); border-radius:14px; margin:16px 0; padding:16px; background:var(--card); box-shadow:0 8px 24px rgba(0,0,0,.06); }
+    .node.text { border-left:8px solid #5aa9e6; }
+    .node.table { border-left:8px solid #5cb85c; }
+    .node.formula { border-left:8px solid #f0ad4e; }
+    .node.image { border-left:8px solid #ff7f50; }
+    .meta { display:flex; gap:10px; flex-wrap:wrap; color:var(--muted); font-size:13px; }
+    .warnings { color:#b42318; margin-top:8px; font-weight:600; }
+    pre { white-space:pre-wrap; word-break:break-word; background:rgba(255,255,255,.65); padding:12px; border-radius:10px; overflow:auto; }
+    .page-row { display:grid; grid-template-columns:minmax(280px, 42%) 1fr; gap:18px; align-items:start; margin-bottom:28px; }
+    .page-image img { max-width:100%; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,.18); background:#fff; }
+    .note { color:var(--muted); }
+    @media (max-width: 860px) { .page-row { grid-template-columns:1fr; } header { padding:22px; } main { padding:14px; } }
+  </style>
+</head>
+<body>
+  <header><h1>Ingestion Chunks</h1><p>Inspect-only ingestion visualization. No Qdrant writes.</p></header>
+  <main>
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>e6b1c215b9ac657c34c7712465b5414a:table:0</span>
+                <span>page=None</span>
+                <span>chunk=0</span>
+                <span>section=None</span>
+                <span>parser=llamaindex:sentence:table</span>
+              </div>
+              <div class="warnings">page=null, section=null, relationships={}</div>
+              <pre>|   |   |   |   |
+|---|---|---|---|
+|**研究题目**|面向复杂文档问答的 Task Graph 驱动 Agentic RAG 工作流稳定性提升研究|   |   |
+|**课题类型**|综合应用类|   |   |
+|**应用场景与**&lt;br&gt;&lt;br&gt;**演示方式**|知识学习助手验证场景；录屏演示与实验数据对比|**指导教师/带教学长**|陈玮/白洋|
+|**小组成员**|**姓名**|**学号**|**专业**|
+|**1**|凌成|2024213810|智能科学与技术+数学与应用数学|
+|**2**|何怀峰|2024213814|智能科学与技术+数学与应用数学|
+|**3**|周湘江|2024213781|智能科学与技术+数学与应用数学|
+|**4**|雷真欣|2024214969|机械设计制造及其自动化|</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;e6b1c215b9ac657c34c7712465b5414a:table:0&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;|   |   |   |   |\n|---|---|---|---|\n|**研究题目**|面向复杂文档问答的 Task Graph 驱动 Agentic RAG 工作流稳定性提升研究|   |   |\n|**课题类型**|综合应用类|   |   |\n|**应用场景与**&lt;br&gt;&lt;br&gt;**演示方式**|知识学习助手验证场景；录屏演示与实验数据对比|**指导教师/带教学长**|陈玮/白洋|\n|**小组成员**|**姓名**|**学号**|**专业**|\n|**1**|凌成|2024213810|智能科学与技术+数学与应用数学|\n|**2**|何怀峰|2024213814|智能科学与技术+数学与应用数学|\n|**3**|周湘江|2024213781|智能科学与技术+数学与应用数学|\n|**4**|雷真欣|2024214969|机械设计制造及其自动化|&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;|   |   |   |   |\n|---|---|---|---|\n|**研究题目**|面向复杂文档问答的 Task Graph 驱动 Agentic RAG 工作流稳定性提升研究|   |   |\n|**课题类型**|综合应用类|   |   |\n|**应用场景与**&lt;br&gt;&lt;br&gt;**演示方式**|知识学习助手验证场景；录屏演示与实验数据对比|**指导教师/带教学长**|陈玮/白洋|\n|**小组成员**|**姓名**|**学号**|**专业**|\n|**1**|凌成|2024213810|智能科学与技术+数学与应用数学|\n|**2**|何怀峰|2024213814|智能科学与技术+数学与应用数学|\n|**3**|周湘江|2024213781|智能科学与技术+数学与应用数学|\n|**4**|雷真欣|2024214969|机械设计制造及其自动化|&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\Linux常用命令整理\\测试表格.md&quot;,
+    &quot;doc_id&quot;: &quot;e6b1c215b9ac657c34c7712465b5414a&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 0,
+    &quot;title&quot;: &quot;测试表格&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;llamaindex:sentence:table&quot;
+  },
+  &quot;relationships&quot;: {}
+}</pre></details>
+            </article>
+            
+
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:table:0</span>
+                <span>page=1</span>
+                <span>chunk=0</span>
+                <span>section=None</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings">section=null</div>
+              <pre>| 月份 | 销售额(万元) |
+| --- | --- |
+| 1月 | 100 |
+| 2月 | 120 |
+| 3月 | 320 |
+| 4月 | 240 |
+| 5月 | 110 |</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:table:0&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: 1,
+    &quot;chunk_index&quot;: 0,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;table&quot;,
+    &quot;page_node_id&quot;: &quot;page:1&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:table:1</span>
+                <span>page=None</span>
+                <span>chunk=1</span>
+                <span>section=None</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>| 月份 | 销售额(万元) |
+| --- | --- |
+| 1月 | 100 |
+| 2月 | 120 |
+| 3月 | 320 |
+| 4月 | 240 |
+| 5月 | 110 |</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:table:1&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 1,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;table&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:table:2</span>
+                <span>page=None</span>
+                <span>chunk=2</span>
+                <span>section=None</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>| 月份 | 销售额(万元) |
+| --- | --- |
+| 1月 | 100 |
+| 2月 | 120 |
+| 3月 | 320 |
+| 4月 | 240 |
+| 5月 | 110 |</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:table:2&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 2,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;table&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:table:3</span>
+                <span>page=2</span>
+                <span>chunk=3</span>
+                <span>section=None</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings">section=null</div>
+              <pre>| 月份 | 销售额 (万元) |
+| ---- | ------------- |
+| 1月  | 100           |
+| 2月  | 120           |
+| 3月  | 300           |
+| 4月  | 240           |
+| 5月  | 110           |</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:table:3&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 300           |\n| 4月  | 240           |\n| 5月  | 110           |&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: 2,
+    &quot;chunk_index&quot;: 3,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;page_node_id&quot;: &quot;page:2&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node text">
+              <div class="meta">
+                <strong>text</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:text:4</span>
+                <span>page=1</span>
+                <span>chunk=4</span>
+                <span>section=测试文档</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings"></div>
+              <pre># 测试文档
+
+# 2025年前五个月产品A销售分析
+
+# 一、数据概览
+
+根据图表，产品 A 在 2025 年 1 月至 5 月的销售额如下：
+
+
+
+
+# 二、趋势分析
+
+整体来看：
+
+1月到3月：销售额持续增长，3月达到峰值   
+3月之后：销售额开始下降  
+5月：接近年初水平
+
+说明产品可能在 3 月存在促销或旺季因素。
+
+# 三、简单计算分析
+
+# 1. 平均销售额
+
+公式：
+
+$$
+\bar {x} = \frac {\sum x _ {i}}{n}
+$$
+
+计算：
+
+$$
+\bar {x} = \frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8
+$$
+
+平均销售额为 178 万元
+
+# 2. 增长率（以 2 月 → 3 月为例）
+
+公式：
+
+$$
+\text {增长率} = \begin{array}{c} \text {本期} - \text {上期} \\ \text {上期} \end{array}
+$$
+
+计算：
+
+$$
+\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7
+$$
+
+2月到3月增长显著
+
+# 四、结论
+
+3月为销售高峰，应重点分析原因（活动/市场需求）  
+后续月份下滑明显，需考虑优化策略  
+建议关注季节性波动并制定对应营销方案
+
+![](images/c3fd36eb2da4ba166bce14469958b9191f49d153a593e26669f0c8a670cde1e2.jpg)
+
+&lt;details&gt;
+&lt;summary&gt;line&lt;/summary&gt;
+
+
+&lt;/details&gt;</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:text:4&quot;,
+  &quot;modality&quot;: &quot;text&quot;,
+  &quot;text&quot;: &quot;# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品 A 在 2025 年 1 月至 5 月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n1月到3月：销售额持续增长，3月达到峰值   \n3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在 3 月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式：\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178 万元\n\n# 2. 增长率（以 2 月 → 3 月为例）\n\n公式：\n\n$$\n\\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}\n$$\n\n计算：\n\n$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$\n\n2月到3月增长显著\n\n# 四、结论\n\n3月为销售高峰，应重点分析原因（活动/市场需求）  \n后续月份下滑明显，需考虑优化策略  \n建议关注季节性波动并制定对应营销方案\n\n![](images/c3fd36eb2da4ba166bce14469958b9191f49d153a593e26669f0c8a670cde1e2.jpg)\n\n&lt;details&gt;\n&lt;summary&gt;line&lt;/summary&gt;\n\n\n&lt;/details&gt;&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: 1,
+    &quot;chunk_index&quot;: 4,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: &quot;测试文档&quot;,
+    &quot;modality&quot;: &quot;text&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;page_node_id&quot;: &quot;page:1&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:formula:5</span>
+                <span>page=None</span>
+                <span>chunk=5</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>\bar {x} = \frac {\sum x _ {i}}{n}</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:formula:5&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\bar {x} = \\frac {\\sum x _ {i}}{n}&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;\\bar {x} = \\frac {\\sum x _ {i}}{n}&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 5,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:formula:6</span>
+                <span>page=None</span>
+                <span>chunk=6</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>\bar {x} = \frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:formula:6&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 6,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:formula:7</span>
+                <span>page=None</span>
+                <span>chunk=7</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>\text {增长率} = \begin{array}{c} \text {本期} - \text {上期} \\ \text {上期} \end{array}</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:formula:7&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;\\text {增长率} = \\begin{array}{c} \\text {本期} - \\text {上期} \\\\ \\text {上期} \\end{array}&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 7,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>13a66d5f4df7e38f1349a137ea1c844c:formula:8</span>
+                <span>page=None</span>
+                <span>chunk=8</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c:formula:8&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.docx&quot;,
+    &quot;doc_id&quot;: &quot;13a66d5f4df7e38f1349a137ea1c844c&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 8,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:table:0</span>
+                <span>page=1</span>
+                <span>chunk=0</span>
+                <span>section=None</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings">section=null</div>
+              <pre>| 月份 | 销售额(万元) |
+| --- | --- |
+| 1月 | 100 |
+| 2月 | 120 |
+| 3月 | 320 |
+| 4月 | 240 |
+| 5月 | 110 |</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: 1,
+    &quot;chunk_index&quot;: 0,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;table&quot;,
+    &quot;page_node_id&quot;: &quot;page:1&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:table:1</span>
+                <span>page=None</span>
+                <span>chunk=1</span>
+                <span>section=None</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>| 月份 | 销售额(万元) |
+| --- | --- |
+| 1月 | 100 |
+| 2月 | 120 |
+| 3月 | 320 |
+| 4月 | 240 |
+| 5月 | 110 |</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 1,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;table&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:table:2</span>
+                <span>page=None</span>
+                <span>chunk=2</span>
+                <span>section=None</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>| 月份 | 销售额(万元) |
+| --- | --- |
+| 1月 | 100 |
+| 2月 | 120 |
+| 3月 | 320 |
+| 4月 | 240 |
+| 5月 | 110 |</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:2&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 2,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;table&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node table">
+              <div class="meta">
+                <strong>table</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:table:3</span>
+                <span>page=2</span>
+                <span>chunk=3</span>
+                <span>section=None</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings">section=null</div>
+              <pre>| 月份 | 销售额 (万元) |
+| ---- | ------------- |
+| 1月  | 100           |
+| 2月  | 120           |
+| 3月  | 320           |
+| 4月  | 240           |
+| 5月  | 110           |</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:3&quot;,
+  &quot;modality&quot;: &quot;table&quot;,
+  &quot;text&quot;: &quot;| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 320           |\n| 4月  | 240           |\n| 5月  | 110           |&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: &quot;| 月份 | 销售额 (万元) |\n| ---- | ------------- |\n| 1月  | 100           |\n| 2月  | 120           |\n| 3月  | 320           |\n| 4月  | 240           |\n| 5月  | 110           |&quot;,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: 2,
+    &quot;chunk_index&quot;: 3,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;table&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;page_node_id&quot;: &quot;page:2&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node text">
+              <div class="meta">
+                <strong>text</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:text:4</span>
+                <span>page=1</span>
+                <span>chunk=4</span>
+                <span>section=测试文档</span>
+                <span>parser=mineru</span>
+              </div>
+              <div class="warnings"></div>
+              <pre># 测试文档
+
+# 2025年前五个月产品A销售分析
+
+# 一、数据概览
+
+根据图表，产品A在2025年1月至5月的销售额如下：
+
+
+
+
+# 二、趋势分析
+
+整体来看：
+
+- 1月到3月：销售额持续增长，3月达到峰值   
+- 3月之后：销售额开始下降  
+5月：接近年初水平
+
+说明产品可能在3月存在促销或旺季因素。
+
+# 三、简单计算分析
+
+# 1. 平均销售额
+
+公式:
+
+$$
+\bar {x} = \frac {\sum x _ {i}}{n}
+$$
+
+计算：
+
+$$
+\bar {x} = \frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8
+$$
+
+平均销售额为 178万元
+
+# 2. 增长率（以2月→3月为例）
+
+公式:
+
+增长率 $= \frac{\text{本期} - \text{上期}}{\text{上期}}$
+
+计算：
+
+$$
+\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7
+$$
+
+2月到3月增长显著
+
+# 四、结论
+
+- 3月为销售高峰，应重点分析原因（活动/市场需求）  
+- 后续月份下滑明显，需考虑优化策略  
+- 建议关注季节性波动并制定对应营销方案
+
+2025年销售额  
+![](images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg)
+
+&lt;details&gt;
+&lt;summary&gt;line&lt;/summary&gt;
+
+
+&lt;/details&gt;</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:4&quot;,
+  &quot;modality&quot;: &quot;text&quot;,
+  &quot;text&quot;: &quot;# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品A在2025年1月至5月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n- 1月到3月：销售额持续增长，3月达到峰值   \n- 3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在3月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式:\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178万元\n\n# 2. 增长率（以2月→3月为例）\n\n公式:\n\n增长率 $= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}$\n\n计算：\n\n$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$\n\n2月到3月增长显著\n\n# 四、结论\n\n- 3月为销售高峰，应重点分析原因（活动/市场需求）  \n- 后续月份下滑明显，需考虑优化策略  \n- 建议关注季节性波动并制定对应营销方案\n\n2025年销售额  \n![](images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg)\n\n&lt;details&gt;\n&lt;summary&gt;line&lt;/summary&gt;\n\n\n&lt;/details&gt;&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: 1,
+    &quot;chunk_index&quot;: 4,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: &quot;测试文档&quot;,
+    &quot;modality&quot;: &quot;text&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;page_node_id&quot;: &quot;page:1&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:formula:5</span>
+                <span>page=None</span>
+                <span>chunk=5</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>\bar {x} = \frac {\sum x _ {i}}{n}</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\bar {x} = \\frac {\\sum x _ {i}}{n}&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;\\bar {x} = \\frac {\\sum x _ {i}}{n}&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 5,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:formula:6</span>
+                <span>page=None</span>
+                <span>chunk=6</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>\bar {x} = \frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 6,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:formula:7</span>
+                <span>page=None</span>
+                <span>chunk=7</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>= \frac{\text{本期} - \text{上期}}{\text{上期}}</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:7&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (inline): = \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 7,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:formula:8</span>
+                <span>page=None</span>
+                <span>chunk=8</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:8&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 8,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>74a7b4254241fcee2502e32817dc61ab:image:0</span>
+                <span>page=None</span>
+                <span>chunk=0</span>
+                <span>section=None</span>
+                <span>parser=image_adapter</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>Image file: 联想截图_20260129233900.png</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;Image file: 联想截图_20260129233900.png&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;doc_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 0,
+    &quot;title&quot;: &quot;联想截图_20260129233900&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;image_adapter&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;image_semantic_type&quot;: &quot;whole_image&quot;,
+    &quot;source_parser&quot;: &quot;image_adapter&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;parent_image_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>74a7b4254241fcee2502e32817dc61ab:image:1</span>
+                <span>page=None</span>
+                <span>chunk=1</span>
+                <span>section=None</span>
+                <span>parser=vlm:caption</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>一张网页截图，显示了一个名为“前端小站”的文档页面，包含文章标题、作者联系信息和页脚内容。</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:1&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;一张网页截图，显示了一个名为“前端小站”的文档页面，包含文章标题、作者联系信息和页脚内容。&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;doc_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 1,
+    &quot;title&quot;: &quot;联想截图_20260129233900&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:caption&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;caption&quot;,
+    &quot;source_parser&quot;: &quot;vlm:caption&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;confidence&quot;: 0.95,
+    &quot;caption&quot;: &quot;一张网页截图，显示了一个名为“前端小站”的文档页面，包含文章标题、作者联系信息和页脚内容。&quot;,
+    &quot;scene_type&quot;: &quot;screenshot&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>74a7b4254241fcee2502e32817dc61ab:image:2</span>
+                <span>page=None</span>
+                <span>chunk=2</span>
+                <span>section=None</span>
+                <span>parser=vlm:visible_text</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>前端小站，文章：什么时候该用&lt;a&gt;？，作者：张三，邮箱：zhangsan@example.com，站点联系（页脚信息），© 2026 前端小站（示例）</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:2&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;前端小站，文章：什么时候该用&lt;a&gt;？，作者：张三，邮箱：zhangsan@example.com，站点联系（页脚信息），© 2026 前端小站（示例）&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;doc_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 2,
+    &quot;title&quot;: &quot;联想截图_20260129233900&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:visible_text&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;ocr&quot;,
+    &quot;source_parser&quot;: &quot;vlm:visible_text&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;confidence&quot;: 0.95,
+    &quot;ocr_text&quot;: &quot;前端小站，文章：什么时候该用&lt;a&gt;？，作者：张三，邮箱：zhangsan@example.com，站点联系（页脚信息），© 2026 前端小站（示例）&quot;,
+    &quot;scene_type&quot;: &quot;screenshot&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>74a7b4254241fcee2502e32817dc61ab:image:3</span>
+                <span>page=None</span>
+                <span>chunk=3</span>
+                <span>section=None</span>
+                <span>parser=vlm:object</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>网页截图 包含文章标题、作者信息和页脚的网页界面</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:3&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;网页截图 包含文章标题、作者信息和页脚的网页界面&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;doc_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 3,
+    &quot;title&quot;: &quot;联想截图_20260129233900&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:object&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;object&quot;,
+    &quot;source_parser&quot;: &quot;vlm:object&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;confidence&quot;: 0.95,
+    &quot;object_label&quot;: &quot;网页截图&quot;,
+    &quot;object_description&quot;: &quot;包含文章标题、作者信息和页脚的网页界面&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>74a7b4254241fcee2502e32817dc61ab:image:4</span>
+                <span>page=1</span>
+                <span>chunk=4</span>
+                <span>section=前端小站</span>
+                <span>parser=mineru:image_ocr</span>
+              </div>
+              <div class="warnings"></div>
+              <pre># 前端小站
+
+阅读文章 联系作者 MDN: &lt;a&gt; 文档（新窗口）
+
+# 文章：什么时候该用 $&lt; \mathrm{a}&gt;$ ？
+
+当你的意图是“导航到某个资源”时，用链接很合适；如果是触发动作（比如打开弹窗），通常更该用&lt;button&gt;。
+
+小提示：你也可以用链接跳到页面内的某个位置，比如跳到联系信息。
+
+# 作者联系信息
+
+作者：张三
+
+邮箱：zhangsan@example.com
+
+电话：+86 138 0000 0000
+
+地址（可选）：上海市某某路100号（地图）
+
+# 站点联系（页脚信息）
+
+下面这个&lt;address&gt;更偏&quot;网站/组织联系信息&quot;的语义。
+
+© 2026 前端小站 (示例)
+
+客服：support@example.com·电话：+86 139 0000 0000
+
+友情链接：示例站点</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:4&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;# 前端小站\n\n阅读文章 联系作者 MDN: &lt;a&gt; 文档（新窗口）\n\n# 文章：什么时候该用 $&lt; \\mathrm{a}&gt;$ ？\n\n当你的意图是“导航到某个资源”时，用链接很合适；如果是触发动作（比如打开弹窗），通常更该用&lt;button&gt;。\n\n小提示：你也可以用链接跳到页面内的某个位置，比如跳到联系信息。\n\n# 作者联系信息\n\n作者：张三\n\n邮箱：zhangsan@example.com\n\n电话：+86 138 0000 0000\n\n地址（可选）：上海市某某路100号（地图）\n\n# 站点联系（页脚信息）\n\n下面这个&lt;address&gt;更偏\&quot;网站/组织联系信息\&quot;的语义。\n\n© 2026 前端小站 (示例)\n\n客服：support@example.com·电话：+86 139 0000 0000\n\n友情链接：示例站点&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;doc_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab&quot;,
+    &quot;page&quot;: 1,
+    &quot;chunk_index&quot;: 4,
+    &quot;title&quot;: &quot;联想截图_20260129233900&quot;,
+    &quot;section&quot;: &quot;前端小站&quot;,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;mineru:image_ocr&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru:text&quot;,
+    &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;page_node_id&quot;: &quot;page:1&quot;,
+    &quot;parent_image_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;ocr&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;ocr_text&quot;: &quot;# 前端小站\n\n阅读文章 联系作者 MDN: &lt;a&gt; 文档（新窗口）\n\n# 文章：什么时候该用 $&lt; \\mathrm{a}&gt;$ ？\n\n当你的意图是“导航到某个资源”时，用链接很合适；如果是触发动作（比如打开弹窗），通常更该用&lt;button&gt;。\n\n小提示：你也可以用链接跳到页面内的某个位置，比如跳到联系信息。\n\n# 作者联系信息\n\n作者：张三\n\n邮箱：zhangsan@example.com\n\n电话：+86 138 0000 0000\n\n地址（可选）：上海市某某路100号（地图）\n\n# 站点联系（页脚信息）\n\n下面这个&lt;address&gt;更偏\&quot;网站/组织联系信息\&quot;的语义。\n\n© 2026 前端小站 (示例)\n\n客服：support@example.com·电话：+86 139 0000 0000\n\n友情链接：示例站点&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>74a7b4254241fcee2502e32817dc61ab:formula:5</span>
+                <span>page=None</span>
+                <span>chunk=5</span>
+                <span>section=None</span>
+                <span>parser=mineru:image_formula</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>&lt; \mathrm{a}&gt;</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:formula:5&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;&lt; \\mathrm{a}&gt;&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;&lt; \\mathrm{a}&gt;&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;doc_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 5,
+    &quot;title&quot;: &quot;联想截图_20260129233900&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:image_formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru:formula&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;parent_image_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;formula&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
+    &quot;ocr_text&quot;: &quot;&lt; \\mathrm{a}&gt;&quot;
+  }
+}</pre></details>
+            </article>
+            </main>
+</body>
+</html>
