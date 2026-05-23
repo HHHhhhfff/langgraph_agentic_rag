@@ -101,6 +101,7 @@ def build_query_record(
 def serialize_hit(hit: SearchHit, *, rank: int, max_text_chars: int) -> dict[str, Any]:
     metadata = dict(hit.metadata or {})
     chunk_index = metadata.get("chunk_index")
+    source_parser = hit.source_parser or metadata.get("source_parser") or metadata.get("parser_name")
     return {
         "rank": rank,
         "node_id": hit.node_id,
@@ -116,7 +117,7 @@ def serialize_hit(hit: SearchHit, *, rank: int, max_text_chars: int) -> dict[str
             "page": hit.page if hit.page is not None else metadata.get("page"),
             "modality": hit.modality or metadata.get("modality"),
             "section_path": hit.section_path or metadata.get("section_path", []),
-            "parser_name": hit.source_parser or metadata.get("parser_name") or metadata.get("source_parser"),
+            "parser_name": source_parser,
         },
         "relationships": dict(hit.relationships or {}),
         "scores": {
@@ -131,7 +132,7 @@ def serialize_hit(hit: SearchHit, *, rank: int, max_text_chars: int) -> dict[str
             "vector_name": metadata.get("vector_name"),
             "modality": hit.modality,
             "image_semantic_type": hit.image_semantic_type or metadata.get("image_semantic_type"),
-            "source_parser": hit.source_parser or metadata.get("source_parser"),
+            "source_parser": source_parser,
         },
         "eval": {
             "is_relevant": None,

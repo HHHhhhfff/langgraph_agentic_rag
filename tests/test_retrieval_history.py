@@ -26,7 +26,13 @@ def _hit(point_id: str = "p1", text: str = "TaskGraph evidence") -> SearchHit:
         page=2,
         channel="vector",
         modality="text",
-        metadata={"source": "doc.md", "title": "Doc", "chunk_index": 3, "vector_name": "text"},
+        metadata={
+            "source": "doc.md",
+            "title": "Doc",
+            "chunk_index": 3,
+            "vector_name": "text",
+            "parser_name": "llamaindex:sentence",
+        },
         relationships={"parent_node_id": "parent"},
     )
 
@@ -45,6 +51,8 @@ def test_serialize_hit_outputs_llamaindex_like_fields() -> None:
     assert row["relationships"]["parent_node_id"] == "parent"
     assert row["scores"]["rerank_score"] == 0.91
     assert row["retrieval"]["vector_name"] == "text"
+    assert row["retrieval"]["source_parser"] == "llamaindex:sentence"
+    assert row["metadata"]["parser_name"] == "llamaindex:sentence"
     assert row["eval"]["is_relevant"] is None
 
 

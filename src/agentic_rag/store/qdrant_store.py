@@ -134,7 +134,9 @@ class QdrantStore:
             image_path=str(payload.get("image_path")) if isinstance(payload, dict) and payload.get("image_path") else None,
             image_semantic_type=str(payload.get("image_semantic_type")) if isinstance(payload, dict) and payload.get("image_semantic_type") else None,
             parent_image_node_id=str(payload.get("parent_image_node_id")) if isinstance(payload, dict) and payload.get("parent_image_node_id") else None,
-            source_parser=str(payload.get("source_parser")) if isinstance(payload, dict) and payload.get("source_parser") else None,
+            source_parser=str(payload.get("source_parser") or payload.get("parser_name"))
+            if isinstance(payload, dict) and (payload.get("source_parser") or payload.get("parser_name"))
+            else None,
             confidence=float(payload.get("confidence")) if isinstance(payload, dict) and isinstance(payload.get("confidence"), (int, float)) else None,
             caption=str(payload.get("caption")) if isinstance(payload, dict) and payload.get("caption") else None,
             ocr_text=str(payload.get("ocr_text")) if isinstance(payload, dict) and payload.get("ocr_text") else None,

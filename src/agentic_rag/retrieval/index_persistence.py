@@ -73,6 +73,7 @@ def hits_from_nodes(nodes: list[Node]) -> list[SearchHit]:
     hits: list[SearchHit] = []
     for node in nodes:
         md = node.metadata.model_dump()
+        md.setdefault("source_parser", node.metadata.parser_name)
         md.update(
             {
                 key: value
