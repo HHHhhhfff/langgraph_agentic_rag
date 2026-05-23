@@ -469,6 +469,13 @@ class MinerUAdapter:
                 idx += 1
                 formula_count += 1
 
+        if self.settings.mineru_table_exact_content_coalesce_enabled:
+            nodes = _coalesce_duplicate_table_nodes(
+                nodes,
+                keep_chart_separate=self.settings.mineru_table_exact_content_coalesce_keep_chart_separate,
+            )
+            table_count = sum(1 for node in nodes if node.modality == "table")
+
         if self.stage_logger:
             self.stage_logger.log_counter(
                 "mineru_modality_counts",
@@ -835,16 +842,52 @@ def _can_coalesce_structured_table(
         return False
     if not _bbox_compatible(existing.bbox, candidate.bbox):
         return False
+
+    existing_has_location = _has_structured_location(existing)
+    candidate_has_location = _has_structured_location(candidate)
+    if existing.bbox is not None and candidate.bbox is not None:
+        return True
+    if existing.bbox is not None or candidate.bbox is not None:
+        return True
+    if existing_has_location != candidate_has_location:
+        return True
+    if existing.page is None and candidate.page is None:
+        return _is_lower_quality_structured_duplicate(existing, candidate)
+    if existing.page == candidate.page and _is_lower_quality_structured_duplicate(existing, candidate):
+        return True
+    return False
+
+
+def _has_structured_location(block: MinerUStructuredBlock) -> bool:
+    return block.page is not None or block.bbox is not None
+
+
+def _is_lower_quality_structured_duplicate(
+    existing: MinerUStructuredBlock,
+    candidate: MinerUStructuredBlock,
+) -> bool:
+    if existing.source_kind != candidate.source_kind:
+        return True
+    if _source_priority(existing.source_kind) != _source_priority(candidate.source_kind):
+        return True
+    if (
+        existing.raw_type
+        and candidate.raw_type
+        and existing.raw_type != candidate.raw_type
+        and not (_is_chart_like_block(existing) or _is_chart_like_block(candidate))
+    ):
+        return True
+    if existing.structured_duplicate_count > 1 or candidate.structured_duplicate_count > 1:
+        return True
     if (
         existing.page is not None
         and candidate.page is not None
         and existing.page == candidate.page
         and existing.bbox is None
         and candidate.bbox is None
-        and existing.source_kind == candidate.source_kind
     ):
         return False
-    return True
+    return False
 
 
 def _is_chart_like_block(block: MinerUStructuredBlock) -> bool:
@@ -949,6 +992,161 @@ def _add_table_fingerprint(fingerprints: set[str], text: str) -> None:
     fingerprint = _table_fingerprint(text)
     if fingerprint:
         fingerprints.add(fingerprint)
+
+
+def _coalesce_duplicate_table_nodes(nodes, *, keep_chart_separate: bool):
+    kept = []
+    table_key_to_idx: dict[tuple[str, str, tuple[tuple[str, ...], ...]], int] = {}
+    for node in nodes:
+        if node.modality != "table":
+            kept.append(node)
+            continue
+        if keep_chart_separate and _is_chart_table_node(node):
+            kept.append(node)
+            continue
+        exact_key = _table_exact_content_key(node.table_markdown or node.text or "")
+        if not exact_key:
+            kept.append(node)
+            continue
+
+        group_key = (node.metadata.source, node.metadata.doc_id, exact_key)
+        existing_idx = table_key_to_idx.get(group_key)
+        if existing_idx is None:
+            table_key_to_idx[group_key] = len(kept)
+            kept.append(node)
+            continue
+
+        existing = kept[existing_idx]
+        if _table_node_quality_key(node) > _table_node_quality_key(existing):
+            _merge_table_node_relationships(node, existing)
+            kept[existing_idx] = node
+        else:
+            _merge_table_node_relationships(existing, node)
+
+    return kept
+
+
+def _table_exact_content_key(text: str) -> tuple[tuple[str, ...], ...]:
+    table_text = str(text or "").strip()
+    if not table_text:
+        return ()
+    if table_text.lstrip().lower().startswith("<table"):
+        converted = html_table_to_markdown(table_text)
+        if converted:
+            table_text = converted
+
+    rows: list[tuple[str, ...]] = []
+    for line in table_text.splitlines():
+        stripped = line.strip()
+        if not stripped or "|" not in stripped:
+            continue
+        cells = tuple(cell.strip() for cell in stripped.strip("|").split("|"))
+        if cells and all(cell and set(cell) <= {"-", ":", " "} for cell in cells):
+            continue
+        rows.append(cells)
+    return tuple(rows)
+
+
+def _table_node_quality_key(node) -> tuple[int, int, int, int, int]:
+    relationships = node.relationships or {}
+    structured_duplicate_count = relationships.get("structured_duplicate_count")
+    if not isinstance(structured_duplicate_count, int):
+        structured_duplicate_count = 0
+    return (
+        1 if node.metadata.page is not None else 0,
+        1 if relationships.get("page_source") == "structured" else 0,
+        structured_duplicate_count,
+        1 if node.metadata.section else 0,
+        -node.metadata.chunk_index,
+    )
+
+
+def _merge_table_node_relationships(keeper, duplicate) -> None:
+    rel = dict(keeper.relationships or {})
+    duplicate_rel = dict(duplicate.relationships or {})
+
+    duplicate_ids = [duplicate.node_id]
+    duplicate_ids.extend(_string_list(duplicate_rel.get("merged_table_node_ids")))
+    merged_ids = _unique_strings(_string_list(rel.get("merged_table_node_ids")) + duplicate_ids)
+    merged_ids = [node_id for node_id in merged_ids if node_id != keeper.node_id]
+    rel["merged_table_node_ids"] = merged_ids
+    rel["table_duplicate_count"] = 1 + len(merged_ids)
+
+    duplicate_occurrences = [_table_node_occurrence(duplicate)]
+    duplicate_occurrences.extend(_dict_list(duplicate_rel.get("merged_table_occurrences")))
+    rel["merged_table_occurrences"] = _unique_occurrences(
+        _dict_list(rel.get("merged_table_occurrences")) + duplicate_occurrences
+    )
+
+    structured_duplicate_count = max(
+        _int_value(rel.get("structured_duplicate_count"), default=1),
+        _int_value(duplicate_rel.get("structured_duplicate_count"), default=1),
+    )
+    if structured_duplicate_count > 1 or "structured_duplicate_count" in rel:
+        rel["structured_duplicate_count"] = structured_duplicate_count
+    keeper.relationships.clear()
+    keeper.relationships.update(rel)
+
+
+def _table_node_occurrence(node) -> dict[str, Any]:
+    relationships = node.relationships or {}
+    return {
+        "node_id": node.node_id,
+        "page": node.metadata.page,
+        "chunk_index": node.metadata.chunk_index,
+        "mineru_source_kind": relationships.get("mineru_source_kind"),
+        "mineru_raw_type": relationships.get("mineru_raw_type"),
+        "page_source": relationships.get("page_source"),
+    }
+
+
+def _is_chart_table_node(node) -> bool:
+    relationships = node.relationships or {}
+    raw_type = str(relationships.get("mineru_raw_type") or "").lower()
+    source_kind = str(relationships.get("mineru_source_kind") or "").lower()
+    context_kind = str(relationships.get("markdown_context_kind") or "").lower()
+    return "chart" in raw_type or "chart" in source_kind or "details_chart" in context_kind
+
+
+def _string_list(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, str)]
+    return []
+
+
+def _dict_list(value: Any) -> list[dict[str, Any]]:
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, dict)]
+    return []
+
+
+def _unique_strings(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    unique: list[str] = []
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        unique.append(value)
+    return unique
+
+
+def _unique_occurrences(values: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    unique: list[dict[str, Any]] = []
+    for value in values:
+        node_id = value.get("node_id")
+        if not isinstance(node_id, str) or node_id in seen:
+            continue
+        seen.add(node_id)
+        unique.append(value)
+    return unique
+
+
+def _int_value(value: Any, *, default: int) -> int:
+    return value if isinstance(value, int) else default
 
 
 def _section_from_markdown(text: str) -> str | None:

@@ -130,6 +130,10 @@ Copy-Item .env.example .env
   - 是否归并 MinerU `structured_content` 内部由多份 JSON 来源重复描述的同一物理表格。只在 MinerU 单次解析结果内部生效，不做全局表格去重。
 - `MINERU_STRUCTURED_TABLE_COALESCE_KEEP_CHART=true|false`
   - structured table 归并时是否保留 chart/table-like block，避免把图表结构化结果误删。
+- `MINERU_TABLE_EXACT_CONTENT_COALESCE_ENABLED=true|false`
+  - 是否对最终 table Node 做内容级归并。仅当同一文档内表格 cell matrix 完全相同时合并，并在保留 Node 的 relationships 中记录 `merged_table_node_ids/merged_table_occurrences`。
+- `MINERU_TABLE_EXACT_CONTENT_COALESCE_KEEP_CHART_SEPARATE=true|false`
+  - 内容级归并时是否让 chart/table-like 表格保持独立。默认 false，表示完全相同内容只保留一个 table Node，但保留 occurrence 信息。
 - `ENABLE_FORMULA_RECOGNITION=true|false`
   - 是否从解析后的 Markdown/文本中抽取 LaTeX/MathML 公式节点
 - `FORMULA_NODE_MIN_CHARS=8`

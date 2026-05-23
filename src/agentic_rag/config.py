@@ -170,6 +170,14 @@ class Settings(BaseSettings):
         default=True,
         description="Keep chart/table-like structured blocks separate during MinerU table coalescing",
     )
+    mineru_table_exact_content_coalesce_enabled: bool = Field(
+        default=True,
+        description="Coalesce final MinerU table nodes with exactly identical table cell content",
+    )
+    mineru_table_exact_content_coalesce_keep_chart_separate: bool = Field(
+        default=False,
+        description="Keep chart/table-like table nodes separate during exact table content coalescing",
+    )
     enable_formula_recognition: bool = Field(
         default=True,
         description="Extract LaTeX/MathML formulas from parsed text into formula nodes",
