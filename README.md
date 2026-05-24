@@ -443,7 +443,46 @@ py -3.11 scripts/clear_retrieval_history.py
 py -3.11 scripts/clear_retrieval_history.py --path storage/retrieval_eval/retrieval_history.jsonl
 ```
 
-### 3.8 TaskGraph 可选路径配置（新增）
+### 3.8 召回可视化配置（新增）
+
+- `RETRIEVAL_VIS_OUTPUT_DIR=storage/retrieval_visualization`
+  - 召回可视化报告输出目录。
+- `RETRIEVAL_VIS_MAX_TEXT_CHARS=4000`
+  - HTML 和 raw record 中每个 hit 文本最大展示长度。
+- `RETRIEVAL_VIS_INCLUDE_FULL_VECTORS=false`
+  - 默认不展示完整向量字段，避免报告不可读。
+- `RETRIEVAL_VIS_AUTO_WRITE=false`
+  - 是否在每次 TaskGraph query 完成后自动生成召回可视化报告。
+
+离线查看最新一条召回历史：
+
+```powershell
+py -3.11 -m agentic_rag.cli.inspect_retrieval --latest
+```
+
+查看指定 `query_id`：
+
+```powershell
+py -3.11 -m agentic_rag.cli.inspect_retrieval --query-id <query_id>
+```
+
+报告输出到：
+
+```text
+storage/retrieval_visualization/runs/{run_id}/
+  manifest.json
+  query.json
+  snapshots.json
+  chunks.html
+  stage_compare.html
+  rank_flow.html
+  citations.html
+  raw_record.json
+```
+
+第一版展示 `initial_retrieval`、`rerank`、`final_after_retry` 三个 snapshot，不展示 `vector/bm25/page/table` route 级原始命中。
+
+### 3.9 TaskGraph 可选路径配置（新增）
 
 - `TASKGRAPH_ENABLED=true|false`
   - `false`（默认）：继续走旧 `rag_graph.py` 兼容路径

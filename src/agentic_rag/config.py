@@ -368,6 +368,19 @@ class Settings(BaseSettings):
     retrieval_eval_log_dir: str = Field(default="storage/retrieval_eval", description="Retrieval eval log directory")
     retrieval_eval_log_file: str = Field(default="retrieval_history.jsonl", description="Retrieval eval JSONL file name")
     retrieval_eval_max_text_chars: int = Field(default=2000, description="Max chars stored per retrieved hit text")
+    retrieval_vis_output_dir: str = Field(
+        default="storage/retrieval_visualization",
+        description="Retrieval visualization output directory",
+    )
+    retrieval_vis_max_text_chars: int = Field(default=4000, description="Max chars shown per retrieval hit")
+    retrieval_vis_include_full_vectors: bool = Field(
+        default=False,
+        description="Include full vector-like fields in retrieval visualization raw records",
+    )
+    retrieval_vis_auto_write: bool = Field(
+        default=False,
+        description="Automatically write retrieval visualization after each TaskGraph query",
+    )
     query_progress_enabled: bool = Field(default=True, description="Show coarse TaskGraph query progress in CLI")
     query_progress_style: Literal["plain"] = Field(default="plain", description="Query progress output style")
     query_progress_show_retry: bool = Field(default=True, description="Show local retry events in query progress")
@@ -539,6 +552,7 @@ class Settings(BaseSettings):
         "embedding_input_max_tokens",
         "embedding_input_safety_margin_tokens",
         "retrieval_eval_max_text_chars",
+        "retrieval_vis_max_text_chars",
         "ingestion_inspect_max_text_chars",
     )
     @classmethod
