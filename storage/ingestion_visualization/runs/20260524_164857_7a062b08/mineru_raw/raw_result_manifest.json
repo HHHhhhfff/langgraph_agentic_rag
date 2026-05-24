@@ -1,0 +1,70 @@
+{
+  "files": [
+    {
+      "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+      "task_id": "batch:75b689f1-4773-40e6-8ce9-bebccc7a4559:2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "29b517fae261ccf4d461a059bcdd98cd",
+        "data": {
+          "batch_id": "75b689f1-4773-40e6-8ce9-bebccc7a4559",
+          "extract_result": [
+            {
+              "file_name": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\测试文档.pdf",
+      "task_id": "batch:8e153ea6-d9ed-4579-8587-2facf18d7638:测试文档.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "01cb3a2355ac056fcc5da46d965f94e0",
+        "data": {
+          "batch_id": "8e153ea6-d9ed-4579-8587-2facf18d7638",
+          "extract_result": [
+            {
+              "file_name": "测试文档.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\测试文档2.pdf",
+      "task_id": "batch:c9df3336-b454-431f-af37-a9d7dfad492f:测试文档2.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-24/e632dc31-a4df-48d1-ab07-a3fe5cdce607.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "5ae85dbf539296f5a8c6a5679c02906f",
+        "data": {
+          "batch_id": "c9df3336-b454-431f-af37-a9d7dfad492f",
+          "extract_result": [
+            {
+              "file_name": "测试文档2.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-24/e632dc31-a4df-48d1-ab07-a3fe5cdce607.zip"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
