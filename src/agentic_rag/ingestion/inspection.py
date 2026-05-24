@@ -245,7 +245,12 @@ class IngestionInspectionRecorder:
             "run_id": self.run_id,
             "mode": "inspect_only",
             "input_path": str(input_path),
+            "write_qdrant_requested": False,
             "wrote_qdrant": False,
+            "write_local_index_requested": False,
+            "wrote_local_index": False,
+            "recreate_collection_requested": False,
+            "recreated_collection": False,
             "parser": parser,
             "render_pages": render_pages,
             "pymupdf_available": pymupdf_available,
@@ -267,6 +272,74 @@ class IngestionInspectionRecorder:
         }
         _write_json(self.run_dir / "manifest.json", manifest)
         return self.run_dir
+
+    def update_write_status(
+        self,
+        *,
+        write_qdrant_requested: bool,
+        wrote_qdrant: bool,
+        write_local_index_requested: bool,
+        wrote_local_index: bool,
+        recreate_collection_requested: bool,
+        recreated_collection: bool,
+        qdrant_collection: str | None = None,
+        embedded_count: int | None = None,
+        upserted_point_count: int | None = None,
+        build_index_log_mode: str | None = None,
+        ingestion_error: str | None = None,
+    ) -> None:
+        manifest_path = self.run_dir / "manifest.json"
+        manifest = _read_json(manifest_path)
+        manifest.update(
+            {
+                "mode": "inspect_then_build_index" if write_qdrant_requested else "inspect_only",
+                "write_qdrant_requested": write_qdrant_requested,
+                "wrote_qdrant": wrote_qdrant,
+                "write_local_index_requested": write_local_index_requested,
+                "wrote_local_index": wrote_local_index,
+                "recreate_collection_requested": recreate_collection_requested,
+                "recreated_collection": recreated_collection,
+            }
+        )
+        if qdrant_collection is not None:
+            manifest["qdrant_collection"] = qdrant_collection
+        if embedded_count is not None:
+            manifest["embedded_count"] = embedded_count
+        if upserted_point_count is not None:
+            manifest["upserted_point_count"] = upserted_point_count
+        if build_index_log_mode is not None:
+            manifest["build_index_log_mode"] = build_index_log_mode
+        if ingestion_error:
+            manifest["ingestion_error"] = ingestion_error
+            warnings = manifest.get("warnings", [])
+            if not isinstance(warnings, list):
+                warnings = []
+            warnings.append("inspect artifacts were generated before build_index write failed")
+            manifest["warnings"] = warnings
+        _write_json(manifest_path, manifest)
+
+    def write_build_index_results(self, build_result: Any) -> None:
+        summary = build_result.summary
+        summary_data = _object_to_dict(summary)
+        build_result_data = _object_to_dict(build_result)
+        build_result_data["summary"] = summary_data
+        _write_json(self.previews_dir / "build_index_summary.json", build_result_data)
+        _write_json(
+            self.previews_dir / "qdrant_write_result.json",
+            {
+                "wrote_qdrant": build_result.wrote_qdrant,
+                "qdrant_collection": build_result.qdrant_collection,
+                "upserted_point_count": build_result.upserted_point_count,
+                "embedded_count": build_result.embedded_count,
+                "recreated_collection": build_result.recreated_collection,
+            },
+        )
+        _write_json(
+            self.previews_dir / "local_index_write_result.json",
+            {
+                "wrote_local_index": build_result.wrote_local_index,
+            },
+        )
 
 
 def save_mineru_raw_artifacts(output_dir: Path, mineru_raw: dict[str, Any]) -> None:
@@ -423,6 +496,28 @@ def _serialize_hit(hit) -> dict[str, Any]:
 def _write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _read_json(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def _object_to_dict(value: Any) -> dict[str, Any]:
+    from dataclasses import asdict, is_dataclass
+
+    if is_dataclass(value):
+        return asdict(value)
+    if hasattr(value, "model_dump"):
+        data = value.model_dump()
+        return data if isinstance(data, dict) else {}
+    if hasattr(value, "__dict__"):
+        return dict(value.__dict__)
+    if isinstance(value, dict):
+        return dict(value)
+    return {}
 
 
 def _write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:

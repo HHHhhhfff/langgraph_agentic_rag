@@ -208,6 +208,25 @@ class IndexBuilder:
                 f"Multimodal parsing produced no nodes. failures={len(result.failures)}"
             )
 
+        summary = self.build_from_nodes(nodes, source=input_dir)
+        return IndexBuildSummary(
+            documents=summary.documents,
+            chunks=summary.chunks,
+            vectors=summary.vectors,
+            upserted=summary.upserted,
+            vector_size=summary.vector_size,
+            failed_files=len(result.failures) + summary.failed_files,
+            named_vectors_enabled=summary.named_vectors_enabled,
+            named_vector_counts=summary.named_vector_counts,
+        )
+
+    def build_from_nodes(self, nodes: list[Node], *, source: str = "nodes") -> IndexBuildSummary:
+        """Build the multimodal vector index from already-normalized nodes."""
+
+        if not nodes:
+            raise IndexBuildError("No multimodal nodes provided for index build")
+
+        self._preflight_qdrant_vector_size()
         vector_by_idx: dict[int, list[float]] = {}
         extra_failures = 0
         named_vector_counts: Counter[str] = Counter()
@@ -235,7 +254,7 @@ class IndexBuilder:
         if self.stage_logger:
             self.stage_logger.log_counter(
                 "modality_split",
-                source=input_dir,
+                source=source,
                 text_table_count=len(text_table_pairs),
                 image_count=len(image_pairs),
                 total_nodes=len(nodes),
@@ -246,7 +265,7 @@ class IndexBuilder:
             if self.stage_logger:
                 self.stage_logger.log_stage_start(
                     "multimodal_text_table_embedding",
-                    source=input_dir,
+                    source=source,
                     chunk_count=len(text_table_pairs),
                 )
             try:
@@ -256,7 +275,7 @@ class IndexBuilder:
                     self.stage_logger.log_stage_error(
                         "multimodal_text_table_embedding",
                         exc,
-                        source=input_dir,
+                        source=source,
                     )
                 raise IndexBuildError(f"Text/table embedding failed during multimodal index build: {exc}") from exc
             for (idx, _), vector in zip(text_table_pairs, vectors):
@@ -265,7 +284,7 @@ class IndexBuilder:
                 self.stage_logger.log_stage_end(
                     "multimodal_text_table_embedding",
                     latency_ms=embed_timer.elapsed_ms(),
-                    source=input_dir,
+                    source=source,
                     chunk_count=len(text_table_pairs),
                     vector_count=len(vectors),
                 )
@@ -274,7 +293,7 @@ class IndexBuilder:
             extra_failures += self._embed_image_pairs(
                 image_pairs=image_pairs,
                 vector_by_idx=vector_by_idx,
-                source=input_dir,
+                source=source,
             )
 
         surviving_nodes: list[Node] = []
@@ -303,7 +322,7 @@ class IndexBuilder:
 
         if not surviving_nodes:
             raise IndexBuildError(
-                f"All multimodal nodes failed to embed. failures={len(result.failures) + extra_failures}"
+                f"All multimodal nodes failed to embed. failures={extra_failures}"
             )
 
         normalized_vectors, vector_size = self._normalize_vector_size(surviving_vectors)
@@ -312,7 +331,7 @@ class IndexBuilder:
         if self.stage_logger:
             self.stage_logger.log_stage_start(
                 "multimodal_upsert",
-                source=input_dir,
+                source=source,
                 vector_count=len(normalized_vectors),
             )
         upserted = self.store.upsert_nodes(
@@ -324,11 +343,11 @@ class IndexBuilder:
             self.stage_logger.log_stage_end(
                 "multimodal_upsert",
                 latency_ms=upsert_timer.elapsed_ms(),
-                source=input_dir,
+                source=source,
                 upserted_count=upserted,
                 vector_count=len(normalized_vectors),
             )
-        self._persist_retrieval_indexes(hits_from_nodes(surviving_nodes), source=input_dir)
+        self._persist_retrieval_indexes(hits_from_nodes(surviving_nodes), source=source)
         doc_count = len({n.metadata.doc_id for n in surviving_nodes})
         return IndexBuildSummary(
             documents=doc_count,
@@ -336,7 +355,7 @@ class IndexBuilder:
             vectors=len(normalized_vectors),
             upserted=upserted,
             vector_size=vector_size,
-            failed_files=len(result.failures) + extra_failures,
+            failed_files=extra_failures,
             named_vectors_enabled=self.settings.enable_named_vectors,
             named_vector_counts=dict(named_vector_counts),
         )

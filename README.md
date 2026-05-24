@@ -193,6 +193,14 @@ Copy-Item .env.example .env
   - 输出 `vector_name/vector_dim/embedding_text_excerpt`，不保存完整向量。
 - `INGESTION_INSPECT_INCLUDE_FULL_VECTORS=false`
   - 保留开关，默认关闭，避免报告过大。
+- `INGESTION_INSPECT_WRITE_QDRANT=false`
+  - inspect 默认是否在可视化完成后写入 Qdrant。默认 false，只观察。
+- `INGESTION_INSPECT_WRITE_LOCAL_INDEX=true`
+  - inspect 写 Qdrant 时是否同步写本地 BM25/page/table index。
+- `INGESTION_INSPECT_RECREATE_COLLECTION=false`
+  - inspect 写 Qdrant 时是否复用 build_index 的清库/重建行为。默认 false，显式开启才 recreate collection。
+- `INGESTION_INSPECT_SYNC_BUILD_INDEX_LOGS=true`
+  - inspect 入库阶段是否输出与 build_index 对齐的 stage log / summary log。
 
 命令示例：
 
@@ -200,6 +208,8 @@ Copy-Item .env.example .env
 py -3.11 -m agentic_rag.cli.inspect_ingestion data/demo_docs/xxx.pdf
 py -3.11 -m agentic_rag.cli.inspect_ingestion data/demo_docs/xxx.pdf --render-pages
 py -3.11 -m agentic_rag.cli.inspect_ingestion data/demo_docs --output storage/ingestion_visualization
+py -3.11 -m agentic_rag.cli.inspect_ingestion data/demo_docs --write-qdrant
+py -3.11 -m agentic_rag.cli.inspect_ingestion data/demo_docs --write-qdrant --recreate-collection
 ```
 
 输出目录：

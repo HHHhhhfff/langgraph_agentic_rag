@@ -2,15 +2,15 @@
   "files": [
     {
       "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
-      "task_id": "batch:6a22332e-562e-4c93-aee9-545078a5f709:2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+      "task_id": "batch:3589a421-20cd-4397-ae57-9842db0f29cc:2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
       "state": "done",
       "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip",
       "raw": {
         "code": 0,
         "msg": "ok",
-        "trace_id": "2f75759a5ef33c7bfc15031de1ffc66c",
+        "trace_id": "d5b2cf0b8fbf1464c16006f6d95e1be0",
         "data": {
-          "batch_id": "6a22332e-562e-4c93-aee9-545078a5f709",
+          "batch_id": "3589a421-20cd-4397-ae57-9842db0f29cc",
           "extract_result": [
             {
               "file_name": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
@@ -24,21 +24,43 @@
     },
     {
       "source": "data\\demo_docs\\测试文档.pdf",
-      "task_id": "batch:4c2e0967-7faf-483a-af9d-6983066a34bd:测试文档.pdf",
+      "task_id": "batch:1ba2b935-c8e9-4f39-8503-1eae7408266e:测试文档.pdf",
       "state": "done",
       "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip",
       "raw": {
         "code": 0,
         "msg": "ok",
-        "trace_id": "e7061b3574e29035815c265d9d9a18f3",
+        "trace_id": "370b09402ef86f99fa2a44f1a9b44582",
         "data": {
-          "batch_id": "4c2e0967-7faf-483a-af9d-6983066a34bd",
+          "batch_id": "1ba2b935-c8e9-4f39-8503-1eae7408266e",
           "extract_result": [
             {
               "file_name": "测试文档.pdf",
               "state": "done",
               "err_msg": "",
               "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\测试文档2.pdf",
+      "task_id": "batch:f63af689-bb6b-49e9-b159-41c8f72281ff:测试文档2.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-24/e632dc31-a4df-48d1-ab07-a3fe5cdce607.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "2324f6c318b794a25169303401e0ebec",
+        "data": {
+          "batch_id": "f63af689-bb6b-49e9-b159-41c8f72281ff",
+          "extract_result": [
+            {
+              "file_name": "测试文档2.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-24/e632dc31-a4df-48d1-ab07-a3fe5cdce607.zip"
             }
           ]
         }

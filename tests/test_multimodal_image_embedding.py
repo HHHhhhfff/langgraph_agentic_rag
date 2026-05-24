@@ -299,22 +299,16 @@ def test_build_index_cli_prints_named_vector_counts(monkeypatch, capsys) -> None
         def build_from_directory(self, docs):
             return summary
 
-    monkeypatch.setattr(build_index, "get_settings", lambda: SimpleNamespace())
-    monkeypatch.setattr(build_index, "build_stage_logger", lambda settings, run_id: SimpleNamespace(
-        add_listener=lambda *args, **kwargs: None,
-        log_stage_start=lambda *args, **kwargs: None,
-        log_stage_end=lambda *args, **kwargs: None,
-        log_stage_error=lambda *args, **kwargs: None,
-        log_counter=lambda *args, **kwargs: None,
-    ))
-    monkeypatch.setattr(build_index, "build_console_progress_reporter", lambda settings, run_id: SimpleNamespace(
-        handle_event=lambda *args, **kwargs: None
-    ))
-    monkeypatch.setattr(build_index, "MarkdownParser", lambda: None)
-    monkeypatch.setattr(build_index, "build_default_chunker", lambda settings: None)
-    monkeypatch.setattr(build_index, "build_embedding_provider", lambda settings: None)
-    monkeypatch.setattr(build_index, "QdrantStore", lambda settings: None)
-    monkeypatch.setattr(build_index, "IndexBuilder", lambda **kwargs: DummyBuilder())
+    monkeypatch.setattr(
+        build_index,
+        "get_settings",
+        lambda: SimpleNamespace(qdrant_recreate_collection=False, retrieval_index_persist_enabled=True),
+    )
+    monkeypatch.setattr(
+        build_index,
+        "build_index_from_docs",
+        lambda *args, **kwargs: SimpleNamespace(summary=summary),
+    )
     monkeypatch.setattr("sys.argv", ["build_index", "--docs", "docs"])
 
     assert build_index.main() == 0

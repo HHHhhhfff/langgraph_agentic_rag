@@ -431,3 +431,17 @@ $$
 | 4月  | 240           |
 | 5月  | 110           |
 </details>
+
+<!-- source: data\demo_docs\测试文档2.pdf -->
+
+# 测试文档2
+
+下面是一张二次元美女图片
+
+![](images/bec994ae93999d46627cdc8c061c0776b2b7917bf1a254a84bc64ac62ce7dc45.jpg)
+
+<details>
+<summary>natural_image</summary>
+
+Illustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)
+</details>

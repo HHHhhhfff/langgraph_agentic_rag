@@ -26,6 +26,341 @@
 <body>
   <header><h1>Ingestion Chunks</h1><p>Inspect-only ingestion visualization. No Qdrant writes.</p></header>
   <main>
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>cba0c1215bbaa575183129bc6fe0cb97:image:0</span>
+                <span>page=None</span>
+                <span>chunk=0</span>
+                <span>section=None</span>
+                <span>parser=image_adapter</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>Image file: 121742150_p0.jpg</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;Image file: 121742150_p0.jpg&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;doc_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 0,
+    &quot;title&quot;: &quot;121742150_p0&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;image_adapter&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;image_semantic_type&quot;: &quot;whole_image&quot;,
+    &quot;source_parser&quot;: &quot;image_adapter&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;parent_image_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>cba0c1215bbaa575183129bc6fe0cb97:image:1</span>
+                <span>page=None</span>
+                <span>chunk=1</span>
+                <span>section=None</span>
+                <span>parser=vlm:caption</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>一位拥有粉色头发和猫耳的动漫少女，身穿黑色短袖水手服和白色围裙，正单膝跪地低头看着镜头，表情略带害羞，脸颊上有一滴汗珠。</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:1&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;一位拥有粉色头发和猫耳的动漫少女，身穿黑色短袖水手服和白色围裙，正单膝跪地低头看着镜头，表情略带害羞，脸颊上有一滴汗珠。&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;doc_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 1,
+    &quot;title&quot;: &quot;121742150_p0&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:caption&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;caption&quot;,
+    &quot;source_parser&quot;: &quot;vlm:caption&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;confidence&quot;: 0.95,
+    &quot;caption&quot;: &quot;一位拥有粉色头发和猫耳的动漫少女，身穿黑色短袖水手服和白色围裙，正单膝跪地低头看着镜头，表情略带害羞，脸颊上有一滴汗珠。&quot;,
+    &quot;scene_type&quot;: &quot;unknown&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>cba0c1215bbaa575183129bc6fe0cb97:image:2</span>
+                <span>page=None</span>
+                <span>chunk=2</span>
+                <span>section=None</span>
+                <span>parser=vlm:object</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>动漫少女 拥有粉色长发、猫耳、蓝色眼睛的动漫角色，穿着女仆装风格的水手服，正在跪姿，一只手放在耳边，另一只手支撑地面。</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:2&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;动漫少女 拥有粉色长发、猫耳、蓝色眼睛的动漫角色，穿着女仆装风格的水手服，正在跪姿，一只手放在耳边，另一只手支撑地面。&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;doc_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 2,
+    &quot;title&quot;: &quot;121742150_p0&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:object&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;object&quot;,
+    &quot;source_parser&quot;: &quot;vlm:object&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;confidence&quot;: 0.95,
+    &quot;object_label&quot;: &quot;动漫少女&quot;,
+    &quot;object_description&quot;: &quot;拥有粉色长发、猫耳、蓝色眼睛的动漫角色，穿着女仆装风格的水手服，正在跪姿，一只手放在耳边，另一只手支撑地面。&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>cba0c1215bbaa575183129bc6fe0cb97:image:3</span>
+                <span>page=None</span>
+                <span>chunk=3</span>
+                <span>section=None</span>
+                <span>parser=vlm:object</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>猫耳 角色头部两侧的白色毛茸茸猫耳，带有粉色内耳。</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:3&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;猫耳 角色头部两侧的白色毛茸茸猫耳，带有粉色内耳。&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;doc_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 3,
+    &quot;title&quot;: &quot;121742150_p0&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:object&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;object&quot;,
+    &quot;source_parser&quot;: &quot;vlm:object&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;confidence&quot;: 0.92,
+    &quot;object_label&quot;: &quot;猫耳&quot;,
+    &quot;object_description&quot;: &quot;角色头部两侧的白色毛茸茸猫耳，带有粉色内耳。&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>cba0c1215bbaa575183129bc6fe0cb97:image:4</span>
+                <span>page=None</span>
+                <span>chunk=4</span>
+                <span>section=None</span>
+                <span>parser=vlm:object</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>水手服 角色穿着的深色短袖上衣，配有白色围裙和荷叶边装饰。</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:4&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;水手服 角色穿着的深色短袖上衣，配有白色围裙和荷叶边装饰。&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;doc_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 4,
+    &quot;title&quot;: &quot;121742150_p0&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:object&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;object&quot;,
+    &quot;source_parser&quot;: &quot;vlm:object&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;confidence&quot;: 0.9,
+    &quot;object_label&quot;: &quot;水手服&quot;,
+    &quot;object_description&quot;: &quot;角色穿着的深色短袖上衣，配有白色围裙和荷叶边装饰。&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>cba0c1215bbaa575183129bc6fe0cb97:image:5</span>
+                <span>page=None</span>
+                <span>chunk=5</span>
+                <span>section=None</span>
+                <span>parser=vlm:object</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>围裙 角色腰间系着的白色围裙，带有褶边设计。</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:5&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;围裙 角色腰间系着的白色围裙，带有褶边设计。&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;doc_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 5,
+    &quot;title&quot;: &quot;121742150_p0&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:object&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;object&quot;,
+    &quot;source_parser&quot;: &quot;vlm:object&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;confidence&quot;: 0.88,
+    &quot;object_label&quot;: &quot;围裙&quot;,
+    &quot;object_description&quot;: &quot;角色腰间系着的白色围裙，带有褶边设计。&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>cba0c1215bbaa575183129bc6fe0cb97:image:6</span>
+                <span>page=None</span>
+                <span>chunk=6</span>
+                <span>section=None</span>
+                <span>parser=vlm:object</span>
+              </div>
+              <div class="warnings">page=null, section=null</div>
+              <pre>汗珠 角色脸颊上的一滴细小汗珠，显示其紧张或害羞的情绪。</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:6&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;汗珠 角色脸颊上的一滴细小汗珠，显示其紧张或害羞的情绪。&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;doc_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97&quot;,
+    &quot;page&quot;: null,
+    &quot;chunk_index&quot;: 6,
+    &quot;title&quot;: &quot;121742150_p0&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;vlm:object&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;parent_image_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;object&quot;,
+    &quot;source_parser&quot;: &quot;vlm:object&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;confidence&quot;: 0.85,
+    &quot;object_label&quot;: &quot;汗珠&quot;,
+    &quot;object_description&quot;: &quot;角色脸颊上的一滴细小汗珠，显示其紧张或害羞的情绪。&quot;
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node image">
+              <div class="meta">
+                <strong>image</strong>
+                <span>cba0c1215bbaa575183129bc6fe0cb97:image:7</span>
+                <span>page=1</span>
+                <span>chunk=7</span>
+                <span>section=None</span>
+                <span>parser=mineru:image_ocr</span>
+              </div>
+              <div class="warnings">section=null</div>
+              <pre>![](images/ec8647b32cbcb4bb254bc98b41ca1eddcbe8e9da0d5602626d3c2ed9f8429bbe.jpg)
+
+&lt;details&gt;
+&lt;summary&gt;natural_image&lt;/summary&gt;
+
+Illustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)
+&lt;/details&gt;</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:7&quot;,
+  &quot;modality&quot;: &quot;image&quot;,
+  &quot;text&quot;: &quot;![](images/ec8647b32cbcb4bb254bc98b41ca1eddcbe8e9da0d5602626d3c2ed9f8429bbe.jpg)\n\n&lt;details&gt;\n&lt;summary&gt;natural_image&lt;/summary&gt;\n\nIllustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)\n&lt;/details&gt;&quot;,
+  &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: null,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;doc_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97&quot;,
+    &quot;page&quot;: 1,
+    &quot;chunk_index&quot;: 7,
+    &quot;title&quot;: &quot;121742150_p0&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;image&quot;,
+    &quot;parser_name&quot;: &quot;mineru:image_ocr&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru:text&quot;,
+    &quot;mineru_block_type&quot;: &quot;image&quot;,
+    &quot;mineru_raw_type&quot;: &quot;image&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
+    &quot;page&quot;: 1,
+    &quot;page_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
+    &quot;parent_image_node_id&quot;: &quot;cba0c1215bbaa575183129bc6fe0cb97:image:0&quot;,
+    &quot;image_semantic_type&quot;: &quot;ocr&quot;,
+    &quot;image_path&quot;: &quot;data\\demo_docs\\121742150_p0.jpg&quot;,
+    &quot;ocr_text&quot;: &quot;![](images/ec8647b32cbcb4bb254bc98b41ca1eddcbe8e9da0d5602626d3c2ed9f8429bbe.jpg)\n\n&lt;details&gt;\n&lt;summary&gt;natural_image&lt;/summary&gt;\n\nIllustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)\n&lt;/details&gt;&quot;
+  }
+}</pre></details>
+            </article>
+            
+
             <article class="node table">
               <div class="meta">
                 <strong>table</strong>
@@ -66,8 +401,11 @@
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;chart&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:1&quot;,
     &quot;doc_next_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:1&quot;,
     &quot;same_page_node_ids&quot;: [
@@ -131,8 +469,11 @@
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;chart&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:0&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:0&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:2&quot;,
@@ -201,8 +542,11 @@
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;chart&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:1&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:1&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:3&quot;,
@@ -268,8 +612,11 @@
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;chart&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:2&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:2&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:4&quot;,
@@ -337,8 +684,11 @@
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;chart&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:3&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:3&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:5&quot;,
@@ -404,8 +754,11 @@
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;chart&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 4,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:4&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:4&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:4&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:6&quot;,
@@ -482,8 +835,11 @@ where c is the speed of light. At $\omega = 0$ this quantity coincides with the 
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:5&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:table:5&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:7&quot;,
@@ -599,8 +955,11 @@ We consider a non-relativistic problem, so that we assume that the electron velo
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:6&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:6&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:8&quot;,
@@ -683,8 +1042,11 @@ where we have dropped the terms $\partial^{2}F/\partial x^{2}$ , $\partial^{2}F/
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:7&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:7&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:9&quot;,
@@ -790,8 +1152,11 @@ Recall that $\tau = \omega(t - x/v)$ and the cross section in the two-dimensiona
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:8&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:8&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:10&quot;,
@@ -897,8 +1262,11 @@ d \sigma (\vartheta , \tau) = \sigma_ {0} \left| \int_ {0} ^ {Q | \cos \tau |} (
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:9&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:9&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:11&quot;,
@@ -995,8 +1363,11 @@ Naturally, there is no asymmetry in $\sigma(\tau)$ . The dependence of $\Sigma_{
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:10&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:10&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:12&quot;,
@@ -1101,8 +1472,11 @@ Fig. 3. The time-averaged cross section grows logarith-
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:11&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:11&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:13&quot;,
@@ -1182,8 +1556,11 @@ The work of Ivan Terekhov was financially supported by the ITMO Fellowship Progr
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 4,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:4&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:12&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:12&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:14&quot;,
@@ -1252,8 +1629,11 @@ The work of Ivan Terekhov was financially supported by the ITMO Fellowship Progr
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:13&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:text:13&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:15&quot;,
@@ -1314,8 +1694,11 @@ E (r, t) = - \Phi_ {0} \frac {k ^ {2}}{4} [ J _ {1} (k r) \cos (\omega t) + N _ 
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 5,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:14&quot;,
@@ -1374,8 +1757,11 @@ E (r, t) = k \frac {\Phi_ {0}}{2 \pi r} \sin (\omega t). \tag {3}</pre>
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 3,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:15&quot;,
@@ -1434,8 +1820,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 3,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:16&quot;,
@@ -1490,8 +1879,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:17&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:17&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19&quot;,
@@ -1554,8 +1946,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20&quot;,
@@ -1618,8 +2013,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21&quot;,
@@ -1682,8 +2080,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22&quot;,
@@ -1746,8 +2147,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23&quot;,
@@ -1810,8 +2214,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24&quot;,
@@ -1874,8 +2281,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25&quot;,
@@ -1940,8 +2350,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 2,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24&quot;,
@@ -2006,8 +2419,11 @@ E (r, t) = k \Phi_ {0} \sqrt {\frac {k}{8 \pi r}} \sin (\omega t - k r + \pi / 4
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27&quot;,
@@ -2076,8 +2492,11 @@ r = \sqrt {y ^ {2} + z ^ {2}}, \quad s = \operatorname{sgn} q. \tag {13}</pre>
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 4,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26&quot;,
@@ -2142,8 +2561,11 @@ r = \sqrt {y ^ {2} + z ^ {2}}, \quad s = \operatorname{sgn} q. \tag {13}</pre>
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29&quot;,
@@ -2208,8 +2630,11 @@ r = \sqrt {y ^ {2} + z ^ {2}}, \quad s = \operatorname{sgn} q. \tag {13}</pre>
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 2,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28&quot;,
@@ -2280,8 +2705,11 @@ G _ {2} (\vartheta , \tau) = \int_ {0} ^ {\infty} d y \Xi_ {1} (y, \tau) \sin [ 
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 2,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 4,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29&quot;,
@@ -2346,8 +2774,11 @@ G _ {2} (\vartheta , \tau) = \int_ {0} ^ {\infty} d y \Xi_ {1} (y, \tau) \sin [ 
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32&quot;,
@@ -2407,8 +2838,11 @@ G _ {2} (\vartheta , \tau) = \int_ {0} ^ {\infty} d y \Xi_ {1} (y, \tau) \sin [ 
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33&quot;,
@@ -2472,8 +2906,11 @@ d \sigma_ {a} (\theta , \tau) = 2 \sigma_ {0} G _ {1} (\vartheta , \tau) G _ {2}
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 3,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32&quot;,
@@ -2537,8 +2974,11 @@ d \sigma_ {a} (\theta , \tau) = 2 \sigma_ {0} G _ {1} (\vartheta , \tau) G _ {2}
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;formula_group&quot;: true,
     &quot;formula_count&quot;: 2,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33&quot;,
@@ -2600,8 +3040,11 @@ d \sigma_ {a} (\theta , \tau) = 2 \sigma_ {0} G _ {1} (\vartheta , \tau) G _ {2}
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34&quot;,
     &quot;next_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36&quot;,
@@ -2661,8 +3104,11 @@ d \sigma_ {a} (\theta , \tau) = 2 \sigma_ {0} G _ {1} (\vartheta , \tau) G _ {2}
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 3,
     &quot;page_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:page:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35&quot;,
     &quot;doc_prev_node_id&quot;: &quot;bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35&quot;,
     &quot;same_page_node_ids&quot;: [
@@ -2768,121 +3214,37 @@ d \sigma_ {a} (\theta , \tau) = 2 \sigma_ {0} G _ {1} (\vartheta , \tau) G _ {2}
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;table&quot;,
+    &quot;mineru_raw_type&quot;: &quot;table&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
+    &quot;structured_duplicate_count&quot;: 2,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:page:1&quot;,
-    &quot;next_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;,
-    &quot;doc_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
+    &quot;merged_table_node_ids&quot;: [
+      &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;
+    ],
+    &quot;table_duplicate_count&quot;: 2,
+    &quot;merged_table_occurrences&quot;: [
+      {
+        &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;,
+        &quot;page&quot;: null,
+        &quot;chunk_index&quot;: 1,
+        &quot;mineru_source_kind&quot;: &quot;structured_json_2&quot;,
+        &quot;mineru_raw_type&quot;: &quot;table&quot;,
+        &quot;page_source&quot;: null
+      }
+    ],
+    &quot;next_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
+    &quot;doc_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
     &quot;same_page_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
       &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;
     ],
-    &quot;context_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
+    &quot;context_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
     &quot;context_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;
-    ],
-    &quot;context_window_chars&quot;: 800
-  }
-}</pre></details>
-            </article>
-            
-
-            <article class="node table">
-              <div class="meta">
-                <strong>table</strong>
-                <span>11848f8e85db2e916e4adaa1950d6910:table:1</span>
-                <span>page=None</span>
-                <span>chunk=1</span>
-                <span>section=None</span>
-                <span>parser=mineru</span>
-              </div>
-              <div class="warnings">page=null, section=null</div>
-              <pre>| 月份 | 销售额(万元) |
-| --- | --- |
-| 1月 | 100 |
-| 2月 | 120 |
-| 3月 | 320 |
-| 4月 | 240 |
-| 5月 | 110 |</pre>
-              <details><summary>Node JSON</summary><pre>{
-  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;,
-  &quot;modality&quot;: &quot;table&quot;,
-  &quot;text&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
-  &quot;image_path&quot;: null,
-  &quot;table_markdown&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
-  &quot;formula_latex&quot;: null,
-  &quot;metadata&quot;: {
-    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
-    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
-    &quot;page&quot;: null,
-    &quot;chunk_index&quot;: 1,
-    &quot;title&quot;: &quot;测试文档&quot;,
-    &quot;section&quot;: null,
-    &quot;modality&quot;: &quot;table&quot;,
-    &quot;parser_name&quot;: &quot;mineru&quot;
-  },
-  &quot;relationships&quot;: {
-    &quot;source_parser&quot;: &quot;mineru&quot;,
-    &quot;mineru_block_type&quot;: &quot;table&quot;,
-    &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
-    &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
-    &quot;next_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:2&quot;,
-    &quot;doc_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:2&quot;,
-    &quot;context_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-    &quot;context_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;
-    ],
-    &quot;context_window_chars&quot;: 800
-  }
-}</pre></details>
-            </article>
-            
-
-            <article class="node table">
-              <div class="meta">
-                <strong>table</strong>
-                <span>11848f8e85db2e916e4adaa1950d6910:table:2</span>
-                <span>page=None</span>
-                <span>chunk=2</span>
-                <span>section=None</span>
-                <span>parser=mineru</span>
-              </div>
-              <div class="warnings">page=null, section=null</div>
-              <pre>| 月份 | 销售额(万元) |
-| --- | --- |
-| 1月 | 100 |
-| 2月 | 120 |
-| 3月 | 320 |
-| 4月 | 240 |
-| 5月 | 110 |</pre>
-              <details><summary>Node JSON</summary><pre>{
-  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:2&quot;,
-  &quot;modality&quot;: &quot;table&quot;,
-  &quot;text&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
-  &quot;image_path&quot;: null,
-  &quot;table_markdown&quot;: &quot;| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |&quot;,
-  &quot;formula_latex&quot;: null,
-  &quot;metadata&quot;: {
-    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
-    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
-    &quot;page&quot;: null,
-    &quot;chunk_index&quot;: 2,
-    &quot;title&quot;: &quot;测试文档&quot;,
-    &quot;section&quot;: null,
-    &quot;modality&quot;: &quot;table&quot;,
-    &quot;parser_name&quot;: &quot;mineru&quot;
-  },
-  &quot;relationships&quot;: {
-    &quot;source_parser&quot;: &quot;mineru&quot;,
-    &quot;mineru_block_type&quot;: &quot;table&quot;,
-    &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;,
-    &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;,
-    &quot;next_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-    &quot;doc_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-    &quot;context_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-    &quot;context_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;
+      &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;
     ],
     &quot;context_window_chars&quot;: 800
   }
@@ -2893,9 +3255,9 @@ d \sigma_ {a} (\theta , \tau) = 2 \sigma_ {0} G _ {1} (\vartheta , \tau) G _ {2}
             <article class="node text">
               <div class="meta">
                 <strong>text</strong>
-                <span>11848f8e85db2e916e4adaa1950d6910:text:3</span>
+                <span>11848f8e85db2e916e4adaa1950d6910:text:2</span>
                 <span>page=1</span>
-                <span>chunk=3</span>
+                <span>chunk=2</span>
                 <span>section=测试文档</span>
                 <span>parser=mineru</span>
               </div>
@@ -2968,7 +3330,7 @@ $$
 
 &lt;/details&gt;</pre>
               <details><summary>Node JSON</summary><pre>{
-  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
   &quot;modality&quot;: &quot;text&quot;,
   &quot;text&quot;: &quot;# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品A在2025年1月至5月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n- 1月到3月：销售额持续增长，3月达到峰值   \n- 3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在3月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式:\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178万元\n\n# 2. 增长率（以2月→3月为例）\n\n公式:\n\n增长率 $= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}$\n\n计算：\n\n$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$\n\n2月到3月增长显著\n\n# 四、结论\n\n- 3月为销售高峰，应重点分析原因（活动/市场需求）  \n- 后续月份下滑明显，需考虑优化策略  \n- 建议关注季节性波动并制定对应营销方案\n\n2025年销售额  \n![](images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg)\n\n&lt;details&gt;\n&lt;summary&gt;line&lt;/summary&gt;\n\n\n&lt;/details&gt;&quot;,
   &quot;image_path&quot;: null,
@@ -2978,7 +3340,7 @@ $$
     &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
     &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
     &quot;page&quot;: 1,
-    &quot;chunk_index&quot;: 3,
+    &quot;chunk_index&quot;: 2,
     &quot;title&quot;: &quot;测试文档&quot;,
     &quot;section&quot;: &quot;测试文档&quot;,
     &quot;modality&quot;: &quot;text&quot;,
@@ -2987,28 +3349,85 @@ $$
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:page:1&quot;,
-    &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:2&quot;,
-    &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:2&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
+    &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
+    &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
+    &quot;next_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
+    &quot;doc_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
+    &quot;same_page_node_ids&quot;: [
+      &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;
+    ],
+    &quot;related_table_node_ids&quot;: [
+      &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;
+    ],
+    &quot;related_formula_node_ids&quot;: [
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;
+    ]
+  }
+}</pre></details>
+            </article>
+            
+
+            <article class="node formula">
+              <div class="meta">
+                <strong>formula</strong>
+                <span>11848f8e85db2e916e4adaa1950d6910:formula:3</span>
+                <span>page=1</span>
+                <span>chunk=3</span>
+                <span>section=None</span>
+                <span>parser=mineru:formula</span>
+              </div>
+              <div class="warnings">section=null</div>
+              <pre>\bar {x} = \frac {\sum x _ {i}}{n}</pre>
+              <details><summary>Node JSON</summary><pre>{
+  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
+  &quot;modality&quot;: &quot;formula&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\bar {x} = \\frac {\\sum x _ {i}}{n}&quot;,
+  &quot;image_path&quot;: null,
+  &quot;table_markdown&quot;: null,
+  &quot;formula_latex&quot;: &quot;\\bar {x} = \\frac {\\sum x _ {i}}{n}&quot;,
+  &quot;metadata&quot;: {
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
+    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;page&quot;: 1,
+    &quot;chunk_index&quot;: 3,
+    &quot;title&quot;: &quot;测试文档&quot;,
+    &quot;section&quot;: null,
+    &quot;modality&quot;: &quot;formula&quot;,
+    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;source_parser&quot;: &quot;mineru&quot;,
+    &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
+    &quot;page&quot;: 1,
+    &quot;page_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
+    &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
+    &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
     &quot;next_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
     &quot;doc_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
     &quot;same_page_node_ids&quot;: [
       &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
       &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;
     ],
-    &quot;related_table_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:table:1&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:table:2&quot;
+    &quot;context_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
+    &quot;context_node_ids&quot;: [
+      &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;
     ],
-    &quot;related_formula_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;
-    ]
+    &quot;context_window_chars&quot;: 800
   }
 }</pre></details>
             </article>
@@ -3024,14 +3443,14 @@ $$
                 <span>parser=mineru:formula</span>
               </div>
               <div class="warnings">section=null</div>
-              <pre>\bar {x} = \frac {\sum x _ {i}}{n}</pre>
+              <pre>\bar {x} = \frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8</pre>
               <details><summary>Node JSON</summary><pre>{
   &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
   &quot;modality&quot;: &quot;formula&quot;,
-  &quot;text&quot;: &quot;Formula (display): \\bar {x} = \\frac {\\sum x _ {i}}{n}&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8&quot;,
   &quot;image_path&quot;: null,
   &quot;table_markdown&quot;: null,
-  &quot;formula_latex&quot;: &quot;\\bar {x} = \\frac {\\sum x _ {i}}{n}&quot;,
+  &quot;formula_latex&quot;: &quot;\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8&quot;,
   &quot;metadata&quot;: {
     &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
     &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
@@ -3045,21 +3464,24 @@ $$
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:page:1&quot;,
-    &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-    &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
+    &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
+    &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
     &quot;next_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
     &quot;doc_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
     &quot;same_page_node_ids&quot;: [
       &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;
+      &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;
     ],
-    &quot;context_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
+    &quot;context_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
     &quot;context_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;
+      &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;
     ],
     &quot;context_window_chars&quot;: 800
   }
@@ -3077,14 +3499,14 @@ $$
                 <span>parser=mineru:formula</span>
               </div>
               <div class="warnings">section=null</div>
-              <pre>\bar {x} = \frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8</pre>
+              <pre>\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7</pre>
               <details><summary>Node JSON</summary><pre>{
   &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
   &quot;modality&quot;: &quot;formula&quot;,
-  &quot;text&quot;: &quot;Formula (display): \\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8&quot;,
+  &quot;text&quot;: &quot;Formula (display): \\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7&quot;,
   &quot;image_path&quot;: null,
   &quot;table_markdown&quot;: null,
-  &quot;formula_latex&quot;: &quot;\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8&quot;,
+  &quot;formula_latex&quot;: &quot;\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7&quot;,
   &quot;metadata&quot;: {
     &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
     &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
@@ -3098,21 +3520,22 @@ $$
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
     &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_raw_type&quot;: &quot;equation&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
     &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
-    &quot;next_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;,
-    &quot;doc_next_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;,
     &quot;same_page_node_ids&quot;: [
       &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;
+      &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:3&quot;,
+      &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;
     ],
-    &quot;context_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
+    &quot;context_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;,
     &quot;context_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;
+      &quot;11848f8e85db2e916e4adaa1950d6910:text:2&quot;
     ],
     &quot;context_window_chars&quot;: 800
   }
@@ -3120,52 +3543,52 @@ $$
             </article>
             
 
-            <article class="node formula">
+            <article class="node text">
               <div class="meta">
-                <strong>formula</strong>
-                <span>11848f8e85db2e916e4adaa1950d6910:formula:6</span>
+                <strong>text</strong>
+                <span>1873f0202a4b44197e0137b158529daa:text:0</span>
                 <span>page=1</span>
-                <span>chunk=6</span>
-                <span>section=None</span>
-                <span>parser=mineru:formula</span>
+                <span>chunk=0</span>
+                <span>section=测试文档2</span>
+                <span>parser=mineru</span>
               </div>
-              <div class="warnings">section=null</div>
-              <pre>\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7</pre>
+              <div class="warnings"></div>
+              <pre># 测试文档2
+
+下面是一张二次元美女图片
+
+![](images/bec994ae93999d46627cdc8c061c0776b2b7917bf1a254a84bc64ac62ce7dc45.jpg)
+
+&lt;details&gt;
+&lt;summary&gt;natural_image&lt;/summary&gt;
+
+Illustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)
+&lt;/details&gt;</pre>
               <details><summary>Node JSON</summary><pre>{
-  &quot;node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:6&quot;,
-  &quot;modality&quot;: &quot;formula&quot;,
-  &quot;text&quot;: &quot;Formula (display): \\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7&quot;,
+  &quot;node_id&quot;: &quot;1873f0202a4b44197e0137b158529daa:text:0&quot;,
+  &quot;modality&quot;: &quot;text&quot;,
+  &quot;text&quot;: &quot;# 测试文档2\n\n下面是一张二次元美女图片\n\n![](images/bec994ae93999d46627cdc8c061c0776b2b7917bf1a254a84bc64ac62ce7dc45.jpg)\n\n&lt;details&gt;\n&lt;summary&gt;natural_image&lt;/summary&gt;\n\nIllustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)\n&lt;/details&gt;&quot;,
   &quot;image_path&quot;: null,
   &quot;table_markdown&quot;: null,
-  &quot;formula_latex&quot;: &quot;\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7&quot;,
+  &quot;formula_latex&quot;: null,
   &quot;metadata&quot;: {
-    &quot;source&quot;: &quot;data\\demo_docs\\测试文档.pdf&quot;,
-    &quot;doc_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910&quot;,
+    &quot;source&quot;: &quot;data\\demo_docs\\测试文档2.pdf&quot;,
+    &quot;doc_id&quot;: &quot;1873f0202a4b44197e0137b158529daa&quot;,
     &quot;page&quot;: 1,
-    &quot;chunk_index&quot;: 6,
-    &quot;title&quot;: &quot;测试文档&quot;,
-    &quot;section&quot;: null,
-    &quot;modality&quot;: &quot;formula&quot;,
-    &quot;parser_name&quot;: &quot;mineru:formula&quot;
+    &quot;chunk_index&quot;: 0,
+    &quot;title&quot;: &quot;测试文档2&quot;,
+    &quot;section&quot;: &quot;测试文档2&quot;,
+    &quot;modality&quot;: &quot;text&quot;,
+    &quot;parser_name&quot;: &quot;mineru&quot;
   },
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru&quot;,
-    &quot;mineru_block_type&quot;: &quot;formula&quot;,
+    &quot;mineru_block_type&quot;: &quot;image&quot;,
+    &quot;mineru_raw_type&quot;: &quot;image&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
-    &quot;page_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:page:1&quot;,
-    &quot;prev_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
-    &quot;doc_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;,
-    &quot;same_page_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:table:0&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:4&quot;,
-      &quot;11848f8e85db2e916e4adaa1950d6910:formula:5&quot;
-    ],
-    &quot;context_prev_node_id&quot;: &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;,
-    &quot;context_node_ids&quot;: [
-      &quot;11848f8e85db2e916e4adaa1950d6910:text:3&quot;
-    ],
-    &quot;context_window_chars&quot;: 800
+    &quot;page_node_id&quot;: &quot;1873f0202a4b44197e0137b158529daa:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;
   }
 }</pre></details>
             </article>
@@ -3219,11 +3642,11 @@ $$
                 <span>parser=vlm:caption</span>
               </div>
               <div class="warnings">page=null, section=null</div>
-              <pre>This is a screenshot of a webpage titled &#x27;前端小站&#x27; (Frontend Small Station), displaying an article about HTML tags, author contact information, and site footer details.</pre>
+              <pre>一张包含中文文本的网页截图，显示了‘前端小站’的页面，内容包括文章说明、作者联系信息（张三，邮箱，电话，地址）以及页脚的站点联系信息。</pre>
               <details><summary>Node JSON</summary><pre>{
   &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:1&quot;,
   &quot;modality&quot;: &quot;image&quot;,
-  &quot;text&quot;: &quot;This is a screenshot of a webpage titled &#x27;前端小站&#x27; (Frontend Small Station), displaying an article about HTML tags, author contact information, and site footer details.&quot;,
+  &quot;text&quot;: &quot;一张包含中文文本的网页截图，显示了‘前端小站’的页面，内容包括文章说明、作者联系信息（张三，邮箱，电话，地址）以及页脚的站点联系信息。&quot;,
   &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
   &quot;table_markdown&quot;: null,
   &quot;formula_latex&quot;: null,
@@ -3242,8 +3665,8 @@ $$
     &quot;image_semantic_type&quot;: &quot;caption&quot;,
     &quot;source_parser&quot;: &quot;vlm:caption&quot;,
     &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
-    &quot;confidence&quot;: 0.95,
-    &quot;caption&quot;: &quot;This is a screenshot of a webpage titled &#x27;前端小站&#x27; (Frontend Small Station), displaying an article about HTML tags, author contact information, and site footer details.&quot;,
+    &quot;confidence&quot;: 0.98,
+    &quot;caption&quot;: &quot;一张包含中文文本的网页截图，显示了‘前端小站’的页面，内容包括文章说明、作者联系信息（张三，邮箱，电话，地址）以及页脚的站点联系信息。&quot;,
     &quot;scene_type&quot;: &quot;screenshot&quot;
   }
 }</pre></details>
@@ -3260,11 +3683,11 @@ $$
                 <span>parser=vlm:visible_text</span>
               </div>
               <div class="warnings">page=null, section=null</div>
-              <pre>前端小站, 文章：什么时候该用 &lt;a&gt;?, 作者：张三, 邮箱：zhangsan@example.com, 电话：+86 138 0000 0000, 站点联系（页脚信息）, © 2026 前端小站（示例）</pre>
+              <pre>前端小站，文章：什么时候该用&lt;a&gt;，作者：张三，邮箱zhangsan@example.com，电话+86 138 0000 0000，页脚联系支持@example.com</pre>
               <details><summary>Node JSON</summary><pre>{
   &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:2&quot;,
   &quot;modality&quot;: &quot;image&quot;,
-  &quot;text&quot;: &quot;前端小站, 文章：什么时候该用 &lt;a&gt;?, 作者：张三, 邮箱：zhangsan@example.com, 电话：+86 138 0000 0000, 站点联系（页脚信息）, © 2026 前端小站（示例）&quot;,
+  &quot;text&quot;: &quot;前端小站，文章：什么时候该用&lt;a&gt;，作者：张三，邮箱zhangsan@example.com，电话+86 138 0000 0000，页脚联系支持@example.com&quot;,
   &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
   &quot;table_markdown&quot;: null,
   &quot;formula_latex&quot;: null,
@@ -3283,8 +3706,8 @@ $$
     &quot;image_semantic_type&quot;: &quot;ocr&quot;,
     &quot;source_parser&quot;: &quot;vlm:visible_text&quot;,
     &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
-    &quot;confidence&quot;: 0.95,
-    &quot;ocr_text&quot;: &quot;前端小站, 文章：什么时候该用 &lt;a&gt;?, 作者：张三, 邮箱：zhangsan@example.com, 电话：+86 138 0000 0000, 站点联系（页脚信息）, © 2026 前端小站（示例）&quot;,
+    &quot;confidence&quot;: 0.98,
+    &quot;ocr_text&quot;: &quot;前端小站，文章：什么时候该用&lt;a&gt;，作者：张三，邮箱zhangsan@example.com，电话+86 138 0000 0000，页脚联系支持@example.com&quot;,
     &quot;scene_type&quot;: &quot;screenshot&quot;
   }
 }</pre></details>
@@ -3295,49 +3718,8 @@ $$
               <div class="meta">
                 <strong>image</strong>
                 <span>74a7b4254241fcee2502e32817dc61ab:image:3</span>
-                <span>page=None</span>
-                <span>chunk=3</span>
-                <span>section=None</span>
-                <span>parser=vlm:object</span>
-              </div>
-              <div class="warnings">page=null, section=null</div>
-              <pre>Webpage A screenshot of a website interface containing article content, author information, and footer details.</pre>
-              <details><summary>Node JSON</summary><pre>{
-  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:3&quot;,
-  &quot;modality&quot;: &quot;image&quot;,
-  &quot;text&quot;: &quot;Webpage A screenshot of a website interface containing article content, author information, and footer details.&quot;,
-  &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
-  &quot;table_markdown&quot;: null,
-  &quot;formula_latex&quot;: null,
-  &quot;metadata&quot;: {
-    &quot;source&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
-    &quot;doc_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab&quot;,
-    &quot;page&quot;: null,
-    &quot;chunk_index&quot;: 3,
-    &quot;title&quot;: &quot;联想截图_20260129233900&quot;,
-    &quot;section&quot;: null,
-    &quot;modality&quot;: &quot;image&quot;,
-    &quot;parser_name&quot;: &quot;vlm:object&quot;
-  },
-  &quot;relationships&quot;: {
-    &quot;parent_image_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;,
-    &quot;image_semantic_type&quot;: &quot;object&quot;,
-    &quot;source_parser&quot;: &quot;vlm:object&quot;,
-    &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
-    &quot;confidence&quot;: 0.95,
-    &quot;object_label&quot;: &quot;Webpage&quot;,
-    &quot;object_description&quot;: &quot;A screenshot of a website interface containing article content, author information, and footer details.&quot;
-  }
-}</pre></details>
-            </article>
-            
-
-            <article class="node image">
-              <div class="meta">
-                <strong>image</strong>
-                <span>74a7b4254241fcee2502e32817dc61ab:image:4</span>
                 <span>page=1</span>
-                <span>chunk=4</span>
+                <span>chunk=3</span>
                 <span>section=前端小站</span>
                 <span>parser=mineru:image_ocr</span>
               </div>
@@ -3372,7 +3754,7 @@ $$
 
 友情链接：示例站点</pre>
               <details><summary>Node JSON</summary><pre>{
-  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:4&quot;,
+  &quot;node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:3&quot;,
   &quot;modality&quot;: &quot;image&quot;,
   &quot;text&quot;: &quot;# 前端小站\n\n阅读文章 联系作者 MDN: &lt;a&gt; 文档（新窗口）\n\n# 文章：什么时候该用 $&lt; \\mathrm{a}&gt;$ ？\n\n当你的意图是“导航到某个资源”时，用链接很合适；如果是触发动作（比如打开弹窗），通常更该用&lt;button&gt;。\n\n小提示：你也可以用链接跳到页面内的某个位置，比如跳到联系信息。\n\n# 作者联系信息\n\n作者：张三\n\n邮箱：zhangsan@example.com\n\n电话：+86 138 0000 0000\n\n地址（可选）：上海市某某路100号（地图）\n\n# 站点联系（页脚信息）\n\n下面这个&lt;address&gt;更偏\&quot;网站/组织联系信息\&quot;的语义。\n\n© 2026 前端小站 (示例)\n\n客服：support@example.com·电话：+86 139 0000 0000\n\n友情链接：示例站点&quot;,
   &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
@@ -3382,7 +3764,7 @@ $$
     &quot;source&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,
     &quot;doc_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab&quot;,
     &quot;page&quot;: 1,
-    &quot;chunk_index&quot;: 4,
+    &quot;chunk_index&quot;: 3,
     &quot;title&quot;: &quot;联想截图_20260129233900&quot;,
     &quot;section&quot;: &quot;前端小站&quot;,
     &quot;modality&quot;: &quot;image&quot;,
@@ -3391,8 +3773,11 @@ $$
   &quot;relationships&quot;: {
     &quot;source_parser&quot;: &quot;mineru:text&quot;,
     &quot;mineru_block_type&quot;: &quot;text&quot;,
+    &quot;mineru_raw_type&quot;: &quot;text&quot;,
+    &quot;mineru_source_kind&quot;: &quot;content_list&quot;,
     &quot;page&quot;: 1,
     &quot;page_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:page:1&quot;,
+    &quot;page_source&quot;: &quot;structured&quot;,
     &quot;parent_image_node_id&quot;: &quot;74a7b4254241fcee2502e32817dc61ab:image:0&quot;,
     &quot;image_semantic_type&quot;: &quot;ocr&quot;,
     &quot;image_path&quot;: &quot;data\\demo_docs\\联想截图_20260129233900.png&quot;,

@@ -20833,5 +20833,394 @@
         "_version_name": "3.1.8"
       }
     ]
+  },
+  {
+    "source": "data\\demo_docs\\测试文档2.pdf",
+    "structured_content": [
+      [
+        [
+          {
+            "type": "title",
+            "bbox": [
+              0.06,
+              0.039,
+              0.163,
+              0.056
+            ],
+            "angle": 0,
+            "content": "测试文档2"
+          },
+          {
+            "type": "text",
+            "bbox": [
+              0.06,
+              0.065,
+              0.277,
+              0.08
+            ],
+            "angle": 0,
+            "content": "下面是一张二次元美女图片",
+            "merge_prev": false
+          },
+          {
+            "type": "image",
+            "bbox": [
+              0.062,
+              0.089,
+              0.937,
+              0.891
+            ],
+            "angle": 0,
+            "content": "Illustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)",
+            "sub_type": "natural_image"
+          }
+        ]
+      ],
+      [
+        {
+          "type": "text",
+          "text": "测试文档2 ",
+          "text_level": 1,
+          "bbox": [
+            59,
+            38,
+            162,
+            55
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "text",
+          "text": "下面是一张二次元美女图片",
+          "bbox": [
+            59,
+            64,
+            276,
+            79
+          ],
+          "page_idx": 0
+        },
+        {
+          "type": "image",
+          "img_path": "images/bec994ae93999d46627cdc8c061c0776b2b7917bf1a254a84bc64ac62ce7dc45.jpg",
+          "image_caption": [],
+          "image_footnote": [],
+          "content": "Illustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)",
+          "sub_type": "natural_image",
+          "bbox": [
+            61,
+            88,
+            936,
+            890
+          ],
+          "page_idx": 0
+        }
+      ],
+      [
+        [
+          {
+            "type": "title",
+            "content": {
+              "title_content": [
+                {
+                  "type": "text",
+                  "content": "测试文档2 "
+                }
+              ],
+              "level": 1
+            },
+            "bbox": [
+              59,
+              38,
+              162,
+              55
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": {
+              "paragraph_content": [
+                {
+                  "type": "text",
+                  "content": "下面是一张二次元美女图片"
+                }
+              ]
+            },
+            "bbox": [
+              59,
+              64,
+              276,
+              79
+            ]
+          },
+          {
+            "type": "image",
+            "content": {
+              "image_source": {
+                "path": "images/bec994ae93999d46627cdc8c061c0776b2b7917bf1a254a84bc64ac62ce7dc45.jpg"
+              },
+              "content": "Illustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)",
+              "image_caption": [],
+              "image_footnote": []
+            },
+            "sub_type": "natural_image",
+            "bbox": [
+              61,
+              88,
+              936,
+              890
+            ]
+          }
+        ]
+      ],
+      {
+        "pdf_info": [
+          {
+            "preproc_blocks": [
+              {
+                "bbox": [
+                  47,
+                  47,
+                  129,
+                  68
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      47,
+                      129,
+                      68
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          47,
+                          129,
+                          68
+                        ],
+                        "type": "text",
+                        "content": "测试文档2"
+                      }
+                    ]
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "bbox": [
+                  47,
+                  79,
+                  219,
+                  97
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      79,
+                      219,
+                      97
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          79,
+                          219,
+                          97
+                        ],
+                        "type": "text",
+                        "content": "下面是一张二次元美女图片"
+                      }
+                    ]
+                  }
+                ],
+                "index": 1,
+                "merge_prev": false
+              },
+              {
+                "type": "image",
+                "bbox": [
+                  49,
+                  108,
+                  742,
+                  1090
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      49,
+                      108,
+                      742,
+                      1090
+                    ],
+                    "type": "image_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          49,
+                          108,
+                          742,
+                          1090
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              49,
+                              108,
+                              742,
+                              1090
+                            ],
+                            "type": "image",
+                            "content": "Illustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)",
+                            "image_path": "bec994ae93999d46627cdc8c061c0776b2b7917bf1a254a84bc64ac62ce7dc45.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 2
+                  }
+                ],
+                "index": 2,
+                "sub_type": "natural_image"
+              }
+            ],
+            "discarded_blocks": [],
+            "page_size": [
+              792,
+              1224
+            ],
+            "page_idx": 0,
+            "para_blocks": [
+              {
+                "bbox": [
+                  47,
+                  47,
+                  129,
+                  68
+                ],
+                "type": "title",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      47,
+                      129,
+                      68
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          47,
+                          129,
+                          68
+                        ],
+                        "type": "text",
+                        "content": "测试文档2"
+                      }
+                    ]
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "bbox": [
+                  47,
+                  79,
+                  219,
+                  97
+                ],
+                "type": "text",
+                "angle": 0,
+                "lines": [
+                  {
+                    "bbox": [
+                      47,
+                      79,
+                      219,
+                      97
+                    ],
+                    "spans": [
+                      {
+                        "bbox": [
+                          47,
+                          79,
+                          219,
+                          97
+                        ],
+                        "type": "text",
+                        "content": "下面是一张二次元美女图片"
+                      }
+                    ]
+                  }
+                ],
+                "index": 1,
+                "merge_prev": false
+              },
+              {
+                "type": "image",
+                "bbox": [
+                  49,
+                  108,
+                  742,
+                  1090
+                ],
+                "blocks": [
+                  {
+                    "bbox": [
+                      49,
+                      108,
+                      742,
+                      1090
+                    ],
+                    "type": "image_body",
+                    "angle": 0,
+                    "lines": [
+                      {
+                        "bbox": [
+                          49,
+                          108,
+                          742,
+                          1090
+                        ],
+                        "spans": [
+                          {
+                            "bbox": [
+                              49,
+                              108,
+                              742,
+                              1090
+                            ],
+                            "type": "image",
+                            "content": "Illustration of a girl with purple hair and cat ears, wearing a black dress and white skirt, posing with her hand on her lap (no text or symbols)",
+                            "image_path": "bec994ae93999d46627cdc8c061c0776b2b7917bf1a254a84bc64ac62ce7dc45.jpg"
+                          }
+                        ]
+                      }
+                    ],
+                    "index": 2
+                  }
+                ],
+                "index": 2,
+                "sub_type": "natural_image"
+              }
+            ]
+          }
+        ],
+        "_backend": "hybrid",
+        "_ocr_enable": true,
+        "_vlm_ocr_enable": true,
+        "_version_name": "3.1.8"
+      }
+    ]
   }
 ]

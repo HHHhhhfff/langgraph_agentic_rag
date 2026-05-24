@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 from agentic_rag.config import Settings
+from agentic_rag.cli import inspect_ingestion
 from agentic_rag.cli.inspect_ingestion import _inspect_input
 from agentic_rag.ingestion.inspection import (
     IngestionInspectionRecorder,
@@ -104,6 +106,43 @@ def test_recorder_writes_expected_artifacts(tmp_path: Path) -> None:
     assert "page=null" not in (run_dir / "chunks.html").read_text(encoding="utf-8")
 
 
+def test_recorder_updates_manifest_after_write(tmp_path: Path) -> None:
+    recorder = IngestionInspectionRecorder(
+        settings=Settings(_env_file=None),
+        output_dir=tmp_path,
+        run_id="run-write",
+    )
+    result = MultimodalIngestionResult(nodes=[_node()], failures=[])
+    run_dir = recorder.write_report(
+        input_path="data/demo_docs/doc.pdf",
+        result=result,
+        parser="mineru",
+        render_pages=False,
+    )
+
+    recorder.update_write_status(
+        write_qdrant_requested=True,
+        wrote_qdrant=True,
+        write_local_index_requested=True,
+        wrote_local_index=True,
+        recreate_collection_requested=True,
+        recreated_collection=True,
+        qdrant_collection="docs",
+        embedded_count=1,
+        upserted_point_count=1,
+        build_index_log_mode="synced",
+    )
+
+    import json
+
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["mode"] == "inspect_then_build_index"
+    assert manifest["wrote_qdrant"] is True
+    assert manifest["wrote_local_index"] is True
+    assert manifest["recreated_collection"] is True
+    assert manifest["upserted_point_count"] == 1
+
+
 def test_render_pdf_pages_without_pymupdf_does_not_raise(tmp_path: Path, monkeypatch) -> None:
     import builtins
 
@@ -135,3 +174,106 @@ def test_inspect_input_single_markdown_uses_orchestrator_without_qdrant(tmp_path
     assert result.failures == []
     assert parser
     assert raw is None
+
+
+def test_inspect_cli_default_does_not_write_qdrant(tmp_path: Path, monkeypatch, capsys) -> None:
+    doc = tmp_path / "doc.md"
+    doc.write_text("# Title\n\nbody text", encoding="utf-8")
+    settings = Settings(
+        _env_file=None,
+        ingestion_engine="multimodal",
+        multimodal_enabled=True,
+        ingestion_inspect_output_dir=str(tmp_path / "inspect"),
+        ingestion_inspect_include_mineru_raw=False,
+        ingestion_inspect_include_embedding_preview=False,
+    )
+    calls = {"write": 0}
+
+    monkeypatch.setattr(inspect_ingestion, "get_settings", lambda: settings)
+    monkeypatch.setattr(
+        inspect_ingestion,
+        "build_index_from_nodes",
+        lambda *args, **kwargs: calls.__setitem__("write", calls["write"] + 1),
+    )
+    monkeypatch.setattr("sys.argv", ["inspect_ingestion", str(doc)])
+
+    assert inspect_ingestion.main() == 0
+    assert calls["write"] == 0
+    assert "- wrote_qdrant: false" in capsys.readouterr().out
+
+
+def test_inspect_cli_write_qdrant_updates_manifest(tmp_path: Path, monkeypatch) -> None:
+    doc = tmp_path / "doc.md"
+    doc.write_text("# Title\n\nbody text", encoding="utf-8")
+    out_dir = tmp_path / "inspect"
+    settings = Settings(
+        _env_file=None,
+        ingestion_engine="multimodal",
+        multimodal_enabled=True,
+        ingestion_inspect_output_dir=str(out_dir),
+        ingestion_inspect_include_mineru_raw=False,
+        ingestion_inspect_include_embedding_preview=False,
+    )
+    captured = {}
+
+    summary = SimpleNamespace(
+        documents=1,
+        chunks=1,
+        vectors=1,
+        upserted=1,
+        vector_size=3,
+        failed_files=0,
+        named_vectors_enabled=False,
+        named_vector_counts={},
+    )
+    build_result = SimpleNamespace(
+        summary=summary,
+        node_count=1,
+        embedded_count=1,
+        upserted_point_count=1,
+        wrote_qdrant=True,
+        wrote_local_index=False,
+        recreated_collection=True,
+        qdrant_collection="agentic_rag_docs",
+        elapsed_ms=12,
+        run_id="rid",
+    )
+
+    def fake_build_index_from_nodes(nodes, *, source, settings, options):
+        captured["node_count"] = len(nodes)
+        captured["recreate_collection"] = options.recreate_collection
+        captured["write_local_index"] = options.write_local_index
+        captured["emit_logs"] = options.emit_logs
+        return build_result
+
+    monkeypatch.setattr(inspect_ingestion, "get_settings", lambda: settings)
+    monkeypatch.setattr(inspect_ingestion, "build_index_from_nodes", fake_build_index_from_nodes)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "inspect_ingestion",
+            str(doc),
+            "--write-qdrant",
+            "--recreate-collection",
+            "--no-write-local-index",
+            "--no-sync-build-index-logs",
+        ],
+    )
+
+    assert inspect_ingestion.main() == 0
+    assert captured == {
+        "node_count": 1,
+        "recreate_collection": True,
+        "write_local_index": False,
+        "emit_logs": False,
+    }
+
+    import json
+
+    manifest_path = next((out_dir / "runs").glob("*/manifest.json"))
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["mode"] == "inspect_then_build_index"
+    assert manifest["wrote_qdrant"] is True
+    assert manifest["write_local_index_requested"] is False
+    assert manifest["recreated_collection"] is True
+    assert (manifest_path.parent / "previews" / "build_index_summary.json").exists()

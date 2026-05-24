@@ -317,6 +317,22 @@ class Settings(BaseSettings):
         default=False,
         description="Reserved switch for full vector export; defaults to false to avoid large reports",
     )
+    ingestion_inspect_write_qdrant: bool = Field(
+        default=False,
+        description="When true, inspect_ingestion writes inspected nodes to Qdrant after report generation",
+    )
+    ingestion_inspect_write_local_index: bool = Field(
+        default=True,
+        description="When inspect writes Qdrant, also persist local retrieval indexes",
+    )
+    ingestion_inspect_recreate_collection: bool = Field(
+        default=False,
+        description="When inspect writes Qdrant, recreate the target collection before upsert",
+    )
+    ingestion_inspect_sync_build_index_logs: bool = Field(
+        default=True,
+        description="Emit build_index-compatible logs during inspect write stage",
+    )
     enable_stage_log: bool = Field(default=False, description="Enable structured stage logging")
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = Field(
         default="INFO",

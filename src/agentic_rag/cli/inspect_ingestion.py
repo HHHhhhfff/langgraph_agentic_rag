@@ -14,6 +14,11 @@ from agentic_rag.ingestion.inspection import (
     empty_mineru_raw,
     failure_result,
 )
+from agentic_rag.ingestion.index_build_service import (
+    IndexBuildOptions,
+    build_index_from_nodes,
+    print_index_build_summary,
+)
 from agentic_rag.ingestion.multimodal_orchestrator import MultiModalOrchestrator
 from agentic_rag.ingestion.node_schema import IngestionFailure, MultimodalIngestionResult
 
@@ -53,6 +58,58 @@ def main() -> int:
         default=None,
         help="Write embedding_preview.jsonl without full vectors",
     )
+    parser.add_argument(
+        "--write-qdrant",
+        dest="write_qdrant",
+        action="store_true",
+        default=None,
+        help="After writing inspect artifacts, write the inspected nodes to Qdrant",
+    )
+    parser.add_argument(
+        "--no-write-qdrant",
+        dest="write_qdrant",
+        action="store_false",
+        help="Force inspect-only mode without Qdrant writes",
+    )
+    parser.add_argument(
+        "--write-local-index",
+        dest="write_local_index",
+        action="store_true",
+        default=None,
+        help="When writing Qdrant, also write local retrieval indexes",
+    )
+    parser.add_argument(
+        "--no-write-local-index",
+        dest="write_local_index",
+        action="store_false",
+        help="When writing Qdrant, skip local retrieval indexes",
+    )
+    parser.add_argument(
+        "--recreate-collection",
+        dest="recreate_collection",
+        action="store_true",
+        default=None,
+        help="When writing Qdrant, recreate the target collection before upsert",
+    )
+    parser.add_argument(
+        "--no-recreate-collection",
+        dest="recreate_collection",
+        action="store_false",
+        help="When writing Qdrant, do not recreate the target collection",
+    )
+    parser.add_argument(
+        "--sync-build-index-logs",
+        dest="sync_build_index_logs",
+        action="store_true",
+        default=None,
+        help="Emit build_index-compatible logs during inspect write stage",
+    )
+    parser.add_argument(
+        "--no-sync-build-index-logs",
+        dest="sync_build_index_logs",
+        action="store_false",
+        help="Suppress build_index-compatible logs during inspect write stage",
+    )
     parser.add_argument("--json", action="store_true", help="Print JSON summary")
     args = parser.parse_args()
 
@@ -62,6 +119,8 @@ def main() -> int:
     input_path = Path(args.input_path)
     output_dir = Path(args.output or settings.ingestion_inspect_output_dir)
     render_pages = bool(args.render_pages) if args.render_pages is not None else settings.ingestion_inspect_render_pdf_pages
+    write_result = None
+    write_error = None
 
     try:
         result, parser_name, mineru_raw = _inspect_input(input_path, settings)
@@ -77,8 +136,51 @@ def main() -> int:
             render_pages=render_pages,
             mineru_raw=mineru_raw,
         )
+        if settings.ingestion_inspect_write_qdrant:
+            try:
+                write_result = build_index_from_nodes(
+                    result.nodes,
+                    source=str(input_path),
+                    settings=settings,
+                    options=IndexBuildOptions(
+                        recreate_collection=settings.ingestion_inspect_recreate_collection,
+                        write_local_index=settings.ingestion_inspect_write_local_index,
+                        emit_logs=settings.ingestion_inspect_sync_build_index_logs,
+                        source_label="inspect_ingestion",
+                    ),
+                )
+                recorder.write_build_index_results(write_result)
+                recorder.update_write_status(
+                    write_qdrant_requested=True,
+                    wrote_qdrant=write_result.wrote_qdrant,
+                    write_local_index_requested=settings.ingestion_inspect_write_local_index,
+                    wrote_local_index=write_result.wrote_local_index,
+                    recreate_collection_requested=settings.ingestion_inspect_recreate_collection,
+                    recreated_collection=write_result.recreated_collection,
+                    qdrant_collection=write_result.qdrant_collection,
+                    embedded_count=write_result.embedded_count,
+                    upserted_point_count=write_result.upserted_point_count,
+                    build_index_log_mode="synced" if settings.ingestion_inspect_sync_build_index_logs else "disabled",
+                )
+            except Exception as exc:
+                write_error = exc
+                recorder.update_write_status(
+                    write_qdrant_requested=True,
+                    wrote_qdrant=False,
+                    write_local_index_requested=settings.ingestion_inspect_write_local_index,
+                    wrote_local_index=False,
+                    recreate_collection_requested=settings.ingestion_inspect_recreate_collection,
+                    recreated_collection=False,
+                    qdrant_collection=settings.qdrant_collection,
+                    build_index_log_mode="synced" if settings.ingestion_inspect_sync_build_index_logs else "disabled",
+                    ingestion_error=f"{type(exc).__name__}: {exc}",
+                )
     except Exception as exc:
         print(f"[ERROR] Ingestion inspect failed: {exc}", file=sys.stderr)
+        return 1
+
+    if write_error is not None:
+        print(f"[ERROR] Inspect artifacts written, but index build failed: {write_error}", file=sys.stderr)
         return 1
 
     if args.json:
@@ -90,7 +192,10 @@ def main() -> int:
                     "run_dir": str(run_dir),
                     "nodes": len(result.nodes),
                     "failed_files": len(result.failures),
-                    "wrote_qdrant": False,
+                    "wrote_qdrant": bool(write_result.wrote_qdrant) if write_result else False,
+                    "wrote_local_index": bool(write_result.wrote_local_index) if write_result else False,
+                    "recreated_collection": bool(write_result.recreated_collection) if write_result else False,
+                    "upserted_point_count": write_result.upserted_point_count if write_result else 0,
                 },
                 ensure_ascii=False,
                 indent=2,
@@ -102,7 +207,11 @@ def main() -> int:
     print(f"- run_dir: {run_dir}")
     print(f"- nodes: {len(result.nodes)}")
     print(f"- failed_files: {len(result.failures)}")
-    print("- wrote_qdrant: false")
+    print(f"- wrote_qdrant: {str(bool(write_result.wrote_qdrant) if write_result else False).lower()}")
+    if write_result:
+        print_index_build_summary(write_result.summary)
+        print(f"- wrote_local_index: {str(write_result.wrote_local_index).lower()}")
+        print(f"- recreated_collection: {str(write_result.recreated_collection).lower()}")
     print("- open: chunks.html / document_map.html")
     return 0
 
@@ -117,6 +226,14 @@ def _settings_with_cli_overrides(settings: Settings, args: argparse.Namespace) -
         updates["ingestion_inspect_max_text_chars"] = args.max_text_chars
     if args.render_pages is not None:
         updates["ingestion_inspect_render_pdf_pages"] = bool(args.render_pages)
+    if args.write_qdrant is not None:
+        updates["ingestion_inspect_write_qdrant"] = bool(args.write_qdrant)
+    if args.write_local_index is not None:
+        updates["ingestion_inspect_write_local_index"] = bool(args.write_local_index)
+    if args.recreate_collection is not None:
+        updates["ingestion_inspect_recreate_collection"] = bool(args.recreate_collection)
+    if args.sync_build_index_logs is not None:
+        updates["ingestion_inspect_sync_build_index_logs"] = bool(args.sync_build_index_logs)
     return settings.model_copy(update=updates) if updates else settings
 
 
