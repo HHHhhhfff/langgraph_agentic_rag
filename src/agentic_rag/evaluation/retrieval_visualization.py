@@ -164,10 +164,12 @@ def build_stage_compare(record: dict[str, Any]) -> list[dict[str, Any]]:
                     "modality": (hit.get("retrieval") or {}).get("modality") or (hit.get("metadata") or {}).get("modality"),
                     "channel": (hit.get("retrieval") or {}).get("channel"),
                     "score": (hit.get("scores") or {}).get("score"),
+                    "score_composite": (hit.get("scores") or {}).get("score_composite"),
                 },
             )
             row[f"{stage}_rank"] = hit.get("rank")
             row[f"{stage}_score"] = (hit.get("scores") or {}).get("score")
+            row[f"{stage}_composite"] = (hit.get("scores") or {}).get("score_composite")
     rows = list(by_key.values())
     for row in rows:
         row["status"] = _rank_status(row)
@@ -234,8 +236,11 @@ def render_stage_compare_html(path: Path, rows: list[dict[str, Any]]) -> None:
               <td>{_e(row.get("page"))}</td>
               <td>{_e(row.get("chunk_index"))}</td>
               <td>{_e(row.get("initial_retrieval_rank"))}</td>
+              <td>{_fmt_score(row.get("initial_retrieval_composite"))}</td>
               <td>{_e(row.get("rerank_rank"))}</td>
+              <td>{_fmt_score(row.get("rerank_composite"))}</td>
               <td>{_e(row.get("final_after_retry_rank"))}</td>
+              <td>{_fmt_score(row.get("final_after_retry_composite"))}</td>
               <td>{_e(row.get("rank_flow"))}</td>
             </tr>
             """
@@ -244,7 +249,7 @@ def render_stage_compare_html(path: Path, rows: list[dict[str, Any]]) -> None:
     <section>
       <h2>Stage Rank Compare</h2>
       <table>
-        <thead><tr><th>status</th><th>node</th><th>source</th><th>page</th><th>chunk</th><th>initial</th><th>rerank</th><th>final</th><th>flow</th></tr></thead>
+        <thead><tr><th>status</th><th>node</th><th>source</th><th>page</th><th>chunk</th><th>initial</th><th>initial_score</th><th>rerank</th><th>rerank_score</th><th>final</th><th>final_score</th><th>flow</th></tr></thead>
         <tbody>{''.join(body_rows)}</tbody>
       </table>
     </section>
@@ -341,6 +346,12 @@ def _render_hit_card(stage: str, snapshot: dict[str, Any], hit: dict[str, Any]) 
         "score_bm25": _fmt_score(scores.get("score_bm25")),
         "score_rrf": _fmt_score(scores.get("score_rrf")),
         "rerank_score": _fmt_score(scores.get("rerank_score")),
+        "score_composite": _fmt_score(scores.get("score_composite")),
+        "score_policy": scores.get("score_policy"),
+        "threshold_passed": scores.get("score_threshold_passed"),
+        "expanded_from": metadata.get("retrieval_expanded_from_node_id"),
+        "expansion_relation": metadata.get("retrieval_expansion_relation"),
+        "candidate_pool": metadata.get("retrieval_candidate_pool"),
     }
     chips = "".join(f"<span><strong>{_e(k)}</strong>={_e(v)}</span>" for k, v in fields.items())
     return f"""

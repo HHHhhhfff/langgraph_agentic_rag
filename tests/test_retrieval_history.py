@@ -40,6 +40,8 @@ def _hit(point_id: str = "p1", text: str = "TaskGraph evidence") -> SearchHit:
 def test_serialize_hit_outputs_llamaindex_like_fields() -> None:
     hit = _hit()
     hit.metadata["rerank_score"] = 0.91
+    hit.metadata["score_composite"] = 0.83
+    hit.metadata["score_policy"] = "weighted_v1"
 
     row = serialize_hit(hit, rank=1, max_text_chars=5)
 
@@ -50,6 +52,8 @@ def test_serialize_hit_outputs_llamaindex_like_fields() -> None:
     assert row["metadata"]["source"] == "doc.md"
     assert row["relationships"]["parent_node_id"] == "parent"
     assert row["scores"]["rerank_score"] == 0.91
+    assert row["scores"]["score_composite"] == 0.83
+    assert row["scores"]["score_policy"] == "weighted_v1"
     assert row["retrieval"]["vector_name"] == "text"
     assert row["retrieval"]["source_parser"] == "llamaindex:sentence"
     assert row["metadata"]["parser_name"] == "llamaindex:sentence"
@@ -160,8 +164,14 @@ def test_task_graph_writes_retrieval_history_record(tmp_path: Path) -> None:
     record = json.loads(rows[0])
     assert record["schema_version"] == "retrieval_eval.v1"
     assert record["query"]["text"] == "TaskGraph"
-    assert [row["stage"] for row in record["snapshots"]] == ["initial_retrieval", "rerank", "final_after_retry"]
+    assert [row["stage"] for row in record["snapshots"]] == [
+        "initial_retrieval",
+        "initial_expanded",
+        "rerank",
+        "final_after_retry",
+    ]
     assert record["snapshots"][0]["hits"][0]["node_id"] == "n-p1"
+    assert record["snapshots"][1]["hits"][0]["node_id"] == "n-p1"
     assert record["labels"]["relevant_node_ids"] == []
 
 
@@ -195,6 +205,11 @@ def test_task_graph_final_snapshot_uses_retry_hits(tmp_path: Path) -> None:
     snapshots = {row["stage"]: row for row in record["snapshots"]}
     assert retriever.calls >= 2
     assert snapshots["initial_retrieval"]["hits"][0]["point_id"] == "p1"
+    assert "initial_expanded" in snapshots
+    assert len(snapshots["initial_expanded"]["hits"]) >= len(snapshots["initial_retrieval"]["hits"])
+    assert "retry_1_retrieval" in snapshots
+    assert "retry_1_expanded" in snapshots
+    assert "retry_1_rerank" in snapshots
     assert snapshots["final_after_retry"]["hits"][0]["point_id"] == "p2"
 
 

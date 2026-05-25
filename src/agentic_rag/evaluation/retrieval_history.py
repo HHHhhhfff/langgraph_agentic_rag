@@ -126,6 +126,13 @@ def serialize_hit(hit: SearchHit, *, rank: int, max_text_chars: int) -> dict[str
             "score_bm25": hit.score_bm25,
             "score_rrf": hit.score_rrf,
             "rerank_score": metadata.get("rerank_score"),
+            "score_composite": metadata.get("score_composite"),
+            "score_stage": metadata.get("score_stage"),
+            "score_policy": metadata.get("score_policy"),
+            "score_components": metadata.get("score_components"),
+            "score_weights": metadata.get("score_weights"),
+            "score_threshold": metadata.get("score_threshold"),
+            "score_threshold_passed": metadata.get("score_threshold_passed"),
         },
         "retrieval": {
             "channel": hit.channel,

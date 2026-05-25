@@ -48,6 +48,9 @@ def _hit(
             "score_bm25": None,
             "score_rrf": 0.02,
             "rerank_score": None,
+            "score_composite": rank_score,
+            "score_policy": "weighted_v1",
+            "score_threshold_passed": True,
         },
         "retrieval": {
             "channel": "vector",
@@ -122,6 +125,7 @@ def test_write_retrieval_visualization_report_outputs_artifacts_without_vectors(
     assert "what is revenue" in chunks
     assert "initial_retrieval" in chunks
     assert "score_vector" in chunks
+    assert "score_composite" in chunks
     assert "doc.md" in chunks
     assert "chunk_index" in chunks
     raw = json.loads((run_dir / "raw_record.json").read_text(encoding="utf-8"))

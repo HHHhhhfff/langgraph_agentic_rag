@@ -15,6 +15,28 @@ def _hit(point_id: str, text: str, score: float = 1.0) -> SearchHit:
     return SearchHit(point_id=point_id, text=text, score=score, metadata={"source": "s.md", "chunk_index": 0})
 
 
+def _node_hit(
+    node_id: str,
+    text: str,
+    score: float = 1.0,
+    *,
+    modality: str = "text",
+    relationships: dict | None = None,
+) -> SearchHit:
+    return SearchHit(
+        point_id=node_id,
+        node_id=node_id,
+        text=text,
+        score=score,
+        score_vector=score,
+        doc_id="doc1",
+        page=1,
+        modality=modality,
+        metadata={"source": "s.md", "chunk_index": 0, "modality": modality},
+        relationships=relationships or {},
+    )
+
+
 def test_hybrid_retriever_executes_only_plan_channels(monkeypatch) -> None:
     settings = Settings(bm25_enabled=True)
     calls: list[str] = []
@@ -79,6 +101,106 @@ def test_hybrid_retriever_relationship_expands_only_when_planned(monkeypatch) ->
     assert result.executed_channels == ["vector", "relationship"]
 
 
+def test_hybrid_retriever_auto_expands_related_modality_for_normal_plan() -> None:
+    seed = _node_hit(
+        "text:1",
+        "seed text",
+        relationships={"related_table_node_ids": ["table:1"]},
+    )
+    table = _node_hit("table:1", "table markdown", 0.2, modality="table")
+
+    class StoreWithRelated:
+        def scroll_hits(self, *args, **kwargs):
+            return [seed, table]
+
+    settings = Settings(
+        bm25_enabled=False,
+        rel_expand_explicit_relationships=True,
+        rel_expand_related_modality_enabled=True,
+        rel_expand_context_text_enabled=False,
+        rel_expand_min_seed_composite_score=0.0,
+    )
+    retriever = HybridRetriever(
+        settings=settings,
+        store=StoreWithRelated(),
+        vector_search_fn=lambda query_vector, filters=None: [seed],
+    )
+    plan = RetrievalPlan(question="q", tasks=[RetrievalTask(channel="vector")])
+
+    result = retriever.retrieve(query_text="q", query_vector=[0.1], plan=plan)
+
+    expanded = {hit.node_id: hit for hit in result.expanded_hits}
+    assert "table:1" in expanded
+    assert all(hit.node_id != "table:1" for hit in result.hits)
+    assert expanded["table:1"].metadata["retrieval_expanded_from_node_id"] == "text:1"
+    assert expanded["table:1"].metadata["retrieval_expansion_relation"] == "related_table_node_ids"
+    assert expanded["table:1"].metadata["retrieval_candidate_pool"] == "related_modality"
+
+
+def test_hybrid_retriever_auto_related_modality_can_be_disabled() -> None:
+    seed = _node_hit(
+        "text:1",
+        "seed text",
+        relationships={"related_table_node_ids": ["table:1"]},
+    )
+    table = _node_hit("table:1", "table markdown", 0.2, modality="table")
+
+    class StoreWithRelated:
+        def scroll_hits(self, *args, **kwargs):
+            return [seed, table]
+
+    settings = Settings(
+        bm25_enabled=False,
+        rel_expand_explicit_relationships=True,
+        rel_expand_related_modality_enabled=False,
+        rel_expand_context_text_enabled=False,
+        rel_expand_min_seed_composite_score=0.0,
+    )
+    retriever = HybridRetriever(
+        settings=settings,
+        store=StoreWithRelated(),
+        vector_search_fn=lambda query_vector, filters=None: [seed],
+    )
+    plan = RetrievalPlan(question="q", tasks=[RetrievalTask(channel="vector")])
+
+    result = retriever.retrieve(query_text="q", query_vector=[0.1], plan=plan)
+
+    assert all(hit.node_id != "table:1" for hit in result.expanded_hits)
+
+
+def test_hybrid_retriever_explicit_relationship_switch_disables_auto_expansion(monkeypatch) -> None:
+    seed = _node_hit(
+        "text:1",
+        "seed text",
+        relationships={"related_table_node_ids": ["table:1"]},
+    )
+    scroll_calls = 0
+
+    class StoreWithRelated:
+        def scroll_hits(self, *args, **kwargs):
+            nonlocal scroll_calls
+            scroll_calls += 1
+            return [seed, _node_hit("table:1", "table markdown", 0.2, modality="table")]
+
+    settings = Settings(
+        bm25_enabled=False,
+        rel_expand_explicit_relationships=False,
+        rel_expand_related_modality_enabled=True,
+        rel_expand_context_text_enabled=True,
+    )
+    retriever = HybridRetriever(
+        settings=settings,
+        store=StoreWithRelated(),
+        vector_search_fn=lambda query_vector, filters=None: [seed],
+    )
+    plan = RetrievalPlan(question="q", tasks=[RetrievalTask(channel="vector")])
+
+    result = retriever.retrieve(query_text="q", query_vector=[0.1], plan=plan)
+
+    assert scroll_calls == 0
+    assert [hit.node_id for hit in result.expanded_hits] == ["text:1"]
+
+
 def test_hybrid_retriever_uses_plan_page_window_for_relationship_expansion() -> None:
     settings = Settings(bm25_enabled=False, rel_expand_pages=1)
     seed = SearchHit(
@@ -118,3 +240,30 @@ def test_hybrid_retriever_uses_plan_page_window_for_relationship_expansion() -> 
     result = retriever.retrieve(query_text="q", query_vector=[0.1], plan=plan)
 
     assert any(hit.point_id == "far" for hit in result.expanded_hits)
+
+
+def test_hybrid_retriever_weak_keyword_adds_table_channel(monkeypatch) -> None:
+    settings = Settings(
+        _env_file=None,
+        bm25_enabled=False,
+        enable_named_vectors=False,
+        retrieval_auto_table_channel_enabled=True,
+        retrieval_auto_formula_channel_enabled=False,
+        retrieval_table_trigger_keywords="表格,列表",
+    )
+    calls: list[str] = []
+    retriever = HybridRetriever(
+        settings=settings,
+        store=DummyStore(),
+        vector_search_fn=lambda query_vector, filters=None: calls.append("vector") or [_hit("v1", "vector")],
+    )
+    monkeypatch.setattr(
+        retriever.table,
+        "retrieve",
+        lambda query_text, filters=None, top_k=None: calls.append("table") or [_hit("t1", "table", 0.6)],
+    )
+
+    result = retriever.retrieve(query_text="查看表格", query_vector=[0.1])
+
+    assert calls == ["vector", "table"]
+    assert "table" in result.route_hits

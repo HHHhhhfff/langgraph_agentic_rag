@@ -418,6 +418,43 @@ class Settings(BaseSettings):
         default=True,
         description="Expand retrieval hits using same_page_node_ids relationship fields",
     )
+    retrieval_score_vector_weight: float = Field(default=0.30, description="Composite score vector weight")
+    retrieval_score_bm25_weight: float = Field(default=0.10, description="Composite score BM25 weight")
+    retrieval_score_rrf_weight: float = Field(default=0.25, description="Composite score RRF weight")
+    retrieval_score_rerank_weight: float = Field(default=0.35, description="Composite score rerank weight")
+    retrieval_score_relationship_weight: float = Field(default=0.0, description="Composite score relationship weight")
+    retrieval_initial_min_composite_score: float = Field(default=0.0, description="Initial retrieval composite threshold")
+    retrieval_rerank_min_composite_score: float = Field(default=0.0, description="Rerank composite threshold")
+    retrieval_final_min_composite_score: float = Field(default=0.20, description="Final retrieval composite threshold")
+    retrieval_rerank_require_prior_score: bool = Field(
+        default=True,
+        description="Penalize reranked hits whose prior composite score is too low",
+    )
+    retrieval_rerank_prior_min_composite_score: float = Field(default=0.15, description="Low prior score cutoff")
+    retrieval_rerank_prior_low_score_penalty: float = Field(default=0.70, description="Low prior rerank penalty")
+    rel_expand_related_modality_enabled: bool = Field(default=True, description="Expand related table/formula nodes")
+    rel_expand_min_seed_composite_score: float = Field(default=0.30, description="Min seed score for related modality expansion")
+    rel_expand_seed_top_m: int = Field(default=6, description="Max ranked seeds for related modality expansion")
+    rel_expand_max_related_tables: int = Field(default=5, description="Max related tables to add")
+    rel_expand_max_related_formulas: int = Field(default=5, description="Max related formulas to add")
+    rel_expand_related_table_weight: float = Field(default=0.90, description="Related table inherited score weight")
+    rel_expand_related_formula_weight: float = Field(default=0.85, description="Related formula inherited score weight")
+    rel_expand_context_text_enabled: bool = Field(default=True, description="Expand high-score context text nodes")
+    rel_expand_context_text_weight: float = Field(default=0.60, description="Context text inherited score weight")
+    rel_expand_context_text_min_seed_score: float = Field(default=0.45, description="Min seed score for context expansion")
+    rel_expand_context_text_seed_top_m: int = Field(default=4, description="Max ranked seeds for context expansion")
+    rel_expand_context_text_max_per_seed: int = Field(default=2, description="Max context text nodes per seed")
+    retrieval_related_evidence_max_total: int = Field(default=8, description="Max protected related evidence nodes")
+    retrieval_related_evidence_max_per_seed: int = Field(default=3, description="Max protected related evidence per seed")
+    retrieval_auto_table_channel_enabled: bool = Field(default=True, description="Enable weak keyword-triggered table channel")
+    retrieval_auto_formula_channel_enabled: bool = Field(default=True, description="Enable weak keyword-triggered formula channel")
+    retrieval_table_trigger_keywords: str = Field(default="表格,列表", description="Comma-separated table trigger keywords")
+    retrieval_formula_trigger_keywords: str = Field(default="公式,方程,表达式", description="Comma-separated formula trigger keywords")
+    tg_agent_context_expansion_enabled: bool = Field(default=True, description="Enable future agent-guided retry context expansion")
+    tg_agent_context_expansion_min_seed_score: float = Field(default=0.55, description="Agent context expansion seed score")
+    tg_agent_context_expansion_seed_top_m: int = Field(default=3, description="Agent context expansion max seeds")
+    tg_agent_context_expansion_max_rounds: int = Field(default=2, description="Agent context expansion max rounds")
+    tg_agent_context_expansion_max_context_hits: int = Field(default=4, description="Agent context expansion max hits")
     enable_named_vectors: bool = Field(default=False, description="Enable Qdrant named vectors abstraction")
     named_vector_text_name: str = Field(default="text", description="Qdrant named vector key for text nodes")
     named_vector_table_name: str = Field(default="table", description="Qdrant named vector key for table nodes")
@@ -525,6 +562,16 @@ class Settings(BaseSettings):
         "rrf_top_k",
         "rel_expand_steps",
         "rel_expand_pages",
+        "rel_expand_seed_top_m",
+        "rel_expand_max_related_tables",
+        "rel_expand_max_related_formulas",
+        "rel_expand_context_text_seed_top_m",
+        "rel_expand_context_text_max_per_seed",
+        "retrieval_related_evidence_max_total",
+        "retrieval_related_evidence_max_per_seed",
+        "tg_agent_context_expansion_seed_top_m",
+        "tg_agent_context_expansion_max_rounds",
+        "tg_agent_context_expansion_max_context_hits",
         "tg_max_retries",
         "tg_budget_tokens",
         "tg_budget_ms",

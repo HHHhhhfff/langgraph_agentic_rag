@@ -7,6 +7,7 @@ from typing import Any, Iterable
 from pydantic import BaseModel, Field
 
 from agentic_rag.config import Settings
+from agentic_rag.retrieval.scoring import score_value
 from agentic_rag.retrieval.retrieval_plan import RetrievalChannel, RetrievalPlan, RetrievalTask
 from agentic_rag.schemas import SearchHit
 
@@ -84,6 +85,11 @@ class LocalRetryPlanner:
         if self._needs_relationship(state, reasons):
             self._upsert_task(plan, "relationship", rewritten_query, self.settings.rrf_top_k, filters, actions)
             self._increase_page_window(plan, actions)
+
+        if self._needs_agent_context_expansion(state, reasons):
+            self._upsert_task(plan, "relationship", rewritten_query, self.settings.rrf_top_k, filters, actions)
+            self._increase_page_window(plan, actions)
+            actions.append("agent_context_expand")
 
         if not actions:
             self._increase_all_top_k(plan, actions)
@@ -231,6 +237,17 @@ class LocalRetryPlanner:
             or "cross_source_polarity_conflict" in reasons
             or bool(state.get("conflict_reasons") or [])
         )
+
+    def _needs_agent_context_expansion(self, state: dict[str, Any], reasons: set[str]) -> bool:
+        if not self.settings.tg_agent_context_expansion_enabled:
+            return False
+        if not ({"low_support_score", "insufficient_hits", "missing_hits", "citation_failure"} & reasons):
+            return False
+        ranked_hits = sorted(state.get("expanded_hits") or [], key=score_value, reverse=True)
+        for rank, hit in enumerate(ranked_hits[: self.settings.tg_agent_context_expansion_seed_top_m], start=1):
+            if score_value(hit) >= self.settings.tg_agent_context_expansion_min_seed_score:
+                return True
+        return False
 
     def _task_for(self, plan: RetrievalPlan, channel: RetrievalChannel) -> RetrievalTask | None:
         for task in plan.tasks:

@@ -141,3 +141,26 @@ def test_evidence_gain_uses_new_fused_ids() -> None:
     )
 
     assert decision.evidence_gain == 0.5
+
+
+def test_agent_context_expansion_adds_relationship_for_high_score_seed() -> None:
+    planner = LocalRetryPlanner(
+        Settings(
+            _env_file=None,
+            tg_agent_context_expansion_enabled=True,
+            tg_agent_context_expansion_min_seed_score=0.5,
+            tg_agent_context_expansion_seed_top_m=2,
+        )
+    )
+    seed = SearchHit(point_id="seed", node_id="seed", text="seed", score=0.8, metadata={"score_composite": 0.8})
+
+    decision = planner.plan_retry(
+        _state(
+            _plan("vector"),
+            evidence_gaps=["low_support_score"],
+            expanded_hits=[seed],
+        )
+    )
+
+    assert "relationship" in decision.plan.channels()
+    assert "agent_context_expand" in decision.retry_actions

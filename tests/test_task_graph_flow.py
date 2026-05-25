@@ -240,6 +240,35 @@ def test_task_graph_local_retry_adds_table_from_missing_slot() -> None:
     assert updated["retry_actions"]
 
 
+def test_task_graph_task_router_weak_keyword_adds_table_and_formula_channels() -> None:
+    settings = Settings(
+        bm25_enabled=False,
+        retrieval_auto_table_channel_enabled=True,
+        retrieval_auto_formula_channel_enabled=True,
+        retrieval_table_trigger_keywords="tablekw",
+        retrieval_formula_trigger_keywords="formulakw",
+    )
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    updated = graph._task_router_node(  # noqa: SLF001 - intentional node-level integration test
+        {
+            "question": "show tablekw and formulakw",
+            "filters": {},
+            "route": "text_first",
+            "target_modalities": ["text"],
+        }
+    )
+
+    channels = [task["channel"] for task in updated["retrieval_plan"]["tasks"]]
+    assert channels == ["vector", "table", "formula"]
+
+
 def test_task_graph_local_retry_page_slot_sets_page_window() -> None:
     settings = Settings(tg_max_retries=1, rel_expand_pages=1, tg_retry_max_page_window=3)
     graph = TaskGraphRAG(

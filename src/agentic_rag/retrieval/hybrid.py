@@ -8,6 +8,7 @@ from agentic_rag.retrieval.bm25_retriever import BM25Retriever
 from agentic_rag.retrieval.fusion import rrf_fuse
 from agentic_rag.retrieval.page_retriever import PageRetriever
 from agentic_rag.retrieval.relationship_expander import RelationshipExpander
+from agentic_rag.retrieval.scoring import STAGE_INITIAL, compute_composite_scores, filter_by_stage_threshold
 from agentic_rag.retrieval.table_retriever import TableRetriever
 from agentic_rag.retrieval.retrieval_plan import RetrievalChannel, RetrievalPlan, RetrievalTask, resolve_vector_name
 from agentic_rag.schemas import SearchHit
@@ -126,13 +127,24 @@ class HybridRetriever:
             k=self.settings.rrf_k,
             top_k=self.settings.rrf_top_k,
         )
-        should_expand = "relationship" in route_hits or plan_obj is None
+        fused = compute_composite_scores(fused, stage=STAGE_INITIAL, settings=self.settings)
+        fused = filter_by_stage_threshold(fused, stage=STAGE_INITIAL, settings=self.settings)
+        explicit_relationship = "relationship" in route_hits or plan_obj is None
+        auto_related_expansion = (
+            self.settings.rel_expand_related_modality_enabled
+            or self.settings.rel_expand_context_text_enabled
+        )
+        should_expand = self.settings.rel_expand_explicit_relationships and (
+            explicit_relationship or auto_related_expansion
+        )
         if should_expand:
-            expander = RelationshipExpander(self.store.scroll_hits(limit=5000))
+            expander = RelationshipExpander(self.store.scroll_hits(limit=5000), settings=self.settings)
             page_window = (
                 plan_obj.page_window
-                if plan_obj is not None and plan_obj.page_window is not None
+                if explicit_relationship and plan_obj is not None and plan_obj.page_window is not None
                 else self.settings.rel_expand_pages
+                if explicit_relationship
+                else 0
             )
             expanded = expander.expand(
                 fused,
@@ -188,6 +200,14 @@ class HybridRetriever:
         default_channels: list[RetrievalChannel] = ["vector"]
         if self.settings.bm25_enabled:
             default_channels.append("bm25")
+        if self.settings.retrieval_auto_table_channel_enabled and _contains_any_keyword(
+            query_text, self.settings.retrieval_table_trigger_keywords
+        ):
+            default_channels.append("table")
+        if self.settings.retrieval_auto_formula_channel_enabled and _contains_any_keyword(
+            query_text, self.settings.retrieval_formula_trigger_keywords
+        ):
+            default_channels.append("formula")
         return [
             RetrievalTask(
                 channel=channel,
@@ -208,4 +228,12 @@ class HybridRetriever:
         if channel == "table":
             return self.settings.table_top_k
         return self.settings.rrf_top_k
+
+
+def _contains_any_keyword(text: str, keywords: str) -> bool:
+    raw = (text or "").lower()
+    for keyword in (part.strip().lower() for part in (keywords or "").split(",")):
+        if keyword and keyword in raw:
+            return True
+    return False
 

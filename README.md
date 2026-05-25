@@ -431,6 +431,140 @@ Rerank 关键配置：
 
 该日志用于后续计算 Hit Rate、MRR、Precision、Recall、AP、nDCG 等检索评测指标。当前只记录 TaskGraph 路径。每条 JSONL record 包含 `initial_retrieval`、`rerank`、`final_after_retry` 三个 snapshot，hit 结构接近 LlamaIndex Node，并预留 `eval.is_relevant`、`eval.relevance_label`、`eval.graded_relevance` 字段供后续标注。
 
+召回评分保留 raw score，并额外写入统一综合分：
+
+- `score_vector`：Qdrant 向量检索分。
+- `score_bm25`：BM25 关键词分。
+- `score_rrf`：多通道 RRF 融合分。
+- `rerank_score`：reranker 返回分。
+- `score_composite`：按配置归一化加权后的统一分，用于排序、阈值和可视化解释。
+
+相关配置：
+
+```env
+RETRIEVAL_SCORE_VECTOR_WEIGHT=0.30
+RETRIEVAL_SCORE_BM25_WEIGHT=0.10
+RETRIEVAL_SCORE_RRF_WEIGHT=0.25
+RETRIEVAL_SCORE_RERANK_WEIGHT=0.35
+RETRIEVAL_SCORE_RELATIONSHIP_WEIGHT=0.00
+RETRIEVAL_INITIAL_MIN_COMPOSITE_SCORE=0.0
+RETRIEVAL_RERANK_MIN_COMPOSITE_SCORE=0.0
+RETRIEVAL_FINAL_MIN_COMPOSITE_SCORE=0.20
+RETRIEVAL_RERANK_REQUIRE_PRIOR_SCORE=true
+RETRIEVAL_RERANK_PRIOR_MIN_COMPOSITE_SCORE=0.15
+RETRIEVAL_RERANK_PRIOR_LOW_SCORE_PENALTY=0.70
+```
+
+- `RETRIEVAL_SCORE_VECTOR_WEIGHT`
+  - `score_composite` 中向量相似度归一化分的权重。
+- `RETRIEVAL_SCORE_BM25_WEIGHT`
+  - `score_composite` 中 BM25 关键词归一化分的权重。
+- `RETRIEVAL_SCORE_RRF_WEIGHT`
+  - `score_composite` 中 RRF 融合归一化分的权重。
+- `RETRIEVAL_SCORE_RERANK_WEIGHT`
+  - `score_composite` 中 reranker 分数归一化后的权重；`RERANK_ENABLED=false` 时该组件自然为空。
+- `RETRIEVAL_SCORE_RELATIONSHIP_WEIGHT`
+  - 关系扩展继承分的默认权重。当前默认 `0.00`，因为 related table/formula/context 会在扩展时直接写入 `retrieval_inherited_score` 并参与综合分。
+- `RETRIEVAL_INITIAL_MIN_COMPOSITE_SCORE`
+  - 初步召回/RRF 后的最低 `score_composite`。低于该值的 hit 会在 initial 阶段过滤。
+- `RETRIEVAL_RERANK_MIN_COMPOSITE_SCORE`
+  - rerank 后最低 `score_composite`。低于该值的 hit 会在 rerank 阶段过滤。
+- `RETRIEVAL_FINAL_MIN_COMPOSITE_SCORE`
+  - 最终进入 prompt/citation 的最低 `score_composite`。
+- `RETRIEVAL_RERANK_REQUIRE_PRIOR_SCORE`
+  - 是否启用 rerank prior 保护，防止 prior 分很低的 chunk 只靠 `rerank_score` 被拉高。
+- `RETRIEVAL_RERANK_PRIOR_MIN_COMPOSITE_SCORE`
+  - rerank 前 `score_composite` 的低分阈值。
+- `RETRIEVAL_RERANK_PRIOR_LOW_SCORE_PENALTY`
+  - prior 低于阈值时，对 rerank 后综合分施加的惩罚系数。
+
+表格/公式优先作为 text chunk 的关系上下文补充召回。高分 text 命中后，会根据 `related_table_node_ids`、`related_formula_node_ids` 派生相关 table/formula 分数，并记录扩展来源；这些关系扩展不依赖 query 必须显式包含“表格/公式”。
+
+```env
+REL_EXPAND_RELATED_MODALITY_ENABLED=true
+REL_EXPAND_MIN_SEED_COMPOSITE_SCORE=0.30
+REL_EXPAND_SEED_TOP_M=6
+REL_EXPAND_MAX_RELATED_TABLES=5
+REL_EXPAND_MAX_RELATED_FORMULAS=5
+REL_EXPAND_RELATED_TABLE_WEIGHT=0.90
+REL_EXPAND_RELATED_FORMULA_WEIGHT=0.85
+REL_EXPAND_CONTEXT_TEXT_ENABLED=true
+REL_EXPAND_CONTEXT_TEXT_WEIGHT=0.60
+REL_EXPAND_CONTEXT_TEXT_MIN_SEED_SCORE=0.45
+REL_EXPAND_CONTEXT_TEXT_SEED_TOP_M=4
+REL_EXPAND_CONTEXT_TEXT_MAX_PER_SEED=2
+RETRIEVAL_RELATED_EVIDENCE_MAX_TOTAL=8
+RETRIEVAL_RELATED_EVIDENCE_MAX_PER_SEED=3
+```
+
+- `REL_EXPAND_RELATED_MODALITY_ENABLED`
+  - 是否根据高分 text seed 的 `related_table_node_ids` / `related_formula_node_ids` 扩展 table/formula。
+- `REL_EXPAND_MIN_SEED_COMPOSITE_SCORE`
+  - 触发 table/formula 关系扩展的 seed 最低综合分。
+- `REL_EXPAND_SEED_TOP_M`
+  - 只对排序前 M 的 seed 做 table/formula 关系扩展，控制扩展规模。
+- `REL_EXPAND_MAX_RELATED_TABLES`
+  - 单次扩展中 related table 的数量上限。
+- `REL_EXPAND_MAX_RELATED_FORMULAS`
+  - 单次扩展中 related formula 的数量上限。
+- `REL_EXPAND_RELATED_TABLE_WEIGHT`
+  - related table 继承 seed 分数的权重，派生分约为 `seed_score_composite * weight`。
+- `REL_EXPAND_RELATED_FORMULA_WEIGHT`
+  - related formula 继承 seed 分数的权重。
+- `REL_EXPAND_CONTEXT_TEXT_ENABLED`
+  - 是否扩展高分 text seed 的上下文 text，例如 `context_node_ids`、`prev_id`、`next_id`。
+- `REL_EXPAND_CONTEXT_TEXT_WEIGHT`
+  - context text 继承 seed 分数的权重，低于 table/formula，避免相邻文本被过度放大。
+- `REL_EXPAND_CONTEXT_TEXT_MIN_SEED_SCORE`
+  - 触发上下文 text 扩展的 seed 最低综合分。
+- `REL_EXPAND_CONTEXT_TEXT_SEED_TOP_M`
+  - 只对排序前 M 的 seed 做上下文 text 扩展。
+- `REL_EXPAND_CONTEXT_TEXT_MAX_PER_SEED`
+  - 每个 seed 最多扩展的上下文 text 数量。
+- `RETRIEVAL_RELATED_EVIDENCE_MAX_TOTAL`
+  - protected related evidence 的总数上限，避免一个高分 seed 带出过多 table/formula/context。
+- `RETRIEVAL_RELATED_EVIDENCE_MAX_PER_SEED`
+  - 单个 seed 可带出的 protected related evidence 数量上限。
+
+关键词触发的 `table/formula` 直接通道仅作为弱补充：
+
+```env
+RETRIEVAL_AUTO_TABLE_CHANNEL_ENABLED=true
+RETRIEVAL_AUTO_FORMULA_CHANNEL_ENABLED=true
+RETRIEVAL_TABLE_TRIGGER_KEYWORDS=表格,列表
+RETRIEVAL_FORMULA_TRIGGER_KEYWORDS=公式,方程,表达式
+```
+
+- `RETRIEVAL_AUTO_TABLE_CHANNEL_ENABLED`
+  - query 命中弱关键词时，是否额外加入 direct `table` 检索通道。
+- `RETRIEVAL_AUTO_FORMULA_CHANNEL_ENABLED`
+  - query 命中弱关键词时，是否额外加入 direct `formula` 检索通道。
+- `RETRIEVAL_TABLE_TRIGGER_KEYWORDS`
+  - 触发 direct `table` channel 的逗号分隔关键词。该机制只是补充，不影响 relationship-based table expansion。
+- `RETRIEVAL_FORMULA_TRIGGER_KEYWORDS`
+  - 触发 direct `formula` channel 的逗号分隔关键词。该机制只是补充，不影响 relationship-based formula expansion。
+
+局部重检阶段可基于高分 seed 追加 relationship/page-window 扩展：
+
+```env
+TG_AGENT_CONTEXT_EXPANSION_ENABLED=true
+TG_AGENT_CONTEXT_EXPANSION_MIN_SEED_SCORE=0.55
+TG_AGENT_CONTEXT_EXPANSION_SEED_TOP_M=3
+TG_AGENT_CONTEXT_EXPANSION_MAX_ROUNDS=2
+TG_AGENT_CONTEXT_EXPANSION_MAX_CONTEXT_HITS=4
+```
+
+- `TG_AGENT_CONTEXT_EXPANSION_ENABLED`
+  - 局部重检时是否允许基于高分 seed 追加 relationship 扩展。当前实现为规则触发，不新增额外 LLM 调用。
+- `TG_AGENT_CONTEXT_EXPANSION_MIN_SEED_SCORE`
+  - 局部重检上下文扩展的 seed 最低综合分。
+- `TG_AGENT_CONTEXT_EXPANSION_SEED_TOP_M`
+  - 只检查 rerank/expanded hits 中前 M 个高分 seed。
+- `TG_AGENT_CONTEXT_EXPANSION_MAX_ROUNDS`
+  - 预留给后续多轮上下文扩展的最大轮数配置。
+- `TG_AGENT_CONTEXT_EXPANSION_MAX_CONTEXT_HITS`
+  - 预留给后续 Agent 判断上下文扩展时的上下文 hit 数量上限。
+
 清空历史文件：
 
 ```powershell

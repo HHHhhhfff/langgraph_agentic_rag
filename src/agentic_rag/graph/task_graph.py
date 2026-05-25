@@ -26,8 +26,9 @@ from agentic_rag.observability.stage_logger import StageLogger, StageTimer
 from agentic_rag.retrieval.evidence_gate import EvidenceEvaluator
 from agentic_rag.retrieval.evidence_pack import EvidencePack
 from agentic_rag.retrieval.rerank import RerankService
-from agentic_rag.retrieval.retrieval_plan import RetrievalPlan, RetrievalTask
+from agentic_rag.retrieval.retrieval_plan import RetrievalChannel, RetrievalPlan, RetrievalTask
 from agentic_rag.retrieval.retriever import MultiChannelRetriever
+from agentic_rag.retrieval.scoring import STAGE_FINAL, compute_composite_scores, filter_by_stage_threshold
 from agentic_rag.schemas import Citation, RAGResult, SearchHit
 
 
@@ -66,6 +67,34 @@ def _replace_snapshot(snapshots: list[dict[str, Any]], snapshot: dict[str, Any])
 
 def _retrieval_observability_enabled(settings: Settings) -> bool:
     return bool(settings.retrieval_eval_log_enabled or settings.retrieval_vis_auto_write)
+
+
+def _contains_any_keyword(text: str, keywords: str) -> bool:
+    raw = (text or "").lower()
+    for keyword in (part.strip().lower() for part in (keywords or "").split(",")):
+        if keyword and keyword in raw:
+            return True
+    return False
+
+
+def _add_retrieval_task_if_missing(
+    tasks: list[RetrievalTask],
+    *,
+    channel: RetrievalChannel,
+    query_text: str,
+    top_k: int,
+    filters: dict[str, object],
+) -> None:
+    if any(task.channel == channel for task in tasks):
+        return
+    tasks.append(
+        RetrievalTask(
+            channel=channel,
+            query_text=query_text,
+            top_k=top_k,
+            filters=filters,
+        )
+    )
 
 
 class TaskGraphRAG:
@@ -347,40 +376,64 @@ class TaskGraphRAG:
                 )
             )
         if "page" in target or state.get("need_page_level"):
-            tasks.append(
-                RetrievalTask(
-                    channel="page",
-                    query_text=question,
-                    top_k=self.settings.page_top_k,
-                    filters=filters,
-                )
+            _add_retrieval_task_if_missing(
+                tasks,
+                channel="page",
+                query_text=question,
+                top_k=self.settings.page_top_k,
+                filters=filters,
             )
         if "table" in target:
-            tasks.append(
-                RetrievalTask(
-                    channel="table",
-                    query_text=question,
-                    top_k=self.settings.table_top_k,
-                    filters=filters,
-                )
+            _add_retrieval_task_if_missing(
+                tasks,
+                channel="table",
+                query_text=question,
+                top_k=self.settings.table_top_k,
+                filters=filters,
             )
         if "image" in target:
-            tasks.append(
-                RetrievalTask(
-                    channel="image",
-                    query_text=question,
-                    top_k=self.settings.rrf_top_k,
-                    filters=filters,
-                )
+            _add_retrieval_task_if_missing(
+                tasks,
+                channel="image",
+                query_text=question,
+                top_k=self.settings.rrf_top_k,
+                filters=filters,
+            )
+        if "formula" in target:
+            _add_retrieval_task_if_missing(
+                tasks,
+                channel="formula",
+                query_text=question,
+                top_k=self.settings.rrf_top_k,
+                filters=filters,
+            )
+        if self.settings.retrieval_auto_table_channel_enabled and _contains_any_keyword(
+            question, self.settings.retrieval_table_trigger_keywords
+        ):
+            _add_retrieval_task_if_missing(
+                tasks,
+                channel="table",
+                query_text=question,
+                top_k=self.settings.table_top_k,
+                filters=filters,
+            )
+        if self.settings.retrieval_auto_formula_channel_enabled and _contains_any_keyword(
+            question, self.settings.retrieval_formula_trigger_keywords
+        ):
+            _add_retrieval_task_if_missing(
+                tasks,
+                channel="formula",
+                query_text=question,
+                top_k=self.settings.rrf_top_k,
+                filters=filters,
             )
         if state.get("need_cross_doc"):
-            tasks.append(
-                RetrievalTask(
-                    channel="relationship",
-                    query_text=question,
-                    top_k=self.settings.rrf_top_k,
-                    filters=filters,
-                )
+            _add_retrieval_task_if_missing(
+                tasks,
+                channel="relationship",
+                query_text=question,
+                top_k=self.settings.rrf_top_k,
+                filters=filters,
             )
         plan = RetrievalPlan(
             question=question,
@@ -457,17 +510,30 @@ class TaskGraphRAG:
             evidence_count=sum(len(v) for v in result.route_hits.values()),
         )
         snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
-        if _retrieval_observability_enabled(self.settings) and not any(
-            s.get("stage") == "initial_retrieval" for s in snapshots
+        retry_count = int(state.get("retry_count", 0) or 0)
+        snapshot_stage = f"retry_{retry_count}_retrieval" if retry_count > 0 else "initial_retrieval"
+        expanded_snapshot_stage = f"retry_{retry_count}_expanded" if retry_count > 0 else "initial_expanded"
+        if _retrieval_observability_enabled(self.settings) and (
+            retry_count > 0 or not any(s.get("stage") == "initial_retrieval" for s in snapshots)
         ):
             snapshots.append(
                 build_snapshot(
-                    stage="initial_retrieval",
-                    query_text=question,
-                    hits=result.expanded_hits or result.hits,
+                    stage=snapshot_stage,
+                    query_text=state.get("rewritten_query_text") or question,
+                    hits=result.hits,
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=False,
                 )
+            )
+            snapshots = _replace_snapshot(
+                snapshots,
+                build_snapshot(
+                    stage=expanded_snapshot_stage,
+                    query_text=state.get("rewritten_query_text") or question,
+                    hits=result.expanded_hits,
+                    max_text_chars=self.settings.retrieval_eval_max_text_chars,
+                    used_rerank=False,
+                ),
             )
         return {
             "route_hits": result.route_hits,
@@ -486,7 +552,8 @@ class TaskGraphRAG:
 
     def _relationship_expand_node(self, state: TaskGraphState) -> TaskGraphState:
         expanded = state.get("expanded_hits", [])
-        return {"expanded_hits": expanded}
+        snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
+        return {"expanded_hits": expanded, "retrieval_eval_snapshots": snapshots}
 
     def _rerank_node(self, state: TaskGraphState) -> TaskGraphState:
         hits = state.get("expanded_hits", [])
@@ -497,10 +564,11 @@ class TaskGraphRAG:
             self._progress_done("retrieval")
             snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
             if _retrieval_observability_enabled(self.settings):
+                retry_count = int(state.get("retry_count", 0) or 0)
                 snapshots = _replace_snapshot(
                     snapshots,
                     build_snapshot(
-                        stage="rerank",
+                        stage=f"retry_{retry_count}_rerank" if retry_count > 0 else "rerank",
                         query_text=state.get("question", ""),
                         hits=hits[: self.settings.context_top_n],
                         max_text_chars=self.settings.retrieval_eval_max_text_chars,
@@ -528,6 +596,7 @@ class TaskGraphRAG:
         if reranked:
             raw_score = reranked[0].metadata.get("rerank_score", reranked[0].score)
             top_score = float(raw_score) if isinstance(raw_score, (int, float)) else None
+        retry_count = int(state.get("retry_count", 0) or 0)
         return {
             "reranked_hits": reranked,
             "expanded_hits": reranked,
@@ -538,7 +607,7 @@ class TaskGraphRAG:
             "retrieval_eval_snapshots": _replace_snapshot(
                 list(state.get("retrieval_eval_snapshots", []) or []),
                 build_snapshot(
-                    stage="rerank",
+                    stage=f"retry_{retry_count}_rerank" if retry_count > 0 else "rerank",
                     query_text=state.get("question", ""),
                     hits=reranked,
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
@@ -696,9 +765,11 @@ class TaskGraphRAG:
     def _build_prompt_node(self, state: TaskGraphState) -> TaskGraphState:
         self._progress_start("generation")
         hits = state.get("expanded_hits", [])
+        hits = compute_composite_scores(hits, stage=STAGE_FINAL, settings=self.settings)
+        hits = filter_by_stage_threshold(hits, stage=STAGE_FINAL, settings=self.settings)
         context, citations = self.prompt_builder.build_context(hits)
         prompt = self.prompt_builder.build_prompt(question=state.get("question", ""), context=context)
-        return {"context": context, "citations": [c.model_dump() for c in citations], "prompt": prompt}
+        return {"expanded_hits": hits, "context": context, "citations": [c.model_dump() for c in citations], "prompt": prompt}
 
     def _generate_answer_node(self, state: TaskGraphState) -> TaskGraphState:
         if state.get("refusal"):
@@ -754,7 +825,15 @@ class TaskGraphRAG:
                 build_snapshot(
                     stage="final_after_retry",
                     query_text=state.get("rewritten_query_text") or state.get("question", ""),
-                    hits=state.get("expanded_hits", []),
+                    hits=filter_by_stage_threshold(
+                        compute_composite_scores(
+                            state.get("expanded_hits", []),
+                            stage=STAGE_FINAL,
+                            settings=self.settings,
+                        ),
+                        stage=STAGE_FINAL,
+                        settings=self.settings,
+                    ),
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=bool(state.get("used_rerank", False)),
                     rerank_fallback_reason=state.get("rerank_fallback_reason"),
