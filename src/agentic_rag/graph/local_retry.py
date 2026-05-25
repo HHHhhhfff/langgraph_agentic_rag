@@ -83,11 +83,33 @@ class LocalRetryPlanner:
                 self._upsert_task(plan, channel, rewritten_query, top_k, filters, actions)
 
         if self._needs_relationship(state, reasons):
-            self._upsert_task(plan, "relationship", rewritten_query, self.settings.rrf_top_k, filters, actions)
+            self._upsert_task(
+                plan,
+                "relationship",
+                rewritten_query,
+                self.settings.rrf_top_k,
+                filters,
+                actions,
+                metadata={
+                    "expansion_mode": "routed",
+                    "expansion_reason": self._relationship_expansion_reason(state, reasons),
+                },
+            )
             self._increase_page_window(plan, actions)
 
         if self._needs_agent_context_expansion(state, reasons):
-            self._upsert_task(plan, "relationship", rewritten_query, self.settings.rrf_top_k, filters, actions)
+            self._upsert_task(
+                plan,
+                "relationship",
+                rewritten_query,
+                self.settings.rrf_top_k,
+                filters,
+                actions,
+                metadata={
+                    "expansion_mode": "retry",
+                    "expansion_reason": self._relationship_expansion_reason(state, reasons) or "agent_context_expand",
+                },
+            )
             self._increase_page_window(plan, actions)
             actions.append("agent_context_expand")
 
@@ -189,6 +211,7 @@ class LocalRetryPlanner:
         actions: list[str],
         *,
         min_multiplier: bool = False,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         existing = self._task_for(plan, channel)
         target_top_k = self._capped_top_k(top_k)
@@ -201,7 +224,7 @@ class LocalRetryPlanner:
                     query_text=query_text,
                     top_k=target_top_k,
                     filters=dict(filters),
-                    metadata={"retry": True},
+                    metadata={"retry": True, **(metadata or {})},
                 )
             )
             actions.append(f"add_{channel}")
@@ -218,6 +241,12 @@ class LocalRetryPlanner:
         if merged_filters != existing.filters:
             existing.filters = merged_filters
             changed = True
+        if metadata:
+            merged_metadata = dict(existing.metadata or {})
+            merged_metadata.update(metadata)
+            if merged_metadata != existing.metadata:
+                existing.metadata = merged_metadata
+                changed = True
         if changed:
             actions.append(f"update_{channel}")
 
@@ -237,6 +266,19 @@ class LocalRetryPlanner:
             or "cross_source_polarity_conflict" in reasons
             or bool(state.get("conflict_reasons") or [])
         )
+
+    @staticmethod
+    def _relationship_expansion_reason(state: dict[str, Any], reasons: set[str]) -> str:
+        if state.get("need_cross_doc") or "need_cross_doc" in reasons:
+            return "need_cross_doc"
+        for reason in (
+            "numeric_value_conflict",
+            "cross_source_polarity_conflict",
+            "possible_conflict",
+        ):
+            if reason in reasons:
+                return reason
+        return ""
 
     def _needs_agent_context_expansion(self, state: dict[str, Any], reasons: set[str]) -> bool:
         if not self.settings.tg_agent_context_expansion_enabled:

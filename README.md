@@ -495,6 +495,16 @@ REL_EXPAND_CONTEXT_TEXT_SEED_TOP_M=4
 REL_EXPAND_CONTEXT_TEXT_MAX_PER_SEED=2
 RETRIEVAL_RELATED_EVIDENCE_MAX_TOTAL=8
 RETRIEVAL_RELATED_EVIDENCE_MAX_PER_SEED=3
+REL_EXPAND_ROUTED_MIN_SEED_SCORE=0.55
+REL_EXPAND_ROUTED_SEED_TOP_M=3
+REL_EXPAND_ROUTED_MAX_PER_SEED=5
+REL_EXPAND_ROUTED_MAX_TOTAL=20
+REL_EXPAND_ROUTED_ALLOWED_MODALITIES=text,table,formula
+REL_EXPAND_RETRY_SAME_PAGE_ENABLED=true
+REL_EXPAND_RETRY_MIN_SEED_SCORE=0.55
+REL_EXPAND_RETRY_SEED_TOP_M=3
+REL_EXPAND_RETRY_MAX_PER_SEED=4
+REL_EXPAND_RETRY_MAX_TOTAL=12
 ```
 
 - `REL_EXPAND_RELATED_MODALITY_ENABLED`
@@ -525,6 +535,36 @@ RETRIEVAL_RELATED_EVIDENCE_MAX_PER_SEED=3
   - protected related evidence 的总数上限，避免一个高分 seed 带出过多 table/formula/context。
 - `RETRIEVAL_RELATED_EVIDENCE_MAX_PER_SEED`
   - 单个 seed 可带出的 protected related evidence 数量上限。
+- `REL_EXPAND_ROUTED_MIN_SEED_SCORE`
+  - 任务路由明确需要 page/cross-doc relationship 扩展时，seed 的最低综合分。
+- `REL_EXPAND_ROUTED_SEED_TOP_M`
+  - routed 模式只允许前 M 个 seed 触发 `same_page_node_ids/page_window/parent/child/doc_prev/doc_next`。
+- `REL_EXPAND_ROUTED_MAX_PER_SEED`
+  - routed 模式每个 seed 最多扩展的节点数。
+- `REL_EXPAND_ROUTED_MAX_TOTAL`
+  - routed 模式单次 query 最多扩展的节点总数。
+- `REL_EXPAND_ROUTED_ALLOWED_MODALITIES`
+  - routed 模式允许扩展的 modality，默认 `text,table,formula`。
+- `REL_EXPAND_RETRY_SAME_PAGE_ENABLED`
+  - 局部重检 retry 模式是否允许 `same_page_node_ids/page_window` 扩展。
+- `REL_EXPAND_RETRY_MIN_SEED_SCORE`
+  - retry 模式 same-page/page-window 扩展的 seed 最低综合分。
+- `REL_EXPAND_RETRY_SEED_TOP_M`
+  - retry 模式只允许前 M 个 seed 做 same-page/page-window 扩展。
+- `REL_EXPAND_RETRY_MAX_PER_SEED`
+  - retry 模式每个 seed 最多扩展的 same-page/page-window 节点数。
+- `REL_EXPAND_RETRY_MAX_TOTAL`
+  - retry 模式单次 query 最多扩展的 same-page/page-window 节点总数。
+
+关系扩展分三种模式：
+
+- `auto`
+  - 首轮自动扩展，只允许高分 text seed 扩展 `related_table_node_ids` / `related_formula_node_ids` 和严格受控的 text context。
+  - 不消费 `same_page_node_ids/page_window/parent/child/doc_prev/doc_next`。
+- `routed`
+  - 任务路由明确需要页级或跨文档检索时使用，允许 same-page/page-window/父子/跨文档关系，但受 routed 阈值和数量限制。
+- `retry`
+  - 局部重检阶段使用，和 `agent_context_expand` 触发逻辑配合，只对少量高分 seed 做补充扩展。
 
 关键词触发的 `table/formula` 直接通道仅作为弱补充：
 

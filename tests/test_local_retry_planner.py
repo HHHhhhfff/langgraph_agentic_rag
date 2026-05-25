@@ -100,6 +100,9 @@ def test_conflict_adds_relationship_and_expands_window() -> None:
 
     assert "relationship" in _channels(decision.plan)
     assert decision.plan.page_window == 2
+    relationship_task = next(task for task in decision.plan.tasks if task.channel == "relationship")
+    assert relationship_task.metadata["expansion_mode"] == "routed"
+    assert relationship_task.metadata["expansion_reason"] == "numeric_value_conflict"
 
 
 def test_existing_channel_is_updated_not_duplicated_and_top_k_is_capped() -> None:
@@ -164,3 +167,6 @@ def test_agent_context_expansion_adds_relationship_for_high_score_seed() -> None
 
     assert "relationship" in decision.plan.channels()
     assert "agent_context_expand" in decision.retry_actions
+    relationship_task = next(task for task in decision.plan.tasks if task.channel == "relationship")
+    assert relationship_task.metadata["expansion_mode"] == "retry"
+    assert relationship_task.metadata["expansion_reason"] == "agent_context_expand"

@@ -269,6 +269,31 @@ def test_task_graph_task_router_weak_keyword_adds_table_and_formula_channels() -
     assert channels == ["vector", "table", "formula"]
 
 
+def test_task_graph_task_router_adds_routed_relationship_for_page_level() -> None:
+    settings = Settings(bm25_enabled=False)
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    updated = graph._task_router_node(  # noqa: SLF001 - intentional node-level integration test
+        {
+            "question": "page context",
+            "filters": {},
+            "route": "page_first",
+            "target_modalities": ["text"],
+            "need_page_level": True,
+        }
+    )
+
+    relationship_task = next(task for task in updated["retrieval_plan"]["tasks"] if task["channel"] == "relationship")
+    assert relationship_task["metadata"]["expansion_mode"] == "routed"
+    assert relationship_task["metadata"]["expansion_reason"] == "need_page_level"
+
+
 def test_task_graph_local_retry_page_slot_sets_page_window() -> None:
     settings = Settings(tg_max_retries=1, rel_expand_pages=1, tg_retry_max_page_window=3)
     graph = TaskGraphRAG(

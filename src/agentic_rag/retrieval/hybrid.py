@@ -52,6 +52,8 @@ class HybridRetriever:
         )
         route_hits: dict[str, list[SearchHit]] = {}
         executed_channels: list[str] = []
+        relationship_expansion_mode = "routed"
+        relationship_expansion_reason: str | None = None
 
         for task in tasks:
             if task.channel in route_hits:
@@ -113,6 +115,10 @@ class HybridRetriever:
                     for hit in hits:
                         hit.channel = task.channel
             elif task.channel == "relationship":
+                relationship_expansion_mode = str(task.metadata.get("expansion_mode") or relationship_expansion_mode)
+                relationship_expansion_reason = (
+                    str(task.metadata.get("expansion_reason")) if task.metadata.get("expansion_reason") else None
+                )
                 route_hits["relationship"] = []
                 executed_channels.append("relationship")
                 continue
@@ -129,7 +135,7 @@ class HybridRetriever:
         )
         fused = compute_composite_scores(fused, stage=STAGE_INITIAL, settings=self.settings)
         fused = filter_by_stage_threshold(fused, stage=STAGE_INITIAL, settings=self.settings)
-        explicit_relationship = "relationship" in route_hits or plan_obj is None
+        explicit_relationship = "relationship" in route_hits
         auto_related_expansion = (
             self.settings.rel_expand_related_modality_enabled
             or self.settings.rel_expand_context_text_enabled
@@ -139,6 +145,7 @@ class HybridRetriever:
         )
         if should_expand:
             expander = RelationshipExpander(self.store.scroll_hits(limit=5000), settings=self.settings)
+            expansion_mode = relationship_expansion_mode if explicit_relationship else "auto"
             page_window = (
                 plan_obj.page_window
                 if explicit_relationship and plan_obj is not None and plan_obj.page_window is not None
@@ -150,6 +157,8 @@ class HybridRetriever:
                 fused,
                 steps=self.settings.rel_expand_steps,
                 page_window=page_window,
+                mode=expansion_mode if expansion_mode in {"auto", "routed", "retry"} else "routed",
+                expansion_reason=relationship_expansion_reason,
             )
         else:
             expanded = fused

@@ -352,6 +352,10 @@ def _render_hit_card(stage: str, snapshot: dict[str, Any], hit: dict[str, Any]) 
         "expanded_from": metadata.get("retrieval_expanded_from_node_id"),
         "expansion_relation": metadata.get("retrieval_expansion_relation"),
         "candidate_pool": metadata.get("retrieval_candidate_pool"),
+        "expansion_mode": metadata.get("retrieval_expansion_mode"),
+        "expansion_allowed_by": metadata.get("retrieval_expansion_allowed_by"),
+        "seed_rank": metadata.get("retrieval_seed_rank"),
+        "seed_threshold": metadata.get("retrieval_seed_threshold"),
     }
     chips = "".join(f"<span><strong>{_e(k)}</strong>={_e(v)}</span>" for k, v in fields.items())
     return f"""

@@ -446,6 +446,19 @@ class Settings(BaseSettings):
     rel_expand_context_text_max_per_seed: int = Field(default=2, description="Max context text nodes per seed")
     retrieval_related_evidence_max_total: int = Field(default=8, description="Max protected related evidence nodes")
     retrieval_related_evidence_max_per_seed: int = Field(default=3, description="Max protected related evidence per seed")
+    rel_expand_routed_min_seed_score: float = Field(default=0.55, description="Min seed score for routed relationship expansion")
+    rel_expand_routed_seed_top_m: int = Field(default=3, description="Max ranked seeds for routed relationship expansion")
+    rel_expand_routed_max_per_seed: int = Field(default=5, description="Max routed relationship nodes per seed")
+    rel_expand_routed_max_total: int = Field(default=20, description="Max routed relationship nodes per query")
+    rel_expand_routed_allowed_modalities: str = Field(
+        default="text,table,formula",
+        description="Comma-separated modalities allowed for routed relationship expansion",
+    )
+    rel_expand_retry_same_page_enabled: bool = Field(default=True, description="Enable same-page expansion during retry")
+    rel_expand_retry_min_seed_score: float = Field(default=0.55, description="Min seed score for retry relationship expansion")
+    rel_expand_retry_seed_top_m: int = Field(default=3, description="Max ranked seeds for retry relationship expansion")
+    rel_expand_retry_max_per_seed: int = Field(default=4, description="Max retry relationship nodes per seed")
+    rel_expand_retry_max_total: int = Field(default=12, description="Max retry relationship nodes per query")
     retrieval_auto_table_channel_enabled: bool = Field(default=True, description="Enable weak keyword-triggered table channel")
     retrieval_auto_formula_channel_enabled: bool = Field(default=True, description="Enable weak keyword-triggered formula channel")
     retrieval_table_trigger_keywords: str = Field(default="表格,列表", description="Comma-separated table trigger keywords")
@@ -569,6 +582,12 @@ class Settings(BaseSettings):
         "rel_expand_context_text_max_per_seed",
         "retrieval_related_evidence_max_total",
         "retrieval_related_evidence_max_per_seed",
+        "rel_expand_routed_seed_top_m",
+        "rel_expand_routed_max_per_seed",
+        "rel_expand_routed_max_total",
+        "rel_expand_retry_seed_top_m",
+        "rel_expand_retry_max_per_seed",
+        "rel_expand_retry_max_total",
         "tg_agent_context_expansion_seed_top_m",
         "tg_agent_context_expansion_max_rounds",
         "tg_agent_context_expansion_max_context_hits",

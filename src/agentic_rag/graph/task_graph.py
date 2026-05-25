@@ -84,15 +84,22 @@ def _add_retrieval_task_if_missing(
     query_text: str,
     top_k: int,
     filters: dict[str, object],
+    metadata: dict[str, object] | None = None,
 ) -> None:
-    if any(task.channel == channel for task in tasks):
-        return
+    for task in tasks:
+        if task.channel == channel:
+            if metadata:
+                merged = dict(task.metadata or {})
+                merged.update(metadata)
+                task.metadata = merged
+            return
     tasks.append(
         RetrievalTask(
             channel=channel,
             query_text=query_text,
             top_k=top_k,
             filters=filters,
+            metadata=metadata or {},
         )
     )
 
@@ -427,13 +434,15 @@ class TaskGraphRAG:
                 top_k=self.settings.rrf_top_k,
                 filters=filters,
             )
-        if state.get("need_cross_doc"):
+        if state.get("need_page_level") or state.get("need_cross_doc"):
+            reason = "need_cross_doc" if state.get("need_cross_doc") else "need_page_level"
             _add_retrieval_task_if_missing(
                 tasks,
                 channel="relationship",
                 query_text=question,
                 top_k=self.settings.rrf_top_k,
                 filters=filters,
+                metadata={"expansion_mode": "routed", "expansion_reason": reason},
             )
         plan = RetrievalPlan(
             question=question,
