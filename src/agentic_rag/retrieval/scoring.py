@@ -38,6 +38,19 @@ def compute_composite_scores(
             "relationship_norm": relationship_norm[index],
         }
         weights = _stage_weights(settings=settings, stage=stage, hit=hit)
+        if _preserve_inherited_score(hit, components):
+            score = float(_metadata_float(hit, "retrieval_inherited_score") or 0.0)
+            hit.metadata.setdefault("score_raw_before_composite", hit.score)
+            hit.metadata["score_composite"] = score
+            hit.metadata["score_stage"] = stage
+            hit.metadata["score_policy"] = "inherited_relationship_v1"
+            hit.metadata["score_components"] = components
+            hit.metadata["score_weights"] = weights
+            if stage != STAGE_RERANK:
+                hit.metadata["score_composite_prior"] = score
+            if update_score:
+                hit.score = score
+            continue
         score = _weighted_score(components, weights)
         if stage == STAGE_RERANK and getattr(settings, "retrieval_rerank_require_prior_score", True):
             prior = _metadata_float(hit, "score_composite_prior")
@@ -92,9 +105,20 @@ def _stage_weights(*, settings: Settings, stage: str, hit: SearchHit) -> dict[st
         "rerank": settings.retrieval_score_rerank_weight if stage in {STAGE_RERANK, STAGE_FINAL} else 0.0,
         "relationship": settings.retrieval_score_relationship_weight,
     }
-    if _metadata_float(hit, "retrieval_inherited_score") is not None:
-        weights["relationship"] = max(weights["relationship"], 1.0)
     return weights
+
+
+def _preserve_inherited_score(hit: SearchHit, components: dict[str, float | None]) -> bool:
+    if hit.metadata.get("score_policy") != "inherited_relationship_v1":
+        return False
+    if _metadata_float(hit, "retrieval_inherited_score") is None:
+        return False
+    return (
+        components.get("vector_norm") in {None, 0.0}
+        and components.get("bm25_norm") is None
+        and components.get("rrf_norm") is None
+        and components.get("rerank_norm") is None
+    )
 
 
 def _weighted_score(components: dict[str, float | None], weights: dict[str, float]) -> float:

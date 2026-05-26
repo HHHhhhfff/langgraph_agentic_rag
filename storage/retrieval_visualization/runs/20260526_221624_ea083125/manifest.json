@@ -1,0 +1,31 @@
+{
+  "run_id": "20260526_221624_ea083125",
+  "mode": "retrieval_visualization",
+  "source_mode": "auto_after_query",
+  "history_path": null,
+  "query_id": "f9baefb3-c6ca-4df9-999c-7457076c9350",
+  "query_text": "产品A的销售分析",
+  "stages": [
+    "initial_retrieval",
+    "rerank",
+    "final_after_retry"
+  ],
+  "hit_counts": {
+    "initial_retrieval": 8,
+    "initial_expanded": 11,
+    "rerank": 6,
+    "final_after_retry": 6
+  },
+  "include_full_vectors": false,
+  "created_at": "2026-05-26T14:16:24.570686+00:00",
+  "warnings": [],
+  "artifacts": {
+    "query": "query.json",
+    "snapshots": "snapshots.json",
+    "chunks_html": "chunks.html",
+    "stage_compare_html": "stage_compare.html",
+    "rank_flow_html": "rank_flow.html",
+    "citations_html": "citations.html",
+    "raw_record": "raw_record.json"
+  }
+}

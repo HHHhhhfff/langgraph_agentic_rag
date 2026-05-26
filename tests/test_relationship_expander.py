@@ -274,3 +274,135 @@ def test_same_page_switch_disables_routed_and_retry_same_page() -> None:
 
     assert "text2" not in {hit.node_id for hit in routed}
     assert "text2" not in {hit.node_id for hit in retry}
+
+
+def test_related_formula_priority_over_page_window() -> None:
+    settings = Settings(
+        _env_file=None,
+        rel_expand_min_seed_composite_score=0.1,
+        rel_expand_related_formula_weight=0.85,
+        rel_expand_routed_min_seed_score=0.1,
+        rel_expand_routed_seed_top_m=2,
+        rel_expand_routed_max_per_seed=5,
+        rel_expand_routed_max_total=5,
+        rel_expand_page_window_weight=0.30,
+    )
+    seed = SearchHit(
+        point_id="1",
+        node_id="text1",
+        text="seed",
+        score=0.8,
+        doc_id="d1",
+        page=1,
+        modality="text",
+        relationships={"related_formula_node_ids": ["formula1"]},
+        metadata={"score_composite": 0.8, "modality": "text"},
+    )
+    formula = SearchHit(
+        point_id="2",
+        node_id="formula1",
+        text="formula",
+        score=0.0,
+        doc_id="d1",
+        page=1,
+        modality="formula",
+        metadata={"modality": "formula"},
+    )
+
+    hits = RelationshipExpander([seed, formula], settings=settings).expand([seed], page_window=1, mode="routed")
+    formula_hit = next(hit for hit in hits if hit.node_id == "formula1")
+
+    assert formula_hit.metadata["retrieval_expansion_relation"] == "related_formula_node_ids"
+    assert formula_hit.metadata["retrieval_relation_weight"] == 0.85
+    assert formula_hit.metadata["retrieval_expansion_relation_priority"] == 100
+    assert round(formula_hit.metadata["retrieval_inherited_score"], 2) == 0.68
+
+
+def test_related_table_priority_over_same_page() -> None:
+    settings = Settings(
+        _env_file=None,
+        rel_expand_min_seed_composite_score=0.1,
+        rel_expand_related_table_weight=0.9,
+        rel_expand_routed_min_seed_score=0.1,
+    )
+    seed = SearchHit(
+        point_id="1",
+        node_id="text1",
+        text="seed",
+        score=0.8,
+        modality="text",
+        relationships={"same_page_node_ids": ["table1"], "related_table_node_ids": ["table1"]},
+        metadata={"score_composite": 0.8, "modality": "text"},
+    )
+    table = SearchHit(point_id="2", node_id="table1", text="table", score=0.0, modality="table", metadata={"modality": "table"})
+
+    hits = RelationshipExpander([seed, table], settings=settings).expand([seed], page_window=0, mode="routed")
+    table_hit = next(hit for hit in hits if hit.node_id == "table1")
+
+    assert table_hit.metadata["retrieval_expansion_relation"] == "related_table_node_ids"
+    assert table_hit.metadata["retrieval_relation_weight"] == 0.9
+
+
+def test_stronger_relation_upgrades_existing_weak_relation_metadata() -> None:
+    settings = Settings(
+        _env_file=None,
+        rel_expand_min_seed_composite_score=0.1,
+        rel_expand_related_formula_weight=0.85,
+        rel_expand_routed_min_seed_score=0.1,
+        rel_expand_page_window_weight=0.3,
+    )
+    formula = SearchHit(point_id="2", node_id="formula1", text="formula", score=0.0, doc_id="d1", page=1, modality="formula")
+    weak_seed = SearchHit(
+        point_id="1",
+        node_id="weak",
+        text="weak",
+        score=0.8,
+        doc_id="d1",
+        page=1,
+        modality="text",
+        metadata={"score_composite": 0.8, "modality": "text"},
+    )
+    strong_seed = SearchHit(
+        point_id="3",
+        node_id="strong",
+        text="strong",
+        score=0.8,
+        modality="text",
+        relationships={"related_formula_node_ids": ["formula1"]},
+        metadata={"score_composite": 0.8, "modality": "text"},
+    )
+
+    hits = RelationshipExpander([weak_seed, strong_seed, formula], settings=settings).expand(
+        [weak_seed, strong_seed],
+        page_window=1,
+        mode="routed",
+    )
+    formula_hit = next(hit for hit in hits if hit.node_id == "formula1")
+
+    assert formula_hit.metadata["retrieval_expansion_relation"] == "related_formula_node_ids"
+    assert formula_hit.metadata["retrieval_expansion_replaced_relation"] == "page_window"
+
+
+def test_page_window_weight_is_configurable() -> None:
+    settings = Settings(
+        _env_file=None,
+        rel_expand_page_window_weight=0.11,
+        rel_expand_routed_min_seed_score=0.1,
+    )
+    seed = SearchHit(
+        point_id="1",
+        node_id="text1",
+        text="seed",
+        score=0.8,
+        doc_id="d1",
+        page=1,
+        modality="text",
+        metadata={"score_composite": 0.8, "modality": "text"},
+    )
+    neighbor = SearchHit(point_id="2", node_id="text2", text="same page", score=0.0, doc_id="d1", page=1, modality="text")
+
+    hits = RelationshipExpander([seed, neighbor], settings=settings).expand([seed], page_window=1, mode="routed")
+    neighbor_hit = next(hit for hit in hits if hit.node_id == "text2")
+
+    assert neighbor_hit.metadata["retrieval_relation_weight"] == 0.11
+    assert round(neighbor_hit.metadata["retrieval_inherited_score"], 3) == 0.088

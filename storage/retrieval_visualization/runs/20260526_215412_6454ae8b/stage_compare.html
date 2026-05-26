@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retrieval Stage Compare</title>
+  <style>
+    :root { --ink:#17211b; --muted:#66736b; --bg:#f4efe4; --card:#fffdf7; --text:#7bb7d8; --table:#6fbf73; --formula:#d7a33a; --image:#d9795b; }
+    body { margin:0; color:var(--ink); background:radial-gradient(circle at 18% 4%, #fff7d6 0, transparent 28%), linear-gradient(135deg,#f4efe4,#e8f1e9); font-family: Cambria, Georgia, 'Times New Roman', serif; }
+    header { padding:30px 38px; color:#fff; background:linear-gradient(135deg,#1f392e,#526b47); }
+    header p { margin:.2rem 0 0; color:#d8e6dc; }
+    main { max-width:1320px; margin:0 auto; padding:24px; }
+    section { margin:0 0 26px; }
+    h2 { margin:18px 0 12px; }
+    .summary, .hit, .flow, .citation { border:1px solid rgba(0,0,0,.12); border-radius:16px; background:rgba(255,253,247,.92); box-shadow:0 10px 26px rgba(38,51,40,.08); }
+    .summary { padding:18px; }
+    .hit { margin:14px 0; padding:16px; border-left:9px solid var(--text); }
+    .hit.table { border-left-color:var(--table); }
+    .hit.formula { border-left-color:var(--formula); }
+    .hit.image { border-left-color:var(--image); }
+    .meta, .grid { display:flex; flex-wrap:wrap; gap:9px; color:var(--muted); font-size:13px; }
+    .meta span, .grid div, .count { border-radius:999px; background:rgba(31,57,46,.08); padding:5px 9px; }
+    .grid div { border-radius:12px; }
+    .grid strong { margin-right:8px; color:#294034; }
+    .warnings { min-height:20px; color:#b42318; margin:9px 0 0; font-weight:700; }
+    pre { white-space:pre-wrap; word-break:break-word; background:rgba(255,255,255,.72); border:1px solid rgba(0,0,0,.08); padding:12px; border-radius:12px; overflow:auto; }
+    table { width:100%; border-collapse:collapse; background:rgba(255,253,247,.95); border-radius:14px; overflow:hidden; box-shadow:0 8px 22px rgba(38,51,40,.08); }
+    th, td { border-bottom:1px solid rgba(0,0,0,.08); padding:10px; text-align:left; vertical-align:top; font-size:14px; }
+    th { background:#254235; color:white; }
+    tr.promoted, .flow.promoted { background:#edf8ea; }
+    tr.demoted, .flow.demoted { background:#fff8df; }
+    tr.dropped, .flow.dropped { background:#fff0ed; }
+    tr.new, .flow.new { background:#eaf4ff; }
+    .flow, .citation { margin:10px 0; padding:13px 15px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .flow small { color:var(--muted); flex-basis:100%; }
+    .note { color:var(--muted); }
+    @media (max-width: 860px) { header { padding:22px; } main { padding:14px; } .meta span { width:100%; border-radius:10px; } }
+  </style>
+</head>
+<body>
+  <header><h1>Retrieval Stage Compare</h1><p>Retrieval visualization for initial retrieval, rerank, and final retry snapshots.</p></header>
+  <main>
+    <section>
+      <h2>Stage Rank Compare</h2>
+      <table>
+        <thead><tr><th>status</th><th>node</th><th>source</th><th>page</th><th>chunk</th><th>initial</th><th>initial_score</th><th>rerank</th><th>rerank_score</th><th>final</th><th>final_score</th><th>flow</th></tr></thead>
+        <tbody>
+            <tr class="stable">
+              <td>stable</td>
+              <td>11848f8e85db2e916e4adaa1950d6910:text:2</td>
+              <td>data\demo_docs\测试文档.pdf</td>
+              <td>1</td>
+              <td>2</td>
+              <td>1</td>
+              <td>0.7054</td>
+              <td>1</td>
+              <td>0.7574</td>
+              <td>1</td>
+              <td>0.7574</td>
+              <td>initial #1 -&gt; rerank #1 -&gt; final #1</td>
+            </tr>
+            
+            <tr class="stable">
+              <td>stable</td>
+              <td>11848f8e85db2e916e4adaa1950d6910:table:0</td>
+              <td>data\demo_docs\测试文档.pdf</td>
+              <td>1</td>
+              <td>0</td>
+              <td>2</td>
+              <td>0.5784</td>
+              <td>2</td>
+              <td>0.6403</td>
+              <td>2</td>
+              <td>0.6403</td>
+              <td>initial #2 -&gt; rerank #2 -&gt; final #2</td>
+            </tr>
+            
+            <tr class="promoted">
+              <td>promoted_by_rerank,promoted_after_retry</td>
+              <td>bad4486a9b70f8e94b4a5b409d3ffdb4:table:5</td>
+              <td>data\demo_docs\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf</td>
+              <td>4</td>
+              <td>5</td>
+              <td>6</td>
+              <td>0.3050</td>
+              <td>5</td>
+              <td>0.4062</td>
+              <td>3</td>
+              <td>0.4062</td>
+              <td>initial #6 -&gt; rerank #5 -&gt; final #3</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>new_in_rerank,dropped_after_rerank</td>
+              <td>11848f8e85db2e916e4adaa1950d6910:formula:5</td>
+              <td>data\demo_docs\测试文档.pdf</td>
+              <td>1</td>
+              <td>5</td>
+              <td>null</td>
+              <td>null</td>
+              <td>3</td>
+              <td>0.2901</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial dropped -&gt; rerank #3 -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>dropped_after_initial</td>
+              <td>bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24</td>
+              <td>data\demo_docs\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf</td>
+              <td>2</td>
+              <td>24</td>
+              <td>3</td>
+              <td>0.3642</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial #3 -&gt; rerank dropped -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="promoted">
+              <td>promoted_by_rerank,promoted_after_retry</td>
+              <td>bad4486a9b70f8e94b4a5b409d3ffdb4:table:2</td>
+              <td>data\demo_docs\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf</td>
+              <td>3</td>
+              <td>2</td>
+              <td>10</td>
+              <td>0.2219</td>
+              <td>6</td>
+              <td>0.3273</td>
+              <td>4</td>
+              <td>0.3273</td>
+              <td>initial #10 -&gt; rerank #6 -&gt; final #4</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>new_in_rerank,dropped_after_rerank</td>
+              <td>11848f8e85db2e916e4adaa1950d6910:formula:4</td>
+              <td>data\demo_docs\测试文档.pdf</td>
+              <td>1</td>
+              <td>4</td>
+              <td>null</td>
+              <td>null</td>
+              <td>4</td>
+              <td>0.2876</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial dropped -&gt; rerank #4 -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>dropped_after_initial</td>
+              <td>e6b1c215b9ac657c34c7712465b5414a:table:0</td>
+              <td>data\demo_docs\Linux常用命令整理\测试表格.md</td>
+              <td>null</td>
+              <td>0</td>
+              <td>4</td>
+              <td>0.4530</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial #4 -&gt; rerank dropped -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>dropped_after_initial</td>
+              <td>bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25</td>
+              <td>data\demo_docs\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf</td>
+              <td>2</td>
+              <td>25</td>
+              <td>5</td>
+              <td>0.3168</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial #5 -&gt; rerank dropped -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>dropped_after_initial</td>
+              <td>bad4486a9b70f8e94b4a5b409d3ffdb4:text:10</td>
+              <td>data\demo_docs\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf</td>
+              <td>2</td>
+              <td>10</td>
+              <td>7</td>
+              <td>0.2881</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial #7 -&gt; rerank dropped -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>dropped_after_initial</td>
+              <td>bad4486a9b70f8e94b4a5b409d3ffdb4:table:4</td>
+              <td>data\demo_docs\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf</td>
+              <td>3</td>
+              <td>4</td>
+              <td>8</td>
+              <td>0.2597</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial #8 -&gt; rerank dropped -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>dropped_after_initial</td>
+              <td>bad4486a9b70f8e94b4a5b409d3ffdb4:text:11</td>
+              <td>data\demo_docs\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf</td>
+              <td>3</td>
+              <td>11</td>
+              <td>9</td>
+              <td>0.2596</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial #9 -&gt; rerank dropped -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="dropped">
+              <td>dropped_after_initial</td>
+              <td>bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22</td>
+              <td>data\demo_docs\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf</td>
+              <td>2</td>
+              <td>22</td>
+              <td>11</td>
+              <td>0.2198</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial #11 -&gt; rerank dropped -&gt; final dropped</td>
+            </tr>
+            
+            <tr class="stable">
+              <td>stable</td>
+              <td>11848f8e85db2e916e4adaa1950d6910:formula:3</td>
+              <td>data\demo_docs\测试文档.pdf</td>
+              <td>1</td>
+              <td>3</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>null</td>
+              <td>initial dropped -&gt; rerank dropped -&gt; final dropped</td>
+            </tr>
+            </tbody>
+      </table>
+    </section>
+    </main>
+</body>
+</html>

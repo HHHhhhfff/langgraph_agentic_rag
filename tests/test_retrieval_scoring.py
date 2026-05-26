@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from agentic_rag.config import Settings
-from agentic_rag.retrieval.scoring import STAGE_INITIAL, STAGE_RERANK, compute_composite_scores, filter_by_stage_threshold
+from agentic_rag.retrieval.scoring import STAGE_FINAL, STAGE_INITIAL, STAGE_RERANK, compute_composite_scores, filter_by_stage_threshold
 from agentic_rag.schemas import SearchHit
 
 
@@ -50,3 +50,38 @@ def test_stage_threshold_filters_low_composite_hit() -> None:
     assert low.metadata["score_threshold_passed"] is False
     assert high.metadata["score_threshold_passed"] is True
 
+
+def test_relationship_weight_uses_configured_value() -> None:
+    settings = Settings(_env_file=None, retrieval_score_relationship_weight=0.3)
+    hit = SearchHit(
+        point_id="1",
+        text="related",
+        score=0.5,
+        metadata={"retrieval_inherited_score": 0.5},
+    )
+
+    compute_composite_scores([hit], stage=STAGE_INITIAL, settings=settings)
+
+    assert hit.metadata["score_weights"]["relationship"] == 0.3
+
+
+def test_inherited_only_final_score_is_preserved() -> None:
+    settings = Settings(_env_file=None, retrieval_score_relationship_weight=0.3)
+    hit = SearchHit(
+        point_id="1",
+        text="related",
+        score=0.42,
+        score_vector=0.0,
+        metadata={
+            "score_composite": 0.42,
+            "score_policy": "inherited_relationship_v1",
+            "retrieval_inherited_score": 0.42,
+        },
+    )
+
+    compute_composite_scores([hit], stage=STAGE_FINAL, settings=settings)
+
+    assert hit.score == 0.42
+    assert hit.metadata["score_composite"] == 0.42
+    assert hit.metadata["score_policy"] == "inherited_relationship_v1"
+    assert hit.metadata["score_weights"]["relationship"] == 0.3

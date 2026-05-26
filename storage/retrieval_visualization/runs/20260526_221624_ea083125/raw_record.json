@@ -1,0 +1,3545 @@
+{
+  "schema_version": "retrieval_eval.v1",
+  "query_id": "f9baefb3-c6ca-4df9-999c-7457076c9350",
+  "timestamp": "2026-05-26T14:16:24.565003+00:00",
+  "query": {
+    "text": "产品A的销售分析",
+    "rewritten_text": null,
+    "filters": {},
+    "route": "text_first",
+    "executed_channels": [
+      "vector",
+      "bm25"
+    ]
+  },
+  "taskgraph": {
+    "retry_count": 0,
+    "retry_actions": [],
+    "retry_history": [],
+    "gate_decision": "pass",
+    "evidence_ok": true,
+    "support_level": "strong",
+    "support_score": 0.8437,
+    "citation_ok": true,
+    "used_rerank": true,
+    "rerank_fallback_reason": null,
+    "evidence_gate_enabled": true,
+    "local_retry_enabled": true,
+    "evidence_gate_skipped": false,
+    "local_retry_skipped": false
+  },
+  "snapshots": [
+    {
+      "stage": "initial_retrieval",
+      "query_text": "产品A的销售分析",
+      "top_k": 8,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+          "point_id": "53c5eab2-0dcd-5bbf-ba6c-cd300f0dfa54",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+          "chunk_index": 2,
+          "text": "# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品A在2025年1月至5月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n- 1月到3月：销售额持续增长，3月达到峰值   \n- 3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在3月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式:\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178万元\n\n# 2. 增长率（以2月→3月为例）\n\n公式:\n\n增长率 $= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}$\n\n计算：\n\n$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$\n\n2月到3月增长显著\n\n# 四、结论\n\n- 3月为销售高峰，应重点分析原因（活动/市场需求）  \n- 后续月份下滑明显，需考虑优化策略  \n- 建议关注季节性波动并制定对应营销方案\n\n2025年销售额  \n![](images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 2,
+            "title": "测试文档",
+            "section": "测试文档",
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.01639344262295082,
+            "score_composite": 0.6827080461538461,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.65626705,
+              "bm25_norm": null,
+              "rrf_norm": 1.0,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.6827080461538461,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": [
+              "测试文档"
+            ]
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "related_table_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0"
+            ],
+            "related_formula_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ]
+          },
+          "scores": {
+            "score": 0.6827080461538461,
+            "score_vector": 0.65626705,
+            "score_bm25": null,
+            "score_rrf": 0.01639344262295082,
+            "rerank_score": null,
+            "score_composite": 0.6827080461538461,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.65626705,
+              "bm25_norm": null,
+              "rrf_norm": 1.0,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 2,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+          "point_id": "53cdf46f-32d0-5549-9720-4023e7d2951b",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+          "chunk_index": 24,
+          "text": "Formula (display): S (y, t ^ {\\prime}) = \\lim _ {x \\to \\infty} F (x, y, t)",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 24,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.016129032258064516,
+            "score_composite": 0.3398990578840514,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2936883,
+              "bm25_norm": null,
+              "rrf_norm": 0.8944281524926682,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.3398990578840514,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.3398990578840514,
+            "score_vector": 0.2936883,
+            "score_bm25": null,
+            "score_rrf": 0.016129032258064516,
+            "rerank_score": null,
+            "score_composite": 0.3398990578840514,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2936883,
+              "bm25_norm": null,
+              "rrf_norm": 0.8944281524926682,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 3,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+          "point_id": "4092459e-f0fd-509a-a550-e07e02721300",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+          "chunk_index": 25,
+          "text": "Formula (display): S (y, t ^ {\\prime}) = e ^ {- i \\Xi (y, t ^ {\\prime})},\n\n\\Xi (y, t ^ {\\prime}) = \\frac {e y}{c \\hbar} \\int_ {- \\infty} ^ {\\infty} \\frac {d z}{\\sqrt {y ^ {2} + z ^ {2}}}   A (x, y, t ^ {\\prime} + z / v)  , \\tag {11}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 25,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015873015873015872,
+            "score_composite": 0.31278223016983014,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2728301,
+              "bm25_norm": null,
+              "rrf_norm": 0.7922077922077917,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.31278223016983014,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "formula_group": true,
+            "formula_count": 2,
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.31278223016983014,
+            "score_vector": 0.2728301,
+            "score_bm25": null,
+            "score_rrf": 0.015873015873015872,
+            "rerank_score": null,
+            "score_composite": 0.31278223016983014,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2728301,
+              "bm25_norm": null,
+              "rrf_norm": 0.7922077922077917,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 4,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+          "point_id": "6ee47e44-81ad-5c3f-b00a-8c003dc5e393",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+          "chunk_index": 10,
+          "text": "\\tag {13}\n$$\n\nRecall that $\\tau = \\omega(t - x/v)$ and the cross section in the two-dimensional case has the dimension of length. Let us show that in the stationary case the expression (13) goes over to the known result. To do this, we set $\\omega \\to 0$ before the change of variables, and obtain the differential scattering cross section for the stationary Aharonov-Bohm effect [1, 11]\n\n$$\nd \\sigma = \\frac {2 \\hbar}{\\pi P} \\sin^ {2} Q \\frac {d \\theta}{\\theta^ {2}}. \\tag {14}\n$$\n\nFor $v/c \\ll 1$ and $\\zeta \\lesssim 1$ the main contribution to the cross section is determined by the integration region $y \\ll 1$ and $z \\ll 1$ . In this case we find the asymptotics $\\Xi_{0}(y, \\tau)$ of the function $\\Xi(y, \\tau)$ ,\n\n$$\n\\Xi_ {0} (y, \\tau) = Q \\operatorname{sgn} (y) \\cos \\tau \\exp (- | y | / \\vartheta),\n$$\n\n$$\n\\vartheta = \\frac {v}{c \\zeta} = \\frac {\\theta}{\\theta_ {0}}, \\quad \\theta_ {0} = \\frac {\\hbar \\omega}{2 E}. \\tag {15}\n$$\n\nUsing integration by parts and the asymptotics (15), we write the expression for the cross section in the form\n\n$$\nd \\sigma (\\theta , \\tau) = \\sigma_ {0} \\left| s G _ {1} (\\vartheta , \\tau) + \\frac {1}{\\vartheta} G _ {2} (\\vartheta , \\tau) \\right| ^ {2} d \\vartheta ,\n$$\n\n$$\nG _ {1} (\\vartheta , \\tau) = \\int_ {0} ^ {\\infty} d y \\sin [ \\Xi_ {1} (y, \\tau) ] \\sin (\\vartheta y),\n$$\n\n$$\nG _ {2} (\\vartheta , \\tau) = \\int_ {0} ^ {\\infty} d y \\Xi_ {1} (y, \\tau) \\sin [ \\Xi_ {1} (y, \\tau) ] \\sin (\\vartheta y),\n$$\n\n$$\n\\sigma_ {0} = \\frac {2 \\hbar}{\\pi P \\theta_ {0}} = \\frac {2 v}{\\pi \\omega}, \\quad \\Xi_ {1} (y, \\tau) = Q e ^ {- y} \\cos \\tau . \\tag {16}\n$$\n\nThe function $G_{1}(\\vartheta, \\tau)$ changes sign when replacing $\\cos \\tau \\to -\\cos \\tau$ , while $G_{2}(\\vartheta, \\tau)$ does not change sign. For convenience, in Eq. (16) we have passed from the angle $\\theta$ to $\\vartheta$ .\n\nIf $\\vartheta \\gg 1$ ( $1 \\gg \\theta \\gg \\theta_0$ ), then\n\n$$\nd \\sigma (\\vartheta , \\tau) = \\sigma_ {0} \\sin^ {2} (Q \\cos \\tau) \\frac {d \\vartheta}{\\vartheta^ {2}}. \\tag {17}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 10,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015625,
+            "score_composite": 0.3048898629370629,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2725322,
+              "bm25_norm": null,
+              "rrf_norm": 0.693181818181818,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.3048898629370629,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ]
+          },
+          "scores": {
+            "score": 0.3048898629370629,
+            "score_vector": 0.2725322,
+            "score_bm25": null,
+            "score_rrf": 0.015625,
+            "rerank_score": null,
+            "score_composite": 0.3048898629370629,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2725322,
+              "bm25_norm": null,
+              "rrf_norm": 0.693181818181818,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 5,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "point_id": "048858d8-cbb7-533b-84fe-710d67b7c972",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "chunk_index": 11,
+          "text": "\\tag {17}\n$$\n\nFor $\\vartheta \\ll 1$ ( $\\theta \\ll \\theta_0$ ), we have\n\n$$\nd \\sigma (\\vartheta , \\tau) = \\sigma_ {0} \\left| \\int_ {0} ^ {Q | \\cos \\tau |} (1 - \\cos y) \\frac {d y}{y} \\right| ^ {2} d \\vartheta . \\tag {18}\n$$\n\nThe asymptotics (17) and (18) for the cross sections are independent of $s = \\operatorname{sgn}(q)$ , since either the function $G_{1}(\\vartheta, \\tau)$ contributes to the cross section for $\\vartheta \\gg 1$ , or $G_{2}(\\vartheta, \\tau)$ for $\\vartheta \\ll 1$ . However, for $\\vartheta \\sim 1$ an asymmetry arises due to the interference of the functions $G_{1}(\\vartheta, \\tau)$ and $G_{2}(\\vartheta, \\tau)$ . This asymmetry will be an alternating function of $\\tau$ and can be observed by measuring the non-stationary Hall effect (oscillating voltage in the transverse direction).\n\nLet us represent the cross section $d\\sigma(\\vartheta, \\tau)$ in (16) in the form\n\n$$\nd \\sigma (\\vartheta , \\tau) = d \\sigma_ {s} (\\vartheta , \\tau) + s d \\sigma_ {a} (\\vartheta , \\tau),\n$$\n\n$$\nd \\sigma_ {s} (\\theta , \\tau) = \\sigma_ {0} \\left[ G _ {1} ^ {2} (\\vartheta , \\tau) + \\frac {1}{\\vartheta^ {2}} G _ {2} ^ {2} (\\vartheta , \\tau) \\right] d \\vartheta ,\n$$\n\n$$\nd \\sigma_ {a} (\\theta , \\tau) = 2 \\sigma_ {0} G _ {1} (\\vartheta , \\tau) G _ {2} (\\vartheta , \\tau) \\frac {d \\vartheta}{\\vartheta}. \\tag {19}\n$$\n\nThe functions $G_{1}(\\vartheta,\\tau)$ and $G_{2}(\\vartheta,\\tau)$ depend on the parameter Q and variable $\\tau$ only through the combination $f = Q\\cos\\tau$ . Fig. 1 shows the dependence of $\\Sigma_{s}(\\vartheta,\\tau) = \\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ and $\\Sigma_{a}(\\vartheta,\\tau) = \\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ on $\\vartheta$ for several values of f.\n\nIt follows from the asymptotics obtained that for alternating current the total scattering cross section $\\sigma(\\tau)$ is finite, in contrast to the case of direct current. The main contribution to $\\sigma(\\tau)$ is given by the region of scattering angles $\\theta \\sim \\t",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 11,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015384615384615385,
+            "score_composite": 0.2966241228617536,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2715759,
+              "bm25_norm": null,
+              "rrf_norm": 0.5972027972027975,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.2966241228617536,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.2966241228617536,
+            "score_vector": 0.2715759,
+            "score_bm25": null,
+            "score_rrf": 0.015384615384615385,
+            "rerank_score": null,
+            "score_composite": 0.2966241228617536,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2715759,
+              "bm25_norm": null,
+              "rrf_norm": 0.5972027972027975,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 6,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+          "point_id": "a0b61dbf-972b-5372-93c9-af0988ce5aea",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+          "chunk_index": 22,
+          "text": "Formula (display): i \\hbar \\frac {\\partial F (\\boldsymbol {r} , t)}{\\partial t} = - i \\frac {\\hbar P}{M} \\frac {\\partial F (\\boldsymbol {r} , t)}{\\partial x} + \\frac {e P y A (r , t)}{M c r} F (\\boldsymbol {r}, t), \\tag {9}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 22,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015151515151515152,
+            "score_composite": 0.27544460241576607,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2563873,
+              "bm25_norm": null,
+              "rrf_norm": 0.5041322314049588,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.27544460241576607,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.27544460241576607,
+            "score_vector": 0.2563873,
+            "score_bm25": null,
+            "score_rrf": 0.015151515151515152,
+            "rerank_score": null,
+            "score_composite": 0.27544460241576607,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2563873,
+              "bm25_norm": null,
+              "rrf_norm": 0.5041322314049588,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 7,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+          "point_id": "30ae6319-40cb-5bf9-928c-dcb72dea7a40",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+          "chunk_index": 23,
+          "text": "Formula (display): F (x, y, t) = \\exp \\left\\{- i \\frac {e y}{c \\hbar} \\int_ {- \\infty} ^ {x} d z \\frac {A (x , y , t + (z - x) / v)}{\\sqrt {y ^ {2} + z ^ {2}}} \\right\\}, \\tag {10}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 23,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.014925373134328358,
+            "score_composite": 0.25984473934244856,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24701181,
+              "bm25_norm": null,
+              "rrf_norm": 0.4138398914518317,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.25984473934244856,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.25984473934244856,
+            "score_vector": 0.24701181,
+            "score_bm25": null,
+            "score_rrf": 0.014925373134328358,
+            "rerank_score": null,
+            "score_composite": 0.25984473934244856,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24701181,
+              "bm25_norm": null,
+              "rrf_norm": 0.4138398914518317,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 8,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "point_id": "02f98f33-1a34-5441-abe5-b0f6d3fa42f9",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "chunk_index": 12,
+          "text": "\\tag {20}\n$$\n\nNaturally, there is no asymmetry in $\\sigma(\\tau)$ . The dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ is shown in Fig.2 for several values of Q.\n\n![](images/1b7ffdcf3a86d09e9a2953e40a0196a8b8d4ea16c8d7eab29b8b93214871675a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\n![](images/6702d0432117e9c2c1065da445998cb9174570bd2d519804540866ab6cf10e5a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 1. Dependence of $\\Sigma_{s}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ (top plot) and $\\Sigma_{a}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ (bottom plot) on $\\vartheta$ for f=2 (solid curve), f=3 (dashed curve) and f=4 (dotted curve), $f=Q\\cos\\tau$ .   \n![](images/11b6cb6bb6e89aace75756a2cc1fe8d9b6b31902b1ce08266c810ecedfead7f2.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 2. Dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ for Q=1 (solid curve), Q=2 (dashed curve) and Q=3 (dotted curve).\n\nThe total cross section increases with $Q$ and is well approximated at $Q \\gg 1$ by the formula\n\n$$\n\\sigma (\\tau) \\approx \\pi \\sigma_ {0} \\ln (1 + 2 Q | \\cos \\tau |).\n$$\n\nThe total cross section averaged over time may also be of interest,\n\n$$\n\\overline {{\\sigma}} (Q) = \\int_ {0} ^ {2 \\pi} \\sigma (\\tau) \\frac {d \\tau}{2 \\pi} = \\pi \\sigma_ {0} \\int_ {0} ^ {1} [ 1 - J _ {0} (Q y) ] \\frac {d y}{y}. \\tag {21}\n$$\n\nThe dependence of $\\overline{\\Sigma}_{tot}(Q) = \\overline{\\sigma}(Q) / \\sigma_0$ on $Q$ is shown in\n\nFig. 3. The time-averaged cross section grows logarith-  \n![](images/edca25ca30932f8e03b27a90585e5b936b1255ad1c8b8995ae1eeba2bf1f08bc.jpg)\n\n<details>\n<summary>line</summary>",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 12,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.014705882352941176,
+            "score_composite": 0.25021446527355,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24388207,
+              "bm25_norm": null,
+              "rrf_norm": 0.32620320855614976,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.25021446527355,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.25021446527355,
+            "score_vector": 0.24388207,
+            "score_bm25": null,
+            "score_rrf": 0.014705882352941176,
+            "rerank_score": null,
+            "score_composite": 0.25021446527355,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24388207,
+              "bm25_norm": null,
+              "rrf_norm": 0.32620320855614976,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ]
+    },
+    {
+      "stage": "initial_expanded",
+      "query_text": "产品A的销售分析",
+      "top_k": 11,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+          "point_id": "53c5eab2-0dcd-5bbf-ba6c-cd300f0dfa54",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+          "chunk_index": 2,
+          "text": "# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品A在2025年1月至5月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n- 1月到3月：销售额持续增长，3月达到峰值   \n- 3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在3月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式:\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178万元\n\n# 2. 增长率（以2月→3月为例）\n\n公式:\n\n增长率 $= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}$\n\n计算：\n\n$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$\n\n2月到3月增长显著\n\n# 四、结论\n\n- 3月为销售高峰，应重点分析原因（活动/市场需求）  \n- 后续月份下滑明显，需考虑优化策略  \n- 建议关注季节性波动并制定对应营销方案\n\n2025年销售额  \n![](images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 2,
+            "title": "测试文档",
+            "section": "测试文档",
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.01639344262295082,
+            "score_composite": 0.6827080461538461,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.65626705,
+              "bm25_norm": null,
+              "rrf_norm": 1.0,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.6827080461538461,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": [
+              "测试文档"
+            ]
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "related_table_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0"
+            ],
+            "related_formula_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ]
+          },
+          "scores": {
+            "score": 0.6827080461538461,
+            "score_vector": 0.65626705,
+            "score_bm25": null,
+            "score_rrf": 0.01639344262295082,
+            "rerank_score": null,
+            "score_composite": 0.6827080461538461,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.65626705,
+              "bm25_norm": null,
+              "rrf_norm": 1.0,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 2,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+          "point_id": "b7736d87-e366-5aeb-a21b-00c4dfe1ec6e",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+          "chunk_index": 0,
+          "text": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 0,
+            "title": "测试文档",
+            "section": null,
+            "modality": "table",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.6144372415384615,
+            "score_stage": "relationship_expand",
+            "score_policy": "inherited_relationship_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_table_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "table",
+            "mineru_raw_type": "table",
+            "mineru_source_kind": "content_list",
+            "structured_duplicate_count": 2,
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "merged_table_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:1"
+            ],
+            "table_duplicate_count": 2,
+            "merged_table_occurrences": [
+              {
+                "node_id": "11848f8e85db2e916e4adaa1950d6910:table:1",
+                "page": null,
+                "chunk_index": 1,
+                "mineru_source_kind": "structured_json_2",
+                "mineru_raw_type": "table",
+                "page_source": null
+              }
+            ],
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_next_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.6144372415384615,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": 0.6144372415384615,
+            "score_stage": "relationship_expand",
+            "score_policy": "inherited_relationship_v1",
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "table",
+            "vector_name": null,
+            "modality": "table",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 3,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+          "point_id": "bbd99724-a859-5b5e-92a7-a50deddcfb3e",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+          "chunk_index": 3,
+          "text": "Formula (display): \\bar {x} = \\frac {\\sum x _ {i}}{n}",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 3,
+            "title": "测试文档",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.6144372415384615,
+            "score_stage": "relationship_expand",
+            "score_policy": "inherited_relationship_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_formula_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.6144372415384615,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": 0.6144372415384615,
+            "score_stage": "relationship_expand",
+            "score_policy": "inherited_relationship_v1",
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "formula",
+            "vector_name": null,
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 4,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+          "point_id": "19c836c6-fc18-57c9-93a9-b5bb69cb5eac",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+          "chunk_index": 4,
+          "text": "Formula (display): \\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 4,
+            "title": "测试文档",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.6144372415384615,
+            "score_stage": "relationship_expand",
+            "score_policy": "inherited_relationship_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_formula_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:5",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:5",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.6144372415384615,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": 0.6144372415384615,
+            "score_stage": "relationship_expand",
+            "score_policy": "inherited_relationship_v1",
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "formula",
+            "vector_name": null,
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 5,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+          "point_id": "53cdf46f-32d0-5549-9720-4023e7d2951b",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+          "chunk_index": 24,
+          "text": "Formula (display): S (y, t ^ {\\prime}) = \\lim _ {x \\to \\infty} F (x, y, t)",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 24,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.016129032258064516,
+            "score_composite": 0.3398990578840514,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2936883,
+              "bm25_norm": null,
+              "rrf_norm": 0.8944281524926682,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.3398990578840514,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.3398990578840514,
+            "score_vector": 0.2936883,
+            "score_bm25": null,
+            "score_rrf": 0.016129032258064516,
+            "rerank_score": null,
+            "score_composite": 0.3398990578840514,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2936883,
+              "bm25_norm": null,
+              "rrf_norm": 0.8944281524926682,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 6,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+          "point_id": "4092459e-f0fd-509a-a550-e07e02721300",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+          "chunk_index": 25,
+          "text": "Formula (display): S (y, t ^ {\\prime}) = e ^ {- i \\Xi (y, t ^ {\\prime})},\n\n\\Xi (y, t ^ {\\prime}) = \\frac {e y}{c \\hbar} \\int_ {- \\infty} ^ {\\infty} \\frac {d z}{\\sqrt {y ^ {2} + z ^ {2}}}   A (x, y, t ^ {\\prime} + z / v)  , \\tag {11}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 25,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015873015873015872,
+            "score_composite": 0.31278223016983014,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2728301,
+              "bm25_norm": null,
+              "rrf_norm": 0.7922077922077917,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.31278223016983014,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "formula_group": true,
+            "formula_count": 2,
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.31278223016983014,
+            "score_vector": 0.2728301,
+            "score_bm25": null,
+            "score_rrf": 0.015873015873015872,
+            "rerank_score": null,
+            "score_composite": 0.31278223016983014,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2728301,
+              "bm25_norm": null,
+              "rrf_norm": 0.7922077922077917,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 7,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+          "point_id": "6ee47e44-81ad-5c3f-b00a-8c003dc5e393",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+          "chunk_index": 10,
+          "text": "\\tag {13}\n$$\n\nRecall that $\\tau = \\omega(t - x/v)$ and the cross section in the two-dimensional case has the dimension of length. Let us show that in the stationary case the expression (13) goes over to the known result. To do this, we set $\\omega \\to 0$ before the change of variables, and obtain the differential scattering cross section for the stationary Aharonov-Bohm effect [1, 11]\n\n$$\nd \\sigma = \\frac {2 \\hbar}{\\pi P} \\sin^ {2} Q \\frac {d \\theta}{\\theta^ {2}}. \\tag {14}\n$$\n\nFor $v/c \\ll 1$ and $\\zeta \\lesssim 1$ the main contribution to the cross section is determined by the integration region $y \\ll 1$ and $z \\ll 1$ . In this case we find the asymptotics $\\Xi_{0}(y, \\tau)$ of the function $\\Xi(y, \\tau)$ ,\n\n$$\n\\Xi_ {0} (y, \\tau) = Q \\operatorname{sgn} (y) \\cos \\tau \\exp (- | y | / \\vartheta),\n$$\n\n$$\n\\vartheta = \\frac {v}{c \\zeta} = \\frac {\\theta}{\\theta_ {0}}, \\quad \\theta_ {0} = \\frac {\\hbar \\omega}{2 E}. \\tag {15}\n$$\n\nUsing integration by parts and the asymptotics (15), we write the expression for the cross section in the form\n\n$$\nd \\sigma (\\theta , \\tau) = \\sigma_ {0} \\left| s G _ {1} (\\vartheta , \\tau) + \\frac {1}{\\vartheta} G _ {2} (\\vartheta , \\tau) \\right| ^ {2} d \\vartheta ,\n$$\n\n$$\nG _ {1} (\\vartheta , \\tau) = \\int_ {0} ^ {\\infty} d y \\sin [ \\Xi_ {1} (y, \\tau) ] \\sin (\\vartheta y),\n$$\n\n$$\nG _ {2} (\\vartheta , \\tau) = \\int_ {0} ^ {\\infty} d y \\Xi_ {1} (y, \\tau) \\sin [ \\Xi_ {1} (y, \\tau) ] \\sin (\\vartheta y),\n$$\n\n$$\n\\sigma_ {0} = \\frac {2 \\hbar}{\\pi P \\theta_ {0}} = \\frac {2 v}{\\pi \\omega}, \\quad \\Xi_ {1} (y, \\tau) = Q e ^ {- y} \\cos \\tau . \\tag {16}\n$$\n\nThe function $G_{1}(\\vartheta, \\tau)$ changes sign when replacing $\\cos \\tau \\to -\\cos \\tau$ , while $G_{2}(\\vartheta, \\tau)$ does not change sign. For convenience, in Eq. (16) we have passed from the angle $\\theta$ to $\\vartheta$ .\n\nIf $\\vartheta \\gg 1$ ( $1 \\gg \\theta \\gg \\theta_0$ ), then\n\n$$\nd \\sigma (\\vartheta , \\tau) = \\sigma_ {0} \\sin^ {2} (Q \\cos \\tau) \\frac {d \\vartheta}{\\vartheta^ {2}}. \\tag {17}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 10,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015625,
+            "score_composite": 0.3048898629370629,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2725322,
+              "bm25_norm": null,
+              "rrf_norm": 0.693181818181818,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.3048898629370629,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ]
+          },
+          "scores": {
+            "score": 0.3048898629370629,
+            "score_vector": 0.2725322,
+            "score_bm25": null,
+            "score_rrf": 0.015625,
+            "rerank_score": null,
+            "score_composite": 0.3048898629370629,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2725322,
+              "bm25_norm": null,
+              "rrf_norm": 0.693181818181818,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 8,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "point_id": "048858d8-cbb7-533b-84fe-710d67b7c972",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "chunk_index": 11,
+          "text": "\\tag {17}\n$$\n\nFor $\\vartheta \\ll 1$ ( $\\theta \\ll \\theta_0$ ), we have\n\n$$\nd \\sigma (\\vartheta , \\tau) = \\sigma_ {0} \\left| \\int_ {0} ^ {Q | \\cos \\tau |} (1 - \\cos y) \\frac {d y}{y} \\right| ^ {2} d \\vartheta . \\tag {18}\n$$\n\nThe asymptotics (17) and (18) for the cross sections are independent of $s = \\operatorname{sgn}(q)$ , since either the function $G_{1}(\\vartheta, \\tau)$ contributes to the cross section for $\\vartheta \\gg 1$ , or $G_{2}(\\vartheta, \\tau)$ for $\\vartheta \\ll 1$ . However, for $\\vartheta \\sim 1$ an asymmetry arises due to the interference of the functions $G_{1}(\\vartheta, \\tau)$ and $G_{2}(\\vartheta, \\tau)$ . This asymmetry will be an alternating function of $\\tau$ and can be observed by measuring the non-stationary Hall effect (oscillating voltage in the transverse direction).\n\nLet us represent the cross section $d\\sigma(\\vartheta, \\tau)$ in (16) in the form\n\n$$\nd \\sigma (\\vartheta , \\tau) = d \\sigma_ {s} (\\vartheta , \\tau) + s d \\sigma_ {a} (\\vartheta , \\tau),\n$$\n\n$$\nd \\sigma_ {s} (\\theta , \\tau) = \\sigma_ {0} \\left[ G _ {1} ^ {2} (\\vartheta , \\tau) + \\frac {1}{\\vartheta^ {2}} G _ {2} ^ {2} (\\vartheta , \\tau) \\right] d \\vartheta ,\n$$\n\n$$\nd \\sigma_ {a} (\\theta , \\tau) = 2 \\sigma_ {0} G _ {1} (\\vartheta , \\tau) G _ {2} (\\vartheta , \\tau) \\frac {d \\vartheta}{\\vartheta}. \\tag {19}\n$$\n\nThe functions $G_{1}(\\vartheta,\\tau)$ and $G_{2}(\\vartheta,\\tau)$ depend on the parameter Q and variable $\\tau$ only through the combination $f = Q\\cos\\tau$ . Fig. 1 shows the dependence of $\\Sigma_{s}(\\vartheta,\\tau) = \\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ and $\\Sigma_{a}(\\vartheta,\\tau) = \\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ on $\\vartheta$ for several values of f.\n\nIt follows from the asymptotics obtained that for alternating current the total scattering cross section $\\sigma(\\tau)$ is finite, in contrast to the case of direct current. The main contribution to $\\sigma(\\tau)$ is given by the region of scattering angles $\\theta \\sim \\t",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 11,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015384615384615385,
+            "score_composite": 0.2966241228617536,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2715759,
+              "bm25_norm": null,
+              "rrf_norm": 0.5972027972027975,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.2966241228617536,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.2966241228617536,
+            "score_vector": 0.2715759,
+            "score_bm25": null,
+            "score_rrf": 0.015384615384615385,
+            "rerank_score": null,
+            "score_composite": 0.2966241228617536,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2715759,
+              "bm25_norm": null,
+              "rrf_norm": 0.5972027972027975,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 9,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+          "point_id": "a0b61dbf-972b-5372-93c9-af0988ce5aea",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+          "chunk_index": 22,
+          "text": "Formula (display): i \\hbar \\frac {\\partial F (\\boldsymbol {r} , t)}{\\partial t} = - i \\frac {\\hbar P}{M} \\frac {\\partial F (\\boldsymbol {r} , t)}{\\partial x} + \\frac {e P y A (r , t)}{M c r} F (\\boldsymbol {r}, t), \\tag {9}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 22,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015151515151515152,
+            "score_composite": 0.27544460241576607,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2563873,
+              "bm25_norm": null,
+              "rrf_norm": 0.5041322314049588,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.27544460241576607,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.27544460241576607,
+            "score_vector": 0.2563873,
+            "score_bm25": null,
+            "score_rrf": 0.015151515151515152,
+            "rerank_score": null,
+            "score_composite": 0.27544460241576607,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2563873,
+              "bm25_norm": null,
+              "rrf_norm": 0.5041322314049588,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 10,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+          "point_id": "30ae6319-40cb-5bf9-928c-dcb72dea7a40",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+          "chunk_index": 23,
+          "text": "Formula (display): F (x, y, t) = \\exp \\left\\{- i \\frac {e y}{c \\hbar} \\int_ {- \\infty} ^ {x} d z \\frac {A (x , y , t + (z - x) / v)}{\\sqrt {y ^ {2} + z ^ {2}}} \\right\\}, \\tag {10}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 23,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.014925373134328358,
+            "score_composite": 0.25984473934244856,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24701181,
+              "bm25_norm": null,
+              "rrf_norm": 0.4138398914518317,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.25984473934244856,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.25984473934244856,
+            "score_vector": 0.24701181,
+            "score_bm25": null,
+            "score_rrf": 0.014925373134328358,
+            "rerank_score": null,
+            "score_composite": 0.25984473934244856,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24701181,
+              "bm25_norm": null,
+              "rrf_norm": 0.4138398914518317,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 11,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "point_id": "02f98f33-1a34-5441-abe5-b0f6d3fa42f9",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "chunk_index": 12,
+          "text": "\\tag {20}\n$$\n\nNaturally, there is no asymmetry in $\\sigma(\\tau)$ . The dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ is shown in Fig.2 for several values of Q.\n\n![](images/1b7ffdcf3a86d09e9a2953e40a0196a8b8d4ea16c8d7eab29b8b93214871675a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\n![](images/6702d0432117e9c2c1065da445998cb9174570bd2d519804540866ab6cf10e5a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 1. Dependence of $\\Sigma_{s}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ (top plot) and $\\Sigma_{a}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ (bottom plot) on $\\vartheta$ for f=2 (solid curve), f=3 (dashed curve) and f=4 (dotted curve), $f=Q\\cos\\tau$ .   \n![](images/11b6cb6bb6e89aace75756a2cc1fe8d9b6b31902b1ce08266c810ecedfead7f2.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 2. Dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ for Q=1 (solid curve), Q=2 (dashed curve) and Q=3 (dotted curve).\n\nThe total cross section increases with $Q$ and is well approximated at $Q \\gg 1$ by the formula\n\n$$\n\\sigma (\\tau) \\approx \\pi \\sigma_ {0} \\ln (1 + 2 Q | \\cos \\tau |).\n$$\n\nThe total cross section averaged over time may also be of interest,\n\n$$\n\\overline {{\\sigma}} (Q) = \\int_ {0} ^ {2 \\pi} \\sigma (\\tau) \\frac {d \\tau}{2 \\pi} = \\pi \\sigma_ {0} \\int_ {0} ^ {1} [ 1 - J _ {0} (Q y) ] \\frac {d y}{y}. \\tag {21}\n$$\n\nThe dependence of $\\overline{\\Sigma}_{tot}(Q) = \\overline{\\sigma}(Q) / \\sigma_0$ on $Q$ is shown in\n\nFig. 3. The time-averaged cross section grows logarith-  \n![](images/edca25ca30932f8e03b27a90585e5b936b1255ad1c8b8995ae1eeba2bf1f08bc.jpg)\n\n<details>\n<summary>line</summary>",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 12,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.014705882352941176,
+            "score_composite": 0.25021446527355,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24388207,
+              "bm25_norm": null,
+              "rrf_norm": 0.32620320855614976,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.25021446527355,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.25021446527355,
+            "score_vector": 0.24388207,
+            "score_bm25": null,
+            "score_rrf": 0.014705882352941176,
+            "rerank_score": null,
+            "score_composite": 0.25021446527355,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24388207,
+              "bm25_norm": null,
+              "rrf_norm": 0.32620320855614976,
+              "rerank_norm": null,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ]
+    },
+    {
+      "stage": "rerank",
+      "query_text": "产品A的销售分析",
+      "top_k": 6,
+      "used_rerank": true,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+          "point_id": "53c5eab2-0dcd-5bbf-ba6c-cd300f0dfa54",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+          "chunk_index": 2,
+          "text": "# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品A在2025年1月至5月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n- 1月到3月：销售额持续增长，3月达到峰值   \n- 3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在3月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式:\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178万元\n\n# 2. 增长率（以2月→3月为例）\n\n公式:\n\n增长率 $= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}$\n\n计算：\n\n$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$\n\n2月到3月增长显著\n\n# 四、结论\n\n- 3月为销售高峰，应重点分析原因（活动/市场需求）  \n- 后续月份下滑明显，需考虑优化策略  \n- 建议关注季节性波动并制定对应营销方案\n\n2025年销售额  \n![](images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 2,
+            "title": "测试文档",
+            "section": "测试文档",
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.01639344262295082,
+            "score_composite": 0.7346158480464806,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.65626705,
+              "bm25_norm": null,
+              "rrf_norm": 1.0,
+              "rerank_norm": 0.9033162041975429,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.6827080461538461,
+            "score_threshold": 0.3,
+            "score_threshold_stage": "rerank",
+            "score_threshold_passed": true,
+            "rerank_score": 0.9033162041975429,
+            "rerank_rank": 1,
+            "section_path": [
+              "测试文档"
+            ]
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "related_table_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0"
+            ],
+            "related_formula_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ]
+          },
+          "scores": {
+            "score": 0.7346158480464806,
+            "score_vector": 0.65626705,
+            "score_bm25": null,
+            "score_rrf": 0.01639344262295082,
+            "rerank_score": 0.9033162041975429,
+            "score_composite": 0.7346158480464806,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.65626705,
+              "bm25_norm": null,
+              "rrf_norm": 1.0,
+              "rerank_norm": 0.9033162041975429,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 2,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+          "point_id": "b7736d87-e366-5aeb-a21b-00c4dfe1ec6e",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+          "chunk_index": 0,
+          "text": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 0,
+            "title": "测试文档",
+            "section": null,
+            "modality": "table",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.3615189910259032,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_table_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "rerank_score": 0.813780337822217,
+            "rerank_rank": 2,
+            "score_raw_before_composite": 0.6144372415384615,
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.813780337822217,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_stage": "rerank",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "table",
+            "mineru_raw_type": "table",
+            "mineru_source_kind": "content_list",
+            "structured_duplicate_count": 2,
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "merged_table_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:1"
+            ],
+            "table_duplicate_count": 2,
+            "merged_table_occurrences": [
+              {
+                "node_id": "11848f8e85db2e916e4adaa1950d6910:table:1",
+                "page": null,
+                "chunk_index": 1,
+                "mineru_source_kind": "structured_json_2",
+                "mineru_raw_type": "table",
+                "page_source": null
+              }
+            ],
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_next_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.3615189910259032,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": 0.813780337822217,
+            "score_composite": 0.3615189910259032,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.813780337822217,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "table",
+            "vector_name": null,
+            "modality": "table",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 3,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+          "point_id": "19c836c6-fc18-57c9-93a9-b5bb69cb5eac",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+          "chunk_index": 4,
+          "text": "Formula (display): \\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 4,
+            "title": "测试文档",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.3483622941072828,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_formula_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "rerank_score": 0.7282618078511848,
+            "rerank_rank": 3,
+            "score_raw_before_composite": 0.6144372415384615,
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.7282618078511848,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_stage": "rerank",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:5",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:5",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.3483622941072828,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": 0.7282618078511848,
+            "score_composite": 0.3483622941072828,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.7282618078511848,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "formula",
+            "vector_name": null,
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 4,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+          "point_id": "bbd99724-a859-5b5e-92a7-a50deddcfb3e",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+          "chunk_index": 3,
+          "text": "Formula (display): \\bar {x} = \\frac {\\sum x _ {i}}{n}",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 3,
+            "title": "测试文档",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.32716952041762504,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_formula_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "rerank_score": 0.5905087788684091,
+            "rerank_rank": 4,
+            "score_raw_before_composite": 0.6144372415384615,
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.5905087788684091,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_stage": "rerank",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.32716952041762504,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": 0.5905087788684091,
+            "score_composite": 0.32716952041762504,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.5905087788684091,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "formula",
+            "vector_name": null,
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 5,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+          "point_id": "53cdf46f-32d0-5549-9720-4023e7d2951b",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+          "chunk_index": 24,
+          "text": "Formula (display): S (y, t ^ {\\prime}) = \\lim _ {x \\to \\infty} F (x, y, t)",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 24,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.016129032258064516,
+            "score_composite": 0.38014102162842894,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2936883,
+              "bm25_norm": null,
+              "rrf_norm": 0.8433179723502298,
+              "rerank_norm": 0.5237049488332657,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.3398990578840514,
+            "score_threshold": 0.3,
+            "score_threshold_stage": "rerank",
+            "score_threshold_passed": true,
+            "rerank_score": 0.5237049488332657,
+            "rerank_rank": 5,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.38014102162842894,
+            "score_vector": 0.2936883,
+            "score_bm25": null,
+            "score_rrf": 0.016129032258064516,
+            "rerank_score": 0.5237049488332657,
+            "score_composite": 0.38014102162842894,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2936883,
+              "bm25_norm": null,
+              "rrf_norm": 0.8433179723502298,
+              "rerank_norm": 0.5237049488332657,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 6,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+          "point_id": "4092459e-f0fd-509a-a550-e07e02721300",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+          "chunk_index": 25,
+          "text": "Formula (display): S (y, t ^ {\\prime}) = e ^ {- i \\Xi (y, t ^ {\\prime})},\n\n\\Xi (y, t ^ {\\prime}) = \\frac {e y}{c \\hbar} \\int_ {- \\infty} ^ {\\infty} \\frac {d z}{\\sqrt {y ^ {2} + z ^ {2}}}   A (x, y, t ^ {\\prime} + z / v)  , \\tag {11}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 25,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015873015873015872,
+            "score_composite": 0.34561639719809667,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2728301,
+              "bm25_norm": null,
+              "rrf_norm": 0.6916099773242622,
+              "rerank_norm": 0.4774768937608454,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.31278223016983014,
+            "score_threshold": 0.3,
+            "score_threshold_stage": "rerank",
+            "score_threshold_passed": true,
+            "rerank_score": 0.4774768937608454,
+            "rerank_rank": 6,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "formula_group": true,
+            "formula_count": 2,
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.34561639719809667,
+            "score_vector": 0.2728301,
+            "score_bm25": null,
+            "score_rrf": 0.015873015873015872,
+            "rerank_score": 0.4774768937608454,
+            "score_composite": 0.34561639719809667,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2728301,
+              "bm25_norm": null,
+              "rrf_norm": 0.6916099773242622,
+              "rerank_norm": 0.4774768937608454,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ]
+    },
+    {
+      "stage": "final_after_retry",
+      "query_text": "产品A的销售分析",
+      "top_k": 6,
+      "used_rerank": true,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+          "point_id": "53c5eab2-0dcd-5bbf-ba6c-cd300f0dfa54",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+          "chunk_index": 2,
+          "text": "# 测试文档\n\n# 2025年前五个月产品A销售分析\n\n# 一、数据概览\n\n根据图表，产品A在2025年1月至5月的销售额如下：\n\n\n\n\n# 二、趋势分析\n\n整体来看：\n\n- 1月到3月：销售额持续增长，3月达到峰值   \n- 3月之后：销售额开始下降  \n5月：接近年初水平\n\n说明产品可能在3月存在促销或旺季因素。\n\n# 三、简单计算分析\n\n# 1. 平均销售额\n\n公式:\n\n$$\n\\bar {x} = \\frac {\\sum x _ {i}}{n}\n$$\n\n计算：\n\n$$\n\\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8\n$$\n\n平均销售额为 178万元\n\n# 2. 增长率（以2月→3月为例）\n\n公式:\n\n增长率 $= \\frac{\\text{本期} - \\text{上期}}{\\text{上期}}$\n\n计算：\n\n$$\n\\frac {3 2 0 - 1 2 0}{1 2 0} = 1. 6 7\n$$\n\n2月到3月增长显著\n\n# 四、结论\n\n- 3月为销售高峰，应重点分析原因（活动/市场需求）  \n- 后续月份下滑明显，需考虑优化策略  \n- 建议关注季节性波动并制定对应营销方案\n\n2025年销售额  \n![](images/f1d950480a1c25612d5d826d178e70859595889b5ef232b230a0243754736bcd.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 2,
+            "title": "测试文档",
+            "section": "测试文档",
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.01639344262295082,
+            "score_composite": 0.7346158480464806,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.65626705,
+              "bm25_norm": null,
+              "rrf_norm": 1.0,
+              "rerank_norm": 0.9033162041975429,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.7346158480464806,
+            "score_threshold": 0.3,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "rerank_score": 0.9033162041975429,
+            "rerank_rank": 1,
+            "section_path": [
+              "测试文档"
+            ]
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "related_table_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0"
+            ],
+            "related_formula_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ]
+          },
+          "scores": {
+            "score": 0.7346158480464806,
+            "score_vector": 0.65626705,
+            "score_bm25": null,
+            "score_rrf": 0.01639344262295082,
+            "rerank_score": 0.9033162041975429,
+            "score_composite": 0.7346158480464806,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.65626705,
+              "bm25_norm": null,
+              "rrf_norm": 1.0,
+              "rerank_norm": 0.9033162041975429,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 2,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+          "point_id": "b7736d87-e366-5aeb-a21b-00c4dfe1ec6e",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:table:0",
+          "chunk_index": 0,
+          "text": "| 月份 | 销售额(万元) |\n| --- | --- |\n| 1月 | 100 |\n| 2月 | 120 |\n| 3月 | 320 |\n| 4月 | 240 |\n| 5月 | 110 |",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 0,
+            "title": "测试文档",
+            "section": null,
+            "modality": "table",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.3615189910259032,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_table_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "rerank_score": 0.813780337822217,
+            "rerank_rank": 2,
+            "score_raw_before_composite": 0.6144372415384615,
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.813780337822217,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "score_composite_prior": 0.3615189910259032,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "table",
+            "mineru_raw_type": "table",
+            "mineru_source_kind": "content_list",
+            "structured_duplicate_count": 2,
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "merged_table_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:1"
+            ],
+            "table_duplicate_count": 2,
+            "merged_table_occurrences": [
+              {
+                "node_id": "11848f8e85db2e916e4adaa1950d6910:table:1",
+                "page": null,
+                "chunk_index": 1,
+                "mineru_source_kind": "structured_json_2",
+                "mineru_raw_type": "table",
+                "page_source": null
+              }
+            ],
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_next_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.3615189910259032,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": 0.813780337822217,
+            "score_composite": 0.3615189910259032,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.813780337822217,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "table",
+            "vector_name": null,
+            "modality": "table",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 3,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+          "point_id": "19c836c6-fc18-57c9-93a9-b5bb69cb5eac",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+          "chunk_index": 4,
+          "text": "Formula (display): \\bar {x} = \\frac {1 0 0 + 1 2 0 + 3 2 0 + 2 4 0 + 1 1 0}{5} = 1 7 8",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 4,
+            "title": "测试文档",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.3483622941072828,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_formula_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "rerank_score": 0.7282618078511848,
+            "rerank_rank": 3,
+            "score_raw_before_composite": 0.6144372415384615,
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.7282618078511848,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "score_composite_prior": 0.3483622941072828,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:5",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:5",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:3",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.3483622941072828,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": 0.7282618078511848,
+            "score_composite": 0.3483622941072828,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.7282618078511848,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "formula",
+            "vector_name": null,
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 4,
+          "node_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+          "point_id": "bbd99724-a859-5b5e-92a7-a50deddcfb3e",
+          "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+          "chunk_id": "11848f8e85db2e916e4adaa1950d6910:formula:3",
+          "chunk_index": 3,
+          "text": "Formula (display): \\bar {x} = \\frac {\\sum x _ {i}}{n}",
+          "metadata": {
+            "source": "data\\demo_docs\\测试文档.pdf",
+            "doc_id": "11848f8e85db2e916e4adaa1950d6910",
+            "page": 1,
+            "chunk_index": 3,
+            "title": "测试文档",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "score_composite": 0.32716952041762504,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "retrieval_expanded_from_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "retrieval_expansion_relation": "related_formula_node_ids",
+            "retrieval_seed_score_composite": 0.6827080461538461,
+            "retrieval_relation_weight": 0.9,
+            "retrieval_inherited_score": 0.6144372415384615,
+            "retrieval_candidate_pool": "related_modality",
+            "retrieval_expansion_mode": "auto",
+            "retrieval_expansion_allowed_by": "related_modality_threshold",
+            "retrieval_seed_rank": 1,
+            "retrieval_seed_threshold": 0.45,
+            "retrieval_expansion_relation_priority": 100,
+            "rerank_score": 0.5905087788684091,
+            "rerank_rank": 4,
+            "score_raw_before_composite": 0.6144372415384615,
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.5905087788684091,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "score_composite_prior": 0.32716952041762504,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 1,
+            "page_node_id": "11848f8e85db2e916e4adaa1950d6910:page:1",
+            "page_source": "structured",
+            "prev_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "doc_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "next_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+            "doc_next_node_id": "11848f8e85db2e916e4adaa1950d6910:formula:4",
+            "same_page_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:table:0",
+              "11848f8e85db2e916e4adaa1950d6910:text:2",
+              "11848f8e85db2e916e4adaa1950d6910:formula:4",
+              "11848f8e85db2e916e4adaa1950d6910:formula:5"
+            ],
+            "context_prev_node_id": "11848f8e85db2e916e4adaa1950d6910:text:2",
+            "context_node_ids": [
+              "11848f8e85db2e916e4adaa1950d6910:text:2"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.32716952041762504,
+            "score_vector": 0.0,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": 0.5905087788684091,
+            "score_composite": 0.32716952041762504,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.0,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": 0.5905087788684091,
+              "relationship_norm": 0.6144372415384615
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "formula",
+            "vector_name": null,
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 5,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+          "point_id": "53cdf46f-32d0-5549-9720-4023e7d2951b",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+          "chunk_index": 24,
+          "text": "Formula (display): S (y, t ^ {\\prime}) = \\lim _ {x \\to \\infty} F (x, y, t)",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 24,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.016129032258064516,
+            "score_composite": 0.35947146348258996,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2936883,
+              "bm25_norm": null,
+              "rrf_norm": 0.4919354838709669,
+              "rerank_norm": 0.5237049488332657,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.35947146348258996,
+            "score_threshold": 0.3,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "rerank_score": 0.5237049488332657,
+            "rerank_rank": 5,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.35947146348258996,
+            "score_vector": 0.2936883,
+            "score_bm25": null,
+            "score_rrf": 0.016129032258064516,
+            "rerank_score": 0.5237049488332657,
+            "score_composite": 0.35947146348258996,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2936883,
+              "bm25_norm": null,
+              "rrf_norm": 0.4919354838709669,
+              "rerank_norm": 0.5237049488332657,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 6,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+          "point_id": "4092459e-f0fd-509a-a550-e07e02721300",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+          "chunk_index": 25,
+          "text": "Formula (display): S (y, t ^ {\\prime}) = e ^ {- i \\Xi (y, t ^ {\\prime})},\n\n\\Xi (y, t ^ {\\prime}) = \\frac {e y}{c \\hbar} \\int_ {- \\infty} ^ {\\infty} \\frac {d z}{\\sqrt {y ^ {2} + z ^ {2}}}   A (x, y, t ^ {\\prime} + z / v)  , \\tag {11}",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 2,
+            "chunk_index": 25,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "formula",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.015873015873015872,
+            "score_composite": 0.30493345735549304,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2728301,
+              "bm25_norm": null,
+              "rrf_norm": 0.0,
+              "rerank_norm": 0.4774768937608454,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_composite_prior": 0.30493345735549304,
+            "score_threshold": 0.3,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "rerank_score": 0.4774768937608454,
+            "rerank_rank": 6,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "formula",
+            "mineru_raw_type": "equation",
+            "mineru_source_kind": "content_list",
+            "page": 2,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:2",
+            "page_source": "structured",
+            "formula_group": true,
+            "formula_count": 2,
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:9",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30"
+            ],
+            "context_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "context_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13"
+            ],
+            "context_window_chars": 800
+          },
+          "scores": {
+            "score": 0.30493345735549304,
+            "score_vector": 0.2728301,
+            "score_bm25": null,
+            "score_rrf": 0.015873015873015872,
+            "rerank_score": 0.4774768937608454,
+            "score_composite": 0.30493345735549304,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.2728301,
+              "bm25_norm": null,
+              "rrf_norm": 0.0,
+              "rerank_norm": 0.4774768937608454,
+              "relationship_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.2,
+              "relationship": 0.5
+            },
+            "score_threshold": 0.3,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "formula",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ]
+    }
+  ],
+  "labels": {
+    "relevant_node_ids": [],
+    "relevant_doc_ids": [],
+    "graded_relevance": {}
+  }
+}

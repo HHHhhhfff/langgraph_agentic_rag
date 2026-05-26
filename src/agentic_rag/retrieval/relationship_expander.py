@@ -83,6 +83,28 @@ class RelationshipExpander:
                         retry_total += 1
                 results[key] = copy
                 return True
+            if seed is not None and relation is not None:
+                existing = results[key]
+                old_relation = existing.metadata.get("retrieval_expansion_relation")
+                # Never let relationship expansion overwrite a primary/direct hit.
+                if not old_relation:
+                    return False
+                new_priority = self._relation_priority(relation)
+                old_priority = int(existing.metadata.get("retrieval_expansion_relation_priority") or 0)
+                new_inherited = self._inherited_score(hit, seed=seed, relation=relation)
+                old_inherited = existing.metadata.get("retrieval_inherited_score")
+                old_score = float(old_inherited) if isinstance(old_inherited, (int, float)) else -1.0
+                if new_priority > old_priority or (new_priority == old_priority and new_inherited > old_score):
+                    existing.metadata["retrieval_expansion_replaced_relation"] = old_relation
+                    self._apply_inherited_score(
+                        existing,
+                        seed=seed,
+                        relation=relation,
+                        candidate_pool=candidate_pool,
+                        mode=mode,
+                        seed_rank=seed_rank,
+                    )
+                    return True
             return False
 
         frontier = [(hit, index) for index, hit in enumerate(seed_hits, start=1)]
@@ -100,49 +122,49 @@ class RelationshipExpander:
                     continue
                 doc_id = seed.doc_id
                 page = seed.page
-                if page is not None and page_window > 0 and mode in {"routed", "retry"}:
-                    for delta in range(-page_window, page_window + 1):
-                        for neighbor in self.by_doc_page.get((doc_id, page + delta), []):
-                            key = neighbor.node_id or neighbor.point_id
-                            if key not in results:
-                                if not self._allow_relation(
-                                    seed=seed,
-                                    neighbor=neighbor,
-                                    relation="page_window",
-                                    seed_rank=seed_rank,
-                                    per_seed_related=per_seed_related,
-                                    per_seed_context=per_seed_context,
-                                    per_seed_routed=per_seed_routed,
-                                    per_seed_retry=per_seed_retry,
-                                    related_total=related_total,
-                                    routed_total=routed_total,
-                                    retry_total=retry_total,
-                                    mode=mode,
-                                    expansion_reason=expansion_reason,
-                                ):
-                                    continue
-                                candidate_pool = self._candidate_pool("page_window", mode=mode)
-                                if add(
-                                    neighbor,
-                                    seed=seed,
-                                    relation="page_window",
-                                    candidate_pool=candidate_pool,
-                                    seed_rank=seed_rank,
-                                ):
-                                    if candidate_pool == "routed":
-                                        per_seed_routed += 1
-                                    if candidate_pool == "retry":
-                                        per_seed_retry += 1
-                                    next_frontier.append((neighbor, seed_rank))
                 for rid, relation in self._relationship_targets(seed.relationships or {}):
                     if isinstance(rid, str) and rid in self.by_node:
                         neighbor = self.by_node[rid]
-                        key = neighbor.node_id or neighbor.point_id
-                        if key not in results:
+                        if not self._allow_relation(
+                            seed=seed,
+                            neighbor=neighbor,
+                            relation=relation,
+                            seed_rank=seed_rank,
+                            per_seed_related=per_seed_related,
+                            per_seed_context=per_seed_context,
+                            per_seed_routed=per_seed_routed,
+                            per_seed_retry=per_seed_retry,
+                            related_total=related_total,
+                            routed_total=routed_total,
+                            retry_total=retry_total,
+                            mode=mode,
+                            expansion_reason=expansion_reason,
+                        ):
+                            continue
+                        candidate_pool = self._candidate_pool(relation, mode=mode)
+                        if add(
+                            neighbor,
+                            seed=seed,
+                            relation=relation,
+                            candidate_pool=candidate_pool,
+                            seed_rank=seed_rank,
+                        ):
+                            if candidate_pool == "related_modality":
+                                per_seed_related += 1
+                            if candidate_pool == "context":
+                                per_seed_context += 1
+                            if candidate_pool == "routed":
+                                per_seed_routed += 1
+                            if candidate_pool == "retry":
+                                per_seed_retry += 1
+                            next_frontier.append((neighbor, seed_rank))
+                if page is not None and page_window > 0 and mode in {"routed", "retry"}:
+                    for delta in range(-page_window, page_window + 1):
+                        for neighbor in self.by_doc_page.get((doc_id, page + delta), []):
                             if not self._allow_relation(
                                 seed=seed,
                                 neighbor=neighbor,
-                                relation=relation,
+                                relation="page_window",
                                 seed_rank=seed_rank,
                                 per_seed_related=per_seed_related,
                                 per_seed_context=per_seed_context,
@@ -155,18 +177,14 @@ class RelationshipExpander:
                                 expansion_reason=expansion_reason,
                             ):
                                 continue
-                            candidate_pool = self._candidate_pool(relation, mode=mode)
+                            candidate_pool = self._candidate_pool("page_window", mode=mode)
                             if add(
                                 neighbor,
                                 seed=seed,
-                                relation=relation,
+                                relation="page_window",
                                 candidate_pool=candidate_pool,
                                 seed_rank=seed_rank,
                             ):
-                                if candidate_pool == "related_modality":
-                                    per_seed_related += 1
-                                if candidate_pool == "context":
-                                    per_seed_context += 1
                                 if candidate_pool == "routed":
                                     per_seed_routed += 1
                                 if candidate_pool == "retry":
@@ -376,12 +394,9 @@ class RelationshipExpander:
         mode: ExpansionMode,
         seed_rank: int,
     ) -> None:
-        seed_score = score_value(seed)
         weight = self._relation_weight(relation)
-        inherited = max(0.0, min(1.0, seed_score * weight))
-        existing = hit.metadata.get("score_composite")
-        if isinstance(existing, (int, float)):
-            inherited = max(inherited, float(existing) * 0.2 + inherited * 0.8)
+        seed_score = score_value(seed)
+        inherited = self._inherited_score(hit, seed=seed, relation=relation)
         hit.score = inherited
         hit.metadata["score_composite"] = inherited
         hit.metadata["score_stage"] = "relationship_expand"
@@ -396,6 +411,16 @@ class RelationshipExpander:
         hit.metadata["retrieval_expansion_allowed_by"] = self._allowed_by(relation, mode=mode)
         hit.metadata["retrieval_seed_rank"] = seed_rank
         hit.metadata["retrieval_seed_threshold"] = self._seed_threshold(relation, mode=mode)
+        hit.metadata["retrieval_expansion_relation_priority"] = self._relation_priority(relation)
+
+    def _inherited_score(self, hit: SearchHit, *, seed: SearchHit, relation: str) -> float:
+        seed_score = score_value(seed)
+        weight = self._relation_weight(relation)
+        inherited = max(0.0, min(1.0, seed_score * weight))
+        existing = hit.metadata.get("score_composite")
+        if isinstance(existing, (int, float)) and not hit.metadata.get("retrieval_expansion_relation"):
+            inherited = max(inherited, float(existing) * 0.2 + inherited * 0.8)
+        return inherited
 
     def _relation_weight(self, relation: str) -> float:
         if self.settings is None:
@@ -406,11 +431,33 @@ class RelationshipExpander:
             return self.settings.rel_expand_related_formula_weight
         if relation in {"context_node_ids", "context_prev_node_id", "context_next_node_id"}:
             return self.settings.rel_expand_context_text_weight
-        if relation in {"prev_id", "next_id", "doc_prev_node_id", "doc_next_node_id"}:
-            return 0.50
-        if relation in {"same_page_node_ids", "page_window"}:
-            return 0.30
-        return 0.60
+        if relation in {"prev_id", "next_id"}:
+            return self.settings.rel_expand_prev_next_weight
+        if relation == "page_window":
+            return self.settings.rel_expand_page_window_weight
+        if relation == "same_page_node_ids":
+            return self.settings.rel_expand_same_page_weight
+        if relation in {"parent_id", "child_ids"}:
+            return self.settings.rel_expand_parent_child_weight
+        if relation in {"doc_prev_node_id", "doc_next_node_id"}:
+            return self.settings.rel_expand_doc_adjacent_weight
+        return self.settings.rel_expand_parent_child_weight
+
+    @staticmethod
+    def _relation_priority(relation: str) -> int:
+        if relation in {"related_table_node_ids", "related_formula_node_ids"}:
+            return 100
+        if relation in {"context_node_ids", "context_prev_node_id", "context_next_node_id"}:
+            return 80
+        if relation in {"prev_id", "next_id"}:
+            return 60
+        if relation == "same_page_node_ids":
+            return 40
+        if relation in {"parent_id", "child_ids", "doc_prev_node_id", "doc_next_node_id"}:
+            return 30
+        if relation == "page_window":
+            return 20
+        return 10
 
     @staticmethod
     def _candidate_pool(relation: str, *, mode: ExpansionMode) -> str:
