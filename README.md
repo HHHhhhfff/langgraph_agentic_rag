@@ -447,6 +447,7 @@ RETRIEVAL_SCORE_BM25_WEIGHT=0.10
 RETRIEVAL_SCORE_RRF_WEIGHT=0.25
 RETRIEVAL_SCORE_RERANK_WEIGHT=0.35
 RETRIEVAL_SCORE_RELATIONSHIP_WEIGHT=1.00
+RETRIEVAL_SCORE_AGENT_RELEVANCE_WEIGHT=0.20
 RETRIEVAL_INITIAL_MIN_COMPOSITE_SCORE=0.0
 RETRIEVAL_RERANK_MIN_COMPOSITE_SCORE=0.0
 RETRIEVAL_FINAL_MIN_COMPOSITE_SCORE=0.20
@@ -464,7 +465,10 @@ RETRIEVAL_RERANK_PRIOR_LOW_SCORE_PENALTY=0.70
 - `RETRIEVAL_SCORE_RERANK_WEIGHT`
   - `score_composite` 中 reranker 分数归一化后的权重；`RERANK_ENABLED=false` 时该组件自然为空。
 - `RETRIEVAL_SCORE_RELATIONSHIP_WEIGHT`
-  - 后续 composite recompute 阶段 relationship component 的权重。继承分本身由 `REL_EXPAND_*_WEIGHT` 计算；该配置不再被强制提升到 `1.0`，设置为 `0.30` 就会按 `0.30` 生效。
+  - 后续 composite recompute 阶段 relationship component 的权重。继承分本身由 `REL_EXPAND_*_WEIGHT` 计算；该配置不再被强制提升到 `1.0`，设置为 `0.30` 就会按 `0.30` 生效。 
+  - 扩展的表格/公式/文本最终计入的权重，会先算REL_EXPAND_RELATED_TABLE_WEIGHT等这些配置的权重，最终再乘以该权重来计入最终的score_composite分数。
+- `RETRIEVAL_SCORE_AGENT_RELEVANCE_WEIGHT`
+  - Agent chunk grading 产生的 `agent_relevance_score` 在后续 composite recompute 中的权重。
 - `RETRIEVAL_INITIAL_MIN_COMPOSITE_SCORE`
   - 初步召回/RRF 后的最低 `score_composite`。低于该值的 hit 会在 initial 阶段过滤。
 - `RETRIEVAL_RERANK_MIN_COMPOSITE_SCORE`
@@ -476,7 +480,7 @@ RETRIEVAL_RERANK_PRIOR_LOW_SCORE_PENALTY=0.70
 - `RETRIEVAL_RERANK_PRIOR_MIN_COMPOSITE_SCORE`
   - rerank 前 `score_composite` 的低分阈值。
 - `RETRIEVAL_RERANK_PRIOR_LOW_SCORE_PENALTY`
-  - prior 低于阈值时，对 rerank 后综合分施加的惩罚系数。
+  - prior 低于阈值时，对 rerank 后综合分施加的惩罚系数。 惩罚系数越低，对应的rerank分值越低，相当于权重。
 
 表格/公式优先作为 text chunk 的关系上下文补充召回。高分 text 命中后，会根据 `related_table_node_ids`、`related_formula_node_ids` 派生相关 table/formula 分数，并记录扩展来源；这些关系扩展不依赖 query 必须显式包含“表格/公式”。
 
@@ -619,6 +623,49 @@ TG_AGENT_CONTEXT_EXPANSION_MAX_CONTEXT_HITS=4
   - 预留给后续多轮上下文扩展的最大轮数配置。
 - `TG_AGENT_CONTEXT_EXPANSION_MAX_CONTEXT_HITS`
   - 预留给后续 Agent 判断上下文扩展时的上下文 hit 数量上限。
+
+Agent chunk grading 可在 rerank 后、evidence_gate 前对单个 chunk 做语义相关性清洗。默认关闭，避免增加 LLM 成本。
+
+```env
+TG_AGENT_CHUNK_GRADING_ENABLED=false
+TG_AGENT_CHUNK_GRADING_MODE=head_tail
+TG_AGENT_CHUNK_GRADING_HEAD_M=6
+TG_AGENT_CHUNK_GRADING_TAIL_N=2
+TG_AGENT_CHUNK_GRADING_MAX_CHUNKS=8
+TG_AGENT_CHUNK_LABELS=irrelevant,weak,relevant,strong
+TG_AGENT_CHUNK_DROP_LABELS=irrelevant
+TG_AGENT_CHUNK_STRONG_LABELS=strong
+TG_AGENT_CHUNK_DROP_SCORE_THRESHOLD=0.25
+TG_AGENT_CHUNK_STRONG_SCORE_THRESHOLD=0.75
+TG_AGENT_CHUNK_DROP_ENABLED=true
+TG_AGENT_CHUNK_BOOST_ENABLED=true
+TG_AGENT_CHUNK_STRONG_BOOST=0.10
+TG_AGENT_CHUNK_RELEVANT_BOOST=0.03
+TG_AGENT_CHUNK_CONTEXT_FOR_TABLE_FORMULA=true
+TG_AGENT_CHUNK_ADD_CONTEXT_FOR_RELATED_MODALITY=true
+TG_AGENT_CHUNK_CONTEXT_FIXED_SCORE=0.70
+```
+
+- `TG_AGENT_CHUNK_GRADING_ENABLED`
+  - 是否启用逐 chunk Agent 相关性评定。
+- `TG_AGENT_CHUNK_GRADING_MODE`
+  - 评定范围，支持 `all/head/head_tail/none`。
+- `TG_AGENT_CHUNK_GRADING_HEAD_M` / `TG_AGENT_CHUNK_GRADING_TAIL_N`
+  - `head_tail` 模式下评定前 M 个和后 N 个 chunk。
+- `TG_AGENT_CHUNK_GRADING_MAX_CHUNKS`
+  - 单次最多发送给 Agent 的 chunk 数。
+- `TG_AGENT_CHUNK_DROP_LABELS` / `TG_AGENT_CHUNK_DROP_SCORE_THRESHOLD`
+  - 命中这些标签或低于阈值时标记并剔除 chunk。
+- `TG_AGENT_CHUNK_STRONG_LABELS` / `TG_AGENT_CHUNK_STRONG_SCORE_THRESHOLD`
+  - 命中强相关标签或高于阈值时可提升 chunk 分数。
+- `TG_AGENT_CHUNK_STRONG_BOOST` / `TG_AGENT_CHUNK_RELEVANT_BOOST`
+  - 强相关/比较相关 chunk 的 `score_composite` 小幅加分值。
+- `TG_AGENT_CHUNK_CONTEXT_FOR_TABLE_FORMULA`
+  - 评定 table/formula 时是否把 linked text context 一起发给 Agent。
+- `TG_AGENT_CHUNK_ADD_CONTEXT_FOR_RELATED_MODALITY`
+  - table/formula 被判定相关时，是否把 linked text context 作为证据补入。
+- `TG_AGENT_CHUNK_CONTEXT_FIXED_SCORE`
+  - 补入 linked text context 时使用的固定 `score_composite`。
 
 清空历史文件：
 

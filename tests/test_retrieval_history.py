@@ -220,6 +220,7 @@ def test_retrieval_history_records_final_snapshot_when_local_retry_disabled(tmp_
         retrieval_eval_log_file="history.jsonl",
         taskgraph_local_retry_enabled=False,
         rerank_enabled=False,
+        retrieval_final_min_composite_score=0.0,
         tg_max_retries=1,
         tg_min_evidence_hits=2,
         tg_min_coverage_ratio=0.0,

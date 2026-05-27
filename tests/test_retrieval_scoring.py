@@ -85,3 +85,26 @@ def test_inherited_only_final_score_is_preserved() -> None:
     assert hit.metadata["score_composite"] == 0.42
     assert hit.metadata["score_policy"] == "inherited_relationship_v1"
     assert hit.metadata["score_weights"]["relationship"] == 0.3
+
+
+def test_agent_relevance_score_participates_in_composite() -> None:
+    settings = Settings(
+        _env_file=None,
+        retrieval_score_vector_weight=0.0,
+        retrieval_score_bm25_weight=0.0,
+        retrieval_score_rrf_weight=0.0,
+        retrieval_score_agent_relevance_weight=0.5,
+    )
+    hit = SearchHit(
+        point_id="1",
+        text="agent relevant",
+        score=0.1,
+        score_vector=None,
+        metadata={"agent_relevance_score": 0.8},
+    )
+
+    compute_composite_scores([hit], stage=STAGE_INITIAL, settings=settings)
+
+    assert hit.metadata["score_components"]["agent_relevance_norm"] == 0.8
+    assert hit.metadata["score_weights"]["agent_relevance"] == 0.5
+    assert hit.score == 0.8

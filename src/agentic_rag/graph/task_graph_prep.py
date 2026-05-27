@@ -74,6 +74,8 @@ class TaskGraphState(TypedDict, total=False):
     unsupported_claims: list[str]
     agent_retry_used: bool
     agent_retry_reasoning: str
+    agent_chunk_grading_used: bool
+    agent_chunk_grading_hit_count: int
     agent_fallback_reason: str | None
     plan_validation_errors: list[str]
     retry_plan_validation_errors: list[str]

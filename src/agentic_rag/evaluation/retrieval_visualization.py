@@ -358,6 +358,13 @@ def _render_hit_card(stage: str, snapshot: dict[str, Any], hit: dict[str, Any]) 
         "seed_threshold": metadata.get("retrieval_seed_threshold"),
         "relation_priority": metadata.get("retrieval_expansion_relation_priority"),
         "replaced_relation": metadata.get("retrieval_expansion_replaced_relation"),
+        "agent_relevance_score": _fmt_score(metadata.get("agent_relevance_score")),
+        "agent_relevance_label": metadata.get("agent_relevance_label"),
+        "agent_relevance_keep": metadata.get("agent_relevance_keep"),
+        "agent_relevance_drop": metadata.get("agent_relevance_drop"),
+        "agent_relevance_boost": metadata.get("agent_relevance_boost"),
+        "agent_relevance_reasoning": metadata.get("agent_relevance_reasoning"),
+        "agent_grading_context_added": metadata.get("agent_grading_context_added"),
     }
     chips = "".join(f"<span><strong>{_e(k)}</strong>={_e(v)}</span>" for k, v in fields.items())
     return f"""

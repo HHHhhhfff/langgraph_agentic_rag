@@ -14,6 +14,7 @@ from agentic_rag.evaluation.retrieval_history import (
     new_query_id,
 )
 from agentic_rag.evaluation.retrieval_visualization import write_retrieval_visualization_report
+from agentic_rag.graph.agent_chunk_grader import AgentChunkGrader
 from agentic_rag.graph.agent_evidence import AgentEvidenceCritic, merge_evidence_gate
 from agentic_rag.graph.agent_planner import AgentRetrievalPlanner, AgentRouteAnalyzer
 from agentic_rag.graph.agent_retry import AgentRetryAdvisor
@@ -63,6 +64,18 @@ def _count_by_key(hits: list[SearchHit], key_fn) -> dict[str, int]:
 def _replace_snapshot(snapshots: list[dict[str, Any]], snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     stage = snapshot.get("stage")
     return [row for row in snapshots if row.get("stage") != stage] + [snapshot]
+
+
+def _dedupe_hits(hits: list[SearchHit]) -> list[SearchHit]:
+    result: list[SearchHit] = []
+    seen: set[str] = set()
+    for hit in hits:
+        key = hit.node_id or hit.point_id
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(hit)
+    return result
 
 
 def _retrieval_observability_enabled(settings: Settings) -> bool:
@@ -129,6 +142,7 @@ class TaskGraphRAG:
         self.progress = progress
         self.evidence_evaluator = EvidenceEvaluator(settings)
         self.local_retry_planner = LocalRetryPlanner(settings)
+        self.agent_chunk_grader = AgentChunkGrader(settings, llm_client)
         self.plan_validator = PlanValidator(settings)
         self.agent_route_analyzer = AgentRouteAnalyzer(settings, llm_client)
         self.agent_retrieval_planner = AgentRetrievalPlanner(settings, llm_client)
@@ -629,6 +643,41 @@ class TaskGraphRAG:
             **skipped_evidence,
         }
 
+    def _agent_chunk_grader_node(self, state: TaskGraphState) -> TaskGraphState:
+        hits = list(state.get("expanded_hits", []) or [])
+        if not self.settings.tg_agent_chunk_grading_enabled or not hits:
+            return {"expanded_hits": hits, "agent_chunk_grading_used": False}
+        context_pool = _dedupe_hits(
+            [
+                *hits,
+                *(state.get("fused_hits", []) or []),
+                *[
+                    hit
+                    for route in (state.get("route_hits", {}) or {}).values()
+                    for hit in route
+                ],
+            ]
+        )
+        try:
+            graded = self.agent_chunk_grader.grade_hits(
+                question=state.get("question", ""),
+                hits=hits,
+                context_pool=context_pool,
+            )
+            return {
+                "expanded_hits": graded,
+                "agent_chunk_grading_used": True,
+                "agent_chunk_grading_hit_count": len(graded),
+            }
+        except Exception as exc:
+            if not self.settings.tg_agent_fallback_to_rules:
+                raise
+            return {
+                "expanded_hits": hits,
+                "agent_chunk_grading_used": False,
+                "agent_fallback_reason": f"agent_chunk_grading_failed:{type(exc).__name__}",
+            }
+
     def _evidence_gate_node(self, state: TaskGraphState) -> TaskGraphState:
         if self._should_skip_evidence_gate(state):
             self._progress_skip("evidence_gate")
@@ -923,6 +972,8 @@ class TaskGraphRAG:
                 "agent_evidence_reasoning": state.get("agent_evidence_reasoning", ""),
                 "agent_gate_decision": state.get("agent_gate_decision"),
                 "unsupported_claims": state.get("unsupported_claims", []),
+                "agent_chunk_grading_used": state.get("agent_chunk_grading_used", False),
+                "agent_chunk_grading_hit_count": state.get("agent_chunk_grading_hit_count", 0),
                 "agent_retry_used": state.get("agent_retry_used", False),
                 "agent_retry_reasoning": state.get("agent_retry_reasoning", ""),
                 "agent_fallback_reason": state.get("agent_fallback_reason"),
@@ -1004,6 +1055,7 @@ class TaskGraphRAG:
         graph.add_node("retrieve_rrf", self._retrieve_rrf_node)
         graph.add_node("relationship_expand", self._relationship_expand_node)
         graph.add_node("rerank", self._rerank_node)
+        graph.add_node("agent_chunk_grader", self._agent_chunk_grader_node)
         graph.add_node("evidence_gate", self._evidence_gate_node)
         graph.add_node("local_retry", self._local_retry_node)
         graph.add_node("build_prompt", self._build_prompt_node)
@@ -1018,8 +1070,9 @@ class TaskGraphRAG:
         graph.add_edge("retrieve_fanout", "retrieve_rrf")
         graph.add_edge("retrieve_rrf", "relationship_expand")
         graph.add_edge("relationship_expand", "rerank")
+        graph.add_edge("rerank", "agent_chunk_grader")
         graph.add_conditional_edges(
-            "rerank",
+            "agent_chunk_grader",
             self._after_rerank_decision,
             {"evidence_gate": "evidence_gate", "local_retry": "local_retry", "build_prompt": "build_prompt"},
         )

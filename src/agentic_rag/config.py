@@ -423,6 +423,7 @@ class Settings(BaseSettings):
     retrieval_score_rrf_weight: float = Field(default=0.25, description="Composite score RRF weight")
     retrieval_score_rerank_weight: float = Field(default=0.35, description="Composite score rerank weight")
     retrieval_score_relationship_weight: float = Field(default=1.0, description="Composite score relationship weight")
+    retrieval_score_agent_relevance_weight: float = Field(default=0.20, description="Composite score agent relevance weight")
     retrieval_initial_min_composite_score: float = Field(default=0.0, description="Initial retrieval composite threshold")
     retrieval_rerank_min_composite_score: float = Field(default=0.0, description="Rerank composite threshold")
     retrieval_final_min_composite_score: float = Field(default=0.20, description="Final retrieval composite threshold")
@@ -473,6 +474,23 @@ class Settings(BaseSettings):
     tg_agent_context_expansion_seed_top_m: int = Field(default=3, description="Agent context expansion max seeds")
     tg_agent_context_expansion_max_rounds: int = Field(default=2, description="Agent context expansion max rounds")
     tg_agent_context_expansion_max_context_hits: int = Field(default=4, description="Agent context expansion max hits")
+    tg_agent_chunk_grading_enabled: bool = Field(default=False, description="Enable agent per-chunk relevance grading")
+    tg_agent_chunk_grading_mode: str = Field(default="head_tail", description="Chunk grading selection mode: all/head/head_tail/none")
+    tg_agent_chunk_grading_head_m: int = Field(default=6, description="Head chunks sent to agent chunk grader")
+    tg_agent_chunk_grading_tail_n: int = Field(default=2, description="Tail chunks sent to agent chunk grader")
+    tg_agent_chunk_grading_max_chunks: int = Field(default=8, description="Maximum chunks sent to agent chunk grader")
+    tg_agent_chunk_labels: str = Field(default="irrelevant,weak,relevant,strong", description="Allowed chunk relevance labels")
+    tg_agent_chunk_drop_labels: str = Field(default="irrelevant", description="Labels dropped by agent chunk grading")
+    tg_agent_chunk_strong_labels: str = Field(default="strong", description="Labels treated as strong by agent chunk grading")
+    tg_agent_chunk_drop_score_threshold: float = Field(default=0.25, description="Drop chunks below this agent relevance score")
+    tg_agent_chunk_strong_score_threshold: float = Field(default=0.75, description="Strong chunks at or above this agent relevance score")
+    tg_agent_chunk_drop_enabled: bool = Field(default=True, description="Drop irrelevant chunks after agent grading")
+    tg_agent_chunk_boost_enabled: bool = Field(default=True, description="Boost relevant chunks after agent grading")
+    tg_agent_chunk_strong_boost: float = Field(default=0.10, description="Score boost for strong chunks")
+    tg_agent_chunk_relevant_boost: float = Field(default=0.03, description="Score boost for relevant chunks")
+    tg_agent_chunk_context_for_table_formula: bool = Field(default=True, description="Include linked text context when grading table/formula")
+    tg_agent_chunk_add_context_for_related_modality: bool = Field(default=True, description="Add linked text context for relevant table/formula")
+    tg_agent_chunk_context_fixed_score: float = Field(default=0.70, description="Fixed score for agent-added linked text context")
     enable_named_vectors: bool = Field(default=False, description="Enable Qdrant named vectors abstraction")
     named_vector_text_name: str = Field(default="text", description="Qdrant named vector key for text nodes")
     named_vector_table_name: str = Field(default="table", description="Qdrant named vector key for table nodes")
@@ -596,6 +614,9 @@ class Settings(BaseSettings):
         "tg_agent_context_expansion_seed_top_m",
         "tg_agent_context_expansion_max_rounds",
         "tg_agent_context_expansion_max_context_hits",
+        "tg_agent_chunk_grading_head_m",
+        "tg_agent_chunk_grading_tail_n",
+        "tg_agent_chunk_grading_max_chunks",
         "tg_max_retries",
         "tg_budget_tokens",
         "tg_budget_ms",

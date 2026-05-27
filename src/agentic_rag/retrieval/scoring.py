@@ -28,6 +28,7 @@ def compute_composite_scores(
     rrf_norm = _norm_by_minmax([hit.score_rrf for hit in hits])
     rerank_norm = _norm_by_rerank([_rerank_score(hit) for hit in hits])
     relationship_norm = _norm_by_clip([_metadata_float(hit, "retrieval_inherited_score") for hit in hits])
+    agent_relevance_norm = _norm_by_clip([_metadata_float(hit, "agent_relevance_score") for hit in hits])
 
     for index, hit in enumerate(hits):
         components = {
@@ -36,6 +37,7 @@ def compute_composite_scores(
             "rrf_norm": rrf_norm[index],
             "rerank_norm": rerank_norm[index],
             "relationship_norm": relationship_norm[index],
+            "agent_relevance_norm": agent_relevance_norm[index],
         }
         weights = _stage_weights(settings=settings, stage=stage, hit=hit)
         if _preserve_inherited_score(hit, components):
@@ -104,6 +106,7 @@ def _stage_weights(*, settings: Settings, stage: str, hit: SearchHit) -> dict[st
         "rrf": settings.retrieval_score_rrf_weight,
         "rerank": settings.retrieval_score_rerank_weight if stage in {STAGE_RERANK, STAGE_FINAL} else 0.0,
         "relationship": settings.retrieval_score_relationship_weight,
+        "agent_relevance": settings.retrieval_score_agent_relevance_weight,
     }
     return weights
 
@@ -128,6 +131,7 @@ def _weighted_score(components: dict[str, float | None], weights: dict[str, floa
         ("rrf_norm", "rrf"),
         ("rerank_norm", "rerank"),
         ("relationship_norm", "relationship"),
+        ("agent_relevance_norm", "agent_relevance"),
     )
     numerator = 0.0
     denominator = 0.0
