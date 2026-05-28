@@ -77,6 +77,7 @@ def test_task_graph_agent_route_and_plan_debug() -> None:
         Settings(
             tg_agent_route_enabled=True,
             tg_agent_retrieval_planner_enabled=True,
+            tg_agent_chunk_grading_enabled=False,
             tg_min_evidence_hits=1,
             tg_min_coverage_ratio=0.0,
             tg_citation_strict=False,
@@ -110,6 +111,7 @@ def test_task_graph_agent_evidence_conservative_retry() -> None:
             tg_route_llm_enabled=False,
             tg_agent_retrieval_planner_enabled=False,
             tg_agent_evidence_critic_enabled=True,
+            tg_agent_chunk_grading_enabled=False,
             tg_agent_retry_advisor_enabled=False,
             tg_max_retries=1,
             tg_min_evidence_hits=1,
@@ -143,6 +145,7 @@ def test_task_graph_agent_retry_updates_next_plan() -> None:
             tg_route_llm_enabled=False,
             tg_agent_retrieval_planner_enabled=False,
             tg_agent_evidence_critic_enabled=False,
+            tg_agent_chunk_grading_enabled=False,
             tg_agent_retry_advisor_enabled=True,
             tg_max_retries=1,
             tg_min_evidence_hits=1,
@@ -164,7 +167,7 @@ def test_task_graph_agent_disabled_keeps_rule_path() -> None:
     llm = SequencedLLM(["answer [1]"])
     retriever = RecordingRetriever(hits_by_call=[[_hit("TaskGraph evidence")]])
     graph = _graph(
-        Settings(tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0, tg_citation_strict=False),
+        Settings(tg_agent_chunk_grading_enabled=False, tg_min_evidence_hits=1, tg_min_coverage_ratio=0.0, tg_citation_strict=False),
         llm,
         retriever,
     )

@@ -634,16 +634,18 @@ TG_AGENT_CHUNK_GRADING_TAIL_N=2
 TG_AGENT_CHUNK_GRADING_MAX_CHUNKS=8
 TG_AGENT_CHUNK_LABELS=irrelevant,weak,relevant,strong
 TG_AGENT_CHUNK_DROP_LABELS=irrelevant
-TG_AGENT_CHUNK_STRONG_LABELS=strong
 TG_AGENT_CHUNK_DROP_SCORE_THRESHOLD=0.25
-TG_AGENT_CHUNK_STRONG_SCORE_THRESHOLD=0.75
 TG_AGENT_CHUNK_DROP_ENABLED=true
-TG_AGENT_CHUNK_BOOST_ENABLED=true
-TG_AGENT_CHUNK_STRONG_BOOST=0.10
-TG_AGENT_CHUNK_RELEVANT_BOOST=0.03
+TG_AGENT_CHUNK_SCORE_ADJUST_ENABLED=true
+TG_AGENT_CHUNK_LABEL_SCORE_DELTAS=irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10
 TG_AGENT_CHUNK_CONTEXT_FOR_TABLE_FORMULA=true
-TG_AGENT_CHUNK_ADD_CONTEXT_FOR_RELATED_MODALITY=true
-TG_AGENT_CHUNK_CONTEXT_FIXED_SCORE=0.70
+TG_AGENT_CHUNK_RELATED_CONTEXT_ENABLED=true
+TG_AGENT_CHUNK_RELATED_CONTEXT_ADD_LABELS=strong
+TG_AGENT_CHUNK_RELATED_CONTEXT_TRIGGER_MODE=label_only
+TG_AGENT_CHUNK_RELATED_CONTEXT_FIXED_SCORES=irrelevant:0.00,weak:0.40,relevant:0.65,strong:0.70
+TG_AGENT_CHUNK_RELATED_CONTEXT_EXISTING_MODALITY_DELTAS=irrelevant:-0.10,weak:-0.03,relevant:0.03,strong:0.08
+TG_AGENT_CHUNK_RELATED_CONTEXT_EXISTING_TEXT_DELTAS=irrelevant:0.00,weak:0.00,relevant:0.02,strong:0.06
+TG_AGENT_CHUNK_RELATED_CONTEXT_ADDED_MODALITY_DELTAS=irrelevant:0.00,weak:0.00,relevant:0.03,strong:0.08
 ```
 
 - `TG_AGENT_CHUNK_GRADING_ENABLED`
@@ -653,19 +655,31 @@ TG_AGENT_CHUNK_CONTEXT_FIXED_SCORE=0.70
 - `TG_AGENT_CHUNK_GRADING_HEAD_M` / `TG_AGENT_CHUNK_GRADING_TAIL_N`
   - `head_tail` 模式下评定前 M 个和后 N 个 chunk。
 - `TG_AGENT_CHUNK_GRADING_MAX_CHUNKS`
-  - 单次最多发送给 Agent 的 chunk 数。
+  - 单次最多发送给 Agent 的 chunk 数；Agent 以 batch JSON 返回，但仍按 node_id 对每个 chunk 单独评定，不做整体充分性判断。
 - `TG_AGENT_CHUNK_DROP_LABELS` / `TG_AGENT_CHUNK_DROP_SCORE_THRESHOLD`
   - 命中这些标签或低于阈值时标记并剔除 chunk。
-- `TG_AGENT_CHUNK_STRONG_LABELS` / `TG_AGENT_CHUNK_STRONG_SCORE_THRESHOLD`
-  - 命中强相关标签或高于阈值时可提升 chunk 分数。
-- `TG_AGENT_CHUNK_STRONG_BOOST` / `TG_AGENT_CHUNK_RELEVANT_BOOST`
-  - 强相关/比较相关 chunk 的 `score_composite` 小幅加分值。
+- `TG_AGENT_CHUNK_SCORE_ADJUST_ENABLED`
+  - 是否启用按评级调整 `score_composite`。
+- `TG_AGENT_CHUNK_LABEL_SCORE_DELTAS`
+  - Agent 评级到分数增量的映射。计算为 `score_after = clamp(score_before + delta[label], 0, 1)`；支持负数，因此 `irrelevant/weak` 可以下沉，`relevant/strong` 可以上浮。
 - `TG_AGENT_CHUNK_CONTEXT_FOR_TABLE_FORMULA`
   - 评定 table/formula 时是否把 linked text context 一起发给 Agent。
-- `TG_AGENT_CHUNK_ADD_CONTEXT_FOR_RELATED_MODALITY`
-  - table/formula 被判定相关时，是否把 linked text context 作为证据补入。
-- `TG_AGENT_CHUNK_CONTEXT_FIXED_SCORE`
-  - 补入 linked text context 时使用的固定 `score_composite`。
+- `TG_AGENT_CHUNK_RELATED_CONTEXT_ENABLED`
+  - 是否对 table/formula 的 linked text context 执行联动策略。
+- `TG_AGENT_CHUNK_RELATED_CONTEXT_ADD_LABELS`
+  - linked text context 不在当前 hits 中时，哪些 table/formula 评级允许补入 context。默认 `strong`，如需 `relevant` 也补入可设为 `relevant,strong`。
+- `TG_AGENT_CHUNK_RELATED_CONTEXT_TRIGGER_MODE`
+  - context 补入触发模式。当前实现只支持 `label_only`。
+- `TG_AGENT_CHUNK_RELATED_CONTEXT_FIXED_SCORES`
+  - linked text context 不在当前 hits 中且允许补入时，按 table/formula 评级给补入 context 设置固定 `score_composite`。
+- `TG_AGENT_CHUNK_RELATED_CONTEXT_EXISTING_MODALITY_DELTAS`
+  - linked text context 已在当前 hits 中时，对 table/formula 额外增加的分数增量。
+- `TG_AGENT_CHUNK_RELATED_CONTEXT_EXISTING_TEXT_DELTAS`
+  - linked text context 已在当前 hits 中时，对该 text context 额外增加的分数增量；不覆盖原分数，只做 delta 调整。
+- `TG_AGENT_CHUNK_RELATED_CONTEXT_ADDED_MODALITY_DELTAS`
+  - linked text context 不在当前 hits 中且被补入时，对 table/formula 额外增加的分数增量。
+- `TG_AGENT_CHUNK_DROP_ENABLED`
+  - 为 `true` 时，被 drop 的 chunk 会从 evidence gate 前的 hits 中移除；如果希望观察 `irrelevant/weak` 的负向 delta 下沉效果，可临时设为 `false`。
 
 清空历史文件：
 

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from agentic_rag.config import Settings
 from agentic_rag.graph.agent_chunk_grader import AgentChunkGrader
 from agentic_rag.schemas import SearchHit
@@ -30,47 +32,51 @@ def _hit(node_id: str, text: str, score: float = 0.5, modality: str = "text", **
     )
 
 
-def test_agent_chunk_grader_drops_irrelevant_and_boosts_strong() -> None:
+def _grade(node_id: str, label: str, score: float, *, drop: bool = False) -> dict:
+    return {
+        "node_id": node_id,
+        "relevance_score": score,
+        "relevance_label": label,
+        "keep": not drop,
+        "drop": drop,
+        "reasoning_summary": f"{label} reason",
+    }
+
+
+def test_agent_chunk_grader_applies_label_delta_and_drops_irrelevant() -> None:
     settings = Settings(
         _env_file=None,
         tg_agent_chunk_grading_enabled=True,
         tg_agent_chunk_grading_mode="all",
-        tg_agent_chunk_boost_enabled=True,
         tg_agent_chunk_drop_enabled=True,
-        tg_agent_chunk_strong_boost=0.1,
+        tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
     )
-    llm = DummyLLM(
-        {
-            "grades": [
-                {
-                    "node_id": "a",
-                    "relevance_score": 0.9,
-                    "relevance_label": "strong",
-                    "keep": True,
-                    "boost": True,
-                    "drop": False,
-                    "reasoning_summary": "directly answers",
-                },
-                {
-                    "node_id": "b",
-                    "relevance_score": 0.1,
-                    "relevance_label": "irrelevant",
-                    "keep": False,
-                    "boost": False,
-                    "drop": True,
-                    "reasoning_summary": "off topic",
-                },
-            ]
-        }
-    )
+    llm = DummyLLM({"grades": [_grade("a", "strong", 0.9), _grade("b", "irrelevant", 0.1, drop=True)]})
     hits = [_hit("a", "answer", 0.5), _hit("b", "noise", 0.5)]
 
     graded = AgentChunkGrader(settings, llm).grade_hits(question="q", hits=hits)
 
     assert [hit.node_id for hit in graded] == ["a"]
     assert graded[0].score == 0.6
-    assert graded[0].metadata["agent_relevance_label"] == "strong"
-    assert graded[0].metadata["agent_relevance_boost"] == 0.1
+    assert graded[0].metadata["agent_label_score_delta"] == 0.1
+    assert graded[0].metadata["score_policy"] == "agent_chunk_label_delta_v1"
+
+
+def test_agent_chunk_grader_keeps_negative_delta_when_drop_disabled() -> None:
+    settings = Settings(
+        _env_file=None,
+        tg_agent_chunk_grading_enabled=True,
+        tg_agent_chunk_grading_mode="all",
+        tg_agent_chunk_drop_enabled=False,
+        tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
+    )
+    llm = DummyLLM({"grades": [_grade("weak", "weak", 0.4)]})
+
+    graded = AgentChunkGrader(settings, llm).grade_hits(question="q", hits=[_hit("weak", "weak", 0.03)])
+
+    assert graded[0].score == 0.0
+    assert graded[0].metadata["agent_label_score_delta"] == -0.05
+    assert graded[0].metadata["agent_relevance_drop"] is False
 
 
 def test_agent_chunk_grader_uses_head_tail_selection() -> None:
@@ -94,30 +100,19 @@ def test_agent_chunk_grader_uses_head_tail_selection() -> None:
     assert '"node_id": "2"' not in prompt
 
 
-def test_agent_chunk_grader_adds_linked_text_context_for_relevant_formula() -> None:
+def test_strong_formula_adds_missing_linked_text_context_with_label_fixed_score() -> None:
     settings = Settings(
         _env_file=None,
         tg_agent_chunk_grading_enabled=True,
         tg_agent_chunk_grading_mode="all",
         tg_agent_chunk_drop_enabled=True,
-        tg_agent_chunk_add_context_for_related_modality=True,
-        tg_agent_chunk_context_fixed_score=0.7,
+        tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
+        tg_agent_chunk_related_context_enabled=True,
+        tg_agent_chunk_related_context_add_labels="strong",
+        tg_agent_chunk_related_context_fixed_scores="irrelevant:0.00,weak:0.40,relevant:0.65,strong:0.70",
+        tg_agent_chunk_related_context_added_modality_deltas="irrelevant:0.00,weak:0.00,relevant:0.03,strong:0.08",
     )
-    llm = DummyLLM(
-        {
-            "grades": [
-                {
-                    "node_id": "formula",
-                    "relevance_score": 0.82,
-                    "relevance_label": "strong",
-                    "keep": True,
-                    "boost": False,
-                    "drop": False,
-                    "reasoning_summary": "formula plus context is relevant",
-                }
-            ]
-        }
-    )
+    llm = DummyLLM({"grades": [_grade("formula", "strong", 0.82)]})
     formula = _hit(
         "formula",
         "x=1",
@@ -133,9 +128,110 @@ def test_agent_chunk_grader_adds_linked_text_context_for_relevant_formula() -> N
         context_pool=[formula, context],
     )
 
-    ids = {hit.node_id for hit in graded}
-    assert {"formula", "text1"}.issubset(ids)
+    formula_hit = next(hit for hit in graded if hit.node_id == "formula")
     added = next(hit for hit in graded if hit.node_id == "text1")
-    assert added.metadata["agent_grading_context_added"] is True
+    assert formula_hit.score == 0.58
+    assert formula_hit.metadata["agent_related_modality_delta"] == 0.08
+    assert formula_hit.metadata["agent_related_context_added"] is True
     assert added.metadata["score_composite"] == 0.7
+    assert added.metadata["score_policy"] == "agent_context_fixed_by_label_v1"
+    assert added.metadata["agent_related_context_source_node_id"] == "formula"
     assert "explains formula" in llm.prompts[0]
+
+
+def test_strong_formula_adjusts_existing_linked_text_without_duplicate_addition() -> None:
+    settings = Settings(
+        _env_file=None,
+        tg_agent_chunk_grading_enabled=True,
+        tg_agent_chunk_grading_mode="all",
+        tg_agent_chunk_drop_enabled=True,
+        tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
+        tg_agent_chunk_related_context_enabled=True,
+        tg_agent_chunk_related_context_existing_modality_deltas="irrelevant:-0.10,weak:-0.03,relevant:0.03,strong:0.08",
+        tg_agent_chunk_related_context_existing_text_deltas="irrelevant:0.00,weak:0.00,relevant:0.02,strong:0.06",
+    )
+    llm = DummyLLM({"grades": [_grade("formula", "strong", 0.9)]})
+    formula = _hit(
+        "formula",
+        "x=1",
+        0.4,
+        modality="formula",
+        metadata={"retrieval_expanded_from_node_id": "text1"},
+    )
+    context = _hit("text1", "explains formula", 0.6, modality="text")
+
+    graded = AgentChunkGrader(settings, llm).grade_hits(
+        question="q",
+        hits=[formula, context],
+        context_pool=[formula, context],
+    )
+
+    assert [hit.node_id for hit in graded].count("text1") == 1
+    formula_hit = next(hit for hit in graded if hit.node_id == "formula")
+    text_hit = next(hit for hit in graded if hit.node_id == "text1")
+    assert formula_hit.score == 0.58
+    assert text_hit.score == pytest.approx(0.66)
+    assert formula_hit.metadata["agent_related_context_present"] is True
+    assert formula_hit.metadata["agent_related_context_added"] is False
+
+
+def test_relevant_formula_does_not_add_context_when_add_labels_only_strong() -> None:
+    settings = Settings(
+        _env_file=None,
+        tg_agent_chunk_grading_enabled=True,
+        tg_agent_chunk_grading_mode="all",
+        tg_agent_chunk_drop_enabled=True,
+        tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
+        tg_agent_chunk_related_context_enabled=True,
+        tg_agent_chunk_related_context_add_labels="strong",
+        tg_agent_chunk_related_context_added_modality_deltas="irrelevant:0.00,weak:0.00,relevant:0.03,strong:0.08",
+    )
+    llm = DummyLLM({"grades": [_grade("formula", "relevant", 0.7)]})
+    formula = _hit(
+        "formula",
+        "x=1",
+        0.4,
+        modality="formula",
+        metadata={"retrieval_expanded_from_node_id": "text1"},
+    )
+    context = _hit("text1", "explains formula", 0.6, modality="text")
+
+    graded = AgentChunkGrader(settings, llm).grade_hits(
+        question="q",
+        hits=[formula],
+        context_pool=[formula, context],
+    )
+
+    assert [hit.node_id for hit in graded] == ["formula"]
+    assert graded[0].score == pytest.approx(0.43)
+    assert graded[0].metadata["agent_related_context_added"] is False
+
+
+def test_score_adjust_and_related_context_switches_disable_score_changes() -> None:
+    settings = Settings(
+        _env_file=None,
+        tg_agent_chunk_grading_enabled=True,
+        tg_agent_chunk_grading_mode="all",
+        tg_agent_chunk_drop_enabled=True,
+        tg_agent_chunk_score_adjust_enabled=False,
+        tg_agent_chunk_related_context_enabled=False,
+    )
+    llm = DummyLLM({"grades": [_grade("formula", "strong", 0.9)]})
+    formula = _hit(
+        "formula",
+        "x=1",
+        0.4,
+        modality="formula",
+        metadata={"retrieval_expanded_from_node_id": "text1"},
+    )
+    context = _hit("text1", "explains formula", 0.6, modality="text")
+
+    graded = AgentChunkGrader(settings, llm).grade_hits(
+        question="q",
+        hits=[formula],
+        context_pool=[formula, context],
+    )
+
+    assert [hit.node_id for hit in graded] == ["formula"]
+    assert graded[0].score == 0.4
+    assert graded[0].metadata["agent_label_score_delta"] == 0.0
