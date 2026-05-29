@@ -422,6 +422,8 @@ Rerank 关键配置：
 
 - `RETRIEVAL_EVAL_LOG_ENABLED=true|false`
   - 是否记录 TaskGraph query 的召回历史 JSONL。默认 `false`，不产生文件。
+- `RETRIEVAL_EVAL_SNAPSHOTS_ENABLED=true|false`
+  - 只在内存中收集 TaskGraph 阶段快照，不写 JSONL。`check --pipeline taskgraph` 会自动开启该能力。
 - `RETRIEVAL_EVAL_LOG_DIR=storage/retrieval_eval`
   - 召回历史日志目录。
 - `RETRIEVAL_EVAL_LOG_FILE=retrieval_history.jsonl`
@@ -429,7 +431,7 @@ Rerank 关键配置：
 - `RETRIEVAL_EVAL_MAX_TEXT_CHARS=2000`
   - 每个 hit 记录的 chunk 文本最大长度。
 
-该日志用于后续计算 Hit Rate、MRR、Precision、Recall、AP、nDCG 等检索评测指标。当前只记录 TaskGraph 路径。每条 JSONL record 包含 `initial_retrieval`、`rerank`、`final_after_retry` 三个 snapshot，hit 结构接近 LlamaIndex Node，并预留 `eval.is_relevant`、`eval.relevance_label`、`eval.graded_relevance` 字段供后续标注。
+该日志用于后续计算 Hit Rate、MRR、Precision、Recall、AP、nDCG 等检索评测指标。当前只记录 TaskGraph 路径。每条 JSONL record 可包含 `initial_retrieval`、`initial_expanded`、`rerank`、`agent_chunk_grading`、`evidence_gate`、`retry_*`、`final_after_retry`、`final_output` 等 snapshot，hit 结构接近 LlamaIndex Node，并预留 `eval.is_relevant`、`eval.relevance_label`、`eval.graded_relevance` 字段供后续标注。
 
 召回评分保留 raw score，并额外写入统一综合分：
 

@@ -365,6 +365,10 @@ class Settings(BaseSettings):
         description="Whether to print batch-level progress events in console progress",
     )
     retrieval_eval_log_enabled: bool = Field(default=False, description="Append retrieval history JSONL for later eval")
+    retrieval_eval_snapshots_enabled: bool = Field(
+        default=False,
+        description="Collect in-memory retrieval snapshots without writing retrieval history logs",
+    )
     retrieval_eval_log_dir: str = Field(default="storage/retrieval_eval", description="Retrieval eval log directory")
     retrieval_eval_log_file: str = Field(default="retrieval_history.jsonl", description="Retrieval eval JSONL file name")
     retrieval_eval_max_text_chars: int = Field(default=2000, description="Max chars stored per retrieved hit text")

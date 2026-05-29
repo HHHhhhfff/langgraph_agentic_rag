@@ -11,11 +11,33 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REPORT_DIR = REPO_ROOT / "check" / "visual_reports"
 
-DISPLAY_STAGES = ("initial_recall", "rerank", "local_recheck")
+DEFAULT_STAGE_ORDER = (
+    "initial_recall",
+    "initial_retrieval",
+    "initial_expanded",
+    "rerank",
+    "agent_chunk_grading",
+    "evidence_gate",
+    "retry_1_retrieval",
+    "retry_1_expanded",
+    "retry_1_rerank",
+    "local_recheck",
+    "final_after_retry",
+    "final_output",
+)
 STAGE_LABELS = {
     "initial_recall": "Initial recall",
+    "initial_retrieval": "Initial retrieval",
+    "initial_expanded": "Initial expanded",
     "rerank": "Rerank",
-    "local_recheck": "Local recheck / final",
+    "agent_chunk_grading": "Agent chunk grading",
+    "evidence_gate": "Evidence gate",
+    "retry_1_retrieval": "Retry 1 retrieval",
+    "retry_1_expanded": "Retry 1 expanded",
+    "retry_1_rerank": "Retry 1 rerank",
+    "local_recheck": "Local recheck",
+    "final_after_retry": "Final after retry",
+    "final_output": "Final output",
 }
 METRIC_NAMES = (
     "hit_rate",
@@ -86,6 +108,13 @@ def resolve_path(value: str | Path) -> Path:
 
 def safe_name(value: str) -> str:
     return "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in value).strip("_")
+
+
+def basename(value: Any) -> str:
+    if value in (None, ""):
+        return ""
+    raw = str(value).replace("\\", "/")
+    return raw.rsplit("/", 1)[-1]
 
 
 def fmt_num(value: Any, digits: int = 4) -> str:
@@ -324,6 +353,20 @@ def stage_metrics(case: dict[str, Any], stage: str) -> dict[str, Any]:
     return metrics
 
 
+def stage_order_for_cases(cases: list[dict[str, Any]]) -> tuple[str, ...]:
+    seen: list[str] = []
+    for case in cases:
+        stages = case.get("stages")
+        if not isinstance(stages, dict):
+            continue
+        for stage in stages:
+            if str(stage) not in seen:
+                seen.append(str(stage))
+    ordered = [stage for stage in DEFAULT_STAGE_ORDER if stage in seen]
+    ordered.extend(stage for stage in seen if stage not in ordered)
+    return tuple(ordered) or ("initial_recall", "rerank", "local_recheck")
+
+
 def stage_summary(hits: list[dict[str, Any]], expected_pages: list[int]) -> dict[str, Any]:
     total = len(hits)
     relevant = sum(1 for hit in hits if is_relevant(hit, expected_pages)[0])
@@ -351,12 +394,12 @@ def render_metric_chips(metrics: dict[str, Any], names: tuple[str, ...], *, scor
     return "\n".join(chips) or '<span class="muted">No metrics</span>'
 
 
-def render_metric_table(case: dict[str, Any]) -> str:
+def render_metric_table(case: dict[str, Any], stage_order: tuple[str, ...]) -> str:
     rows: list[str] = []
-    for stage in DISPLAY_STAGES:
+    for stage in stage_order:
         metrics = stage_metrics(case, stage)
         cells = "".join(f"<td>{fmt_num(metrics.get(name))}</td>" for name in METRIC_NAMES)
-        rows.append(f"<tr><th>{esc(STAGE_LABELS[stage])}</th>{cells}</tr>")
+        rows.append(f"<tr><th>{esc(STAGE_LABELS.get(stage, stage))}</th>{cells}</tr>")
     header = "".join(f"<th>{esc(name)}</th>" for name in METRIC_NAMES)
     return f"""
     <table class="metrics-table">
@@ -386,28 +429,100 @@ def render_citations(citations: Any) -> str:
 
 def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars: int) -> str:
     relevant, reason = is_relevant(hit, expected_pages)
+    agent_label = str(hit.get("agent_relevance_label") or "").lower()
+    agent_drop = bool(hit.get("agent_relevance_drop"))
     status = "Relevant" if relevant else "Irrelevant"
     status_class = "relevant" if relevant else "irrelevant"
+    if agent_drop or agent_label == "irrelevant":
+        status_class += " agent-drop"
+    elif agent_label in {"strong", "relevant", "weak"}:
+        status_class += f" agent-{agent_label}"
     text, truncated = truncate_text(hit.get("text"), max_text_chars)
     node_id = hit.get("node_id") or hit.get("point_id") or hit.get("chunk_index") or "-"
+    source = hit.get("source")
     title = (
         f"rank={esc(hit.get('rank'))} | "
         f"page={esc(hit.get('page'))} | "
         f"score={fmt_num(hit.get('score'))} | "
+        f"score_composite={fmt_num(hit.get('score_composite'))} | "
         f"modality={esc(hit.get('modality'))}"
     )
-    meta = [
+    identity_meta = [
+        ("source", basename(source) or source),
+        ("title", hit.get("title")),
+        ("doc_id", hit.get("doc_id")),
         ("rank", hit.get("rank")),
         ("chunk", node_id),
+        ("chunk_index", hit.get("chunk_index")),
         ("page", hit.get("page")),
-        ("score", fmt_num(hit.get("score"))),
         ("modality", hit.get("modality")),
         ("channel", hit.get("channel")),
     ]
-    meta_html = "".join(
-        f'<span><b>{esc(key)}</b>: {esc(value)}</span>'
-        for key, value in meta
-        if value not in (None, "")
+    score_meta = [
+        ("score", fmt_num(hit.get("score"))),
+        ("vector", fmt_num(hit.get("score_vector"))),
+        ("bm25", fmt_num(hit.get("score_bm25"))),
+        ("rrf", fmt_num(hit.get("score_rrf"))),
+        ("rerank", fmt_num(hit.get("rerank_score"))),
+        ("composite", fmt_num(hit.get("score_composite"))),
+        ("policy", hit.get("score_policy")),
+        ("stage", hit.get("score_stage")),
+    ]
+    expansion_meta = [
+        ("pool", hit.get("retrieval_candidate_pool")),
+        ("expanded_from", hit.get("retrieval_expanded_from_node_id")),
+        ("relation", hit.get("retrieval_expansion_relation")),
+        ("mode", hit.get("retrieval_expansion_mode")),
+        ("allowed_by", hit.get("retrieval_expansion_allowed_by")),
+        ("seed_rank", hit.get("retrieval_seed_rank")),
+        ("seed_threshold", hit.get("retrieval_seed_threshold")),
+    ]
+    agent_meta = [
+        ("agent_label", hit.get("agent_relevance_label")),
+        ("agent_score", fmt_num(hit.get("agent_relevance_score"))),
+        ("keep", hit.get("agent_relevance_keep")),
+        ("drop", hit.get("agent_relevance_drop")),
+        ("label_delta", hit.get("agent_label_score_delta")),
+        ("modality_delta", hit.get("agent_related_modality_delta")),
+        ("context_delta", hit.get("agent_related_context_text_delta")),
+        ("context_node", hit.get("agent_related_context_node_id")),
+        ("context_present", hit.get("agent_related_context_present")),
+        ("context_added", hit.get("agent_related_context_added")),
+        ("context_fixed", hit.get("agent_related_context_fixed_score")),
+    ]
+    def meta_html(rows: list[tuple[str, Any]]) -> str:
+        return "".join(
+            f'<span><b>{esc(key)}</b>: {esc(value)}</span>'
+            for key, value in rows
+            if value not in (None, "")
+        )
+    reasoning = hit.get("agent_relevance_reasoning")
+    reasoning_html = (
+        f'<details class="chunk-reasoning"><summary>agent reasoning</summary><pre>{esc(reasoning)}</pre></details>'
+        if reasoning
+        else ""
+    )
+    agent_badge = (
+        f'<span class="agent-badge agent-badge-{esc(agent_label or "none")}">agent {esc(agent_label)} {fmt_num(hit.get("agent_relevance_score"), 2)}</span>'
+        if agent_label or hit.get("agent_relevance_score") is not None
+        else ""
+    )
+    source_line = (
+        f'<div class="chunk-source" title="{esc(source)}">{esc(basename(source) or source)}'
+        f' <span>{esc(hit.get("title"))}</span></div>'
+        if source or hit.get("title")
+        else ""
+    )
+    meta_sections = [
+        ("Identity", meta_html(identity_meta)),
+        ("Scores", meta_html(score_meta)),
+        ("Expansion", meta_html(expansion_meta)),
+        ("Agent", meta_html(agent_meta)),
+    ]
+    sections_html = "".join(
+        f'<div class="chunk-meta-group"><div class="meta-title">{esc(name)}</div><div class="chunk-meta">{content}</div></div>'
+        for name, content in meta_sections
+        if content
     )
     truncated_badge = '<span class="mini-badge">truncated</span>' if truncated else ""
     return f"""
@@ -415,9 +530,12 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
       <div class="chunk-head">
         <span class="status {status_class}">{status}</span>
         <span class="reason">{esc(reason)}</span>
+        {agent_badge}
         {truncated_badge}
       </div>
-      <div class="chunk-meta">{meta_html}</div>
+      {source_line}
+      {sections_html}
+      {reasoning_html}
       <pre class="chunk-text">{esc(text)}</pre>
     </article>
     """
@@ -440,7 +558,7 @@ def render_stage(case: dict[str, Any], stage: str, top_n: int, max_text_chars: i
     return f"""
     <section class="stage-column">
       <div class="stage-title">
-        <h4>{esc(STAGE_LABELS[stage])}</h4>
+        <h4>{esc(STAGE_LABELS.get(stage, stage))}</h4>
         <span class="{top1_class}">top1 {'hit' if summary['top1'] else 'miss'}</span>
       </div>
       <div class="stage-stats">
@@ -452,14 +570,54 @@ def render_stage(case: dict[str, Any], stage: str, top_n: int, max_text_chars: i
     """
 
 
-def render_case(case: dict[str, Any], index: int, top_n: int, max_text_chars: int) -> str:
+def render_debug_panel(case: dict[str, Any]) -> str:
+    debug = case.get("model_debug")
+    if not isinstance(debug, dict):
+        debug = {}
+    fields = (
+        "pipeline",
+        "route",
+        "executed_channels",
+        "evidence_ok",
+        "support_score",
+        "support_level",
+        "gate_decision",
+        "gate_reasons",
+        "missing_slots",
+        "conflict_level",
+        "conflict_reasons",
+        "retry_count",
+        "retry_actions",
+        "agent_chunk_grading_used",
+        "agent_chunk_grading_hit_count",
+        "citation_ok",
+        "rank_source",
+        "page_tolerance",
+    )
+    rows = []
+    for field in fields:
+        value = debug.get(field)
+        if value in (None, "", [], {}):
+            continue
+        rows.append(f"<tr><th>{esc(field)}</th><td>{esc(json.dumps(value, ensure_ascii=False) if isinstance(value, (list, dict)) else value)}</td></tr>")
+    if not rows:
+        return ""
+    return f"""
+    <section class="debug-section">
+      <h3>TaskGraph / debug</h3>
+      <table class="debug-table"><tbody>{''.join(rows)}</tbody></table>
+    </section>
+    """
+
+
+def render_case(case: dict[str, Any], index: int, top_n: int, max_text_chars: int, stage_order: tuple[str, ...]) -> str:
     metrics = case.get("metrics") if isinstance(case.get("metrics"), dict) else {}
     ai = case.get("ai_evaluation") if isinstance(case.get("ai_evaluation"), dict) else {}
     expected_pages = ", ".join(str(page) for page in case.get("expected_pages", [])) or "-"
     ai_score = ai.get("ai_score_100", metrics.get("ai_score_100"))
     error = case.get("error")
     status_class = "case-error" if error else ""
-    stages = "".join(render_stage(case, stage, top_n, max_text_chars) for stage in DISPLAY_STAGES)
+    stages = "".join(render_stage(case, stage, top_n, max_text_chars) for stage in stage_order)
     ai_reason = ai.get("ai_reason")
     reason_html = (
         f"<details class=\"ai-reason\"><summary>AI reason</summary><pre>{esc(ai_reason)}</pre></details>"
@@ -503,8 +661,9 @@ def render_case(case: dict[str, Any], index: int, top_n: int, max_text_chars: in
         </section>
         <section class="metric-section">
           <h3>Retrieval metrics</h3>
-          {render_metric_table(case)}
+          {render_metric_table(case, stage_order)}
         </section>
+        {render_debug_panel(case)}
         <section class="stages-grid">
           {stages}
         </section>
@@ -591,10 +750,11 @@ def render_run_cards(runs: list[dict[str, Any]]) -> str:
 
 def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str:
     cases = data["cases"]
+    stage_order = stage_order_for_cases(cases)
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     top_note = "all chunks" if top_n <= 0 else f"top {top_n} chunks per stage"
     case_html = "\n".join(
-        render_case(case, index, top_n, max_text_chars)
+        render_case(case, index, top_n, max_text_chars, stage_order)
         for index, case in enumerate(cases, start=1)
     )
     if not case_html:
@@ -603,7 +763,10 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
     overview_chips = {
         "cases": len(cases),
         "initial_recall_precision_at_1": average_metric(cases, "initial_recall_precision_at_1"),
+        "initial_expanded_precision_at_1": average_metric(cases, "initial_expanded_precision_at_1"),
         "rerank_precision_at_1": average_metric(cases, "rerank_precision_at_1"),
+        "agent_chunk_grading_precision_at_1": average_metric(cases, "agent_chunk_grading_precision_at_1"),
+        "final_after_retry_precision_at_1": average_metric(cases, "final_after_retry_precision_at_1"),
         "local_recheck_precision_at_1": average_metric(cases, "local_recheck_precision_at_1")
         or average_metric(cases, "final_output_precision_at_1"),
         "ai_score_100": average_metric(cases, "ai_score_100"),
@@ -768,7 +931,7 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
       gap: 12px;
       margin-bottom: 14px;
     }}
-    .qa-grid section, .scores, .metric-section {{
+    .qa-grid section, .scores, .metric-section, .debug-section {{
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 10px;
@@ -795,7 +958,7 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
       max-height: 180px;
       overflow: auto;
     }}
-    .scores, .metric-section {{ margin-bottom: 14px; }}
+    .scores, .metric-section, .debug-section {{ margin-bottom: 14px; }}
     .scores .chips {{ display: flex; gap: 8px; flex-wrap: wrap; }}
     .ai-reason {{ margin-top: 10px; }}
     .ai-reason summary {{ cursor: pointer; color: var(--blue); }}
@@ -810,16 +973,35 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
       text-align: right;
     }}
     .metrics-table th:first-child, .metrics-table td:first-child {{ text-align: left; }}
+    .debug-table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }}
+    .debug-table th, .debug-table td {{
+      border-bottom: 1px solid var(--line);
+      padding: 6px;
+      vertical-align: top;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }}
+    .debug-table th {{
+      width: 220px;
+      color: var(--muted);
+      font-family: Consolas, monospace;
+    }}
     .stages-grid {{
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: flex;
       gap: 12px;
+      overflow-x: auto;
+      align-items: flex-start;
     }}
     .stage-column {{
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fbfcfe;
-      min-width: 0;
+      min-width: 420px;
+      flex: 0 0 420px;
       overflow: hidden;
     }}
     .stage-title {{
@@ -859,6 +1041,10 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
     }}
     .chunk.relevant {{ border-left-color: var(--green); background: var(--green-bg); }}
     .chunk.irrelevant {{ border-left-color: var(--red); background: var(--red-bg); }}
+    .chunk.agent-strong {{ border-left-color: #175cd3; }}
+    .chunk.agent-relevant {{ border-left-color: #2e90fa; }}
+    .chunk.agent-weak {{ border-left-color: #98a2b3; }}
+    .chunk.agent-drop {{ border-left-color: #b42318; background: #fff1f0; }}
     .chunk-head {{
       display: flex;
       gap: 6px;
@@ -878,6 +1064,40 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
       color: var(--muted);
       font-size: 12px;
     }}
+    .agent-badge {{
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #f2f4f7;
+      color: #344054;
+    }}
+    .agent-badge-strong {{ color: #175cd3; background: #eef4ff; }}
+    .agent-badge-relevant {{ color: #026aa2; background: #e0f2fe; }}
+    .agent-badge-weak {{ color: #475467; background: #f2f4f7; }}
+    .agent-badge-irrelevant {{ color: var(--red); background: var(--red-bg); }}
+    .chunk-source {{
+      padding: 0 8px 6px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }}
+    .chunk-source span {{
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 6px;
+    }}
+    .chunk-meta-group {{
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      padding-top: 6px;
+    }}
+    .meta-title {{
+      padding: 0 8px 3px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 700;
+    }}
     .chunk-meta {{
       display: flex;
       gap: 7px 10px;
@@ -887,6 +1107,22 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
       font-size: 12px;
     }}
     .chunk-meta span {{ overflow-wrap: anywhere; }}
+    .chunk-reasoning {{
+      padding: 0 8px 8px;
+      color: var(--muted);
+    }}
+    .chunk-reasoning summary {{
+      cursor: pointer;
+      color: var(--blue);
+      font-size: 12px;
+    }}
+    .chunk-reasoning pre {{
+      margin: 6px 0 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+    }}
     .chunk-text {{
       margin: 0;
       padding: 8px;
@@ -911,7 +1147,7 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
     .hidden {{ display: none; }}
     @media (max-width: 1160px) {{
       .qa-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
-      .stages-grid {{ grid-template-columns: 1fr; }}
+      .stage-column {{ min-width: 360px; flex-basis: 360px; }}
     }}
     @media (max-width: 680px) {{
       .case summary {{ grid-template-columns: auto 1fr; }}
@@ -927,6 +1163,7 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
       <h1>RAG Evaluation Visual Report</h1>
       <div class="source-line">source: {esc(data['source'])}</div>
       <div class="source-line">generated: {esc(generated_at)} | mode: {esc(data['mode'])} | {esc(top_note)}</div>
+      <div class="source-line">stages: {esc(', '.join(stage_order))}</div>
       <div class="toolbar">
         <input id="search" type="search" placeholder="Filter by query, case id, answer text...">
         <button type="button" id="expandAll">Expand all</button>

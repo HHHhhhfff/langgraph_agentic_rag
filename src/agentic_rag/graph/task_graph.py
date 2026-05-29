@@ -79,7 +79,11 @@ def _dedupe_hits(hits: list[SearchHit]) -> list[SearchHit]:
 
 
 def _retrieval_observability_enabled(settings: Settings) -> bool:
-    return bool(settings.retrieval_eval_log_enabled or settings.retrieval_vis_auto_write)
+    return bool(
+        settings.retrieval_eval_log_enabled
+        or settings.retrieval_eval_snapshots_enabled
+        or settings.retrieval_vis_auto_write
+    )
 
 
 def _contains_any_keyword(text: str, keywords: str) -> bool:
@@ -664,10 +668,24 @@ class TaskGraphRAG:
                 hits=hits,
                 context_pool=context_pool,
             )
+            snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
+            if _retrieval_observability_enabled(self.settings):
+                snapshots = _replace_snapshot(
+                    snapshots,
+                    build_snapshot(
+                        stage="agent_chunk_grading",
+                        query_text=state.get("question", ""),
+                        hits=graded,
+                        max_text_chars=self.settings.retrieval_eval_max_text_chars,
+                        used_rerank=bool(state.get("used_rerank", False)),
+                        rerank_fallback_reason=state.get("rerank_fallback_reason"),
+                    ),
+                )
             return {
                 "expanded_hits": graded,
                 "agent_chunk_grading_used": True,
                 "agent_chunk_grading_hit_count": len(graded),
+                "retrieval_eval_snapshots": snapshots,
             }
         except Exception as exc:
             if not self.settings.tg_agent_fallback_to_rules:
@@ -734,7 +752,7 @@ class TaskGraphRAG:
             agent_gate_decision=agent_gate_decision,
         )
         self._progress_done("evidence_gate")
-        return {
+        payload = {
             "evidence_pack": pack.model_dump(),
             "evidence_ok": evidence_ok,
             "evidence_gaps": pack.evidence_gaps,
@@ -767,6 +785,29 @@ class TaskGraphRAG:
             "unsupported_claims": unsupported_claims or pack.unsupported_claims,
             "agent_fallback_reason": agent_fallback_reason,
         }
+        snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
+        if _retrieval_observability_enabled(self.settings):
+            evidence_snapshot = build_snapshot(
+                stage="evidence_gate",
+                query_text=state.get("question", ""),
+                hits=hits,
+                max_text_chars=self.settings.retrieval_eval_max_text_chars,
+                used_rerank=bool(state.get("used_rerank", False)),
+                rerank_fallback_reason=state.get("rerank_fallback_reason"),
+            )
+            evidence_snapshot["evidence_gate"] = {
+                "evidence_ok": evidence_ok,
+                "support_score": pack.support_score,
+                "support_level": pack.support_level,
+                "supporting_hit_ids": pack.supporting_hit_ids,
+                "missing_slots": pack.missing_slots,
+                "gate_reasons": pack.gate_reasons,
+                "conflict_level": pack.conflict_level,
+                "conflict_reasons": pack.conflict_reasons,
+                "gate_decision": pack.gate_decision,
+            }
+            payload["retrieval_eval_snapshots"] = _replace_snapshot(snapshots, evidence_snapshot)
+        return payload
 
     def _local_retry_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("local_retry")
@@ -877,53 +918,98 @@ class TaskGraphRAG:
         retrieval_eval_log_error = state.get("retrieval_eval_log_error")
         retrieval_visualization_run_dir = None
         retrieval_visualization_error = None
-        if self.settings.retrieval_eval_log_enabled or self.settings.retrieval_vis_auto_write:
+        final_hits = filter_by_stage_threshold(
+            compute_composite_scores(
+                state.get("expanded_hits", []),
+                stage=STAGE_FINAL,
+                settings=self.settings,
+            ),
+            stage=STAGE_FINAL,
+            settings=self.settings,
+        )
+        if _retrieval_observability_enabled(self.settings):
             snapshots = _replace_snapshot(
                 snapshots,
                 build_snapshot(
                     stage="final_after_retry",
                     query_text=state.get("rewritten_query_text") or state.get("question", ""),
-                    hits=filter_by_stage_threshold(
-                        compute_composite_scores(
-                            state.get("expanded_hits", []),
-                            stage=STAGE_FINAL,
-                            settings=self.settings,
-                        ),
-                        stage=STAGE_FINAL,
-                        settings=self.settings,
-                    ),
+                    hits=final_hits,
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=bool(state.get("used_rerank", False)),
                     rerank_fallback_reason=state.get("rerank_fallback_reason"),
                 ),
             )
-            try:
-                record = build_query_record(
-                    query_id=state.get("retrieval_eval_query_id") or new_query_id(),
-                    question=state.get("question", ""),
-                    state=cast(dict[str, Any], state),
-                    snapshots=snapshots,
-                )
-                if self.settings.retrieval_eval_log_enabled:
-                    self.retrieval_history_recorder.append(record)
-                if self.settings.retrieval_vis_auto_write:
-                    try:
-                        run_dir = write_retrieval_visualization_report(
-                            record,
-                            settings=self.settings,
-                            source_mode="auto_after_query",
-                        )
-                        retrieval_visualization_run_dir = str(run_dir)
-                    except Exception as vis_exc:
-                        retrieval_visualization_error = f"{type(vis_exc).__name__}: {vis_exc}"
-            except Exception as exc:
-                retrieval_eval_log_error = f"{type(exc).__name__}: {exc}"
+            citation_rows = state.get("citations", []) or []
+            if citation_rows:
+                citation_keys = {
+                    (
+                        str(citation.get("source")),
+                        int(citation.get("chunk_index", -1))
+                        if str(citation.get("chunk_index", "-1")).lstrip("-").isdigit()
+                        else -1,
+                    )
+                    for citation in citation_rows
+                    if isinstance(citation, dict)
+                }
+                output_hits = [
+                    hit
+                    for hit in final_hits
+                    if (
+                        str(hit.metadata.get("source")),
+                        int(hit.metadata.get("chunk_index", -1))
+                        if str(hit.metadata.get("chunk_index", "-1")).lstrip("-").isdigit()
+                        else -1,
+                    )
+                    in citation_keys
+                ]
+                if not output_hits:
+                    output_hits = final_hits[: len(citation_rows)]
+            else:
+                output_hits = []
+            snapshots = _replace_snapshot(
+                snapshots,
+                build_snapshot(
+                    stage="final_output",
+                    query_text=state.get("rewritten_query_text") or state.get("question", ""),
+                    hits=output_hits,
+                    max_text_chars=self.settings.retrieval_eval_max_text_chars,
+                    used_rerank=bool(state.get("used_rerank", False)),
+                    rerank_fallback_reason=state.get("rerank_fallback_reason"),
+                ),
+            )
+            if self.settings.retrieval_eval_log_enabled or self.settings.retrieval_vis_auto_write:
+                try:
+                    record = build_query_record(
+                        query_id=state.get("retrieval_eval_query_id") or new_query_id(),
+                        question=state.get("question", ""),
+                        state=cast(dict[str, Any], state),
+                        snapshots=snapshots,
+                    )
+                    if self.settings.retrieval_eval_log_enabled:
+                        self.retrieval_history_recorder.append(record)
+                    if self.settings.retrieval_vis_auto_write:
+                        try:
+                            run_dir = write_retrieval_visualization_report(
+                                record,
+                                settings=self.settings,
+                                source_mode="auto_after_query",
+                            )
+                            retrieval_visualization_run_dir = str(run_dir)
+                        except Exception as vis_exc:
+                            retrieval_visualization_error = f"{type(vis_exc).__name__}: {vis_exc}"
+                except Exception as exc:
+                    retrieval_eval_log_error = f"{type(exc).__name__}: {exc}"
         result = RAGResult(
             answer=state.get("answer", self.settings.uncertain_answer_text),
-            citations=[],
-            retrieved_count=len(state.get("expanded_hits", [])),
+            citations=[
+                Citation.model_validate(citation)
+                for citation in (state.get("citations", []) or [])
+                if isinstance(citation, dict)
+            ],
+            retrieved_count=len(final_hits),
             used_rerank=bool(state.get("used_rerank", False)),
             fallback_used=bool(state.get("retry_count", 0) > 0),
+            retrieval_eval_snapshots=snapshots,
             debug={
                 "route": state.get("route"),
                 "retry_count": state.get("retry_count", 0),
@@ -982,6 +1068,7 @@ class TaskGraphRAG:
                 "rerank_fallback_reason": state.get("rerank_fallback_reason"),
                 "rerank_score_top": state.get("rerank_score_top"),
                 "rerank_hit_count": state.get("rerank_hit_count", 0),
+                "retrieval_eval_snapshot_stages": [s.get("stage") for s in snapshots if isinstance(s, dict)],
                 "retrieval_eval_log_error": retrieval_eval_log_error,
                 "retrieval_visualization_run_dir": retrieval_visualization_run_dir,
                 "retrieval_visualization_error": retrieval_visualization_error,

@@ -17,16 +17,47 @@ if str(SRC_ROOT) not in sys.path:
 from check.metrics import compute_metrics, estimate_tokens, normalize_text, ranking_metrics, summarize_records
 
 
-STAGE_NAMES = ("initial_recall", "rerank", "local_recheck")
+STAGE_NAMES = (
+    "initial_recall",
+    "initial_retrieval",
+    "initial_expanded",
+    "rerank",
+    "agent_chunk_grading",
+    "evidence_gate",
+    "retry_1_retrieval",
+    "retry_1_expanded",
+    "retry_1_rerank",
+    "local_recheck",
+    "final_after_retry",
+    "final_output",
+)
 STAGE_LABELS = {
     "initial_recall": "初步召回",
+    "initial_retrieval": "Initial retrieval",
+    "initial_expanded": "Initial expanded",
     "rerank": "Rerank 后",
+    "agent_chunk_grading": "Agent chunk grading",
+    "evidence_gate": "Evidence gate",
+    "retry_1_retrieval": "Retry 1 retrieval",
+    "retry_1_expanded": "Retry 1 expanded",
+    "retry_1_rerank": "Retry 1 rerank",
     "local_recheck": "局部重检后",
+    "final_after_retry": "Final after retry",
+    "final_output": "最终输出",
 }
-QUERY_RECORD_STAGE_NAMES = ("initial_recall", "rerank", "final_output")
+QUERY_RECORD_STAGE_NAMES = STAGE_NAMES
 QUERY_RECORD_STAGE_LABELS = {
     "initial_recall": "初步召回",
+    "initial_retrieval": "Initial retrieval",
+    "initial_expanded": "Initial expanded",
     "rerank": "Rerank 后",
+    "agent_chunk_grading": "Agent chunk grading",
+    "evidence_gate": "Evidence gate",
+    "retry_1_retrieval": "Retry 1 retrieval",
+    "retry_1_expanded": "Retry 1 expanded",
+    "retry_1_rerank": "Retry 1 rerank",
+    "local_recheck": "局部重检后",
+    "final_after_retry": "Final after retry",
     "final_output": "最终输出",
 }
 RETRIEVAL_REPORT_METRICS = (
@@ -111,6 +142,17 @@ def _as_list(value: Any) -> list[str]:
     return [str(value)] if str(value).strip() else []
 
 
+def _parse_stage_list(value: Any) -> tuple[str, ...]:
+    if not value:
+        return STAGE_NAMES
+    if isinstance(value, (list, tuple)):
+        items = [str(item).strip() for item in value]
+    else:
+        items = [part.strip() for part in str(value).split(",")]
+    stages = tuple(item for item in items if item)
+    return stages or STAGE_NAMES
+
+
 def _case_id(index: int, row: dict[str, Any]) -> str:
     value = row.get("id") or row.get("case_id")
     return str(value) if value else f"case_{index:04d}"
@@ -173,6 +215,10 @@ def build_filters(args: argparse.Namespace, case: dict[str, Any]) -> dict[str, A
         filters.update(case_filters)
     if args.source:
         filters["source"] = args.source
+    elif getattr(args, "use_expected_source_filter", False):
+        expected_sources = _as_list(case.get("expected_sources") or case.get("expected_source"))
+        if expected_sources:
+            filters["source"] = expected_sources[0]
     if args.tag:
         filters["tags"] = args.tag
     return filters or None
@@ -305,26 +351,59 @@ def _value_matches(field: str, expected: Any, actual: Any) -> bool:
     return expected_norm == actual_norm
 
 
-def _matches_spec(hit: dict[str, Any], spec: dict[str, Any]) -> bool:
+def _int_value(value: Any) -> int | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def _matches_spec(hit: dict[str, Any], spec: dict[str, Any], *, page_tolerance: int = 0) -> tuple[bool, str | None]:
     checks = {key: value for key, value in spec.items() if key != "grade" and value not in (None, "")}
     if not checks:
-        return False
+        return False, None
+    reasons: list[str] = []
     for field, expected in checks.items():
         if field == "any_id":
             if not any(
                 _value_matches(id_field, expected, _hit_value(hit, id_field))
                 for id_field in ("point_id", "node_id", "doc_id")
             ):
-                return False
+                return False, None
+            reasons.append("any_id")
+            continue
+        if field == "page":
+            expected_page = _int_value(expected)
+            actual_page = _int_value(_hit_value(hit, field))
+            if expected_page is None or actual_page is None:
+                return False, None
+            if actual_page == expected_page:
+                reasons.append("exact_page")
+                continue
+            if page_tolerance > 0 and abs(actual_page - expected_page) <= page_tolerance:
+                reasons.append("page_tolerance")
+                continue
+            return False, None
             continue
         if not _value_matches(field, expected, _hit_value(hit, field)):
-            return False
-    return True
+            return False, None
+        reasons.append(field)
+    return True, "+".join(reasons) if reasons else "match"
 
 
 def relevance_grades_for_hits(
     hits: list[dict[str, Any]],
     specs: list[dict[str, Any]],
+    *,
+    page_tolerance: int = 0,
 ) -> tuple[list[float], list[float]]:
     grades: list[float] = []
     matched_specs: set[int] = set()
@@ -334,14 +413,17 @@ def relevance_grades_for_hits(
         for index, spec in enumerate(specs):
             if index in matched_specs:
                 continue
-            if _matches_spec(hit, spec):
+            matched, reason = _matches_spec(hit, spec, page_tolerance=page_tolerance)
+            if matched:
                 grade = optional_float(spec.get("grade")) or 1.0
                 if grade > best_grade:
                     best_index = index
                     best_grade = grade
+                    hit["relevance_reason"] = reason
         if best_index is None:
             grades.append(0.0)
             hit["relevance_grade"] = 0.0
+            hit["relevance_reason"] = "not_match"
             continue
         matched_specs.add(best_index)
         grades.append(best_grade)
@@ -355,6 +437,7 @@ def compute_stage_ranking_metrics(
     hits_by_stage: dict[str, list[dict[str, Any]]],
     specs: list[dict[str, Any]],
     k: int,
+    page_tolerance: int = 0,
 ) -> tuple[dict[str, dict[str, float]], dict[str, float], dict[str, list[dict[str, Any]]]]:
     stage_metrics: dict[str, dict[str, float]] = {}
     flat_metrics: dict[str, float] = {}
@@ -365,7 +448,7 @@ def compute_stage_ranking_metrics(
     ideal: list[float] = []
     for stage, hits in hits_by_stage.items():
         copied_hits = [dict(hit) for hit in hits]
-        grades, ideal = relevance_grades_for_hits(copied_hits, specs)
+        grades, ideal = relevance_grades_for_hits(copied_hits, specs, page_tolerance=page_tolerance)
         metrics = ranking_metrics(
             grades,
             total_relevant=len(specs),
@@ -411,7 +494,7 @@ def build_chunk_id_records(records: list[dict[str, Any]], top_n: int) -> list[di
     for record in records:
         stage_hits = record.get("ranked_hits_by_stage") or {}
         chunk_ids_by_stage: dict[str, list[dict[str, Any]]] = {}
-        for stage in STAGE_NAMES:
+        for stage in _record_stage_order(record):
             hits = stage_hits.get(stage) if isinstance(stage_hits, dict) else []
             if not isinstance(hits, list):
                 hits = []
@@ -435,10 +518,9 @@ def build_chunk_id_records(records: list[dict[str, Any]], top_n: int) -> list[di
 
 
 def full_hit_for_query_record(hit: dict[str, Any]) -> dict[str, Any]:
-    row = compact_hit_for_chunk_log(hit)
-    row["channel"] = hit.get("channel")
-    row["text"] = hit.get("text")
-    if row["text"] is None:
+    row = dict(hit)
+    row.update(compact_hit_for_chunk_log(hit))
+    if row.get("text") is None:
         row["text"] = ""
     row["text_chars"] = len(str(row["text"]))
     return row
@@ -468,7 +550,7 @@ def build_query_stage_records(
             "model_debug": record.get("model_debug") or {},
             "stages": {},
         }
-        for stage in QUERY_RECORD_STAGE_NAMES:
+        for stage in _record_stage_order(record):
             hits = stage_hits.get(stage) or []
             if not isinstance(hits, list):
                 hits = []
@@ -487,7 +569,7 @@ def build_query_stage_records(
 
     return {
         "schema_version": 1,
-        "stage_order": list(QUERY_RECORD_STAGE_NAMES),
+        "stage_order": list(_records_stage_order(records)),
         "stage_labels": QUERY_RECORD_STAGE_LABELS,
         "record_top_n": limit,
         "case_count": len(rows),
@@ -496,13 +578,14 @@ def build_query_stage_records(
 
 
 def chunk_id_summary(chunk_records: list[dict[str, Any]]) -> dict[str, Any]:
-    unique_by_stage: dict[str, set[str]] = {stage: set() for stage in STAGE_NAMES}
-    relevant_unique_by_stage: dict[str, set[str]] = {stage: set() for stage in STAGE_NAMES}
+    all_stages = _chunk_record_stage_order(chunk_records)
+    unique_by_stage: dict[str, set[str]] = {stage: set() for stage in all_stages}
+    relevant_unique_by_stage: dict[str, set[str]] = {stage: set() for stage in all_stages}
     for record in chunk_records:
         by_stage = record.get("chunk_ids_by_stage_top_n") or {}
         if not isinstance(by_stage, dict):
             continue
-        for stage in STAGE_NAMES:
+        for stage in all_stages:
             hits = by_stage.get(stage) or []
             if not isinstance(hits, list):
                 continue
@@ -523,6 +606,40 @@ def chunk_id_summary(chunk_records: list[dict[str, Any]]) -> dict[str, Any]:
             stage: len(values) for stage, values in relevant_unique_by_stage.items()
         },
     }
+
+
+def _record_stage_order(record: dict[str, Any]) -> tuple[str, ...]:
+    stage_hits = record.get("ranked_hits_by_stage") or {}
+    if not isinstance(stage_hits, dict):
+        return STAGE_NAMES
+    available = [stage for stage in STAGE_NAMES if stage in stage_hits]
+    extras = [str(stage) for stage in stage_hits if str(stage) not in available]
+    return tuple(available + extras) or STAGE_NAMES
+
+
+def _records_stage_order(records: list[dict[str, Any]]) -> tuple[str, ...]:
+    seen: list[str] = []
+    for record in records:
+        for stage in _record_stage_order(record):
+            if stage not in seen:
+                seen.append(stage)
+    ordered = [stage for stage in STAGE_NAMES if stage in seen]
+    ordered.extend(stage for stage in seen if stage not in ordered)
+    return tuple(ordered) or STAGE_NAMES
+
+
+def _chunk_record_stage_order(records: list[dict[str, Any]]) -> tuple[str, ...]:
+    seen: list[str] = []
+    for record in records:
+        by_stage = record.get("chunk_ids_by_stage_top_n") or {}
+        if not isinstance(by_stage, dict):
+            continue
+        for stage in by_stage:
+            if str(stage) not in seen:
+                seen.append(str(stage))
+    ordered = [stage for stage in STAGE_NAMES if stage in seen]
+    ordered.extend(stage for stage in seen if stage not in ordered)
+    return tuple(ordered) or STAGE_NAMES
 
 
 def _json_safe(value: Any) -> Any:
@@ -595,7 +712,8 @@ def build_metrics_report(
 ) -> dict[str, Any]:
     mean_metrics = summary.get("mean_metrics", {})
     retrieval: dict[str, Any] = {}
-    for stage in STAGE_NAMES:
+    stages = _parse_stage_list(getattr(args, "stage_metrics", None))
+    for stage in stages:
         stage_report: dict[str, Any] = {
             "label": STAGE_LABELS.get(stage, stage),
             "cutoff_k": args.k,
@@ -646,6 +764,7 @@ def build_metrics_report(
         "case_count": summary.get("case_count"),
         "error_count": summary.get("error_count"),
         "rank_cutoff_k": args.k,
+        "page_tolerance": getattr(args, "page_tolerance", 0),
         "retrieval_metrics": retrieval,
         "ai_judge_scores": ai_scores,
         "timing": timing,
@@ -676,7 +795,7 @@ def build_metrics_report_markdown(report: dict[str, Any]) -> str:
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     retrieval = report.get("retrieval_metrics") or {}
-    for stage in STAGE_NAMES:
+    for stage in retrieval:
         row = retrieval.get(stage) or {}
         values = {
             metric: (row.get(metric) or {}).get("value")
@@ -808,10 +927,10 @@ def evaluate_case(
             ranked_hits = ranked_hits_from_case(case)
             raw_stage_hits = case.get("ranked_hits_by_stage") or case.get("stage_ranked_hits")
             if isinstance(raw_stage_hits, dict):
-                for stage in ("initial_recall", "rerank", "local_recheck", "final_output"):
+                for stage, rows in raw_stage_hits.items():
                     rows = raw_stage_hits.get(stage)
                     if isinstance(rows, list):
-                        ranked_hits_by_stage[stage] = [
+                        ranked_hits_by_stage[str(stage)] = [
                             {**item, "rank": item.get("rank", i)}
                             if isinstance(item, dict)
                             else {"source": str(item), "rank": i}
@@ -846,21 +965,34 @@ def evaluate_case(
                 "context": result.context_hits,
                 "final_output": result.context_hits,
                 "initial_recall": result.initial_hits,
+                "initial_retrieval": result.initial_hits,
+                "initial_expanded": result.initial_expanded_hits,
                 "local_recheck": result.local_recheck_hits,
                 "rerank": result.reranked_hits,
+                "agent_chunk_grading": result.agent_graded_hits,
+                "evidence_gate": result.evidence_gate_hits,
+                "final_after_retry": result.final_hits,
             }
             ranked_hits = ranked_by_source.get(args.rank_source, result.reranked_hits)
-            ranked_hits_by_stage = {
-                "initial_recall": result.initial_hits,
-                "rerank": result.reranked_hits,
-                "local_recheck": result.local_recheck_hits,
-                "final_output": result.context_hits,
-            }
+            ranked_hits_by_stage = dict(result.ranked_hits_by_stage or {})
+            if not ranked_hits_by_stage:
+                ranked_hits_by_stage = {
+                    "initial_recall": result.initial_hits,
+                    "initial_retrieval": result.initial_hits,
+                    "initial_expanded": result.initial_expanded_hits,
+                    "rerank": result.reranked_hits,
+                    "agent_chunk_grading": result.agent_graded_hits,
+                    "evidence_gate": result.evidence_gate_hits,
+                    "local_recheck": result.local_recheck_hits,
+                    "final_after_retry": result.final_hits,
+                    "final_output": result.context_hits,
+                }
             model_debug = {
                 **result.debug,
                 "timings_ms": result.timings_ms,
                 "rank_source": args.rank_source,
                 "rank_cutoff": args.k,
+                "pipeline": args.pipeline,
             }
 
         metrics = compute_metrics(
@@ -883,6 +1015,7 @@ def evaluate_case(
                 hits_by_stage=ranked_hits_by_stage,
                 specs=specs,
                 k=args.k,
+                page_tolerance=args.page_tolerance,
             )
             metrics.update(flat_stage_metrics)
             preferred_stage = args.rank_source
@@ -901,6 +1034,7 @@ def evaluate_case(
             }
             model_debug["relevance_spec_count"] = len(specs)
             model_debug["expected_pages"] = expected_pages_from_specs(specs)
+            model_debug["page_tolerance"] = args.page_tolerance
 
         if judge_client is not None and reference_answer:
             try:
@@ -963,6 +1097,10 @@ def judge_answer_with_client(
 def build_graph_if_needed(args: argparse.Namespace) -> Any | None:
     if args.use_existing_answers:
         return None
+    if args.pipeline == "taskgraph":
+        from check.pipeline import TaskGraphEvaluationPipeline
+
+        return TaskGraphEvaluationPipeline()
     from check.pipeline import EvaluationPipeline
 
     return EvaluationPipeline()
@@ -1074,7 +1212,7 @@ def print_summary(run_dir: Path, summary: dict[str, Any]) -> None:
     retrieval = required.get("retrieval_metrics") if isinstance(required, dict) else {}
     if isinstance(retrieval, dict) and retrieval:
         print("Required retrieval metrics:")
-        for stage in STAGE_NAMES:
+        for stage in retrieval:
             row = retrieval.get(stage) or {}
             values = {
                 metric: (row.get(metric) or {}).get("value")
@@ -1114,9 +1252,44 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--k", type=int, default=10, help="Cutoff for Hit Rate/MRR/Precision/Recall/AP/nDCG")
     parser.add_argument(
         "--rank-source",
-        choices=["retrieved", "reranked", "context", "initial_recall", "rerank", "local_recheck", "final_output"],
+        choices=[
+            "retrieved",
+            "reranked",
+            "context",
+            "initial_recall",
+            "initial_retrieval",
+            "initial_expanded",
+            "rerank",
+            "agent_chunk_grading",
+            "evidence_gate",
+            "local_recheck",
+            "final_after_retry",
+            "final_output",
+        ],
         default="reranked",
         help="Ranked list used for retrieval metrics",
+    )
+    parser.add_argument(
+        "--pipeline",
+        choices=["simple", "taskgraph"],
+        default="simple",
+        help="Evaluation pipeline: simple uses check pipeline, taskgraph runs the full TaskGraphRAG path",
+    )
+    parser.add_argument(
+        "--stage-metrics",
+        default=None,
+        help="Comma-separated stages included in metrics report. Defaults to all recorded TaskGraph-compatible stages.",
+    )
+    parser.add_argument(
+        "--use-expected-source-filter",
+        action="store_true",
+        help="Use the first expected source as a metadata source filter for evaluation-only single-document runs.",
+    )
+    parser.add_argument(
+        "--page-tolerance",
+        type=int,
+        default=0,
+        help="Treat expected page +/- N as relevant for retrieval metrics.",
     )
     parser.add_argument("--source", default=None, help="Global metadata source filter")
     parser.add_argument("--tag", action="append", default=None, help="Global metadata tag filter, repeatable")

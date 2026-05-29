@@ -62,4 +62,5 @@ class RAGResult(BaseModel):
     retrieved_count: int = 0
     used_rerank: bool = False
     fallback_used: bool = False
+    retrieval_eval_snapshots: list[dict[str, Any]] = Field(default_factory=list)
     debug: dict[str, Any] = Field(default_factory=dict)

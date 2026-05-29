@@ -1,0 +1,186 @@
+{
+  "bm25": {
+    "count": 170,
+    "sample_hits": [
+      {
+        "point_id": "4a6530da-22ee-5b86-9b69-fd5acbb518cc",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:0",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 0,
+        "text_excerpt": "TABLE I. Summary of all the measured energy levels of Th \\( ^{-} \\) anion."
+      },
+      {
+        "point_id": "32e10d89-ee60-55cf-9f7e-b4addda8a647",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:2",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 2,
+        "text_excerpt": "\\( ^{a} \\)  The electronic configuration of Th \\( ^{-} \\)  are  \\( 6d^{3}7s^{2} \\)  (even parity) and  \\( 6d^{2}7s^{2}7p \\)  (odd parity)."
+      },
+      {
+        "point_id": "7a98adc0-20d8-5a8f-9b70-d9f2c7488893",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:3",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 3,
+        "text_excerpt": "TABLE II. Summary of the lifetimes ( \\( \\tau \\) ) in  \\( \\mu \\) s, transition energies (E) in cm \\( ^{-1} \\)  and rates (A) in s \\( ^{-1} \\)  of three observed short-lived odd-parity excited states of Th \\( ^{-} \\) . T1 is the laser-cooling transition cycle  \\( {}^{2}S_{1/2}^{o} \\leftrightarrow {}^{4}F_{3/2}^{e} \\)  of Th \\( ^{-} \\) . Numbers in brackets for the transition rate A represent powers of 10."
+      },
+      {
+        "point_id": "fcdafe7a-e98b-5c01-8694-50004c1ba54d",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:4",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 4,
+        "text_excerpt": "| Transitions | Type | E | A | τ(Expt.) | τ(Theo.) |\n| --- | --- | --- | --- | --- | --- |\n| T1(^{2}S_{1/2}^{0} \\leftrightarrow ^{4}F_{3/2}^{e}) | E1 | 4118.0 | 3.33[4] | 30(2) | 86 |\n| T2 | E1 | 4592.6 | 1.69[4] | 59(4) | 42 |\n| T3 | E1 | 4618.1 | 1.89[4] | 53(3) | 44 |"
+      },
+      {
+        "point_id": "6d5830b6-083e-552d-b5dd-d33754c31ecf",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:5",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 5,
+        "text_excerpt": "Supplemental Table I. Comparative data of three anionic laser cooling candidates [1-12]."
+      }
+    ]
+  },
+  "page": {
+    "count": 39,
+    "pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "sample_hits": [
+      {
+        "point_id": "4a6530da-22ee-5b86-9b69-fd5acbb518cc",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:0",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 0,
+        "text_excerpt": "TABLE I. Summary of all the measured energy levels of Th \\( ^{-} \\) anion.\n\\( ^{a} \\)  The electronic configuration of Th \\( ^{-} \\)  are  \\( 6d^{3}7s^{2} \\)  (even parity) and  \\( 6d^{2}7s^{2}7p \\)  (odd parity).\nTABLE II. Summary of the lifetimes ( \\( \\tau \\) ) in  \\( \\mu \\) s, transition energies (E) in cm \\( ^{-1} \\)  and rates (A) in s \\( ^{-1} \\)  of three observed short-lived odd-parity excited states of Th \\( ^{-} \\) . T1 is the laser-cooling transition cycle  \\( {}^{2}S_{1/2}^{o} \\leftr\n...[truncated 1513 chars]"
+      },
+      {
+        "point_id": "562ba5a1-3967-551a-b33f-982ceafa5c7e",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:13",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": 13,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 13,
+        "text_excerpt": "| States of Th-a | Energy levels (cm-1) | References |\n| --- | --- | --- |\n| 4F3/2e | 0 | Tang et al. [30] |\n| 4F5/2e | 1657(6) |  |\n| 4G5/2o | 1847(13) | This work |\n| 4F7/2e | 2892.9(50) |  |\n| 4F9/2e | 3166.8(59) |  |\n| 4F7/2o | 3666(12) |  |\n| 2S1/2o | 4118.0(10) | Tang et al. [31] |\n| 4F5/2o | 4592.6(10) |  |\n| 4D1/2o | 4618.1(10) |  |\n| Transitions | Type | E | A | τ(Expt.) | τ(Theo.) |\n| --- | --- | --- | --- | --- | --- |\n| $T1(^{2}S_{1/2}^{0} \\leftrightarrow ^{4}F_{3/2}^{e})$ | E1 | 411\n...[truncated 116 chars]"
+      },
+      {
+        "point_id": "b764f0d3-e1f7-5d9f-a9fc-7ab1c58a08a1",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:15",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": 17,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 15,
+        "text_excerpt": "| Anions | Lifetimes (μs) | Transition Rates ( $s^{-1}$ ) | Wavelength (nm) | Frequency (THz) | Cooling Time (s) | Repumping Lasers | Nuclear Spin |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| $Th^{-}$ | 30(2) | $3.3 \\times 10^{4}$ | 2428.4 | 123.455 | 2.8 | 0 | 0 |\n| $Os^{-}$ | 201(10) | $5.0 \\times 10^{3}$ | 1162.8 | 257.831 | 4.7 | 1 | 0 |\n| $La^{-}$ | 20.4(2.1) | $4.9 \\times 10^{4}$ | 3103.7 | 96.593 | 1.2 | $3^{a}$ | 7/2 |\n| Labels | Levels (Th-→ Th)a | Measured binding energy (cm-1\n...[truncated 2658 chars]"
+      },
+      {
+        "point_id": "08b4abad-3409-59e4-a516-499a17821c3e",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:18",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": 9,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 18,
+        "text_excerpt": "| Binding Energy (eV) | 5ms-He-15K-11603.57 cm⁻¹ | 45ms-He-15K-5911 cm⁻¹ | 5ms-He-15K-5908 cm⁻¹ | NoTrap-15K-4719 cm⁻¹ |\n| ------------------- | ------------------------ | ---------------------- | --------------------- | --------------------- |\n| 0.00                | ~0.0                     | ~0.0                   | ~0.0                  | ~0.0                  |\n| 0.25                | ~0.0                     | ~0.0                   | ~0.0                  | ~0.0                  |\n| 0.50 \n...[truncated 1108 chars]"
+      },
+      {
+        "point_id": "d39852e4-11ca-592d-9076-e07121dcccf5",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:19",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": 10,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 19,
+        "text_excerpt": "| Binding Energy(cm⁻¹) | T1-Excitation laser On | T1-Excitation laser Off |\n| --------------------- | ---------------------- | ------------------------ |\n| 500                   | ~0.06                  | ~0.06                    |\n| 1000                  | ~0.12                  | ~0.06                    |\n| 1500                  | ~0.06                  | ~0.06                    |\n| 2000                  | ~0.06                  | ~0.06                    |\n| 2500                  | ~0.06   \n...[truncated 6446 chars]"
+      }
+    ]
+  },
+  "table": {
+    "count": 63,
+    "sample_hits": [
+      {
+        "point_id": "4a6530da-22ee-5b86-9b69-fd5acbb518cc",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:0",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 0,
+        "text_excerpt": "TABLE I. Summary of all the measured energy levels of Th \\( ^{-} \\) anion."
+      },
+      {
+        "point_id": "32e10d89-ee60-55cf-9f7e-b4addda8a647",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:2",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 2,
+        "text_excerpt": "\\( ^{a} \\)  The electronic configuration of Th \\( ^{-} \\)  are  \\( 6d^{3}7s^{2} \\)  (even parity) and  \\( 6d^{2}7s^{2}7p \\)  (odd parity)."
+      },
+      {
+        "point_id": "7a98adc0-20d8-5a8f-9b70-d9f2c7488893",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:3",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 3,
+        "text_excerpt": "TABLE II. Summary of the lifetimes ( \\( \\tau \\) ) in  \\( \\mu \\) s, transition energies (E) in cm \\( ^{-1} \\)  and rates (A) in s \\( ^{-1} \\)  of three observed short-lived odd-parity excited states of Th \\( ^{-} \\) . T1 is the laser-cooling transition cycle  \\( {}^{2}S_{1/2}^{o} \\leftrightarrow {}^{4}F_{3/2}^{e} \\)  of Th \\( ^{-} \\) . Numbers in brackets for the transition rate A represent powers of 10."
+      },
+      {
+        "point_id": "fcdafe7a-e98b-5c01-8694-50004c1ba54d",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:4",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 4,
+        "text_excerpt": "| Transitions | Type | E | A | τ(Expt.) | τ(Theo.) |\n| --- | --- | --- | --- | --- | --- |\n| T1(^{2}S_{1/2}^{0} \\leftrightarrow ^{4}F_{3/2}^{e}) | E1 | 4118.0 | 3.33[4] | 30(2) | 86 |\n| T2 | E1 | 4592.6 | 1.69[4] | 59(4) | 42 |\n| T3 | E1 | 4618.1 | 1.89[4] | 53(3) | 44 |"
+      },
+      {
+        "point_id": "6d5830b6-083e-552d-b5dd-d33754c31ecf",
+        "node_id": "b7e8acf2e87b00e704fe4abbc3b7323b:table:5",
+        "doc_id": "b7e8acf2e87b00e704fe4abbc3b7323b",
+        "page": null,
+        "modality": "table",
+        "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+        "chunk_index": 5,
+        "text_excerpt": "Supplemental Table I. Comparative data of three anionic laser cooling candidates [1-12]."
+      }
+    ]
+  }
+}

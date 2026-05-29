@@ -62,6 +62,7 @@ def test_serialize_hit_outputs_llamaindex_like_fields() -> None:
 
 def test_recorder_append_jsonl_does_not_overwrite(tmp_path: Path) -> None:
     settings = Settings(
+        _env_file=None,
         retrieval_eval_log_enabled=True,
         retrieval_eval_log_dir=str(tmp_path),
         retrieval_eval_log_file="history.jsonl",
@@ -136,6 +137,7 @@ class DummyRerankService:
 
 def test_task_graph_writes_retrieval_history_record(tmp_path: Path) -> None:
     settings = Settings(
+        _env_file=None,
         retrieval_eval_log_enabled=True,
         retrieval_eval_log_dir=str(tmp_path),
         retrieval_eval_log_file="history.jsonl",
@@ -168,7 +170,9 @@ def test_task_graph_writes_retrieval_history_record(tmp_path: Path) -> None:
         "initial_retrieval",
         "initial_expanded",
         "rerank",
+        "evidence_gate",
         "final_after_retry",
+        "final_output",
     ]
     assert record["snapshots"][0]["hits"][0]["node_id"] == "n-p1"
     assert record["snapshots"][1]["hits"][0]["node_id"] == "n-p1"
@@ -177,6 +181,7 @@ def test_task_graph_writes_retrieval_history_record(tmp_path: Path) -> None:
 
 def test_task_graph_final_snapshot_uses_retry_hits(tmp_path: Path) -> None:
     settings = Settings(
+        _env_file=None,
         retrieval_eval_log_enabled=True,
         retrieval_eval_log_dir=str(tmp_path),
         retrieval_eval_log_file="history.jsonl",
