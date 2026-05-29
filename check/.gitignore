@@ -2,6 +2,7 @@ runs/
 eval_docs/
 eval_cases/
 query_records/
+visual_reports/
 __pycache__/
 *.tmp
 *.log
