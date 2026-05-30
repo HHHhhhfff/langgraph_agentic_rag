@@ -915,6 +915,18 @@ storage/retrieval_visualization/runs/{run_id}/
   - relationship expansion 可使用的最大邻页窗口
 - `TG_RETRY_REWRITE_ENABLED=true|false`
   - 是否启用规则版 query rewrite；当前不接 LLM rewrite
+- `TG_RETRY_CARRY_FORWARD_ENABLED=true|false`
+  - 是否在 retry 时把上一轮满足条件的候选证据补入本轮 `retry_*_expanded`，再与本轮新召回结果一起进入 rerank；不会写入 `retry_*_retrieval`。如果本轮也召回了同一 chunk，默认用上一轮 carry-forward 版本覆盖本轮版本，避免 retry 检索波动降低上一轮高质量候选。
+- `TG_RETRY_CARRY_FORWARD_TOP_N`
+  - 每轮 retry 最多额外补入多少个上一轮候选。该值不是合并后的总 top-k。
+- `TG_RETRY_CARRY_FORWARD_MIN_SCORE`
+  - carry-forward 的最低上一轮 `score_composite` 门槛。它是筛选阈值，不是补入后的固定分数。
+- `TG_RETRY_CARRY_FORWARD_MIN_AGENT_LABEL`
+  - carry-forward 的最低 Agent 评定等级，默认 `relevant`。候选必须同时满足分数门槛和等级门槛；没有 Agent 评级的 chunk 默认不补入。
+- `TG_RETRY_CARRY_FORWARD_INCLUDE_CITATION_CANDIDATES=true|false`
+  - citation retry 场景下，是否允许上一轮已经进入 prompt/final 候选的 chunk 参与 carry-forward。
+
+Agent hard drop 会缓存到同一次 TaskGraph run 的 `agent_chunk_drop_cache`。如果上一轮被 Agent 硬剔除的 chunk 在 retry 中再次被召回，会在 `retry_*_retrieval` / `retry_*_expanded` 进入 rerank 前被过滤，并在评测可视化中显示为 `agent_drop_cache`。
 - `TG_CITATION_VERIFY_ENABLED=true|false`
   - 是否启用 `citation_verify` 节点。关闭后该节点直接返回 `citation_ok=true`，不会因为引用标记问题触发局部重检。
 - `TG_CITATION_STRICT=true|false`

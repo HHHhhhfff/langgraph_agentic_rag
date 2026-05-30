@@ -58,6 +58,7 @@ AI_NAMES = (
 )
 REMOVED_REASON_LABELS = {
     "agent_chunk_drop": "AI marked drop",
+    "agent_drop_cache": "Previously AI-dropped",
     "agent_irrelevant_label": "AI judged irrelevant",
     "agent_low_relevance_score": "AI relevance below threshold",
     "score_threshold_failed": "Below stage score threshold",
@@ -651,6 +652,14 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("allowed_by", hit.get("retrieval_expansion_allowed_by")),
         ("seed_rank", hit.get("retrieval_seed_rank")),
         ("seed_threshold", hit.get("retrieval_seed_threshold")),
+        ("carry_forward", hit.get("retry_carry_forward")),
+        ("carry_added", hit.get("retry_carry_forward_added")),
+        ("carry_matched", hit.get("retry_carry_forward_matched")),
+        ("carry_replaced", hit.get("retry_carry_forward_replaced_current")),
+        ("carry_replaced_score", fmt_num(hit.get("retry_carry_forward_replaced_current_score"))),
+        ("carry_from", hit.get("retry_carry_forward_from_stage")),
+        ("carry_prev_rank", hit.get("retry_carry_forward_previous_rank")),
+        ("carry_score", fmt_num(hit.get("retry_carry_forward_score"))),
     ]
     agent_meta = [
         ("agent_label", hit.get("agent_relevance_label")),
@@ -660,6 +669,7 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("cache_key", hit.get("agent_grade_cache_key")),
         ("keep", hit.get("agent_relevance_keep")),
         ("drop", hit.get("agent_relevance_drop")),
+        ("drop_cached", hit.get("agent_relevance_drop_cached")),
         ("label_delta", hit.get("agent_label_score_delta")),
         ("modality_delta", hit.get("agent_related_modality_delta")),
         ("context_delta", hit.get("agent_related_context_text_delta")),

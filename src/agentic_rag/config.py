@@ -592,6 +592,11 @@ class Settings(BaseSettings):
     tg_retry_page_window_step: int = Field(default=1, description="Page-window increment applied by TaskGraph local retry")
     tg_retry_max_page_window: int = Field(default=3, description="Maximum relationship page window during TaskGraph local retry")
     tg_retry_rewrite_enabled: bool = Field(default=True, description="Enable rule-based query rewrite during local retry")
+    tg_retry_carry_forward_enabled: bool = Field(default=True, description="Carry selected previous-round evidence candidates into retry expanded hits")
+    tg_retry_carry_forward_top_n: int = Field(default=4, description="Maximum previous-round candidates appended to retry expanded hits")
+    tg_retry_carry_forward_min_score: float = Field(default=0.35, description="Minimum prior score_composite for retry carry-forward")
+    tg_retry_carry_forward_min_agent_label: str = Field(default="relevant", description="Minimum agent relevance label for retry carry-forward")
+    tg_retry_carry_forward_include_citation_candidates: bool = Field(default=True, description="Allow final/prompt citation candidates to be carried into citation retry")
     tg_citation_verify_enabled: bool = Field(default=True, description="Enable citation verification after answer generation")
     tg_citation_strict: bool = Field(default=False, description="Require answer to include citation markers when citation verification is enabled")
     tg_allow_refusal: bool = Field(default=True, description="Allow refusal when evidence remains insufficient")
@@ -683,6 +688,7 @@ class Settings(BaseSettings):
         "tg_retry_max_top_k",
         "tg_retry_page_window_step",
         "tg_retry_max_page_window",
+        "tg_retry_carry_forward_top_n",
         "tg_agent_max_context_hits",
         "tg_agent_max_retries",
         "embedding_batch_size",

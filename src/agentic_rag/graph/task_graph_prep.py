@@ -61,6 +61,10 @@ class TaskGraphState(TypedDict, total=False):
     gate_reasons: list[str]
     retry_actions: list[str]
     retry_history: list[dict[str, object]]
+    retry_carry_forward_hits: list[SearchHit]
+    retry_carry_forward_candidate_count: int
+    retry_carry_forward_added_count: int
+    retry_carry_forward_matched_count: int
     rewritten_query_text: str | None
     page_window: int | None
     agent_route_used: bool
@@ -77,6 +81,8 @@ class TaskGraphState(TypedDict, total=False):
     agent_chunk_grading_used: bool
     agent_chunk_grading_hit_count: int
     agent_chunk_grade_cache: dict[str, dict[str, Any]]
+    agent_chunk_drop_cache: dict[str, dict[str, Any]]
+    agent_chunk_drop_cache_size: int
     agent_chunk_grade_cache_size: int
     agent_chunk_grade_cache_hits: int
     agent_chunk_llm_graded_hit_count: int

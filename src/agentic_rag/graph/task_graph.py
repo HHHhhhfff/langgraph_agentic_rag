@@ -29,7 +29,7 @@ from agentic_rag.retrieval.evidence_pack import EvidencePack
 from agentic_rag.retrieval.rerank import RerankService
 from agentic_rag.retrieval.retrieval_plan import RetrievalChannel, RetrievalPlan, RetrievalTask
 from agentic_rag.retrieval.retriever import MultiChannelRetriever
-from agentic_rag.retrieval.scoring import STAGE_FINAL, compute_composite_scores, filter_by_stage_threshold_with_removed, mark_removed_hit
+from agentic_rag.retrieval.scoring import STAGE_FINAL, compute_composite_scores, filter_by_stage_threshold_with_removed, mark_removed_hit, score_value
 from agentic_rag.schemas import Citation, RAGResult, SearchHit
 
 
@@ -74,12 +74,28 @@ def _dedupe_hits(hits: list[SearchHit]) -> list[SearchHit]:
     result: list[SearchHit] = []
     seen: set[str] = set()
     for hit in hits:
-        key = hit.node_id or hit.point_id
+        key = _hit_key(hit)
         if key in seen:
             continue
         seen.add(key)
         result.append(hit)
     return result
+
+
+def _hit_key(hit: SearchHit) -> str:
+    return hit.node_id or hit.point_id or f"{hit.doc_id}:{hit.metadata.get('chunk_index')}"
+
+
+def _agent_label_rank(label: str | None) -> int:
+    ranks = {"irrelevant": 0, "weak": 1, "relevant": 2, "strong": 3}
+    return ranks.get(str(label or "").strip().lower(), -1)
+
+
+def _merge_removed_hits(*groups: list[SearchHit]) -> list[SearchHit]:
+    merged: list[SearchHit] = []
+    for group in groups:
+        merged.extend(group or [])
+    return merged
 
 
 def _retrieval_observability_enabled(settings: Settings) -> bool:
@@ -566,6 +582,41 @@ class TaskGraphRAG:
         retry_count = int(state.get("retry_count", 0) or 0)
         snapshot_stage = f"retry_{retry_count}_retrieval" if retry_count > 0 else "initial_retrieval"
         expanded_snapshot_stage = f"retry_{retry_count}_expanded" if retry_count > 0 else "initial_expanded"
+        drop_cache = dict(state.get("agent_chunk_drop_cache", {}) or {})
+        route_hits = {channel: list(hits) for channel, hits in result.route_hits.items()}
+        fused_hits = list(result.hits)
+        expanded_hits = list(result.expanded_hits)
+        retrieval_drop_removed: list[SearchHit] = []
+        expanded_drop_removed: list[SearchHit] = []
+        if retry_count > 0 and drop_cache:
+            fused_hits, retrieval_drop_removed = self._filter_agent_drop_cached_hits(
+                fused_hits,
+                drop_cache=drop_cache,
+                stage=snapshot_stage,
+            )
+            expanded_hits, expanded_drop_removed = self._filter_agent_drop_cached_hits(
+                expanded_hits,
+                drop_cache=drop_cache,
+                stage=expanded_snapshot_stage,
+            )
+            route_hits = {
+                channel: self._filter_agent_drop_cached_hits(
+                    list(hits),
+                    drop_cache=drop_cache,
+                    stage=snapshot_stage,
+                )[0]
+                for channel, hits in route_hits.items()
+            }
+        carry_forward_added_count = 0
+        carry_forward_matched_count = 0
+        if retry_count > 0:
+            expanded_hits, carry_stats = self._merge_retry_carry_forward_hits(
+                expanded_hits,
+                list(state.get("retry_carry_forward_hits", []) or []),
+                retry_count=retry_count,
+            )
+            carry_forward_added_count = carry_stats["added"]
+            carry_forward_matched_count = carry_stats["matched"]
         if _retrieval_observability_enabled(self.settings) and (
             retry_count > 0 or not any(s.get("stage") == "initial_retrieval" for s in snapshots)
         ):
@@ -575,8 +626,8 @@ class TaskGraphRAG:
                 build_snapshot(
                     stage=snapshot_stage,
                     query_text=state.get("rewritten_query_text") or question,
-                    hits=result.hits,
-                    removed_hits=initial_removed,
+                    hits=fused_hits,
+                    removed_hits=_merge_removed_hits(initial_removed, retrieval_drop_removed),
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=False,
                 )
@@ -586,19 +637,21 @@ class TaskGraphRAG:
                 build_snapshot(
                     stage=expanded_snapshot_stage,
                     query_text=state.get("rewritten_query_text") or question,
-                    hits=result.expanded_hits,
-                    removed_hits=removed_by_stage.get(expanded_snapshot_stage, []),
+                    hits=expanded_hits,
+                    removed_hits=_merge_removed_hits(removed_by_stage.get(expanded_snapshot_stage, []), expanded_drop_removed),
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=False,
                 ),
             )
         return {
-            "route_hits": result.route_hits,
-            "fused_hits": result.hits,
-            "expanded_hits": result.expanded_hits,
+            "route_hits": route_hits,
+            "fused_hits": fused_hits,
+            "expanded_hits": expanded_hits,
             "evidence_gain": state.get("evidence_gain", 1.0),
             "executed_channels": result.executed_channels,
             "removed_hits_by_stage": getattr(result, "removed_hits_by_stage", None) or {},
+            "retry_carry_forward_added_count": carry_forward_added_count,
+            "retry_carry_forward_matched_count": carry_forward_matched_count,
             "retrieval_eval_snapshots": snapshots,
         }
 
@@ -725,6 +778,19 @@ class TaskGraphRAG:
             )
             graded = grading.hits
             updated_grade_cache = grading.grade_cache if self.settings.tg_agent_chunk_grade_cache_enabled else grade_cache
+            drop_cache = dict(state.get("agent_chunk_drop_cache", {}) or {})
+            for kept_hit in graded:
+                drop_cache.pop(_hit_key(kept_hit), None)
+            for removed_hit in grading.removed_hits:
+                key = _hit_key(removed_hit)
+                drop_cache[key] = {
+                    "agent_relevance_label": removed_hit.metadata.get("agent_relevance_label"),
+                    "agent_relevance_score": removed_hit.metadata.get("agent_relevance_score"),
+                    "agent_relevance_drop_reason": removed_hit.metadata.get("agent_relevance_drop_reason"),
+                    "agent_relevance_drop_threshold": removed_hit.metadata.get("agent_relevance_drop_threshold"),
+                    "removed_reason": removed_hit.metadata.get("removed_reason"),
+                    "removed_reason_detail": removed_hit.metadata.get("removed_reason_detail"),
+                }
             snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
             if _retrieval_observability_enabled(self.settings):
                 snapshots = _replace_snapshot(
@@ -747,6 +813,8 @@ class TaskGraphRAG:
                 "agent_chunk_removed_hit_count": len(grading.removed_hits),
                 "agent_chunk_removed_reasons": _count_removed_reasons(grading.removed_hits),
                 "agent_chunk_grade_cache": updated_grade_cache,
+                "agent_chunk_drop_cache": drop_cache,
+                "agent_chunk_drop_cache_size": len(drop_cache),
                 "agent_chunk_grade_cache_size": len(updated_grade_cache),
                 "agent_chunk_grade_cache_hits": grading.cache_hits,
                 "agent_chunk_llm_graded_hit_count": grading.llm_graded_hits,
@@ -874,9 +942,136 @@ class TaskGraphRAG:
             payload["retrieval_eval_snapshots"] = _replace_snapshot(snapshots, evidence_snapshot)
         return payload
 
+    def _select_retry_carry_forward_hits(self, state: TaskGraphState) -> list[SearchHit]:
+        if not self.settings.tg_retry_carry_forward_enabled:
+            return []
+        candidates: list[tuple[str, int, SearchHit]] = []
+        if state.get("reranked_hits"):
+            candidates.extend(("rerank", rank, hit) for rank, hit in enumerate(state.get("reranked_hits", []) or [], start=1))
+        expanded_stage = "final_after_retry" if state.get("prompt") or state.get("context") else "agent_chunk_grading"
+        if expanded_stage == "final_after_retry" and not self.settings.tg_retry_carry_forward_include_citation_candidates:
+            expanded_stage = "agent_chunk_grading"
+        candidates.extend((expanded_stage, rank, hit) for rank, hit in enumerate(state.get("expanded_hits", []) or [], start=1))
+
+        selected: list[SearchHit] = []
+        seen: set[str] = set()
+        min_score = self.settings.tg_retry_carry_forward_min_score
+        min_label_rank = _agent_label_rank(self.settings.tg_retry_carry_forward_min_agent_label)
+        for source_stage, rank, hit in candidates:
+            key = _hit_key(hit)
+            if not key or key in seen:
+                continue
+            if hit.metadata.get("agent_relevance_drop") is True:
+                continue
+            score = score_value(hit)
+            if score < min_score:
+                continue
+            label = str(hit.metadata.get("agent_relevance_label") or "")
+            if min_label_rank >= 0 and _agent_label_rank(label) < min_label_rank:
+                continue
+            copy = hit.model_copy(deep=True)
+            copy.metadata.update(
+                {
+                    "retry_carry_forward": True,
+                    "retry_carry_forward_from_stage": source_stage,
+                    "retry_carry_forward_previous_rank": rank,
+                    "retry_carry_forward_score": score,
+                    "retry_carry_forward_min_score": min_score,
+                    "retry_carry_forward_min_agent_label": self.settings.tg_retry_carry_forward_min_agent_label,
+                }
+            )
+            selected.append(copy)
+            seen.add(key)
+            if len(selected) >= self.settings.tg_retry_carry_forward_top_n:
+                break
+        return selected
+
+    def _merge_retry_carry_forward_hits(
+        self,
+        expanded_hits: list[SearchHit],
+        carry_forward_hits: list[SearchHit],
+        *,
+        retry_count: int,
+    ) -> tuple[list[SearchHit], dict[str, int]]:
+        if not carry_forward_hits:
+            return expanded_hits, {"added": 0, "matched": 0}
+        merged = list(expanded_hits)
+        by_key = {_hit_key(hit): index for index, hit in enumerate(merged)}
+        added = 0
+        matched = 0
+        for carry_hit in carry_forward_hits:
+            key = _hit_key(carry_hit)
+            if key in by_key:
+                index = by_key[key]
+                existing = merged[index]
+                copy = carry_hit.model_copy(deep=True)
+                copy.metadata["retrieval_candidate_pool"] = "retry_carry_forward"
+                copy.metadata["retry_carry_forward_matched"] = True
+                copy.metadata["retry_carry_forward_replaced_current"] = True
+                copy.metadata["retry_carry_forward_replaced_current_score"] = score_value(existing)
+                copy.metadata["retry_carry_forward_retry_count"] = retry_count
+                merged[index] = copy
+                matched += 1
+                continue
+            copy = carry_hit.model_copy(deep=True)
+            copy.metadata["retrieval_candidate_pool"] = "retry_carry_forward"
+            copy.metadata["retry_carry_forward_added"] = True
+            copy.metadata["retry_carry_forward_retry_count"] = retry_count
+            merged.append(copy)
+            by_key[key] = len(merged) - 1
+            added += 1
+        return merged, {"added": added, "matched": matched}
+
+    def _filter_agent_drop_cached_hits(
+        self,
+        hits: list[SearchHit],
+        *,
+        drop_cache: dict[str, dict[str, Any]],
+        stage: str,
+    ) -> tuple[list[SearchHit], list[SearchHit]]:
+        if not hits or not drop_cache:
+            return hits, []
+        kept: list[SearchHit] = []
+        removed: list[SearchHit] = []
+        for rank, hit in enumerate(hits, start=1):
+            key = _hit_key(hit)
+            cached = drop_cache.get(key)
+            if cached is None:
+                kept.append(hit)
+                continue
+            label = cached.get("agent_relevance_label")
+            score = cached.get("agent_relevance_score")
+            detail = cached.get("removed_reason_detail") or f"previous_agent_drop label={label}; score={score}"
+            copy = hit.model_copy(deep=True)
+            copy.metadata.update(
+                {
+                    "agent_relevance_drop": True,
+                    "agent_relevance_drop_cached": True,
+                    "agent_relevance_label": label,
+                    "agent_relevance_score": score,
+                    "agent_relevance_drop_reason": cached.get("agent_relevance_drop_reason"),
+                    "agent_relevance_drop_threshold": cached.get("agent_relevance_drop_threshold"),
+                }
+            )
+            removed.append(
+                mark_removed_hit(
+                    copy,
+                    stage=stage,
+                    reason="agent_drop_cache",
+                    detail=str(detail),
+                    previous_rank=rank,
+                    extra={
+                        "retrieval_removed_by": "agent_drop_cache",
+                        "retrieval_previous_rank": rank,
+                    },
+                )
+            )
+        return kept, removed
+
     def _local_retry_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("local_retry")
         decision = self.local_retry_planner.plan_retry(cast(dict[str, Any], state))
+        carry_forward_hits = self._select_retry_carry_forward_hits(state)
         self._progress_retry("local_retry", decision.retry_count)
         plan = decision.plan
         retry_plan_validation_errors: list[str] = []
@@ -910,10 +1105,13 @@ class TaskGraphRAG:
             retry_channels=",".join(plan.channels()),
             retry_top_k=",".join(f"{task.channel}:{task.top_k}" for task in plan.tasks),
             agent_retry_used=agent_retry_used,
+            retry_carry_forward_candidates=len(carry_forward_hits),
         )
         return {
             "retrieval_plan": plan.model_dump(),
             "retry_count": decision.retry_count,
+            "retry_carry_forward_hits": carry_forward_hits,
+            "retry_carry_forward_candidate_count": len(carry_forward_hits),
             "evidence_gain": decision.evidence_gain,
             "retry_actions": list(plan.retry_actions or decision.retry_actions),
             "retry_history": plan.retry_history,
@@ -1182,6 +1380,10 @@ class TaskGraphRAG:
                 "gate_reasons": state.get("gate_reasons", []),
                 "retry_actions": state.get("retry_actions", []),
                 "retry_history": state.get("retry_history", []),
+                "retry_carry_forward_enabled": self.settings.tg_retry_carry_forward_enabled,
+                "retry_carry_forward_candidate_count": state.get("retry_carry_forward_candidate_count", 0),
+                "retry_carry_forward_added_count": state.get("retry_carry_forward_added_count", 0),
+                "retry_carry_forward_matched_count": state.get("retry_carry_forward_matched_count", 0),
                 "rewritten_query_text": state.get("rewritten_query_text"),
                 "page_window": state.get("page_window"),
                 "agent_route_used": state.get("agent_route_used", False),
@@ -1198,6 +1400,7 @@ class TaskGraphRAG:
                 "agent_chunk_removed_hit_count": state.get("agent_chunk_removed_hit_count", 0),
                 "agent_chunk_removed_reasons": state.get("agent_chunk_removed_reasons", {}),
                 "agent_chunk_grade_cache_enabled": self.settings.tg_agent_chunk_grade_cache_enabled,
+                "agent_chunk_drop_cache_size": state.get("agent_chunk_drop_cache_size", 0),
                 "agent_chunk_grade_cache_size": state.get("agent_chunk_grade_cache_size", 0),
                 "agent_chunk_grade_cache_hits": state.get("agent_chunk_grade_cache_hits", 0),
                 "agent_chunk_llm_graded_hit_count": state.get("agent_chunk_llm_graded_hit_count", 0),

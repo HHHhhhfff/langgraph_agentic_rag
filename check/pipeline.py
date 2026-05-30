@@ -100,6 +100,7 @@ def _flatten_serialized_hit(row: dict[str, Any]) -> dict[str, Any]:
         "agent_grade_cache_key",
         "agent_relevance_keep",
         "agent_relevance_drop",
+        "agent_relevance_drop_cached",
         "agent_label_score_delta",
         "agent_related_modality_delta",
         "agent_related_context_text_delta",
@@ -121,6 +122,17 @@ def _flatten_serialized_hit(row: dict[str, Any]) -> dict[str, Any]:
         "retrieval_removed_by",
         "retrieval_removed_limit",
         "retrieval_previous_rank",
+        "retry_carry_forward",
+        "retry_carry_forward_added",
+        "retry_carry_forward_matched",
+        "retry_carry_forward_replaced_current",
+        "retry_carry_forward_replaced_current_score",
+        "retry_carry_forward_from_stage",
+        "retry_carry_forward_previous_rank",
+        "retry_carry_forward_score",
+        "retry_carry_forward_retry_count",
+        "retry_carry_forward_min_score",
+        "retry_carry_forward_min_agent_label",
     ):
         flat[key] = metadata.get(key)
     return flat

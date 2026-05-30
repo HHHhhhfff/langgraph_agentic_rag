@@ -325,6 +325,136 @@ def test_task_graph_local_retry_page_slot_sets_page_window() -> None:
     assert updated["page_window"] == 2
 
 
+def test_task_graph_retry_carry_forward_requires_score_and_agent_label() -> None:
+    settings = Settings(
+        tg_retry_carry_forward_enabled=True,
+        tg_retry_carry_forward_top_n=4,
+        tg_retry_carry_forward_min_score=0.35,
+        tg_retry_carry_forward_min_agent_label="relevant",
+    )
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+    strong = SearchHit(
+        point_id="p-strong",
+        node_id="n-strong",
+        text="strong evidence",
+        score=0.6,
+        metadata={"score_composite": 0.6, "agent_relevance_label": "strong", "modality": "text"},
+    )
+    weak = SearchHit(
+        point_id="p-weak",
+        node_id="n-weak",
+        text="weak evidence",
+        score=0.8,
+        metadata={"score_composite": 0.8, "agent_relevance_label": "weak", "modality": "text"},
+    )
+    low = SearchHit(
+        point_id="p-low",
+        node_id="n-low",
+        text="low evidence",
+        score=0.2,
+        metadata={"score_composite": 0.2, "agent_relevance_label": "strong", "modality": "text"},
+    )
+
+    selected = graph._select_retry_carry_forward_hits(  # noqa: SLF001 - intentional node-level test
+        {"expanded_hits": [strong, weak, low], "agent_chunk_grading_used": True}
+    )
+
+    assert [hit.node_id for hit in selected] == ["n-strong"]
+    assert selected[0].metadata["retry_carry_forward"] is True
+    assert selected[0].metadata["retry_carry_forward_from_stage"] == "agent_chunk_grading"
+
+
+def test_task_graph_retry_carry_forward_replaces_retry_duplicate_and_adds_missing() -> None:
+    settings = Settings(tg_retry_carry_forward_enabled=True)
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+    existing = SearchHit(point_id="p1", node_id="n1", text="retry hit", score=0.5, metadata={"score_composite": 0.5})
+    duplicate = SearchHit(
+        point_id="p1",
+        node_id="n1",
+        text="previous duplicate",
+        score=0.7,
+        metadata={"score_composite": 0.7, "retry_carry_forward_from_stage": "agent_chunk_grading"},
+    )
+    missing = SearchHit(
+        point_id="p2",
+        node_id="n2",
+        text="previous missing",
+        score=0.8,
+        metadata={"score_composite": 0.8, "retry_carry_forward_from_stage": "agent_chunk_grading"},
+    )
+
+    merged, stats = graph._merge_retry_carry_forward_hits(  # noqa: SLF001 - intentional node-level test
+        [existing],
+        [duplicate, missing],
+        retry_count=1,
+    )
+
+    assert [hit.node_id for hit in merged] == ["n1", "n2"]
+    assert stats == {"added": 1, "matched": 1}
+    assert merged[0].metadata["retry_carry_forward_matched"] is True
+    assert merged[0].metadata["retry_carry_forward_replaced_current"] is True
+    assert merged[0].text == "previous duplicate"
+    assert merged[0].score == 0.7
+    assert merged[1].metadata["retrieval_candidate_pool"] == "retry_carry_forward"
+    assert merged[1].metadata["retry_carry_forward_added"] is True
+
+
+def test_task_graph_retry_filters_previously_agent_dropped_hits() -> None:
+    settings = Settings()
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+    dropped = SearchHit(
+        point_id="p-drop",
+        node_id="n-drop",
+        text="previously dropped",
+        score=0.9,
+        metadata={"score_composite": 0.9, "modality": "text"},
+    )
+    kept = SearchHit(
+        point_id="p-keep",
+        node_id="n-keep",
+        text="fresh evidence",
+        score=0.8,
+        metadata={"score_composite": 0.8, "modality": "text"},
+    )
+
+    filtered, removed = graph._filter_agent_drop_cached_hits(  # noqa: SLF001 - intentional node-level test
+        [dropped, kept],
+        drop_cache={
+            "n-drop": {
+                "agent_relevance_label": "irrelevant",
+                "agent_relevance_score": 0.1,
+                "agent_relevance_drop_reason": "label_and_score_threshold",
+                "agent_relevance_drop_threshold": 0.25,
+                "removed_reason_detail": "label=irrelevant; score=0.1; threshold=0.25",
+            }
+        },
+        stage="retry_1_expanded",
+    )
+
+    assert [hit.node_id for hit in filtered] == ["n-keep"]
+    assert [hit.node_id for hit in removed] == ["n-drop"]
+    assert removed[0].metadata["removed_reason"] == "agent_drop_cache"
+    assert removed[0].metadata["agent_relevance_drop_cached"] is True
+
+
 def test_task_graph_skips_evidence_gate_and_local_retry_when_disabled() -> None:
     settings = Settings(
         taskgraph_evidence_gate_enabled=False,

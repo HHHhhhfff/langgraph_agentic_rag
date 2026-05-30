@@ -51,6 +51,7 @@ def test_citation_verify_loopback_until_retry_limit() -> None:
         tg_max_retries=1,
         tg_min_evidence_hits=1,
         tg_min_coverage_ratio=0.0,
+        tg_citation_verify_enabled=True,
         tg_citation_strict=True,
     )
     llm = NoCitationLLM()
@@ -77,6 +78,7 @@ def test_citation_verify_does_not_loopback_when_local_retry_disabled() -> None:
         tg_max_retries=1,
         tg_min_evidence_hits=1,
         tg_min_coverage_ratio=0.0,
+        tg_citation_verify_enabled=True,
         tg_citation_strict=True,
     )
     llm = NoCitationLLM()
