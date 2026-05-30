@@ -14,8 +14,10 @@ class PromptBuilder:
         contexts: list[str] = []
         citations: list[Citation] = []
         used_chars = 0
+        max_chars = max(1, self.settings.prompt_max_context_chars)
 
-        for i, hit in enumerate(hits, start=1):
+        for hit in hits:
+            i = len(citations) + 1
             source = str(hit.metadata.get("source", "unknown"))
             title = str(hit.metadata.get("title", "untitled"))
             chunk_index = int(hit.metadata.get("chunk_index", -1))
@@ -30,12 +32,32 @@ class PromptBuilder:
                 snippet = hit.table_markdown.strip()
             if modality == "formula" and hit.formula_latex:
                 snippet = hit.formula_latex.strip()
-            block = (
+            prefix = (
                 f"[{i}] source={source}; title={title}; modality={modality}; chunk_index={chunk_index}; "
-                f"score={hit.score:.4f}\n{snippet}\n"
+                f"score={hit.score:.4f}\n"
             )
-            if used_chars + len(block) > self.settings.prompt_max_context_chars:
-                break
+            suffix = "\n"
+            block = f"{prefix}{snippet}{suffix}"
+            remaining = max_chars - used_chars
+            if len(block) > remaining:
+                if not self.settings.prompt_context_truncation_enabled:
+                    continue
+                trunc_suffix = "\n[truncated]\n"
+                available = remaining - len(prefix) - len(trunc_suffix)
+                min_chars = max(1, self.settings.prompt_min_chunk_chars)
+                if available <= 0:
+                    continue
+                if available < min_chars and contexts:
+                    continue
+                snippet = snippet[:available].rstrip()
+                if len(snippet) < min(80, min_chars) and contexts:
+                    continue
+                hit.metadata["prompt_context_truncated"] = True
+                hit.metadata["prompt_context_chars"] = len(snippet)
+                block = f"{prefix}{snippet}{trunc_suffix}"
+            else:
+                hit.metadata["prompt_context_truncated"] = False
+                hit.metadata["prompt_context_chars"] = len(snippet)
 
             contexts.append(block)
             used_chars += len(block)

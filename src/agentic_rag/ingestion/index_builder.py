@@ -9,6 +9,7 @@ from agentic_rag.config import Settings
 from agentic_rag.ingestion.chunker import ChunkConfig, TextChunker
 from agentic_rag.ingestion.multimodal_orchestrator import MultiModalOrchestrator
 from agentic_rag.ingestion.node_schema import Node
+from agentic_rag.ingestion.structural_splitter import split_oversized_text_nodes
 from agentic_rag.ingestion.image_enrichment import IMAGE_SEMANTIC_WHOLE, image_semantic_type
 from agentic_rag.ingestion.parser import MarkdownParser
 from agentic_rag.models.providers import (
@@ -225,6 +226,16 @@ class IndexBuilder:
 
         if not nodes:
             raise IndexBuildError("No multimodal nodes provided for index build")
+
+        original_node_count = len(nodes)
+        nodes = split_oversized_text_nodes(nodes, self.settings)
+        if self.stage_logger and len(nodes) != original_node_count:
+            self.stage_logger.log_counter(
+                "structural_split",
+                source=source,
+                original_node_count=original_node_count,
+                split_node_count=len(nodes),
+            )
 
         self._preflight_qdrant_vector_size()
         vector_by_idx: dict[int, list[float]] = {}

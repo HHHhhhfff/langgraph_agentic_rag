@@ -4,11 +4,13 @@ from dataclasses import dataclass, field
 
 from agentic_rag.config import Settings
 from agentic_rag.models.providers import Reranker
+from agentic_rag.retrieval.query_variants import has_query_anchor_overlap
 from agentic_rag.retrieval.scoring import (
     STAGE_RERANK,
     compute_composite_scores,
     filter_by_stage_threshold_with_removed,
     mark_removed_hit,
+    score_value,
 )
 from agentic_rag.schemas import SearchHit
 
@@ -82,6 +84,14 @@ class RerankService:
                 removed_hits=[*filtered.removed, *top_removed],
             )
 
+        guarded = self._guardrail_anchor_hits(query=query, hits=hits, picked_ids=picked_ids)
+        if guarded:
+            insert_at = max(0, min(len(picked), self.settings.context_top_n - len(guarded)))
+            for guarded_hit in guarded:
+                picked.insert(insert_at, guarded_hit)
+                insert_at += 1
+                picked_ids.add(_hit_key(guarded_hit))
+
         removed: list[SearchHit] = []
         for input_rank, hit in enumerate(hits, start=1):
             if _hit_key(hit) in picked_ids:
@@ -104,6 +114,32 @@ class RerankService:
         filtered = filter_by_stage_threshold_with_removed(picked, stage=STAGE_RERANK, settings=self.settings)
         kept, top_removed = self._split_context_top_n(filtered.kept, reason_prefix="context")
         return RerankResult(hits=kept, used_rerank=True, removed_hits=[*removed, *filtered.removed, *top_removed])
+
+    def _guardrail_anchor_hits(
+        self,
+        *,
+        query: str,
+        hits: list[SearchHit],
+        picked_ids: set[str],
+    ) -> list[SearchHit]:
+        if not self.settings.rerank_guardrail_enabled:
+            return []
+        candidates: list[tuple[int, SearchHit]] = []
+        for input_rank, hit in enumerate(hits, start=1):
+            if _hit_key(hit) in picked_ids:
+                continue
+            if score_value(hit) < self.settings.rerank_guardrail_min_anchor_score:
+                continue
+            if not has_query_anchor_overlap(query, hit):
+                continue
+            copy = hit.model_copy(deep=True)
+            copy.metadata["rerank_guardrail_protected"] = True
+            copy.metadata["rerank_guardrail_reason"] = "query_anchor_overlap"
+            copy.metadata["rerank_guardrail_input_rank"] = input_rank
+            copy.metadata.setdefault("rerank_rank", 10_000 + input_rank)
+            candidates.append((input_rank, copy))
+        candidates.sort(key=lambda item: (-(score_value(item[1])), item[0]))
+        return [hit for _, hit in candidates[: self.settings.rerank_guardrail_max_anchor_hits]]
 
     def _split_context_top_n(self, hits: list[SearchHit], *, reason_prefix: str) -> tuple[list[SearchHit], list[SearchHit]]:
         kept = hits[: self.settings.context_top_n]

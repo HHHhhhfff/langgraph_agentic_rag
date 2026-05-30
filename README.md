@@ -634,18 +634,45 @@ REL_EXPAND_RETRY_MAX_TOTAL=12
 ```env
 RETRIEVAL_AUTO_TABLE_CHANNEL_ENABLED=true
 RETRIEVAL_AUTO_FORMULA_CHANNEL_ENABLED=true
-RETRIEVAL_TABLE_TRIGGER_KEYWORDS=表格,列表
-RETRIEVAL_FORMULA_TRIGGER_KEYWORDS=公式,方程,表达式
+RETRIEVAL_AUTO_IMAGE_CHANNEL_ENABLED=true
+RETRIEVAL_TABLE_TRIGGER_KEYWORDS=表格,列表,table,tabular,row,column
+RETRIEVAL_FORMULA_TRIGGER_KEYWORDS=公式,方程,表达式,formula,equation,ratio,sigma,theta,tau
+RETRIEVAL_IMAGE_TRIGGER_KEYWORDS=image,figure,fig.,plot,graph,curve,axis,legend,panel,subplot,caption,图,图像,曲线
+QUERY_VARIANTS_ENABLED=true
+QUERY_VARIANTS_MAX=4
+QUERY_VARIANT_BOOST_PER_HIT=0.03
+QUERY_VARIANT_MAX_BOOST=0.12
+QUERY_VARIANT_MIN_TOKEN_LEN=3
+RERANK_GUARDRAIL_ENABLED=true
+RERANK_GUARDRAIL_MAX_ANCHOR_HITS=3
+RERANK_GUARDRAIL_MIN_ANCHOR_SCORE=0.20
+IMAGE_QUERY_CONTEXT_EXPAND_ENABLED=true
+IMAGE_QUERY_CONTEXT_MAX_TEXT_HITS=3
+IMAGE_QUERY_CONTEXT_WEIGHT=0.70
 ```
 
 - `RETRIEVAL_AUTO_TABLE_CHANNEL_ENABLED`
   - query 命中弱关键词时，是否额外加入 direct `table` 检索通道。
 - `RETRIEVAL_AUTO_FORMULA_CHANNEL_ENABLED`
   - query 命中弱关键词时，是否额外加入 direct `formula` 检索通道。
+- `RETRIEVAL_AUTO_IMAGE_CHANNEL_ENABLED`
+  - query 命中 figure/plot/caption 等关键词时，是否额外加入 `image` 检索通道。
 - `RETRIEVAL_TABLE_TRIGGER_KEYWORDS`
   - 触发 direct `table` channel 的逗号分隔关键词。该机制只是补充，不影响 relationship-based table expansion。
 - `RETRIEVAL_FORMULA_TRIGGER_KEYWORDS`
   - 触发 direct `formula` channel 的逗号分隔关键词。该机制只是补充，不影响 relationship-based formula expansion。
+- `RETRIEVAL_IMAGE_TRIGGER_KEYWORDS`
+  - 触发 `image` channel 的逗号分隔关键词，用于 figure/caption/plot/curve 类问题。
+- `QUERY_VARIANTS_ENABLED`
+  - 对 BM25 类词法检索启用规则 query variant，包括符号归一化、关键词/figure/funding 变体；第一版不调用 LLM。
+- `QUERY_VARIANTS_MAX`
+  - 单个 query 最多生成多少条规则变体。
+- `QUERY_VARIANT_BOOST_PER_HIT` / `QUERY_VARIANT_MAX_BOOST`
+  - 同一 chunk 被多个 query variant 命中时，对 `score_composite` 做小幅加分，避免单 query embedding 漏掉符号/caption 类证据。
+- `RERANK_GUARDRAIL_ENABLED`
+  - reranker 未选中但与 query 有精确锚点重合、且 prior 分不低的 chunk，可被少量保护回流，防止关键实体/符号证据被 rerank 误删。
+- `IMAGE_QUERY_CONTEXT_EXPAND_ENABLED`
+  - image hit 被召回后，是否补入同页 text context 作为证据，补入分数为 `image_score * IMAGE_QUERY_CONTEXT_WEIGHT`。
 
 局部重检阶段可基于高分 seed 追加 relationship/page-window 扩展：
 
@@ -680,6 +707,10 @@ TG_AGENT_CHUNK_LABELS=irrelevant,weak,relevant,strong
 TG_AGENT_CHUNK_DROP_LABELS=irrelevant
 TG_AGENT_CHUNK_DROP_SCORE_THRESHOLD=0.25
 TG_AGENT_CHUNK_DROP_ENABLED=true
+TG_AGENT_CHUNK_DROP_REQUIRE_LABEL_AND_SCORE=true
+TG_AGENT_CHUNK_DROP_PROTECT_PRIOR_SCORE=0.55
+TG_AGENT_CHUNK_DROP_PROTECT_RERANK_SCORE=0.70
+TG_AGENT_CHUNK_DROP_PROTECT_ANCHORS=true
 TG_AGENT_CHUNK_SCORE_ADJUST_ENABLED=true
 TG_AGENT_CHUNK_LABEL_SCORE_DELTAS=irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10
 TG_AGENT_CHUNK_CONTEXT_FOR_TABLE_FORMULA=true
@@ -701,7 +732,13 @@ TG_AGENT_CHUNK_RELATED_CONTEXT_ADDED_MODALITY_DELTAS=irrelevant:0.00,weak:0.00,r
 - `TG_AGENT_CHUNK_GRADING_MAX_CHUNKS`
   - 单次最多发送给 Agent 的 chunk 数；Agent 以 batch JSON 返回，但仍按 node_id 对每个 chunk 单独评定，不做整体充分性判断。
 - `TG_AGENT_CHUNK_DROP_LABELS` / `TG_AGENT_CHUNK_DROP_SCORE_THRESHOLD`
-  - 命中这些标签或低于阈值时标记并剔除 chunk。
+  - Agent 低相关剔除的标签和分数阈值。
+- `TG_AGENT_CHUNK_DROP_REQUIRE_LABEL_AND_SCORE`
+  - 为 `true` 时，必须同时命中 drop label 且低于分数阈值才硬剔除，避免 Agent 单个 `drop=true` 误删高分证据。
+- `TG_AGENT_CHUNK_DROP_PROTECT_PRIOR_SCORE` / `TG_AGENT_CHUNK_DROP_PROTECT_RERANK_SCORE`
+  - prior `score_composite` 或 `rerank_score` 足够高时，即使 Agent 给出低相关，也只做分数下沉，不直接硬剔除。
+- `TG_AGENT_CHUNK_DROP_PROTECT_ANCHORS`
+  - chunk 与 query 存在实体、符号、数字等精确锚点重合时，保护其不被 Agent 硬剔除。
 - `TG_AGENT_CHUNK_SCORE_ADJUST_ENABLED`
   - 是否启用按评级调整 `score_composite`。
 - `TG_AGENT_CHUNK_LABEL_SCORE_DELTAS`
@@ -724,6 +761,34 @@ TG_AGENT_CHUNK_RELATED_CONTEXT_ADDED_MODALITY_DELTAS=irrelevant:0.00,weak:0.00,r
   - linked text context 不在当前 hits 中且被补入时，对 table/formula 额外增加的分数增量。
 - `TG_AGENT_CHUNK_DROP_ENABLED`
   - 为 `true` 时，被 drop 的 chunk 会从 evidence gate 前的 hits 中移除；如果希望观察 `irrelevant/weak` 的负向 delta 下沉效果，可临时设为 `false`。
+
+Prompt 上下文构建提供截断保护，避免第一个超长 chunk 直接让 `final_output` 为空：
+
+```env
+PROMPT_CONTEXT_TRUNCATION_ENABLED=true
+PROMPT_MIN_CHUNK_CHARS=300
+```
+
+- `PROMPT_CONTEXT_TRUNCATION_ENABLED`
+  - 单个 chunk 超过剩余 prompt 预算时，尝试截断该 chunk，而不是直接 `break` 丢弃后续证据。
+- `PROMPT_MIN_CHUNK_CHARS`
+  - 截断时尽量保留的最小正文字符数；预算不足时会跳过该 chunk 并继续尝试后续更短 chunk。
+
+入库阶段提供第一版轻量长文本切分，默认关闭，避免未重建索引前改变线上行为：
+
+```env
+CHUNK_STRUCTURAL_SPLIT_ENABLED=false
+CHUNK_HARD_MAX_CHARS=1800
+CHUNK_STRUCTURAL_SPLIT_MIN_PART_CHARS=300
+CHUNK_STRUCTURAL_SPLIT_OVERLAP=80
+```
+
+- `CHUNK_STRUCTURAL_SPLIT_ENABLED`
+  - 只对超长 `text` node 生效，不拆 table/formula/image；启用后需要重建索引。
+- `CHUNK_HARD_MAX_CHARS`
+  - 超过该长度的 text node 会按段落/句子边界拆分为多个 part node。
+- `CHUNK_STRUCTURAL_SPLIT_OVERLAP`
+  - part 之间的字符重叠，用于保留跨边界上下文。
 
 清空历史文件：
 

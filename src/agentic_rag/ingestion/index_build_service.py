@@ -97,7 +97,7 @@ def build_index_from_nodes(
         _log_build_index_success(stage_logger, summary, source=source, elapsed_ms=elapsed_ms, source_label=options.source_label)
     return _result_from_summary(
         summary,
-        node_count=len(nodes),
+        node_count=summary.chunks,
         settings=effective_settings,
         options=options,
         elapsed_ms=elapsed_ms,

@@ -53,3 +53,22 @@ def test_prompt_context_uses_formula_latex() -> None:
     assert "E=mc^2" in context
     assert "Formula placeholder" not in context
     assert citations[0].source == "math.md"
+
+
+def test_prompt_truncates_oversized_first_chunk_instead_of_dropping_all_context() -> None:
+    settings = Settings(_env_file=None, prompt_max_context_chars=260, prompt_min_chunk_chars=80)
+    builder = PromptBuilder(settings)
+    hit = SearchHit(
+        point_id="long",
+        text="A" * 1000,
+        score=0.9,
+        metadata={"source": "long.md", "title": "Long", "chunk_index": 0},
+    )
+
+    context, citations = builder.build_context([hit])
+
+    assert citations
+    assert "[1]" in context
+    assert "[truncated]" in context
+    assert len(context) <= settings.prompt_max_context_chars
+    assert hit.metadata["prompt_context_truncated"] is True

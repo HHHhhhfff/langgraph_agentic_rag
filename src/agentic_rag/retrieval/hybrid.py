@@ -7,8 +7,9 @@ from agentic_rag.config import Settings
 from agentic_rag.retrieval.bm25_retriever import BM25Retriever
 from agentic_rag.retrieval.fusion import rrf_fuse
 from agentic_rag.retrieval.page_retriever import PageRetriever
+from agentic_rag.retrieval.query_variants import build_query_variants
 from agentic_rag.retrieval.relationship_expander import RelationshipExpander
-from agentic_rag.retrieval.scoring import STAGE_INITIAL, compute_composite_scores, filter_by_stage_threshold_with_removed
+from agentic_rag.retrieval.scoring import STAGE_INITIAL, compute_composite_scores, filter_by_stage_threshold_with_removed, score_value
 from agentic_rag.retrieval.table_retriever import TableRetriever
 from agentic_rag.retrieval.retrieval_plan import RetrievalChannel, RetrievalPlan, RetrievalTask, resolve_vector_name
 from agentic_rag.schemas import SearchHit
@@ -79,7 +80,11 @@ class HybridRetriever:
                 if not self.settings.bm25_enabled:
                     hits = []
                 else:
-                    hits = self.bm25.retrieve(query_text=task_query, filters=task_filters or None, top_k=task.top_k)
+                    hits = self._bm25_retrieve_with_variants(
+                        query_text=task_query,
+                        filters=task_filters or None,
+                        top_k=task.top_k,
+                    )
             elif task.channel == "page":
                 hits = self.page.retrieve(query_text=task_query, filters=task_filters or None, top_k=task.top_k)
             elif task.channel in {"table", "image", "formula"} and self.settings.enable_named_vectors:
@@ -103,7 +108,11 @@ class HybridRetriever:
                 else:
                     modality_filters = dict(task_filters)
                     modality_filters["modality"] = "image"
-                    hits = self.bm25.retrieve(query_text=task_query, filters=modality_filters, top_k=task.top_k)
+                    hits = self._bm25_retrieve_with_variants(
+                        query_text=task_query,
+                        filters=modality_filters,
+                        top_k=task.top_k,
+                    )
                     for hit in hits:
                         hit.channel = task.channel
             elif task.channel == "formula":
@@ -112,7 +121,11 @@ class HybridRetriever:
                 else:
                     modality_filters = dict(task_filters)
                     modality_filters["modality"] = "formula"
-                    hits = self.bm25.retrieve(query_text=task_query, filters=modality_filters, top_k=task.top_k)
+                    hits = self._bm25_retrieve_with_variants(
+                        query_text=task_query,
+                        filters=modality_filters,
+                        top_k=task.top_k,
+                    )
                     for hit in hits:
                         hit.channel = task.channel
             elif task.channel == "relationship":
@@ -135,6 +148,7 @@ class HybridRetriever:
             top_k=self.settings.rrf_top_k,
         )
         fused = compute_composite_scores(fused, stage=STAGE_INITIAL, settings=self.settings)
+        fused = self._apply_query_variant_boost(fused)
         initial_filter = filter_by_stage_threshold_with_removed(fused, stage=STAGE_INITIAL, settings=self.settings)
         fused = initial_filter.kept
         explicit_relationship = "relationship" in route_hits
@@ -164,6 +178,7 @@ class HybridRetriever:
             )
         else:
             expanded = fused
+        expanded = self._add_image_context_hits(expanded)
         return HybridRetrievalResult(
             hits=fused,
             route_hits=route_hits,
@@ -220,6 +235,10 @@ class HybridRetriever:
             query_text, self.settings.retrieval_formula_trigger_keywords
         ):
             default_channels.append("formula")
+        if self.settings.retrieval_auto_image_channel_enabled and _contains_any_keyword(
+            query_text, self.settings.retrieval_image_trigger_keywords
+        ):
+            default_channels.append("image")
         return [
             RetrievalTask(
                 channel=channel,
@@ -241,6 +260,116 @@ class HybridRetriever:
             return self.settings.table_top_k
         return self.settings.rrf_top_k
 
+    def _bm25_retrieve_with_variants(
+        self,
+        *,
+        query_text: str,
+        filters: dict[str, Any] | None,
+        top_k: int | None,
+    ) -> list[SearchHit]:
+        variants = build_query_variants(query_text, self.settings)
+        if not variants:
+            return []
+        by_key: dict[str, SearchHit] = {}
+        for variant_index, variant in enumerate(variants, start=1):
+            hits = self.bm25.retrieve(query_text=variant, filters=filters, top_k=top_k)
+            for rank, hit in enumerate(hits, start=1):
+                key = _hit_key(hit)
+                existing = by_key.get(key)
+                if existing is None:
+                    copy = hit.model_copy(deep=True)
+                    copy.metadata["query_variant"] = variant
+                    copy.metadata["query_variant_rank"] = rank
+                    copy.metadata["query_variant_index"] = variant_index
+                    copy.metadata["query_variant_queries"] = [variant]
+                    copy.metadata["query_variant_hit_count"] = 1
+                    by_key[key] = copy
+                    continue
+                queries = existing.metadata.setdefault("query_variant_queries", [])
+                if isinstance(queries, list) and variant not in queries:
+                    queries.append(variant)
+                count = existing.metadata.get("query_variant_hit_count", 1)
+                existing.metadata["query_variant_hit_count"] = int(count or 1) + 1
+                if hit.score > existing.score:
+                    existing.score = hit.score
+                    existing.score_bm25 = hit.score_bm25
+                    existing.metadata["query_variant"] = variant
+                    existing.metadata["query_variant_rank"] = rank
+                    existing.metadata["query_variant_index"] = variant_index
+                    existing.metadata["score_bm25"] = hit.metadata.get("score_bm25", hit.score_bm25)
+                    continue
+        return sorted(by_key.values(), key=lambda hit: hit.score, reverse=True)
+
+    def _apply_query_variant_boost(self, hits: list[SearchHit]) -> list[SearchHit]:
+        if not self.settings.query_variants_enabled:
+            return hits
+        for hit in hits:
+            count = int(hit.metadata.get("query_variant_hit_count", 1) or 1)
+            if count <= 1:
+                continue
+            boost = min(
+                self.settings.query_variant_max_boost,
+                (count - 1) * self.settings.query_variant_boost_per_hit,
+            )
+            if boost <= 0:
+                continue
+            before = score_value(hit)
+            after = min(1.0, before + boost)
+            hit.score = after
+            hit.metadata["score_composite"] = after
+            hit.metadata["query_variant_boost"] = boost
+            hit.metadata["query_variant_score_before"] = before
+            hit.metadata["query_variant_score_after"] = after
+        return sorted(hits, key=score_value, reverse=True)
+
+    def _add_image_context_hits(self, hits: list[SearchHit]) -> list[SearchHit]:
+        if not self.settings.image_query_context_expand_enabled:
+            return hits
+        image_hits = [
+            hit
+            for hit in hits
+            if (hit.modality or hit.metadata.get("modality")) == "image"
+        ]
+        if not image_hits:
+            return hits
+        existing = {_hit_key(hit) for hit in hits}
+        try:
+            pool = self.store.scroll_hits(limit=5000)
+        except Exception:
+            return hits
+        additions: list[SearchHit] = []
+        for image_hit in image_hits:
+            doc_id = image_hit.doc_id or image_hit.metadata.get("doc_id")
+            page = image_hit.page or image_hit.metadata.get("page")
+            candidates = [
+                candidate
+                for candidate in pool
+                if (candidate.modality or candidate.metadata.get("modality")) == "text"
+                and (candidate.doc_id or candidate.metadata.get("doc_id")) == doc_id
+                and (candidate.page or candidate.metadata.get("page")) == page
+            ]
+            candidates.sort(key=lambda item: int(item.metadata.get("chunk_index", 0) or 0))
+            for candidate in candidates[: self.settings.image_query_context_max_text_hits]:
+                key = _hit_key(candidate)
+                if key in existing:
+                    continue
+                copy = candidate.model_copy(deep=True)
+                inherited = max(0.0, min(1.0, score_value(image_hit) * self.settings.image_query_context_weight))
+                copy.score = inherited
+                copy.channel = "image_context"
+                copy.metadata["score_composite"] = inherited
+                copy.metadata["score_stage"] = "image_query_context"
+                copy.metadata["score_policy"] = "image_query_context_inherited_v1"
+                copy.metadata["retrieval_candidate_pool"] = "image_query_context"
+                copy.metadata["retrieval_expanded_from_node_id"] = image_hit.node_id or image_hit.point_id
+                copy.metadata["retrieval_expansion_relation"] = "image_same_page_text"
+                copy.metadata["retrieval_relation_weight"] = self.settings.image_query_context_weight
+                additions.append(copy)
+                existing.add(key)
+        if not additions:
+            return hits
+        return sorted([*hits, *additions], key=score_value, reverse=True)
+
 
 def _contains_any_keyword(text: str, keywords: str) -> bool:
     raw = (text or "").lower()
@@ -248,4 +377,8 @@ def _contains_any_keyword(text: str, keywords: str) -> bool:
         if keyword and keyword in raw:
             return True
     return False
+
+
+def _hit_key(hit: SearchHit) -> str:
+    return hit.node_id or hit.point_id or f"{hit.doc_id}:{hit.metadata.get('chunk_index')}"
 

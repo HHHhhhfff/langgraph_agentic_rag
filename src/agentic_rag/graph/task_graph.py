@@ -294,6 +294,14 @@ class TaskGraphRAG:
             "figure",
             "fig.",
             "chart",
+            "plot",
+            "graph",
+            "curve",
+            "caption",
+            "panel",
+            "subplot",
+            "legend",
+            "axis",
             "screenshot",
             "diagram",
             "photo",
@@ -305,6 +313,10 @@ class TaskGraphRAG:
             "latex",
             "equation",
             "formula",
+            "ratio",
+            "sigma",
+            "theta",
+            "tau",
         )
 
         need_cross_doc = any(k in question for k in cross_doc_tokens) or "compare" in lower
@@ -452,6 +464,16 @@ class TaskGraphRAG:
             _add_retrieval_task_if_missing(
                 tasks,
                 channel="formula",
+                query_text=question,
+                top_k=self.settings.rrf_top_k,
+                filters=filters,
+            )
+        if self.settings.retrieval_auto_image_channel_enabled and _contains_any_keyword(
+            question, self.settings.retrieval_image_trigger_keywords
+        ):
+            _add_retrieval_task_if_missing(
+                tasks,
+                channel="image",
                 query_text=question,
                 top_k=self.settings.rrf_top_k,
                 filters=filters,
@@ -1069,6 +1091,7 @@ class TaskGraphRAG:
                     "local_retry_skipped",
                     (not self._local_retry_enabled()) or int(state.get("retry_count", 0) or 0) <= 0,
                 ),
+                **self._retry_skip_debug(state),
                 "evidence_ok": state.get("evidence_ok", False),
                 "citation_ok": state.get("citation_ok", False),
                 "refusal": state.get("refusal", False),
@@ -1129,6 +1152,49 @@ class TaskGraphRAG:
             result.answer = self.settings.uncertain_answer_text
         self._progress_done("generation")
         return {"result": result}
+
+    def _retry_skip_debug(self, state: TaskGraphState) -> dict[str, Any]:
+        if state.get("evidence_ok"):
+            reason = "evidence_ok"
+        elif not self._local_retry_enabled():
+            reason = "local_retry_disabled"
+        elif state.get("refusal"):
+            reason = "refusal"
+        else:
+            retry_count = int(state.get("retry_count", 0) or 0)
+            max_retries = int(state.get("max_retries", self.settings.tg_max_retries))
+            started_at = int(state.get("started_at_ms", _now_ms()))
+            elapsed = _now_ms() - started_at
+            token_budget = int(state.get("budget_tokens", self.settings.tg_budget_tokens))
+            token_estimate = self._estimate_token_usage(state)
+            if retry_count >= max_retries:
+                reason = "max_retries"
+            elif elapsed > self.settings.tg_budget_ms:
+                reason = "budget_ms"
+            elif token_estimate > token_budget:
+                reason = "token_budget"
+            elif retry_count > 0 and float(state.get("evidence_gain", 1.0)) < self.settings.tg_min_gain_threshold:
+                reason = "min_gain"
+            elif not state.get("gate_decision") and self._should_skip_evidence_gate(state):
+                reason = "evidence_gate_skipped"
+            elif retry_count <= 0:
+                reason = "not_triggered"
+            else:
+                reason = None
+            return {
+                "retry_skipped_reason": reason,
+                "retry_budget_elapsed_ms": elapsed,
+                "retry_budget_limit_ms": self.settings.tg_budget_ms,
+                "retry_token_usage_estimate": token_estimate,
+                "retry_token_budget": token_budget,
+            }
+        return {
+            "retry_skipped_reason": reason,
+            "retry_budget_elapsed_ms": _now_ms() - int(state.get("started_at_ms", _now_ms())),
+            "retry_budget_limit_ms": self.settings.tg_budget_ms,
+            "retry_token_usage_estimate": self._estimate_token_usage(state),
+            "retry_token_budget": int(state.get("budget_tokens", self.settings.tg_budget_tokens)),
+        }
 
     def _retry_decision(self, state: TaskGraphState) -> str:
         if self._should_skip_evidence_gate(state):

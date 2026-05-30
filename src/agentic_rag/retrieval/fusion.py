@@ -29,6 +29,19 @@ def rrf_fuse(result_sets: list[list[SearchHit]], k: int = 60, top_k: int = 12) -
                 best.score_vector = hit.score_vector
             if hit.score_bm25 is not None and best.score_bm25 is None:
                 best.score_bm25 = hit.score_bm25
+            if hit.metadata.get("query_variant_hit_count"):
+                best.metadata["query_variant_hit_count"] = max(
+                    int(best.metadata.get("query_variant_hit_count", 1) or 1),
+                    int(hit.metadata.get("query_variant_hit_count", 1) or 1),
+                )
+                queries = best.metadata.setdefault("query_variant_queries", [])
+                if isinstance(queries, list):
+                    for query in hit.metadata.get("query_variant_queries", []) or []:
+                        if query not in queries:
+                            queries.append(query)
+                for key_name in ("query_variant", "query_variant_rank", "query_variant_index"):
+                    if key_name in hit.metadata and key_name not in best.metadata:
+                        best.metadata[key_name] = hit.metadata[key_name]
             if hit.channel and best.channel == "vector":
                 best.channel = hit.channel
 

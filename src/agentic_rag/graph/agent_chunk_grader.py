@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from agentic_rag.config import Settings
 from agentic_rag.models.json_llm import generate_json
 from agentic_rag.models.providers import LLMClient
+from agentic_rag.retrieval.query_variants import has_query_anchor_overlap
 from agentic_rag.retrieval.scoring import mark_removed_hit, score_value
 from agentic_rag.schemas import SearchHit
 
@@ -99,7 +100,7 @@ Return only JSON:
 """
         result = generate_json(self.llm_client, prompt, ChunkGradingResult)
         grades = {grade.node_id: grade for grade in result.grades}
-        graded = [self._apply_grade(hit, grades.get(_hit_id(hit))) for hit in hits]
+        graded = [self._apply_grade(hit, grades.get(_hit_id(hit)), question=question) for hit in hits]
         graded = self._apply_related_context_policy(graded, grades, context_pool=context_pool)
         removed_hits: list[SearchHit] = []
         if self.settings.tg_agent_chunk_drop_enabled:
@@ -187,15 +188,21 @@ Return only JSON:
             result.append(context)
         return result
 
-    def _apply_grade(self, hit: SearchHit, grade: ChunkGrade | None) -> SearchHit:
+    def _apply_grade(self, hit: SearchHit, grade: ChunkGrade | None, *, question: str) -> SearchHit:
         if grade is None:
             return hit
         copy = hit.model_copy(deep=True)
         score = _clamp_score(grade.relevance_score)
         label = grade.relevance_label
-        drop_labels = _csv_set(self.settings.tg_agent_chunk_drop_labels)
-        drop = bool(grade.drop or label in drop_labels or score < self.settings.tg_agent_chunk_drop_score_threshold)
         before = score_value(copy)
+        drop, drop_reason, protected_reason = self._should_drop(
+            hit=copy,
+            grade=grade,
+            label=label,
+            score=score,
+            score_before=before,
+            question=question,
+        )
         after = before
         label_delta = 0.0
         if self.settings.tg_agent_chunk_score_adjust_enabled:
@@ -207,8 +214,12 @@ Return only JSON:
                 "agent_relevance_used": True,
                 "agent_relevance_score": score,
                 "agent_relevance_label": label,
-                "agent_relevance_keep": bool(grade.keep and not drop),
+                "agent_relevance_keep": bool(not drop),
                 "agent_relevance_drop": drop,
+                "agent_relevance_drop_candidate": bool(drop_reason),
+                "agent_relevance_drop_reason": drop_reason,
+                "agent_relevance_drop_protected": bool(protected_reason),
+                "agent_relevance_drop_protected_reason": protected_reason,
                 "agent_relevance_score_before": before,
                 "agent_relevance_score_after": after,
                 "agent_score_before": before,
@@ -223,11 +234,56 @@ Return only JSON:
         )
         return copy
 
+    def _should_drop(
+        self,
+        *,
+        hit: SearchHit,
+        grade: ChunkGrade,
+        label: str,
+        score: float,
+        score_before: float,
+        question: str,
+    ) -> tuple[bool, str | None, str | None]:
+        if not self.settings.tg_agent_chunk_drop_enabled:
+            return False, None, None
+        drop_labels = _csv_set(self.settings.tg_agent_chunk_drop_labels)
+        threshold = self.settings.tg_agent_chunk_drop_score_threshold
+        label_drop = label in drop_labels
+        score_drop = score < threshold
+        if self.settings.tg_agent_chunk_drop_require_label_and_score:
+            drop = label_drop and score_drop
+            reason = "label_and_score_threshold" if drop else None
+        else:
+            drop = bool(grade.drop or label_drop or score_drop)
+            if grade.drop:
+                reason = "agent_drop_flag"
+            elif label_drop:
+                reason = "label"
+            elif score_drop:
+                reason = "score_threshold"
+            else:
+                reason = None
+        if not drop:
+            return False, reason, None
+
+        rerank_score = _metadata_float(hit, "rerank_score")
+        if score_before >= self.settings.tg_agent_chunk_drop_protect_prior_score:
+            return False, reason, "prior_score"
+        if rerank_score is not None and rerank_score >= self.settings.tg_agent_chunk_drop_protect_rerank_score:
+            return False, reason, "rerank_score"
+        if self.settings.tg_agent_chunk_drop_protect_anchors and has_query_anchor_overlap(question, hit):
+            return False, reason, "query_anchor_overlap"
+        return True, reason, None
+
     def _mark_agent_removed(self, hit: SearchHit, *, previous_rank: int) -> SearchHit:
         label = str(hit.metadata.get("agent_relevance_label") or "")
         score = hit.metadata.get("agent_relevance_score")
         drop_labels = _csv_set(self.settings.tg_agent_chunk_drop_labels)
-        if hit.metadata.get("agent_relevance_drop") and label not in drop_labels:
+        configured_reason = str(hit.metadata.get("agent_relevance_drop_reason") or "")
+        if configured_reason == "label_and_score_threshold":
+            reason = "agent_low_relevance_score" if label not in drop_labels else "agent_irrelevant_label"
+            drop_reason = "label_and_score_threshold"
+        elif hit.metadata.get("agent_relevance_drop") and label not in drop_labels:
             reason = "agent_chunk_drop"
             drop_reason = "agent_drop_flag"
         elif label in drop_labels:
@@ -391,6 +447,13 @@ def _label_float_map(value: str) -> dict[str, float]:
         except ValueError:
             continue
     return result
+
+
+def _metadata_float(hit: SearchHit, key: str) -> float | None:
+    value = hit.metadata.get(key)
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
 
 
 def _clamp_score(value: float) -> float:

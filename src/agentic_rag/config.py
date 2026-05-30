@@ -471,8 +471,30 @@ class Settings(BaseSettings):
     rel_expand_retry_max_total: int = Field(default=12, description="Max retry relationship nodes per query")
     retrieval_auto_table_channel_enabled: bool = Field(default=True, description="Enable weak keyword-triggered table channel")
     retrieval_auto_formula_channel_enabled: bool = Field(default=True, description="Enable weak keyword-triggered formula channel")
-    retrieval_table_trigger_keywords: str = Field(default="表格,列表", description="Comma-separated table trigger keywords")
-    retrieval_formula_trigger_keywords: str = Field(default="公式,方程,表达式", description="Comma-separated formula trigger keywords")
+    retrieval_auto_image_channel_enabled: bool = Field(default=True, description="Enable weak keyword-triggered image/caption channel")
+    retrieval_table_trigger_keywords: str = Field(
+        default="表格,列表,table,tabular,row,column",
+        description="Comma-separated table trigger keywords",
+    )
+    retrieval_formula_trigger_keywords: str = Field(
+        default="公式,方程,表达式,formula,equation,ratio,sigma,theta,tau",
+        description="Comma-separated formula trigger keywords",
+    )
+    retrieval_image_trigger_keywords: str = Field(
+        default="image,figure,fig.,plot,graph,curve,axis,legend,panel,subplot,caption,图,图像,曲线",
+        description="Comma-separated image/figure trigger keywords",
+    )
+    query_variants_enabled: bool = Field(default=True, description="Enable rule-based query variants for lexical retrieval")
+    query_variants_max: int = Field(default=4, description="Maximum query variants generated per query")
+    query_variant_boost_per_hit: float = Field(default=0.03, description="Composite score boost per additional query variant hit")
+    query_variant_max_boost: float = Field(default=0.12, description="Maximum composite score boost from query variant occurrences")
+    query_variant_min_token_len: int = Field(default=3, description="Minimum token length kept in keyword query variants")
+    rerank_guardrail_enabled: bool = Field(default=True, description="Protect exact-anchor hits from reranker drop")
+    rerank_guardrail_max_anchor_hits: int = Field(default=3, description="Max anchor hits re-added after reranker selection")
+    rerank_guardrail_min_anchor_score: float = Field(default=0.20, description="Min prior score for rerank anchor protection")
+    image_query_context_expand_enabled: bool = Field(default=True, description="Add same-page text context for retrieved image hits")
+    image_query_context_max_text_hits: int = Field(default=3, description="Max same-page text context hits added per image hit")
+    image_query_context_weight: float = Field(default=0.70, description="Inherited score weight for image same-page text context")
     tg_agent_context_expansion_enabled: bool = Field(default=True, description="Enable future agent-guided retry context expansion")
     tg_agent_context_expansion_min_seed_score: float = Field(default=0.55, description="Agent context expansion seed score")
     tg_agent_context_expansion_seed_top_m: int = Field(default=3, description="Agent context expansion max seeds")
@@ -487,6 +509,22 @@ class Settings(BaseSettings):
     tg_agent_chunk_drop_labels: str = Field(default="irrelevant", description="Labels dropped by agent chunk grading")
     tg_agent_chunk_drop_score_threshold: float = Field(default=0.25, description="Drop chunks below this agent relevance score")
     tg_agent_chunk_drop_enabled: bool = Field(default=True, description="Drop irrelevant chunks after agent grading")
+    tg_agent_chunk_drop_require_label_and_score: bool = Field(
+        default=True,
+        description="Require both a drop label and low agent score before hard-dropping chunks",
+    )
+    tg_agent_chunk_drop_protect_prior_score: float = Field(
+        default=0.55,
+        description="Do not hard-drop agent-graded chunks whose pre-agent composite score is at least this value",
+    )
+    tg_agent_chunk_drop_protect_rerank_score: float = Field(
+        default=0.70,
+        description="Do not hard-drop agent-graded chunks whose rerank_score is at least this value",
+    )
+    tg_agent_chunk_drop_protect_anchors: bool = Field(
+        default=True,
+        description="Do not hard-drop chunks that share exact anchor tokens with the query",
+    )
     tg_agent_chunk_score_adjust_enabled: bool = Field(default=True, description="Apply label-based score deltas after agent grading")
     tg_agent_chunk_label_score_deltas: str = Field(default="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10", description="Label to score delta map for agent chunk grading")
     tg_agent_chunk_context_for_table_formula: bool = Field(default=True, description="Include linked text context when grading table/formula")
@@ -566,6 +604,12 @@ class Settings(BaseSettings):
     tg_agent_min_route_confidence: float = Field(default=0.55, description="Minimum LLM route confidence to merge route decision")
     context_top_n: int = Field(default=6, description="How many chunks enter prompt context")
     prompt_max_context_chars: int = Field(default=12000, description="Max context characters in prompt")
+    prompt_context_truncation_enabled: bool = Field(default=True, description="Truncate oversized context chunks instead of dropping all later chunks")
+    prompt_min_chunk_chars: int = Field(default=300, description="Minimum snippet chars kept when truncating a prompt context chunk")
+    chunk_structural_split_enabled: bool = Field(default=False, description="Split oversized text nodes before multimodal index build")
+    chunk_hard_max_chars: int = Field(default=1800, description="Maximum chars per structurally split text node")
+    chunk_structural_split_min_part_chars: int = Field(default=300, description="Minimum useful chars per structural split part")
+    chunk_structural_split_overlap: int = Field(default=80, description="Overlap chars between structural split text parts")
 
     # Answer and tracing behavior
     uncertain_answer_text: str = Field(
@@ -617,6 +661,10 @@ class Settings(BaseSettings):
         "rel_expand_retry_seed_top_m",
         "rel_expand_retry_max_per_seed",
         "rel_expand_retry_max_total",
+        "query_variants_max",
+        "query_variant_min_token_len",
+        "rerank_guardrail_max_anchor_hits",
+        "image_query_context_max_text_hits",
         "tg_agent_context_expansion_seed_top_m",
         "tg_agent_context_expansion_max_rounds",
         "tg_agent_context_expansion_max_context_hits",
@@ -652,6 +700,10 @@ class Settings(BaseSettings):
         "retrieval_eval_max_text_chars",
         "retrieval_vis_max_text_chars",
         "ingestion_inspect_max_text_chars",
+        "prompt_min_chunk_chars",
+        "chunk_hard_max_chars",
+        "chunk_structural_split_min_part_chars",
+        "chunk_structural_split_overlap",
     )
     @classmethod
     def validate_positive(cls, value: int) -> int:
@@ -715,6 +767,12 @@ class Settings(BaseSettings):
         "tg_support_w_keyword",
         "tg_conflict_numeric_tolerance",
         "tg_agent_min_route_confidence",
+        "query_variant_boost_per_hit",
+        "query_variant_max_boost",
+        "rerank_guardrail_min_anchor_score",
+        "image_query_context_weight",
+        "tg_agent_chunk_drop_protect_prior_score",
+        "tg_agent_chunk_drop_protect_rerank_score",
     )
     @classmethod
     def validate_ratio(cls, value: float) -> float:

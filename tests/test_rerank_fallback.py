@@ -108,6 +108,42 @@ def test_rerank_service_records_context_top_n_removed_hit() -> None:
     assert removed.metadata["retrieval_removed_limit"] == 2
 
 
+class OneRowReranker:
+    def rerank_hits(self, query: str, hits: list[SearchHit], top_n: int):
+        return [{"index": 0, "score": 0.99}]
+
+
+def test_rerank_guardrail_keeps_exact_anchor_hit_not_selected_by_reranker() -> None:
+    settings = Settings(
+        _env_file=None,
+        rerank_enabled=True,
+        rerank_top_n=1,
+        context_top_n=2,
+        rerank_guardrail_enabled=True,
+        rerank_guardrail_min_anchor_score=0.2,
+        retrieval_rerank_min_composite_score=0.0,
+    )
+    hits = [
+        SearchHit(point_id="1", text="generic background", score=0.9, metadata={"score_composite": 0.9}),
+        SearchHit(
+            point_id="2",
+            text="Ivan Terekhov was financially supported by the program.",
+            score=0.6,
+            metadata={"score_composite": 0.6},
+        ),
+    ]
+
+    result = RerankService(settings=settings, reranker=OneRowReranker()).rerank(
+        "Which program financially supported Ivan Terekhov?",
+        hits,
+    )
+
+    assert "2" in [hit.point_id for hit in result.hits]
+    protected = next(hit for hit in result.hits if hit.point_id == "2")
+    assert protected.metadata["rerank_guardrail_protected"] is True
+    assert "2" not in [hit.point_id for hit in result.removed_hits]
+
+
 def test_dashscope_text_reranker_uses_string_documents(monkeypatch) -> None:
     calls = {}
 
