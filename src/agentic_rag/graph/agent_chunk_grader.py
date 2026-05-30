@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
@@ -8,7 +9,7 @@ from pydantic import BaseModel, Field
 from agentic_rag.config import Settings
 from agentic_rag.models.json_llm import generate_json
 from agentic_rag.models.providers import LLMClient
-from agentic_rag.retrieval.scoring import score_value
+from agentic_rag.retrieval.scoring import mark_removed_hit, score_value
 from agentic_rag.schemas import SearchHit
 
 
@@ -31,6 +32,12 @@ class ChunkGradingResult(BaseModel):
     grades: list[ChunkGrade] = Field(default_factory=list)
 
 
+@dataclass(slots=True)
+class AgentChunkGradingOutput:
+    hits: list[SearchHit]
+    removed_hits: list[SearchHit]
+
+
 class AgentChunkGrader:
     """Grade per-hit relevance before evidence gate."""
 
@@ -45,12 +52,21 @@ class AgentChunkGrader:
         hits: list[SearchHit],
         context_pool: list[SearchHit] | None = None,
     ) -> list[SearchHit]:
+        return self.grade_hits_with_removed(question=question, hits=hits, context_pool=context_pool).hits
+
+    def grade_hits_with_removed(
+        self,
+        *,
+        question: str,
+        hits: list[SearchHit],
+        context_pool: list[SearchHit] | None = None,
+    ) -> AgentChunkGradingOutput:
         if not self.settings.tg_agent_chunk_grading_enabled or not hits:
-            return hits
+            return AgentChunkGradingOutput(hits=hits, removed_hits=[])
         context_pool = context_pool or hits
         selected = self._select_hits(hits)
         if not selected:
-            return hits
+            return AgentChunkGradingOutput(hits=hits, removed_hits=[])
         payload = [
             self._grade_payload(hit, context_pool=context_pool)
             for hit in selected
@@ -85,9 +101,16 @@ Return only JSON:
         grades = {grade.node_id: grade for grade in result.grades}
         graded = [self._apply_grade(hit, grades.get(_hit_id(hit))) for hit in hits]
         graded = self._apply_related_context_policy(graded, grades, context_pool=context_pool)
+        removed_hits: list[SearchHit] = []
         if self.settings.tg_agent_chunk_drop_enabled:
-            graded = [hit for hit in graded if not hit.metadata.get("agent_relevance_drop")]
-        return graded
+            kept: list[SearchHit] = []
+            for rank, hit in enumerate(graded, start=1):
+                if hit.metadata.get("agent_relevance_drop"):
+                    removed_hits.append(self._mark_agent_removed(hit, previous_rank=rank))
+                else:
+                    kept.append(hit)
+            graded = kept
+        return AgentChunkGradingOutput(hits=graded, removed_hits=removed_hits)
 
     def _select_hits(self, hits: list[SearchHit]) -> list[SearchHit]:
         mode = (self.settings.tg_agent_chunk_grading_mode or "head_tail").lower()
@@ -199,6 +222,37 @@ Return only JSON:
             }
         )
         return copy
+
+    def _mark_agent_removed(self, hit: SearchHit, *, previous_rank: int) -> SearchHit:
+        label = str(hit.metadata.get("agent_relevance_label") or "")
+        score = hit.metadata.get("agent_relevance_score")
+        drop_labels = _csv_set(self.settings.tg_agent_chunk_drop_labels)
+        if hit.metadata.get("agent_relevance_drop") and label not in drop_labels:
+            reason = "agent_chunk_drop"
+            drop_reason = "agent_drop_flag"
+        elif label in drop_labels:
+            reason = "agent_irrelevant_label"
+            drop_reason = "label"
+        else:
+            reason = "agent_low_relevance_score"
+            drop_reason = "score_threshold"
+        detail = (
+            f"label={label or 'unknown'}; score={score}; "
+            f"threshold={self.settings.tg_agent_chunk_drop_score_threshold}"
+        )
+        hit.metadata.update(
+            {
+                "agent_relevance_drop_reason": drop_reason,
+                "agent_relevance_drop_threshold": self.settings.tg_agent_chunk_drop_score_threshold,
+            }
+        )
+        return mark_removed_hit(
+            hit,
+            stage="agent_chunk_grading",
+            reason=reason,
+            detail=detail,
+            previous_rank=previous_rank,
+        )
 
     def _apply_related_context_policy(
         self,

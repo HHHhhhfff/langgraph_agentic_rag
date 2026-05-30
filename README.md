@@ -433,6 +433,48 @@ Rerank 关键配置：
 
 该日志用于后续计算 Hit Rate、MRR、Precision、Recall、AP、nDCG 等检索评测指标。当前只记录 TaskGraph 路径。每条 JSONL record 可包含 `initial_retrieval`、`initial_expanded`、`rerank`、`agent_chunk_grading`、`evidence_gate`、`retry_*`、`final_after_retry`、`final_output` 等 snapshot，hit 结构接近 LlamaIndex Node，并预留 `eval.is_relevant`、`eval.relevance_label`、`eval.graded_relevance` 字段供后续标注。
 
+`check` 评测模块支持两条管线：
+
+```powershell
+# 快速简化链路：embedding -> retrieve -> rerank -> prompt -> generate
+py -3.11 -m check --dataset check/example_cases.jsonl --pipeline simple --k 10
+
+# 完整 TaskGraph 链路：包含 agent_chunk_grading / evidence_gate / local_retry / citation_verify 等阶段
+py -3.11 -m check --dataset check/sciqa_2412_16030_cases.jsonl --pipeline taskgraph --k 10 --page-tolerance 1
+```
+
+新增评测参数说明：
+
+- `--pipeline simple|taskgraph`
+  - `simple`：使用 `check.pipeline.EvaluationPipeline` 的简化链路，适合快速基线评测。
+  - `taskgraph`：调用完整 `TaskGraphRAG`，用于观测真实生产链路；会自动开启内存阶段快照，不要求写入 `retrieval_history.jsonl`。
+- `--stage-metrics initial_retrieval,initial_expanded,rerank,agent_chunk_grading,final_after_retry`
+  - 指定 `metrics_report` 中输出哪些阶段的检索指标。
+  - 不指定时使用默认 TaskGraph 兼容阶段集合。
+- `--use-expected-source-filter`
+  - 评测专用参数：把 case 里的第一个 `expected_source/expected_sources` 作为 metadata `source` 过滤条件。
+  - 只适合单文档 benchmark 或消融实验，不应用于真实生产 query。
+- `--page-tolerance N`
+  - 评测页码匹配容忍度，只影响 Hit Rate/MRR/Precision/Recall/AP/nDCG 等指标计算。
+  - 例如标准页 `page=5` 且 `--page-tolerance 1` 时，命中 `page=4/5/6` 都算相关。
+  - 该参数不对应 `.env` 配置，也不改变检索、rerank、TaskGraph 或最终回答。
+
+可视化报告支持展示“被剔除 chunk”的灰色 ghost card，仅用于诊断，不参与指标计算：
+
+```powershell
+py -3.11 check/visualize_eval.py --run-dir check/runs/<run-name> --removed-mode both
+```
+
+- `--show-removed` / `--hide-removed`
+  - 是否展示被剔除 chunk。默认展示。
+- `--removed-mode explicit|inferred|both`
+  - `explicit`：只展示 TaskGraph snapshot 中显式记录的 `removed_hits`。
+  - `inferred`：只通过相邻阶段 diff 推断“上一阶段有、下一阶段消失”的 chunk。
+  - `both`：优先使用显式 `removed_hits`，再用 diff 推断兜底；默认值。
+  - ghost card 会标灰并放在当前阶段底部，展示 `removed_reason`、`removed_reason_detail`、上一阶段 rank、阈值或 top-k 限制等信息。
+
+如果只想跑前 1 条 QA，需要使用 `--limit 1`；`--k 10` 表示排名指标只看 Top 10，不表示样本数。
+
 召回评分保留 raw score，并额外写入统一综合分：
 
 - `score_vector`：Qdrant 向量检索分。

@@ -1,0 +1,932 @@
+{
+  "schema_version": "retrieval_eval.v1",
+  "query_id": "20d6a2b2-02ad-482d-a2f5-985718d66499",
+  "timestamp": "2026-05-29T17:13:46.031417+00:00",
+  "query": {
+    "text": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+    "rewritten_text": null,
+    "filters": {},
+    "route": "image_first",
+    "executed_channels": [
+      "vector",
+      "bm25",
+      "image"
+    ]
+  },
+  "taskgraph": {
+    "retry_count": 0,
+    "retry_actions": [],
+    "retry_history": [],
+    "gate_decision": "retry",
+    "evidence_ok": false,
+    "support_level": "none",
+    "support_score": 0.0,
+    "citation_ok": false,
+    "used_rerank": true,
+    "rerank_fallback_reason": null,
+    "evidence_gate_enabled": true,
+    "local_retry_enabled": true,
+    "evidence_gate_skipped": false,
+    "local_retry_skipped": false
+  },
+  "snapshots": [
+    {
+      "stage": "initial_retrieval",
+      "query_text": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "top_k": 3,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "point_id": "02f98f33-1a34-5441-abe5-b0f6d3fa42f9",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "chunk_index": 12,
+          "text": "\\tag {20}\n$$\n\nNaturally, there is no asymmetry in $\\sigma(\\tau)$ . The dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ is shown in Fig.2 for several values of Q.\n\n![](images/1b7ffdcf3a86d09e9a2953e40a0196a8b8d4ea16c8d7eab29b8b93214871675a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\n![](images/6702d0432117e9c2c1065da445998cb9174570bd2d519804540866ab6cf10e5a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 1. Dependence of $\\Sigma_{s}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ (top plot) and $\\Sigma_{a}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ (bottom plot) on $\\vartheta$ for f=2 (solid curve), f=3 (dashed curve) and f=4 (dotted curve), $f=Q\\cos\\tau$ .   \n![](images/11b6cb6bb6e89aace75756a2cc1fe8d9b6b31902b1ce08266c810ecedfead7f2.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 2. Dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ for Q=1 (solid curve), Q=2 (dashed curve) and Q=3 (dotted curve).\n\nThe total cross section increases with $Q$ and is well approximated at $Q \\gg 1$ by the formula\n\n$$\n\\sigma (\\tau) \\approx \\pi \\sigma_ {0} \\ln (1 + 2 Q | \\cos \\tau |).\n$$\n\nThe total cross section averaged over time may also be of interest,\n\n$$\n\\overline {{\\sigma}} (Q) = \\int_ {0} ^ {2 \\pi} \\sigma (\\tau) \\frac {d \\tau}{2 \\pi} = \\pi \\sigma_ {0} \\int_ {0} ^ {1} [ 1 - J _ {0} (Q y) ] \\frac {d y}{y}. \\tag {21}\n$$\n\nThe dependence of $\\overline{\\Sigma}_{tot}(Q) = \\overline{\\sigma}(Q) / \\sigma_0$ on $Q$ is shown in\n\nFig. 3. The time-averaged cross section grows logarith-  \n![](images/edca25ca30932f8e03b27a90585e5b936b1255ad1c8b8995ae1eeba2bf1f08bc.jpg)\n\n<details>\n<summary>line</summary>",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 12,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.032266458495966696,
+            "score_composite": 0.5172956507564465,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.4742855,
+              "bm25_norm": 0.5340043806733487,
+              "rrf_norm": 1.0,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.5172956507564465,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.5172956507564465,
+            "score_vector": 0.4742855,
+            "score_bm25": 3.8881601662135368,
+            "score_rrf": 0.032266458495966696,
+            "rerank_score": null,
+            "score_composite": 0.5172956507564465,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.4742855,
+              "bm25_norm": 0.5340043806733487,
+              "rrf_norm": 1.0,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "bm25",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 2,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+          "point_id": "c57ed278-4f78-530f-b2c8-c2a6a88541c3",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+          "chunk_index": 13,
+          "text": "</details>\n\nFigure 3. Dependence of $\\overline{\\Sigma}_{tot} = \\overline{\\sigma}(Q) / \\sigma_0$ on $Q$ .\n\nmically with increasing $Q$ for large $Q$ .\n\n# III. CONCLUSION\n\nThe non-stationary Aharonov-Bohm effect is investigated in the non-relativistic approximation. Using the eikonal approach, the differential and total scattering cross sections are found. In contrast to the stationary Aharonov-Bohm effect, the total cross section in the non-stationary case is finite. The main contribution to the scattering cross section comes from the angles $\\theta \\sim \\theta_{0} = \\hbar\\omega/E \\ll 1$ . The differential scattering cross section contains an asymmetry with respect to the replacement $q \\rightarrow -q$ . This asymmetry has a maximum at $\\theta \\sim \\theta_{0}$ and decreases rapidly at $\\theta \\gg \\theta_{0}$ and $\\theta \\ll \\theta_{0}$ . The asymmetry in the cross section can be observed as the non-stationary Hall effect, and the total scattering cross section manifests itself in oscillations of the total electron flux.\n\n# ACKNOWLEDGEMENT\n\nThe work of Ivan Terekhov was financially supported by the ITMO Fellowship Program.\n\n[1] Y. Aharonov and D. Bohm, Significance of electromagnetic potentials in the Quantum theory, Phys. Rev. 115, 485 (1959).   \n[2] M. Peshkin and A. Tonomura, The Aharonov-Bohm Effect, Lecture Notes in Physics 340 (Springer-Verlag, Berlin, 1989).   \n[3] B. Lee, E. Yin, T. K. Gustafson, R. Chiao, Analysis of Aharonov-Bohm effect due to time-dependent vector potentials, Phys. Rev. A 45, 4319 (1992).   \n[4] A. N. Ageev, S. Yu. Davydov, and A. G. Chirkov, Magnetic Aharonov-Bohm effect under time-dependent vector potential, Pis'ma v Zhurnal Tekhnicheskoi Fiziki, 9, 70 (2000) [Technical Physics Letters 26, 392 (2000)].   \n[5] B. Gaveau, A. M. Nounou, L. S. Schulman, Homotopy and path integrals in the time-dependent Aharonov-Bohm effect, Found. Phys. 41, 1462 (2011).\n\n[6] D. Singleton and E. C. Vagenas, The covariant, time-dependent Aharonov–Bohm effect, P",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 4,
+            "chunk_index": 13,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": "III. CONCLUSION",
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.02976190476190476,
+            "score_composite": 0.25633329790817466,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24911903,
+              "bm25_norm": 0.0,
+              "rrf_norm": 0.8555711086226202,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.25633329790817466,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": [
+              "III. CONCLUSION"
+            ]
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 4,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:4",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:14",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:14",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:5"
+            ],
+            "related_formula_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:14",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:15",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:16",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:17",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.25633329790817466,
+            "score_vector": 0.24911903,
+            "score_bm25": 2.065004533042148,
+            "score_rrf": 0.02976190476190476,
+            "rerank_score": null,
+            "score_composite": 0.25633329790817466,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24911903,
+              "bm25_norm": 0.0,
+              "rrf_norm": 0.8555711086226202,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "bm25",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 3,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "point_id": "048858d8-cbb7-533b-84fe-710d67b7c972",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "chunk_index": 11,
+          "text": "\\tag {17}\n$$\n\nFor $\\vartheta \\ll 1$ ( $\\theta \\ll \\theta_0$ ), we have\n\n$$\nd \\sigma (\\vartheta , \\tau) = \\sigma_ {0} \\left| \\int_ {0} ^ {Q | \\cos \\tau |} (1 - \\cos y) \\frac {d y}{y} \\right| ^ {2} d \\vartheta . \\tag {18}\n$$\n\nThe asymptotics (17) and (18) for the cross sections are independent of $s = \\operatorname{sgn}(q)$ , since either the function $G_{1}(\\vartheta, \\tau)$ contributes to the cross section for $\\vartheta \\gg 1$ , or $G_{2}(\\vartheta, \\tau)$ for $\\vartheta \\ll 1$ . However, for $\\vartheta \\sim 1$ an asymmetry arises due to the interference of the functions $G_{1}(\\vartheta, \\tau)$ and $G_{2}(\\vartheta, \\tau)$ . This asymmetry will be an alternating function of $\\tau$ and can be observed by measuring the non-stationary Hall effect (oscillating voltage in the transverse direction).\n\nLet us represent the cross section $d\\sigma(\\vartheta, \\tau)$ in (16) in the form\n\n$$\nd \\sigma (\\vartheta , \\tau) = d \\sigma_ {s} (\\vartheta , \\tau) + s d \\sigma_ {a} (\\vartheta , \\tau),\n$$\n\n$$\nd \\sigma_ {s} (\\theta , \\tau) = \\sigma_ {0} \\left[ G _ {1} ^ {2} (\\vartheta , \\tau) + \\frac {1}{\\vartheta^ {2}} G _ {2} ^ {2} (\\vartheta , \\tau) \\right] d \\vartheta ,\n$$\n\n$$\nd \\sigma_ {a} (\\theta , \\tau) = 2 \\sigma_ {0} G _ {1} (\\vartheta , \\tau) G _ {2} (\\vartheta , \\tau) \\frac {d \\vartheta}{\\vartheta}. \\tag {19}\n$$\n\nThe functions $G_{1}(\\vartheta,\\tau)$ and $G_{2}(\\vartheta,\\tau)$ depend on the parameter Q and variable $\\tau$ only through the combination $f = Q\\cos\\tau$ . Fig. 1 shows the dependence of $\\Sigma_{s}(\\vartheta,\\tau) = \\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ and $\\Sigma_{a}(\\vartheta,\\tau) = \\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ on $\\vartheta$ for several values of f.\n\nIt follows from the asymptotics obtained that for alternating current the total scattering cross section $\\sigma(\\tau)$ is finite, in contrast to the case of direct current. The main contribution to $\\sigma(\\tau)$ is given by the region of scattering angles $\\theta \\sim \\t",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 11,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.016129032258064516,
+            "score_composite": 0.27652734998085465,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.29378706,
+              "bm25_norm": null,
+              "rrf_norm": 0.06941082975111078,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.27652734998085465,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.27652734998085465,
+            "score_vector": 0.29378706,
+            "score_bm25": null,
+            "score_rrf": 0.016129032258064516,
+            "rerank_score": null,
+            "score_composite": 0.27652734998085465,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.29378706,
+              "bm25_norm": null,
+              "rrf_norm": 0.06941082975111078,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ]
+    },
+    {
+      "stage": "initial_expanded",
+      "query_text": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "top_k": 3,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "point_id": "02f98f33-1a34-5441-abe5-b0f6d3fa42f9",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "chunk_index": 12,
+          "text": "\\tag {20}\n$$\n\nNaturally, there is no asymmetry in $\\sigma(\\tau)$ . The dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ is shown in Fig.2 for several values of Q.\n\n![](images/1b7ffdcf3a86d09e9a2953e40a0196a8b8d4ea16c8d7eab29b8b93214871675a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\n![](images/6702d0432117e9c2c1065da445998cb9174570bd2d519804540866ab6cf10e5a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 1. Dependence of $\\Sigma_{s}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ (top plot) and $\\Sigma_{a}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ (bottom plot) on $\\vartheta$ for f=2 (solid curve), f=3 (dashed curve) and f=4 (dotted curve), $f=Q\\cos\\tau$ .   \n![](images/11b6cb6bb6e89aace75756a2cc1fe8d9b6b31902b1ce08266c810ecedfead7f2.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 2. Dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ for Q=1 (solid curve), Q=2 (dashed curve) and Q=3 (dotted curve).\n\nThe total cross section increases with $Q$ and is well approximated at $Q \\gg 1$ by the formula\n\n$$\n\\sigma (\\tau) \\approx \\pi \\sigma_ {0} \\ln (1 + 2 Q | \\cos \\tau |).\n$$\n\nThe total cross section averaged over time may also be of interest,\n\n$$\n\\overline {{\\sigma}} (Q) = \\int_ {0} ^ {2 \\pi} \\sigma (\\tau) \\frac {d \\tau}{2 \\pi} = \\pi \\sigma_ {0} \\int_ {0} ^ {1} [ 1 - J _ {0} (Q y) ] \\frac {d y}{y}. \\tag {21}\n$$\n\nThe dependence of $\\overline{\\Sigma}_{tot}(Q) = \\overline{\\sigma}(Q) / \\sigma_0$ on $Q$ is shown in\n\nFig. 3. The time-averaged cross section grows logarith-  \n![](images/edca25ca30932f8e03b27a90585e5b936b1255ad1c8b8995ae1eeba2bf1f08bc.jpg)\n\n<details>\n<summary>line</summary>",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 12,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.032266458495966696,
+            "score_composite": 0.5172956507564465,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.4742855,
+              "bm25_norm": 0.5340043806733487,
+              "rrf_norm": 1.0,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.5172956507564465,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.5172956507564465,
+            "score_vector": 0.4742855,
+            "score_bm25": 3.8881601662135368,
+            "score_rrf": 0.032266458495966696,
+            "rerank_score": null,
+            "score_composite": 0.5172956507564465,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.4742855,
+              "bm25_norm": 0.5340043806733487,
+              "rrf_norm": 1.0,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "bm25",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 2,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "point_id": "048858d8-cbb7-533b-84fe-710d67b7c972",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "chunk_index": 11,
+          "text": "\\tag {17}\n$$\n\nFor $\\vartheta \\ll 1$ ( $\\theta \\ll \\theta_0$ ), we have\n\n$$\nd \\sigma (\\vartheta , \\tau) = \\sigma_ {0} \\left| \\int_ {0} ^ {Q | \\cos \\tau |} (1 - \\cos y) \\frac {d y}{y} \\right| ^ {2} d \\vartheta . \\tag {18}\n$$\n\nThe asymptotics (17) and (18) for the cross sections are independent of $s = \\operatorname{sgn}(q)$ , since either the function $G_{1}(\\vartheta, \\tau)$ contributes to the cross section for $\\vartheta \\gg 1$ , or $G_{2}(\\vartheta, \\tau)$ for $\\vartheta \\ll 1$ . However, for $\\vartheta \\sim 1$ an asymmetry arises due to the interference of the functions $G_{1}(\\vartheta, \\tau)$ and $G_{2}(\\vartheta, \\tau)$ . This asymmetry will be an alternating function of $\\tau$ and can be observed by measuring the non-stationary Hall effect (oscillating voltage in the transverse direction).\n\nLet us represent the cross section $d\\sigma(\\vartheta, \\tau)$ in (16) in the form\n\n$$\nd \\sigma (\\vartheta , \\tau) = d \\sigma_ {s} (\\vartheta , \\tau) + s d \\sigma_ {a} (\\vartheta , \\tau),\n$$\n\n$$\nd \\sigma_ {s} (\\theta , \\tau) = \\sigma_ {0} \\left[ G _ {1} ^ {2} (\\vartheta , \\tau) + \\frac {1}{\\vartheta^ {2}} G _ {2} ^ {2} (\\vartheta , \\tau) \\right] d \\vartheta ,\n$$\n\n$$\nd \\sigma_ {a} (\\theta , \\tau) = 2 \\sigma_ {0} G _ {1} (\\vartheta , \\tau) G _ {2} (\\vartheta , \\tau) \\frac {d \\vartheta}{\\vartheta}. \\tag {19}\n$$\n\nThe functions $G_{1}(\\vartheta,\\tau)$ and $G_{2}(\\vartheta,\\tau)$ depend on the parameter Q and variable $\\tau$ only through the combination $f = Q\\cos\\tau$ . Fig. 1 shows the dependence of $\\Sigma_{s}(\\vartheta,\\tau) = \\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ and $\\Sigma_{a}(\\vartheta,\\tau) = \\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ on $\\vartheta$ for several values of f.\n\nIt follows from the asymptotics obtained that for alternating current the total scattering cross section $\\sigma(\\tau)$ is finite, in contrast to the case of direct current. The main contribution to $\\sigma(\\tau)$ is given by the region of scattering angles $\\theta \\sim \\t",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 11,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.016129032258064516,
+            "score_composite": 0.27652734998085465,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.29378706,
+              "bm25_norm": null,
+              "rrf_norm": 0.06941082975111078,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.27652734998085465,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:10",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.27652734998085465,
+            "score_vector": 0.29378706,
+            "score_bm25": null,
+            "score_rrf": 0.016129032258064516,
+            "rerank_score": null,
+            "score_composite": 0.27652734998085465,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.29378706,
+              "bm25_norm": null,
+              "rrf_norm": 0.06941082975111078,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        },
+        {
+          "rank": 3,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+          "point_id": "c57ed278-4f78-530f-b2c8-c2a6a88541c3",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+          "chunk_index": 13,
+          "text": "</details>\n\nFigure 3. Dependence of $\\overline{\\Sigma}_{tot} = \\overline{\\sigma}(Q) / \\sigma_0$ on $Q$ .\n\nmically with increasing $Q$ for large $Q$ .\n\n# III. CONCLUSION\n\nThe non-stationary Aharonov-Bohm effect is investigated in the non-relativistic approximation. Using the eikonal approach, the differential and total scattering cross sections are found. In contrast to the stationary Aharonov-Bohm effect, the total cross section in the non-stationary case is finite. The main contribution to the scattering cross section comes from the angles $\\theta \\sim \\theta_{0} = \\hbar\\omega/E \\ll 1$ . The differential scattering cross section contains an asymmetry with respect to the replacement $q \\rightarrow -q$ . This asymmetry has a maximum at $\\theta \\sim \\theta_{0}$ and decreases rapidly at $\\theta \\gg \\theta_{0}$ and $\\theta \\ll \\theta_{0}$ . The asymmetry in the cross section can be observed as the non-stationary Hall effect, and the total scattering cross section manifests itself in oscillations of the total electron flux.\n\n# ACKNOWLEDGEMENT\n\nThe work of Ivan Terekhov was financially supported by the ITMO Fellowship Program.\n\n[1] Y. Aharonov and D. Bohm, Significance of electromagnetic potentials in the Quantum theory, Phys. Rev. 115, 485 (1959).   \n[2] M. Peshkin and A. Tonomura, The Aharonov-Bohm Effect, Lecture Notes in Physics 340 (Springer-Verlag, Berlin, 1989).   \n[3] B. Lee, E. Yin, T. K. Gustafson, R. Chiao, Analysis of Aharonov-Bohm effect due to time-dependent vector potentials, Phys. Rev. A 45, 4319 (1992).   \n[4] A. N. Ageev, S. Yu. Davydov, and A. G. Chirkov, Magnetic Aharonov-Bohm effect under time-dependent vector potential, Pis'ma v Zhurnal Tekhnicheskoi Fiziki, 9, 70 (2000) [Technical Physics Letters 26, 392 (2000)].   \n[5] B. Gaveau, A. M. Nounou, L. S. Schulman, Homotopy and path integrals in the time-dependent Aharonov-Bohm effect, Found. Phys. 41, 1462 (2011).\n\n[6] D. Singleton and E. C. Vagenas, The covariant, time-dependent Aharonov–Bohm effect, P",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 4,
+            "chunk_index": 13,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": "III. CONCLUSION",
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.02976190476190476,
+            "score_composite": 0.25633329790817466,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24911903,
+              "bm25_norm": 0.0,
+              "rrf_norm": 0.8555711086226202,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.25633329790817466,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "initial_retrieval",
+            "score_threshold_passed": true,
+            "section_path": [
+              "III. CONCLUSION"
+            ]
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 4,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:4",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:14",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:14",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:5"
+            ],
+            "related_formula_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:14",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:15",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:16",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:17",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:18",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:19",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:20",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:21",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:22",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:23",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:24",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:25",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:26",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:27",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:28",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:29",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:30",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.25633329790817466,
+            "score_vector": 0.24911903,
+            "score_bm25": 2.065004533042148,
+            "score_rrf": 0.02976190476190476,
+            "rerank_score": null,
+            "score_composite": 0.25633329790817466,
+            "score_stage": "initial_retrieval",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.24911903,
+              "bm25_norm": 0.0,
+              "rrf_norm": 0.8555711086226202,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.0,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "bm25",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ]
+    },
+    {
+      "stage": "rerank",
+      "query_text": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "top_k": 1,
+      "used_rerank": true,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "point_id": "02f98f33-1a34-5441-abe5-b0f6d3fa42f9",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "chunk_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:12",
+          "chunk_index": 12,
+          "text": "\\tag {20}\n$$\n\nNaturally, there is no asymmetry in $\\sigma(\\tau)$ . The dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ is shown in Fig.2 for several values of Q.\n\n![](images/1b7ffdcf3a86d09e9a2953e40a0196a8b8d4ea16c8d7eab29b8b93214871675a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\n![](images/6702d0432117e9c2c1065da445998cb9174570bd2d519804540866ab6cf10e5a.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 1. Dependence of $\\Sigma_{s}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{s}(\\vartheta,\\tau)/d\\vartheta$ (top plot) and $\\Sigma_{a}(\\vartheta,\\tau)=\\sigma_{0}^{-1}d\\sigma_{a}(\\vartheta,\\tau)/d\\vartheta$ (bottom plot) on $\\vartheta$ for f=2 (solid curve), f=3 (dashed curve) and f=4 (dotted curve), $f=Q\\cos\\tau$ .   \n![](images/11b6cb6bb6e89aace75756a2cc1fe8d9b6b31902b1ce08266c810ecedfead7f2.jpg)\n\n<details>\n<summary>line</summary>\n\n\n</details>\n\nFigure 2. Dependence of $\\Sigma_{tot}(\\tau)=\\sigma(\\tau)/\\sigma_{0}$ on $\\tau$ for Q=1 (solid curve), Q=2 (dashed curve) and Q=3 (dotted curve).\n\nThe total cross section increases with $Q$ and is well approximated at $Q \\gg 1$ by the formula\n\n$$\n\\sigma (\\tau) \\approx \\pi \\sigma_ {0} \\ln (1 + 2 Q | \\cos \\tau |).\n$$\n\nThe total cross section averaged over time may also be of interest,\n\n$$\n\\overline {{\\sigma}} (Q) = \\int_ {0} ^ {2 \\pi} \\sigma (\\tau) \\frac {d \\tau}{2 \\pi} = \\pi \\sigma_ {0} \\int_ {0} ^ {1} [ 1 - J _ {0} (Q y) ] \\frac {d y}{y}. \\tag {21}\n$$\n\nThe dependence of $\\overline{\\Sigma}_{tot}(Q) = \\overline{\\sigma}(Q) / \\sigma_0$ on $Q$ is shown in\n\nFig. 3. The time-averaged cross section grows logarith-  \n![](images/edca25ca30932f8e03b27a90585e5b936b1255ad1c8b8995ae1eeba2bf1f08bc.jpg)\n\n<details>\n<summary>line</summary>",
+          "metadata": {
+            "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+            "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+            "page": 3,
+            "chunk_index": 12,
+            "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+            "section": null,
+            "modality": "text",
+            "parser_name": "mineru",
+            "source_parser": "mineru",
+            "vector_name": "text",
+            "score_raw_before_composite": 0.032266458495966696,
+            "score_composite": 0.6055420597427169,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.4742855,
+              "bm25_norm": 1.0,
+              "rrf_norm": 1.0,
+              "rerank_norm": 0.8013945078130923,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.1,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.5172956507564465,
+            "score_threshold": 0.25,
+            "score_threshold_stage": "rerank",
+            "score_threshold_passed": true,
+            "rerank_score": 0.8013945078130923,
+            "rerank_rank": 2,
+            "section_path": []
+          },
+          "relationships": {
+            "source_parser": "mineru",
+            "mineru_block_type": "text",
+            "mineru_raw_type": "text",
+            "mineru_source_kind": "content_list",
+            "page": 3,
+            "page_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:page:3",
+            "page_source": "structured",
+            "prev_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "doc_prev_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+            "next_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "doc_next_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:13",
+            "same_page_node_ids": [
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:0",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:1",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:2",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:3",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:table:4",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:31",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:32",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:33",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:34",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:35",
+              "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:36"
+            ]
+          },
+          "scores": {
+            "score": 0.6055420597427169,
+            "score_vector": 0.4742855,
+            "score_bm25": 3.8881601662135368,
+            "score_rrf": 0.032266458495966696,
+            "rerank_score": 0.8013945078130923,
+            "score_composite": 0.6055420597427169,
+            "score_stage": "rerank",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.4742855,
+              "bm25_norm": 1.0,
+              "rrf_norm": 1.0,
+              "rerank_norm": 0.8013945078130923,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.1,
+              "rrf": 0.05,
+              "rerank": 0.1,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.25,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "bm25",
+            "vector_name": "text",
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": "mineru"
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ]
+    },
+    {
+      "stage": "agent_chunk_grading",
+      "query_text": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "top_k": 0,
+      "used_rerank": true,
+      "rerank_fallback_reason": null,
+      "hits": []
+    },
+    {
+      "stage": "evidence_gate",
+      "query_text": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "top_k": 0,
+      "used_rerank": true,
+      "rerank_fallback_reason": null,
+      "hits": [],
+      "evidence_gate": {
+        "evidence_ok": false,
+        "support_score": 0.0,
+        "support_level": "none",
+        "supporting_hit_ids": [],
+        "missing_slots": [
+          "hits",
+          "numeric",
+          "modality:image"
+        ],
+        "gate_reasons": [
+          "missing_hits",
+          "missing_numeric",
+          "missing_modality:image",
+          "Retrieve Figure 3 caption directly from the source document.",
+          "Add image-based retrieval results containing the figure and caption.",
+          "Include OCR or caption extraction evidence for Figure 3.",
+          "Search specifically for occurrences of 'Σ̄_tot' and ratio expressions in figure captions."
+        ],
+        "conflict_level": "none",
+        "conflict_reasons": [],
+        "gate_decision": "retry"
+      }
+    },
+    {
+      "stage": "final_after_retry",
+      "query_text": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "top_k": 0,
+      "used_rerank": true,
+      "rerank_fallback_reason": null,
+      "hits": []
+    },
+    {
+      "stage": "final_output",
+      "query_text": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "top_k": 0,
+      "used_rerank": true,
+      "rerank_fallback_reason": null,
+      "hits": []
+    }
+  ],
+  "labels": {
+    "relevant_node_ids": [],
+    "relevant_doc_ids": [],
+    "graded_relevance": {}
+  }
+}

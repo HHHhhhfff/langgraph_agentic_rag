@@ -62,6 +62,32 @@ def test_agent_chunk_grader_applies_label_delta_and_drops_irrelevant() -> None:
     assert graded[0].metadata["score_policy"] == "agent_chunk_label_delta_v1"
 
 
+def test_agent_chunk_grader_with_removed_exposes_drop_reason_metadata() -> None:
+    settings = Settings(
+        _env_file=None,
+        tg_agent_chunk_grading_enabled=True,
+        tg_agent_chunk_grading_mode="all",
+        tg_agent_chunk_drop_enabled=True,
+        tg_agent_chunk_drop_labels="irrelevant",
+        tg_agent_chunk_drop_score_threshold=0.25,
+        tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
+    )
+    llm = DummyLLM({"grades": [_grade("a", "strong", 0.9), _grade("b", "irrelevant", 0.1)]})
+    hits = [_hit("a", "answer", 0.5), _hit("b", "noise", 0.5)]
+
+    result = AgentChunkGrader(settings, llm).grade_hits_with_removed(question="q", hits=hits)
+
+    assert [hit.node_id for hit in result.hits] == ["a"]
+    assert [hit.node_id for hit in result.removed_hits] == ["b"]
+    removed = result.removed_hits[0]
+    assert removed.metadata["visual_removed"] is True
+    assert removed.metadata["removed_stage"] == "agent_chunk_grading"
+    assert removed.metadata["removed_reason"] == "agent_irrelevant_label"
+    assert removed.metadata["agent_relevance_drop_reason"] == "label"
+    assert removed.metadata["agent_relevance_drop_threshold"] == 0.25
+    assert "label=irrelevant" in removed.metadata["removed_reason_detail"]
+
+
 def test_agent_chunk_grader_keeps_negative_delta_when_drop_disabled() -> None:
     settings = Settings(
         _env_file=None,

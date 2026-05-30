@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from agentic_rag.config import Settings
@@ -8,7 +8,7 @@ from agentic_rag.retrieval.bm25_retriever import BM25Retriever
 from agentic_rag.retrieval.fusion import rrf_fuse
 from agentic_rag.retrieval.page_retriever import PageRetriever
 from agentic_rag.retrieval.relationship_expander import RelationshipExpander
-from agentic_rag.retrieval.scoring import STAGE_INITIAL, compute_composite_scores, filter_by_stage_threshold
+from agentic_rag.retrieval.scoring import STAGE_INITIAL, compute_composite_scores, filter_by_stage_threshold_with_removed
 from agentic_rag.retrieval.table_retriever import TableRetriever
 from agentic_rag.retrieval.retrieval_plan import RetrievalChannel, RetrievalPlan, RetrievalTask, resolve_vector_name
 from agentic_rag.schemas import SearchHit
@@ -21,6 +21,7 @@ class HybridRetrievalResult:
     route_hits: dict[str, list[SearchHit]]
     expanded_hits: list[SearchHit]
     executed_channels: list[str]
+    removed_hits_by_stage: dict[str, list[SearchHit]] = field(default_factory=dict)
 
 
 class HybridRetriever:
@@ -134,7 +135,8 @@ class HybridRetriever:
             top_k=self.settings.rrf_top_k,
         )
         fused = compute_composite_scores(fused, stage=STAGE_INITIAL, settings=self.settings)
-        fused = filter_by_stage_threshold(fused, stage=STAGE_INITIAL, settings=self.settings)
+        initial_filter = filter_by_stage_threshold_with_removed(fused, stage=STAGE_INITIAL, settings=self.settings)
+        fused = initial_filter.kept
         explicit_relationship = "relationship" in route_hits
         auto_related_expansion = (
             self.settings.rel_expand_related_modality_enabled
@@ -167,6 +169,7 @@ class HybridRetriever:
             route_hits=route_hits,
             expanded_hits=expanded,
             executed_channels=executed_channels,
+            removed_hits_by_stage={"initial_retrieval": initial_filter.removed},
         )
 
     def _vector_search(

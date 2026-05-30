@@ -63,6 +63,51 @@ def test_rerank_service_prefers_hit_level_rerank_and_sets_metadata() -> None:
     assert reranker.calls
 
 
+def test_rerank_service_records_reranker_not_selected_removed_hit() -> None:
+    reranker = RecordingReranker()
+    service = RerankService(Settings(_env_file=None, rerank_enabled=True, context_top_n=2), reranker=reranker)
+    hits = [
+        SearchHit(point_id="1", text="d1", score=0.8, metadata={}),
+        SearchHit(point_id="2", text="d2", score=0.7, metadata={}),
+        SearchHit(point_id="3", text="d3", score=0.6, metadata={}),
+    ]
+
+    result = service.rerank("q", hits)
+
+    assert [hit.point_id for hit in result.hits] == ["2", "1"]
+    assert [hit.point_id for hit in result.removed_hits] == ["3"]
+    removed = result.removed_hits[0]
+    assert removed.metadata["removed_reason"] == "reranker_not_selected"
+    assert removed.metadata["retrieval_removed_by"] == "reranker_not_selected"
+    assert removed.metadata["retrieval_previous_rank"] == 3
+
+
+class ThreeRowReranker:
+    def rerank_hits(self, query: str, hits: list[SearchHit], top_n: int):
+        return [{"index": 0, "score": 0.9}, {"index": 1, "score": 0.8}, {"index": 2, "score": 0.7}]
+
+
+def test_rerank_service_records_context_top_n_removed_hit() -> None:
+    service = RerankService(
+        Settings(_env_file=None, rerank_enabled=True, rerank_top_n=3, context_top_n=2),
+        reranker=ThreeRowReranker(),
+    )
+    hits = [
+        SearchHit(point_id="1", text="d1", score=0.8, metadata={}),
+        SearchHit(point_id="2", text="d2", score=0.7, metadata={}),
+        SearchHit(point_id="3", text="d3", score=0.6, metadata={}),
+    ]
+
+    result = service.rerank("q", hits)
+
+    assert [hit.point_id for hit in result.hits] == ["1", "2"]
+    assert [hit.point_id for hit in result.removed_hits] == ["3"]
+    removed = result.removed_hits[0]
+    assert removed.metadata["removed_reason"] == "context_top_n_limit"
+    assert removed.metadata["retrieval_removed_by"] == "context_top_n"
+    assert removed.metadata["retrieval_removed_limit"] == 2
+
+
 def test_dashscope_text_reranker_uses_string_documents(monkeypatch) -> None:
     calls = {}
 

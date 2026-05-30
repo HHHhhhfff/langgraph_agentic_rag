@@ -1,7 +1,14 @@
 from __future__ import annotations
 
 from agentic_rag.config import Settings
-from agentic_rag.retrieval.scoring import STAGE_FINAL, STAGE_INITIAL, STAGE_RERANK, compute_composite_scores, filter_by_stage_threshold
+from agentic_rag.retrieval.scoring import (
+    STAGE_FINAL,
+    STAGE_INITIAL,
+    STAGE_RERANK,
+    compute_composite_scores,
+    filter_by_stage_threshold,
+    filter_by_stage_threshold_with_removed,
+)
 from agentic_rag.schemas import SearchHit
 
 
@@ -49,6 +56,24 @@ def test_stage_threshold_filters_low_composite_hit() -> None:
     assert [hit.point_id for hit in kept] == ["high"]
     assert low.metadata["score_threshold_passed"] is False
     assert high.metadata["score_threshold_passed"] is True
+
+
+def test_stage_threshold_with_removed_records_removed_metadata() -> None:
+    settings = Settings(_env_file=None, retrieval_final_min_composite_score=0.5)
+    low = SearchHit(point_id="low", text="low", score=0.1, metadata={"score_composite": 0.2})
+    high = SearchHit(point_id="high", text="high", score=0.8, metadata={"score_composite": 0.8})
+
+    result = filter_by_stage_threshold_with_removed([low, high], stage=STAGE_FINAL, settings=settings)
+
+    assert [hit.point_id for hit in result.kept] == ["high"]
+    assert [hit.point_id for hit in result.removed] == ["low"]
+    removed = result.removed[0]
+    assert removed.metadata["visual_removed"] is True
+    assert removed.metadata["removed_stage"] == STAGE_FINAL
+    assert removed.metadata["removed_reason"] == "score_threshold_failed"
+    assert removed.metadata["removed_previous_rank"] == 1
+    assert removed.metadata["score_filter_reason"] == "below_final_min_composite_score"
+    assert "score_composite=0.2000 < threshold=0.5000" in removed.metadata["removed_reason_detail"]
 
 
 def test_relationship_weight_uses_configured_value() -> None:

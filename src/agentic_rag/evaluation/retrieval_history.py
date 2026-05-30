@@ -44,7 +44,9 @@ def build_snapshot(
     max_text_chars: int,
     used_rerank: bool = False,
     rerank_fallback_reason: str | None = None,
+    removed_hits: list[SearchHit] | None = None,
 ) -> dict[str, Any]:
+    removed = removed_hits or []
     return {
         "stage": stage,
         "query_text": query_text,
@@ -52,6 +54,11 @@ def build_snapshot(
         "used_rerank": used_rerank,
         "rerank_fallback_reason": rerank_fallback_reason,
         "hits": [serialize_hit(hit, rank=i, max_text_chars=max_text_chars) for i, hit in enumerate(hits, start=1)],
+        "removed_hits": [
+            serialize_hit(hit, rank=i, max_text_chars=max_text_chars)
+            for i, hit in enumerate(removed, start=1)
+        ],
+        "removed_summary": _removed_summary(removed),
     }
 
 
@@ -153,3 +160,11 @@ def _clip(text: str, max_chars: int) -> str:
     if max_chars <= 0:
         return ""
     return text[:max_chars]
+
+
+def _removed_summary(hits: list[SearchHit]) -> dict[str, Any]:
+    by_reason: dict[str, int] = {}
+    for hit in hits:
+        reason = str((hit.metadata or {}).get("removed_reason") or "unknown_removed")
+        by_reason[reason] = by_reason.get(reason, 0) + 1
+    return {"total": len(hits), "by_reason": by_reason}

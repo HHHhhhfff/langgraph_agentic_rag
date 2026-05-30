@@ -56,6 +56,20 @@ AI_NAMES = (
     "ai_overall",
     "ai_score_100",
 )
+REMOVED_REASON_LABELS = {
+    "agent_chunk_drop": "AI marked drop",
+    "agent_irrelevant_label": "AI judged irrelevant",
+    "agent_low_relevance_score": "AI relevance below threshold",
+    "score_threshold_failed": "Below stage score threshold",
+    "reranker_not_selected": "Reranker not selected",
+    "rerank_empty": "Rerank returned empty",
+    "rerank_failed_fallback_excluded": "Excluded after rerank fallback",
+    "context_top_n_limit": "Exceeded context_top_n",
+    "stage_top_k_limit": "Exceeded stage top-k",
+    "relationship_expansion_limit": "Relationship expansion limit",
+    "duplicate_deduped": "Duplicate deduped",
+    "unknown_removed": "Missing after stage transition",
+}
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -73,6 +87,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=int,
         default=1600,
         help="Maximum chunk text characters shown before truncation.",
+    )
+    parser.add_argument("--show-removed", dest="show_removed", action="store_true", default=True)
+    parser.add_argument("--hide-removed", dest="show_removed", action="store_false")
+    parser.add_argument(
+        "--removed-mode",
+        choices=["explicit", "inferred", "both"],
+        default="both",
+        help="How to show removed chunks: explicit snapshot removed_hits, inferred stage diff, or both.",
     )
     return parser.parse_args(argv)
 
@@ -209,6 +231,17 @@ def normalize_stage_hits(record: dict[str, Any], query_record: dict[str, Any] | 
     return stage_hits
 
 
+def normalize_stage_map(record: dict[str, Any], field: str) -> dict[str, list[dict[str, Any]]]:
+    raw = record.get(field)
+    if not isinstance(raw, dict):
+        return {}
+    return {
+        str(stage): [hit for hit in hits if isinstance(hit, dict)]
+        for stage, hits in raw.items()
+        if isinstance(hits, list)
+    }
+
+
 def merge_case(result: dict[str, Any], query_record: dict[str, Any] | None, run_name: str) -> dict[str, Any]:
     query_record = query_record or {}
     specs = result.get("relevance_specs")
@@ -225,6 +258,9 @@ def merge_case(result: dict[str, Any], query_record: dict[str, Any] | None, run_
     result_ai = result.get("ai_evaluation") if isinstance(result.get("ai_evaluation"), dict) else {}
     merged_ai = {**ai, **result_ai}
 
+    stages = normalize_stage_hits(result, query_record)
+    removed_stages = normalize_stage_map(result, "removed_hits_by_stage")
+    explicit_visual_stages = normalize_stage_map(result, "visual_hits_by_stage")
     return {
         "id": result.get("id") or query_record.get("id"),
         "run_name": run_name,
@@ -238,7 +274,9 @@ def merge_case(result: dict[str, Any], query_record: dict[str, Any] | None, run_
         "stage_metrics": result.get("stage_metrics") if isinstance(result.get("stage_metrics"), dict) else {},
         "ai_evaluation": merged_ai,
         "model_debug": result.get("model_debug") or query_record.get("model_debug") or {},
-        "stages": normalize_stage_hits(result, query_record),
+        "stages": stages,
+        "removed_stages": removed_stages,
+        "visual_stages": explicit_visual_stages,
         "error": result.get("error"),
     }
 
@@ -356,15 +394,145 @@ def stage_metrics(case: dict[str, Any], stage: str) -> dict[str, Any]:
 def stage_order_for_cases(cases: list[dict[str, Any]]) -> tuple[str, ...]:
     seen: list[str] = []
     for case in cases:
-        stages = case.get("stages")
-        if not isinstance(stages, dict):
-            continue
-        for stage in stages:
-            if str(stage) not in seen:
-                seen.append(str(stage))
+        for field in ("stages", "removed_stages", "visual_stages"):
+            stages = case.get(field)
+            if not isinstance(stages, dict):
+                continue
+            for stage in stages:
+                if str(stage) not in seen:
+                    seen.append(str(stage))
     ordered = [stage for stage in DEFAULT_STAGE_ORDER if stage in seen]
     ordered.extend(stage for stage in seen if stage not in ordered)
     return tuple(ordered) or ("initial_recall", "rerank", "local_recheck")
+
+
+def hit_key(hit: dict[str, Any]) -> str:
+    for field in ("node_id", "point_id"):
+        value = hit.get(field)
+        if value not in (None, ""):
+            return str(value)
+    doc_id = hit.get("doc_id") or hit.get("source") or ""
+    chunk_index = hit.get("chunk_index")
+    page = hit.get("page")
+    return f"{doc_id}:{chunk_index}:{page}:{hit.get('text', '')[:32]}"
+
+
+def removed_reason_group(reason: str | None) -> str:
+    reason = reason or "unknown_removed"
+    if reason.startswith("agent_"):
+        return "agent"
+    if reason == "score_threshold_failed":
+        return "threshold"
+    if reason in {"reranker_not_selected", "context_top_n_limit", "stage_top_k_limit", "rerank_empty", "rerank_failed_fallback_excluded"}:
+        return "topk"
+    return "other"
+
+
+def infer_removed_reason(hit: dict[str, Any], from_stage: str, to_stage: str) -> tuple[str, str]:
+    if hit.get("agent_relevance_drop") is True:
+        return "agent_chunk_drop", "agent_relevance_drop=true"
+    label = str(hit.get("agent_relevance_label") or "").lower()
+    if label == "irrelevant":
+        return "agent_irrelevant_label", "agent_relevance_label=irrelevant"
+    if hit.get("agent_relevance_score") not in (None, ""):
+        try:
+            score = float(hit.get("agent_relevance_score"))
+            if score < 0.25:
+                return "agent_low_relevance_score", f"agent_relevance_score={score} < default_threshold=0.25"
+        except (TypeError, ValueError):
+            pass
+    if hit.get("score_threshold_passed") is False:
+        return (
+            "score_threshold_failed",
+            f"score_composite={hit.get('score_composite')} < threshold={hit.get('score_threshold')}",
+        )
+    if to_stage in {"rerank", "retry_1_rerank"}:
+        return "reranker_not_selected", f"present in {from_stage}, absent in {to_stage}"
+    if to_stage in {"final_after_retry", "final_output", "local_recheck"}:
+        return "context_top_n_limit", f"present in {from_stage}, absent in {to_stage}"
+    return "unknown_removed", f"present in {from_stage}, absent in {to_stage}"
+
+
+def _mark_visual_removed(hit: dict[str, Any], *, from_stage: str, to_stage: str, inferred: bool) -> dict[str, Any]:
+    row = dict(hit)
+    reason = row.get("removed_reason")
+    detail = row.get("removed_reason_detail")
+    if not reason or not detail:
+        reason, detail = infer_removed_reason(row, from_stage, to_stage)
+    row["visual_removed"] = True
+    row["visual_removed_from_stage"] = row.get("visual_removed_from_stage") or from_stage
+    row["visual_removed_at_stage"] = row.get("visual_removed_at_stage") or row.get("removed_stage") or to_stage
+    row["visual_removed_reason"] = reason
+    row["visual_removed_reason_detail"] = detail
+    row["visual_removed_inferred"] = inferred
+    row["visual_removed_confidence"] = "low" if inferred else "high"
+    row.setdefault("removed_reason", reason)
+    row.setdefault("removed_reason_detail", detail)
+    row.setdefault("removed_previous_rank", row.get("rank"))
+    return row
+
+
+def augment_removed_hits_for_visualization(
+    stages: dict[str, list[dict[str, Any]]],
+    removed_stages: dict[str, list[dict[str, Any]]],
+    stage_order: tuple[str, ...],
+    *,
+    mode: str,
+) -> dict[str, list[dict[str, Any]]]:
+    visual: dict[str, list[dict[str, Any]]] = {stage: [dict(hit) for hit in hits] for stage, hits in stages.items()}
+    use_explicit = mode in {"explicit", "both"}
+    use_inferred = mode in {"inferred", "both"}
+
+    if use_explicit:
+        for stage, removed in removed_stages.items():
+            base = visual.setdefault(stage, [dict(hit) for hit in stages.get(stage, [])])
+            seen = {hit_key(hit) for hit in base}
+            previous_stage = _previous_stage(stage, stage_order)
+            for hit in removed:
+                key = hit_key(hit)
+                if key in seen:
+                    continue
+                base.append(_mark_visual_removed(hit, from_stage=previous_stage or stage, to_stage=stage, inferred=False))
+                seen.add(key)
+
+    if use_inferred:
+        for previous, current in zip(stage_order, stage_order[1:]):
+            previous_hits = stages.get(previous) or []
+            current_keys = {hit_key(hit) for hit in stages.get(current, [])}
+            explicit_keys = {hit_key(hit) for hit in removed_stages.get(current, [])}
+            base = visual.setdefault(current, [dict(hit) for hit in stages.get(current, [])])
+            seen = {hit_key(hit) for hit in base}
+            for hit in previous_hits:
+                key = hit_key(hit)
+                if key in current_keys or key in explicit_keys or key in seen:
+                    continue
+                base.append(_mark_visual_removed(hit, from_stage=previous, to_stage=current, inferred=True))
+                seen.add(key)
+    return visual
+
+
+def _previous_stage(stage: str, stage_order: tuple[str, ...]) -> str | None:
+    try:
+        index = stage_order.index(stage)
+    except ValueError:
+        return None
+    if index <= 0:
+        return None
+    return stage_order[index - 1]
+
+
+def removed_summary(hits: list[dict[str, Any]]) -> dict[str, int]:
+    summary = {"removed": 0, "agent": 0, "threshold": 0, "topk": 0, "inferred": 0}
+    for hit in hits:
+        if not hit.get("visual_removed"):
+            continue
+        summary["removed"] += 1
+        group = removed_reason_group(str(hit.get("visual_removed_reason") or hit.get("removed_reason") or ""))
+        if group in summary:
+            summary[group] += 1
+        if hit.get("visual_removed_inferred"):
+            summary["inferred"] += 1
+    return summary
 
 
 def stage_summary(hits: list[dict[str, Any]], expected_pages: list[int]) -> dict[str, Any]:
@@ -431,8 +599,9 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
     relevant, reason = is_relevant(hit, expected_pages)
     agent_label = str(hit.get("agent_relevance_label") or "").lower()
     agent_drop = bool(hit.get("agent_relevance_drop"))
-    status = "Relevant" if relevant else "Irrelevant"
-    status_class = "relevant" if relevant else "irrelevant"
+    is_removed = bool(hit.get("visual_removed"))
+    status = "Removed" if is_removed else ("Relevant" if relevant else "Irrelevant")
+    status_class = "removed" if is_removed else ("relevant" if relevant else "irrelevant")
     if agent_drop or agent_label == "irrelevant":
         status_class += " agent-drop"
     elif agent_label in {"strong", "relevant", "weak"}:
@@ -457,6 +626,7 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("page", hit.get("page")),
         ("modality", hit.get("modality")),
         ("channel", hit.get("channel")),
+        ("removed", hit.get("visual_removed")),
     ]
     score_meta = [
         ("score", fmt_num(hit.get("score"))),
@@ -490,6 +660,18 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("context_added", hit.get("agent_related_context_added")),
         ("context_fixed", hit.get("agent_related_context_fixed_score")),
     ]
+    removed_reason = str(hit.get("visual_removed_reason") or hit.get("removed_reason") or "")
+    removed_meta = [
+        ("removed_at", hit.get("visual_removed_at_stage") or hit.get("removed_stage")),
+        ("removed_from", hit.get("visual_removed_from_stage")),
+        ("reason", REMOVED_REASON_LABELS.get(removed_reason, removed_reason)),
+        ("detail", hit.get("visual_removed_reason_detail") or hit.get("removed_reason_detail")),
+        ("previous_rank", hit.get("removed_previous_rank") or hit.get("retrieval_previous_rank")),
+        ("threshold", hit.get("score_threshold")),
+        ("topk_limit", hit.get("retrieval_removed_limit")),
+        ("visual_removed_inferred", hit.get("visual_removed_inferred")),
+        ("confidence", hit.get("visual_removed_confidence")),
+    ]
     def meta_html(rows: list[tuple[str, Any]]) -> str:
         return "".join(
             f'<span><b>{esc(key)}</b>: {esc(value)}</span>'
@@ -507,6 +689,13 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         if agent_label or hit.get("agent_relevance_score") is not None
         else ""
     )
+    removed_badge = ""
+    if is_removed:
+        group = removed_reason_group(removed_reason)
+        removed_badge = (
+            f'<span class="removed-badge removed-reason-{esc(group)}">'
+            f'Removed: {esc(REMOVED_REASON_LABELS.get(removed_reason, removed_reason or "unknown_removed"))}</span>'
+        )
     source_line = (
         f'<div class="chunk-source" title="{esc(source)}">{esc(basename(source) or source)}'
         f' <span>{esc(hit.get("title"))}</span></div>'
@@ -518,6 +707,7 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("Scores", meta_html(score_meta)),
         ("Expansion", meta_html(expansion_meta)),
         ("Agent", meta_html(agent_meta)),
+        ("Removed", meta_html(removed_meta)),
     ]
     sections_html = "".join(
         f'<div class="chunk-meta-group"><div class="meta-title">{esc(name)}</div><div class="chunk-meta">{content}</div></div>'
@@ -531,6 +721,7 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         <span class="status {status_class}">{status}</span>
         <span class="reason">{esc(reason)}</span>
         {agent_badge}
+        {removed_badge}
         {truncated_badge}
       </div>
       {source_line}
@@ -541,15 +732,19 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
     """
 
 
-def render_stage(case: dict[str, Any], stage: str, top_n: int, max_text_chars: int) -> str:
-    hits = case.get("stages", {}).get(stage)
+def render_stage(case: dict[str, Any], stage: str, top_n: int, max_text_chars: int, *, show_removed: bool) -> str:
+    real_hits = case.get("stages", {}).get(stage)
+    hits = (case.get("visual_stages", {}).get(stage) if show_removed else None) or real_hits
     if not isinstance(hits, list) and stage == "local_recheck":
-        hits = case.get("stages", {}).get("final_output")
+        hits = (case.get("visual_stages", {}).get("final_output") if show_removed else None) or case.get("stages", {}).get("final_output")
     if not isinstance(hits, list):
         hits = []
+    if not isinstance(real_hits, list):
+        real_hits = []
     expected_pages = case.get("expected_pages") if isinstance(case.get("expected_pages"), list) else []
     shown_hits = hits[:top_n] if top_n > 0 else hits
-    summary = stage_summary(hits, expected_pages)
+    summary = stage_summary(real_hits, expected_pages)
+    removed_stats = removed_summary(hits)
     top1_class = "ok" if summary["top1"] else "bad"
     chunks_html = "".join(render_chunk(hit, expected_pages, max_text_chars) for hit in shown_hits)
     if not chunks_html:
@@ -562,7 +757,8 @@ def render_stage(case: dict[str, Any], stage: str, top_n: int, max_text_chars: i
         <span class="{top1_class}">top1 {'hit' if summary['top1'] else 'miss'}</span>
       </div>
       <div class="stage-stats">
-        <span>{summary['relevant']} relevant / {summary['total']} total</span>
+        <span>kept {summary['total']} | relevant {summary['relevant']}</span>
+        <span>removed {removed_stats['removed']} | agent {removed_stats['agent']} | threshold {removed_stats['threshold']} | top-k {removed_stats['topk']} | inferred {removed_stats['inferred']}</span>
         <span>{esc(top_n_note)}</span>
       </div>
       {chunks_html}
@@ -610,14 +806,22 @@ def render_debug_panel(case: dict[str, Any]) -> str:
     """
 
 
-def render_case(case: dict[str, Any], index: int, top_n: int, max_text_chars: int, stage_order: tuple[str, ...]) -> str:
+def render_case(
+    case: dict[str, Any],
+    index: int,
+    top_n: int,
+    max_text_chars: int,
+    stage_order: tuple[str, ...],
+    *,
+    show_removed: bool,
+) -> str:
     metrics = case.get("metrics") if isinstance(case.get("metrics"), dict) else {}
     ai = case.get("ai_evaluation") if isinstance(case.get("ai_evaluation"), dict) else {}
     expected_pages = ", ".join(str(page) for page in case.get("expected_pages", [])) or "-"
     ai_score = ai.get("ai_score_100", metrics.get("ai_score_100"))
     error = case.get("error")
     status_class = "case-error" if error else ""
-    stages = "".join(render_stage(case, stage, top_n, max_text_chars) for stage in stage_order)
+    stages = "".join(render_stage(case, stage, top_n, max_text_chars, show_removed=show_removed) for stage in stage_order)
     ai_reason = ai.get("ai_reason")
     reason_html = (
         f"<details class=\"ai-reason\"><summary>AI reason</summary><pre>{esc(ai_reason)}</pre></details>"
@@ -748,13 +952,35 @@ def render_run_cards(runs: list[dict[str, Any]]) -> str:
     return "".join(cards)
 
 
-def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str:
+def render_html(
+    data: dict[str, Any],
+    *,
+    top_n: int,
+    max_text_chars: int,
+    show_removed: bool = True,
+    removed_mode: str = "both",
+) -> str:
     cases = data["cases"]
     stage_order = stage_order_for_cases(cases)
+    for case in cases:
+        stages = case.get("stages") if isinstance(case.get("stages"), dict) else {}
+        removed_stages = case.get("removed_stages") if isinstance(case.get("removed_stages"), dict) else {}
+        explicit_visual = case.get("visual_stages") if isinstance(case.get("visual_stages"), dict) else {}
+        if show_removed:
+            case["visual_stages"] = augment_removed_hits_for_visualization(
+                stages,
+                removed_stages if removed_mode != "inferred" else {},
+                stage_order,
+                mode=removed_mode,
+            )
+            if explicit_visual and removed_mode == "explicit":
+                case["visual_stages"] = explicit_visual
+        else:
+            case["visual_stages"] = stages
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     top_note = "all chunks" if top_n <= 0 else f"top {top_n} chunks per stage"
     case_html = "\n".join(
-        render_case(case, index, top_n, max_text_chars, stage_order)
+        render_case(case, index, top_n, max_text_chars, stage_order, show_removed=show_removed)
         for index, case in enumerate(cases, start=1)
     )
     if not case_html:
@@ -1045,6 +1271,12 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
     .chunk.agent-relevant {{ border-left-color: #2e90fa; }}
     .chunk.agent-weak {{ border-left-color: #98a2b3; }}
     .chunk.agent-drop {{ border-left-color: #b42318; background: #fff1f0; }}
+    .chunk.removed {{
+      opacity: 0.68;
+      filter: grayscale(0.8);
+      background: #f3f4f6;
+      border-left-color: #9ca3af;
+    }}
     .chunk-head {{
       display: flex;
       gap: 6px;
@@ -1060,6 +1292,7 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
     }}
     .status.relevant {{ color: var(--green); background: #ffffff; border: 1px solid #8fd7a7; }}
     .status.irrelevant {{ color: var(--red); background: #ffffff; border: 1px solid #f4a6a0; }}
+    .status.removed {{ color: #374151; background: #ffffff; border: 1px solid #9ca3af; }}
     .reason, .mini-badge {{
       color: var(--muted);
       font-size: 12px;
@@ -1076,6 +1309,17 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
     .agent-badge-relevant {{ color: #026aa2; background: #e0f2fe; }}
     .agent-badge-weak {{ color: #475467; background: #f2f4f7; }}
     .agent-badge-irrelevant {{ color: var(--red); background: var(--red-bg); }}
+    .removed-badge {{
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e5e7eb;
+      color: #374151;
+    }}
+    .removed-reason-agent {{ color: #b42318; }}
+    .removed-reason-threshold {{ color: #b54708; }}
+    .removed-reason-topk {{ color: #175cd3; }}
     .chunk-source {{
       padding: 0 8px 6px;
       font-weight: 700;
@@ -1162,7 +1406,7 @@ def render_html(data: dict[str, Any], *, top_n: int, max_text_chars: int) -> str
     <div class="header-inner">
       <h1>RAG Evaluation Visual Report</h1>
       <div class="source-line">source: {esc(data['source'])}</div>
-      <div class="source-line">generated: {esc(generated_at)} | mode: {esc(data['mode'])} | {esc(top_note)}</div>
+      <div class="source-line">generated: {esc(generated_at)} | mode: {esc(data['mode'])} | {esc(top_note)} | removed: {esc('show' if show_removed else 'hide')} / {esc(removed_mode)}</div>
       <div class="source-line">stages: {esc(', '.join(stage_order))}</div>
       <div class="toolbar">
         <input id="search" type="search" placeholder="Filter by query, case id, answer text...">
@@ -1215,7 +1459,13 @@ def main(argv: list[str] | None = None) -> int:
     data = collect_report_data(args)
     output = resolve_path(args.output) if args.output else default_output_path(data["name"])
     output.parent.mkdir(parents=True, exist_ok=True)
-    html_text = render_html(data, top_n=args.top_n, max_text_chars=args.max_text_chars)
+    html_text = render_html(
+        data,
+        top_n=args.top_n,
+        max_text_chars=args.max_text_chars,
+        show_removed=args.show_removed,
+        removed_mode=args.removed_mode,
+    )
     output.write_text(html_text, encoding="utf-8")
     print(json.dumps({"output": str(output), "case_count": len(data["cases"])}, ensure_ascii=False, indent=2))
     return 0

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 from agentic_rag.config import Settings
@@ -9,6 +10,12 @@ from agentic_rag.schemas import SearchHit
 STAGE_INITIAL = "initial_retrieval"
 STAGE_RERANK = "rerank"
 STAGE_FINAL = "final_after_retry"
+
+
+@dataclass(slots=True)
+class StageFilterResult:
+    kept: list[SearchHit]
+    removed: list[SearchHit]
 
 
 def compute_composite_scores(
@@ -79,9 +86,19 @@ def filter_by_stage_threshold(
     stage: str,
     settings: Settings,
 ) -> list[SearchHit]:
+    return filter_by_stage_threshold_with_removed(hits, stage=stage, settings=settings).kept
+
+
+def filter_by_stage_threshold_with_removed(
+    hits: list[SearchHit],
+    *,
+    stage: str,
+    settings: Settings,
+) -> StageFilterResult:
     threshold = _threshold_for_stage(settings, stage)
     kept: list[SearchHit] = []
-    for hit in hits:
+    removed: list[SearchHit] = []
+    for rank, hit in enumerate(hits, start=1):
         score = _metadata_float(hit, "score_composite")
         passed = score is None or score >= threshold
         hit.metadata["score_threshold"] = threshold
@@ -89,7 +106,35 @@ def filter_by_stage_threshold(
         hit.metadata["score_threshold_passed"] = passed
         if passed:
             kept.append(hit)
-    return kept
+        else:
+            score_text = "null" if score is None else f"{score:.4f}"
+            threshold_text = f"{threshold:.4f}"
+            _mark_removed(
+                hit,
+                stage=stage,
+                reason="score_threshold_failed",
+                detail=f"score_composite={score_text} < threshold={threshold_text}",
+                previous_rank=rank,
+                extra={
+                    "score_filter_stage": stage,
+                    "score_filter_reason": f"below_{_filter_stage_name(stage)}_min_composite_score",
+                },
+            )
+            removed.append(hit)
+    return StageFilterResult(kept=kept, removed=removed)
+
+
+def mark_removed_hit(
+    hit: SearchHit,
+    *,
+    stage: str,
+    reason: str,
+    detail: str,
+    previous_rank: int | None = None,
+    extra: dict[str, Any] | None = None,
+) -> SearchHit:
+    _mark_removed(hit, stage=stage, reason=reason, detail=detail, previous_rank=previous_rank, extra=extra)
+    return hit
 
 
 def score_value(hit: SearchHit) -> float:
@@ -157,6 +202,41 @@ def _threshold_for_stage(settings: Settings, stage: str) -> float:
     if stage.startswith("retry") and "rerank" in stage:
         return settings.retrieval_rerank_min_composite_score
     return settings.retrieval_initial_min_composite_score
+
+
+def _filter_stage_name(stage: str) -> str:
+    if stage == STAGE_FINAL:
+        return "final"
+    if stage == STAGE_INITIAL:
+        return "initial"
+    if stage == STAGE_RERANK:
+        return "rerank"
+    if stage.startswith("retry") and "rerank" in stage:
+        return "rerank"
+    return stage
+
+
+def _mark_removed(
+    hit: SearchHit,
+    *,
+    stage: str,
+    reason: str,
+    detail: str,
+    previous_rank: int | None,
+    extra: dict[str, Any] | None = None,
+) -> None:
+    hit.metadata.update(
+        {
+            "visual_removed": True,
+            "removed_stage": stage,
+            "removed_reason": reason,
+            "removed_reason_detail": detail,
+            "removed_previous_rank": previous_rank,
+            "removed_display_rank": f"removed-{previous_rank}" if previous_rank is not None else "removed",
+        }
+    )
+    if extra:
+        hit.metadata.update(extra)
 
 
 def _norm_by_clip(values: list[Any]) -> list[float | None]:

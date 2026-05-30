@@ -45,6 +45,47 @@ py -3.11 -m check --dataset check/example_cases.jsonl --use-existing-answers --k
 py -3.11 -m check --dataset check/example_cases.jsonl --k 10 --rank-source reranked
 ```
 
+默认 `--pipeline simple` 使用简化评测链路：
+
+```text
+embedding -> retrieve -> rerank -> prompt -> generate
+```
+
+如果要评测完整 TaskGraph 链路，使用：
+
+```powershell
+py -3.11 -m check --dataset check/sciqa_2412_16030_cases.jsonl --pipeline taskgraph --limit 5 --k 10 --page-tolerance 1
+```
+
+新增参数：
+
+- `--pipeline simple|taskgraph`
+  - `simple`：快速简化链路。
+  - `taskgraph`：完整 TaskGraph 链路，会采集 `agent_chunk_grading`、`evidence_gate`、`retry_*`、`final_after_retry`、`final_output` 等阶段快照。
+- `--stage-metrics <stage1,stage2,...>`
+  - 控制 `metrics_report` 输出哪些阶段指标。
+- `--use-expected-source-filter`
+  - 将 case 中第一个 `expected_source/expected_sources` 作为评测过滤条件。只建议单文档 benchmark 使用。
+- `--page-tolerance N`
+  - 页码评测容忍度。例如期望页为 5，`--page-tolerance 1` 时 page 4/5/6 都算命中。
+  - 只影响评测指标，不影响检索和回答生成。
+- `--limit N`
+  - 只评测前 N 条 case。注意 `--k` 是 Top-K 指标 cutoff，不是样本数量。
+
+
+```powershell
+py -3.11 check/visualize_eval.py --run-dir check/runs/<run-name> --removed-mode both
+```
+
+- `--show-removed` / `--hide-removed`
+  - 是否展示被剔除 chunk。默认展示。
+- `--removed-mode explicit|inferred|both`
+  - `explicit`：只展示 TaskGraph snapshot 中显式记录的 `removed_hits`。
+  - `inferred`：只通过相邻阶段 diff 推断“上一阶段有、下一阶段消失”的 chunk。
+  - `both`：优先使用显式 `removed_hits`，再用 diff 推断兜底；默认值。
+  - ghost card 会标灰并放在当前阶段底部，展示 `removed_reason`、`removed_reason_detail`、上一阶段 rank、阈值或 top-k 限制等信息。
+
+
 端到端评测会同时输出三组阶段指标：
 
 - `initial_recall_*`：初步召回 / RRF 融合后的指标。

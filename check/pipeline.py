@@ -25,6 +25,8 @@ class QueryRun:
     local_recheck_hits: list[dict[str, Any]]
     context_hits: list[dict[str, Any]]
     ranked_hits_by_stage: dict[str, list[dict[str, Any]]]
+    removed_hits_by_stage: dict[str, list[dict[str, Any]]]
+    visual_hits_by_stage: dict[str, list[dict[str, Any]]]
     retrieved_count: int
     timings_ms: dict[str, float]
     token_usage: dict[str, int | float]
@@ -103,6 +105,19 @@ def _flatten_serialized_hit(row: dict[str, Any]) -> dict[str, Any]:
         "agent_related_context_added",
         "agent_related_context_fixed_score",
         "agent_relevance_reasoning",
+        "visual_removed",
+        "removed_stage",
+        "removed_reason",
+        "removed_reason_detail",
+        "removed_previous_rank",
+        "removed_display_rank",
+        "agent_relevance_drop_reason",
+        "agent_relevance_drop_threshold",
+        "score_filter_stage",
+        "score_filter_reason",
+        "retrieval_removed_by",
+        "retrieval_removed_limit",
+        "retrieval_previous_rank",
     ):
         flat[key] = metadata.get(key)
     return flat
@@ -125,6 +140,32 @@ def snapshot_hits_by_stage(snapshots: list[dict[str, Any]]) -> dict[str, list[di
             if isinstance(hit, dict)
         ]
     return stages
+
+
+def snapshot_removed_hits_by_stage(snapshots: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    stages: dict[str, list[dict[str, Any]]] = {}
+    for snapshot in snapshots:
+        if not isinstance(snapshot, dict):
+            continue
+        stage = str(snapshot.get("stage") or "")
+        if not stage:
+            continue
+        hits = snapshot.get("removed_hits")
+        if not isinstance(hits, list):
+            continue
+        rows = [_flatten_serialized_hit(hit) for hit in hits if isinstance(hit, dict)]
+        for row in rows:
+            row["visual_removed"] = True
+            row.setdefault("removed_stage", stage)
+        stages[stage] = rows
+    return stages
+
+
+def snapshot_visual_hits_by_stage(snapshots: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    hits = snapshot_hits_by_stage(snapshots)
+    removed = snapshot_removed_hits_by_stage(snapshots)
+    stages = list(dict.fromkeys([*hits.keys(), *removed.keys()]))
+    return {stage: [*(hits.get(stage) or []), *(removed.get(stage) or [])] for stage in stages}
 
 
 def _stage(stages: dict[str, list[dict[str, Any]]], *names: str) -> list[dict[str, Any]]:
@@ -307,6 +348,16 @@ class EvaluationPipeline:
                 "final_after_retry": [hit_to_dict(hit, i) for i, hit in enumerate(reranked_hits[:context_count], start=1)],
                 "final_output": [hit_to_dict(hit, i) for i, hit in enumerate(reranked_hits[:context_count], start=1)],
             },
+            removed_hits_by_stage={},
+            visual_hits_by_stage={
+                "initial_retrieval": [hit_to_dict(hit, i) for i, hit in enumerate(initial_hits, start=1)],
+                "initial_expanded": [hit_to_dict(hit, i) for i, hit in enumerate(local_recheck_hits, start=1)],
+                "initial_recall": [hit_to_dict(hit, i) for i, hit in enumerate(initial_hits, start=1)],
+                "rerank": [hit_to_dict(hit, i) for i, hit in enumerate(reranked_hits, start=1)],
+                "local_recheck": [hit_to_dict(hit, i) for i, hit in enumerate(local_recheck_hits, start=1)],
+                "final_after_retry": [hit_to_dict(hit, i) for i, hit in enumerate(reranked_hits[:context_count], start=1)],
+                "final_output": [hit_to_dict(hit, i) for i, hit in enumerate(reranked_hits[:context_count], start=1)],
+            },
             retrieved_count=len(local_recheck_hits),
             timings_ms=timings,
             token_usage=token_usage,
@@ -360,6 +411,8 @@ class TaskGraphEvaluationPipeline:
         response_time_ms = (time.perf_counter() - started) * 1000
         snapshots = list(result.retrieval_eval_snapshots or [])
         stages = snapshot_hits_by_stage(snapshots)
+        removed_stages = snapshot_removed_hits_by_stage(snapshots)
+        visual_stages = snapshot_visual_hits_by_stage(snapshots)
         final_hits = _stage(stages, "final_after_retry", "final_output")
         context_count = len(result.citations)
         context_hits = _stage(stages, "final_output") or final_hits[:context_count]
@@ -367,6 +420,10 @@ class TaskGraphEvaluationPipeline:
         ranked_hits_by_stage.setdefault("initial_recall", _stage(stages, "initial_retrieval"))
         ranked_hits_by_stage.setdefault("local_recheck", _stage(stages, "final_after_retry", "retry_1_expanded", "initial_expanded"))
         ranked_hits_by_stage.setdefault("final_output", context_hits)
+        visual_hits_by_stage = dict(visual_stages)
+        visual_hits_by_stage.setdefault("initial_recall", ranked_hits_by_stage.get("initial_recall", []))
+        visual_hits_by_stage.setdefault("local_recheck", ranked_hits_by_stage.get("local_recheck", []))
+        visual_hits_by_stage.setdefault("final_output", [*context_hits, *(removed_stages.get("final_output") or [])])
         token_usage = {
             "query_tokens_est": estimate_tokens(question, self.settings.llm_model),
             "answer_tokens_est": estimate_tokens(result.answer, self.settings.llm_model),
@@ -377,6 +434,7 @@ class TaskGraphEvaluationPipeline:
             "pipeline": "taskgraph",
             "timings_ms": {"response_time_ms": response_time_ms},
             "snapshot_stage_counts": {stage: len(hits) for stage, hits in ranked_hits_by_stage.items()},
+            "removed_snapshot_stage_counts": {stage: len(hits) for stage, hits in removed_stages.items()},
         }
         return QueryRun(
             answer=result.answer,
@@ -392,6 +450,8 @@ class TaskGraphEvaluationPipeline:
             local_recheck_hits=ranked_hits_by_stage.get("local_recheck", []),
             context_hits=context_hits,
             ranked_hits_by_stage=ranked_hits_by_stage,
+            removed_hits_by_stage=removed_stages,
+            visual_hits_by_stage=visual_hits_by_stage,
             retrieved_count=result.retrieved_count,
             timings_ms={"response_time_ms": response_time_ms},
             token_usage=token_usage,

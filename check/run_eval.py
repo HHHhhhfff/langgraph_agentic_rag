@@ -909,6 +909,8 @@ def evaluate_case(
     token_usage: dict[str, int | float] = token_usage_from_case(case)
     ranked_hits: list[dict[str, Any]] = []
     ranked_hits_by_stage: dict[str, list[dict[str, Any]]] = {}
+    removed_hits_by_stage: dict[str, list[dict[str, Any]]] = {}
+    visual_hits_by_stage: dict[str, list[dict[str, Any]]] = {}
     stage_metrics: dict[str, dict[str, float]] = {}
     ai_evaluation: dict[str, Any] = {}
     model_debug: dict[str, Any] = {}
@@ -936,6 +938,20 @@ def evaluate_case(
                             else {"source": str(item), "rank": i}
                             for i, item in enumerate(rows, start=1)
                         ]
+            raw_removed_hits = case.get("removed_hits_by_stage")
+            if isinstance(raw_removed_hits, dict):
+                removed_hits_by_stage = {
+                    str(stage): [item for item in rows if isinstance(item, dict)]
+                    for stage, rows in raw_removed_hits.items()
+                    if isinstance(rows, list)
+                }
+            raw_visual_hits = case.get("visual_hits_by_stage")
+            if isinstance(raw_visual_hits, dict):
+                visual_hits_by_stage = {
+                    str(stage): [item for item in rows if isinstance(item, dict)]
+                    for stage, rows in raw_visual_hits.items()
+                    if isinstance(rows, list)
+                }
             if ranked_hits and not ranked_hits_by_stage:
                 ranked_hits_by_stage = {
                     "initial_recall": ranked_hits,
@@ -975,6 +991,8 @@ def evaluate_case(
             }
             ranked_hits = ranked_by_source.get(args.rank_source, result.reranked_hits)
             ranked_hits_by_stage = dict(result.ranked_hits_by_stage or {})
+            removed_hits_by_stage = dict(result.removed_hits_by_stage or {})
+            visual_hits_by_stage = dict(result.visual_hits_by_stage or {})
             if not ranked_hits_by_stage:
                 ranked_hits_by_stage = {
                     "initial_recall": result.initial_hits,
@@ -987,6 +1005,8 @@ def evaluate_case(
                     "final_after_retry": result.final_hits,
                     "final_output": result.context_hits,
                 }
+            if not visual_hits_by_stage:
+                visual_hits_by_stage = dict(ranked_hits_by_stage)
             model_debug = {
                 **result.debug,
                 "timings_ms": result.timings_ms,
@@ -1067,6 +1087,8 @@ def evaluate_case(
         "citations": citations,
         "ranked_hits": ranked_hits,
         "ranked_hits_by_stage": ranked_hits_by_stage,
+        "removed_hits_by_stage": removed_hits_by_stage,
+        "visual_hits_by_stage": visual_hits_by_stage,
         "metrics": metrics,
         "stage_metrics": stage_metrics,
         "relevance_specs": specs,

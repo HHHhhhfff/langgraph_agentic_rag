@@ -1,0 +1,10 @@
+{
+  "text": "Which program financially supported the work of Ivan Terekhov?",
+  "rewritten_text": null,
+  "filters": {},
+  "route": "text_first",
+  "executed_channels": [
+    "vector",
+    "bm25"
+  ]
+}

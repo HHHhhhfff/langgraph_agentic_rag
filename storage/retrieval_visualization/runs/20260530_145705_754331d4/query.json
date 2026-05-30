@@ -1,0 +1,11 @@
+{
+  "text": "In the snippet, how many times does the symbol Q appear?",
+  "rewritten_text": null,
+  "filters": {},
+  "route": "image_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "image"
+  ]
+}

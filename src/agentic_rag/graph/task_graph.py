@@ -29,7 +29,7 @@ from agentic_rag.retrieval.evidence_pack import EvidencePack
 from agentic_rag.retrieval.rerank import RerankService
 from agentic_rag.retrieval.retrieval_plan import RetrievalChannel, RetrievalPlan, RetrievalTask
 from agentic_rag.retrieval.retriever import MultiChannelRetriever
-from agentic_rag.retrieval.scoring import STAGE_FINAL, compute_composite_scores, filter_by_stage_threshold
+from agentic_rag.retrieval.scoring import STAGE_FINAL, compute_composite_scores, filter_by_stage_threshold_with_removed, mark_removed_hit
 from agentic_rag.schemas import Citation, RAGResult, SearchHit
 
 
@@ -59,6 +59,10 @@ def _count_by_key(hits: list[SearchHit], key_fn) -> dict[str, int]:
         key = str(raw)
         counts[key] = counts.get(key, 0) + 1
     return counts
+
+
+def _count_removed_reasons(hits: list[SearchHit]) -> dict[str, int]:
+    return _count_by_key(hits, lambda hit: (hit.metadata or {}).get("removed_reason") or "unknown_removed")
 
 
 def _replace_snapshot(snapshots: list[dict[str, Any]], snapshot: dict[str, Any]) -> list[dict[str, Any]]:
@@ -543,11 +547,14 @@ class TaskGraphRAG:
         if _retrieval_observability_enabled(self.settings) and (
             retry_count > 0 or not any(s.get("stage") == "initial_retrieval" for s in snapshots)
         ):
+            removed_by_stage = getattr(result, "removed_hits_by_stage", None) or {}
+            initial_removed = removed_by_stage.get(snapshot_stage) or removed_by_stage.get("initial_retrieval", [])
             snapshots.append(
                 build_snapshot(
                     stage=snapshot_stage,
                     query_text=state.get("rewritten_query_text") or question,
                     hits=result.hits,
+                    removed_hits=initial_removed,
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=False,
                 )
@@ -558,6 +565,7 @@ class TaskGraphRAG:
                     stage=expanded_snapshot_stage,
                     query_text=state.get("rewritten_query_text") or question,
                     hits=result.expanded_hits,
+                    removed_hits=removed_by_stage.get(expanded_snapshot_stage, []),
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=False,
                 ),
@@ -568,6 +576,7 @@ class TaskGraphRAG:
             "expanded_hits": result.expanded_hits,
             "evidence_gain": state.get("evidence_gain", 1.0),
             "executed_channels": result.executed_channels,
+            "removed_hits_by_stage": getattr(result, "removed_hits_by_stage", None) or {},
             "retrieval_eval_snapshots": snapshots,
         }
 
@@ -590,6 +599,24 @@ class TaskGraphRAG:
                 self._progress_skip("evidence_gate")
             self._progress_done("retrieval")
             snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
+            scoped_hits = hits[: self.settings.context_top_n]
+            removed_hits = [
+                mark_removed_hit(
+                    hit.model_copy(deep=True),
+                    stage=f"retry_{int(state.get('retry_count', 0) or 0)}_rerank"
+                    if int(state.get("retry_count", 0) or 0) > 0
+                    else "rerank",
+                    reason="context_top_n_limit",
+                    detail=f"rank={rank} > context_top_n={self.settings.context_top_n}",
+                    previous_rank=rank,
+                    extra={
+                        "retrieval_removed_by": "context_top_n",
+                        "retrieval_removed_limit": self.settings.context_top_n,
+                        "retrieval_previous_rank": rank,
+                    },
+                )
+                for rank, hit in enumerate(hits[self.settings.context_top_n :], start=self.settings.context_top_n + 1)
+            ]
             if _retrieval_observability_enabled(self.settings):
                 retry_count = int(state.get("retry_count", 0) or 0)
                 snapshots = _replace_snapshot(
@@ -597,15 +624,17 @@ class TaskGraphRAG:
                     build_snapshot(
                         stage=f"retry_{retry_count}_rerank" if retry_count > 0 else "rerank",
                         query_text=state.get("question", ""),
-                        hits=hits[: self.settings.context_top_n],
+                        hits=scoped_hits,
+                        removed_hits=removed_hits,
                         max_text_chars=self.settings.retrieval_eval_max_text_chars,
                         used_rerank=False,
                         rerank_fallback_reason=None if not self.settings.rerank_enabled else "rerank_service_unavailable",
                     ),
                 )
             return {
-                "reranked_hits": hits[: self.settings.context_top_n],
-                "expanded_hits": hits,
+                "reranked_hits": scoped_hits,
+                "expanded_hits": scoped_hits,
+                "rerank_removed_hits": removed_hits,
                 "used_rerank": False,
                 "rerank_fallback_reason": None if not self.settings.rerank_enabled else "rerank_service_unavailable",
                 "rerank_score_top": None,
@@ -637,6 +666,7 @@ class TaskGraphRAG:
                     stage=f"retry_{retry_count}_rerank" if retry_count > 0 else "rerank",
                     query_text=state.get("question", ""),
                     hits=reranked,
+                    removed_hits=result.removed_hits,
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=result.used_rerank,
                     rerank_fallback_reason=result.fallback_reason,
@@ -645,6 +675,7 @@ class TaskGraphRAG:
             if _retrieval_observability_enabled(self.settings)
             else state.get("retrieval_eval_snapshots", []),
             **skipped_evidence,
+            "rerank_removed_hits": result.removed_hits,
         }
 
     def _agent_chunk_grader_node(self, state: TaskGraphState) -> TaskGraphState:
@@ -663,11 +694,12 @@ class TaskGraphRAG:
             ]
         )
         try:
-            graded = self.agent_chunk_grader.grade_hits(
+            grading = self.agent_chunk_grader.grade_hits_with_removed(
                 question=state.get("question", ""),
                 hits=hits,
                 context_pool=context_pool,
             )
+            graded = grading.hits
             snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
             if _retrieval_observability_enabled(self.settings):
                 snapshots = _replace_snapshot(
@@ -676,6 +708,7 @@ class TaskGraphRAG:
                         stage="agent_chunk_grading",
                         query_text=state.get("question", ""),
                         hits=graded,
+                        removed_hits=grading.removed_hits,
                         max_text_chars=self.settings.retrieval_eval_max_text_chars,
                         used_rerank=bool(state.get("used_rerank", False)),
                         rerank_fallback_reason=state.get("rerank_fallback_reason"),
@@ -683,8 +716,11 @@ class TaskGraphRAG:
                 )
             return {
                 "expanded_hits": graded,
+                "agent_chunk_removed_hits": grading.removed_hits,
                 "agent_chunk_grading_used": True,
                 "agent_chunk_grading_hit_count": len(graded),
+                "agent_chunk_removed_hit_count": len(grading.removed_hits),
+                "agent_chunk_removed_reasons": _count_removed_reasons(grading.removed_hits),
                 "retrieval_eval_snapshots": snapshots,
             }
         except Exception as exc:
@@ -865,10 +901,17 @@ class TaskGraphRAG:
         self._progress_start("generation")
         hits = state.get("expanded_hits", [])
         hits = compute_composite_scores(hits, stage=STAGE_FINAL, settings=self.settings)
-        hits = filter_by_stage_threshold(hits, stage=STAGE_FINAL, settings=self.settings)
+        filtered = filter_by_stage_threshold_with_removed(hits, stage=STAGE_FINAL, settings=self.settings)
+        hits = filtered.kept
         context, citations = self.prompt_builder.build_context(hits)
         prompt = self.prompt_builder.build_prompt(question=state.get("question", ""), context=context)
-        return {"expanded_hits": hits, "context": context, "citations": [c.model_dump() for c in citations], "prompt": prompt}
+        return {
+            "expanded_hits": hits,
+            "final_removed_hits": filtered.removed,
+            "context": context,
+            "citations": [c.model_dump() for c in citations],
+            "prompt": prompt,
+        }
 
     def _generate_answer_node(self, state: TaskGraphState) -> TaskGraphState:
         if state.get("refusal"):
@@ -918,15 +961,20 @@ class TaskGraphRAG:
         retrieval_eval_log_error = state.get("retrieval_eval_log_error")
         retrieval_visualization_run_dir = None
         retrieval_visualization_error = None
-        final_hits = filter_by_stage_threshold(
-            compute_composite_scores(
-                state.get("expanded_hits", []),
+        final_hits = list(state.get("expanded_hits", []) or [])
+        final_removed_hits = list(state.get("final_removed_hits", []) or [])
+        if not final_hits and state.get("expanded_hits"):
+            filtered = filter_by_stage_threshold_with_removed(
+                compute_composite_scores(
+                    state.get("expanded_hits", []),
+                    stage=STAGE_FINAL,
+                    settings=self.settings,
+                ),
                 stage=STAGE_FINAL,
                 settings=self.settings,
-            ),
-            stage=STAGE_FINAL,
-            settings=self.settings,
-        )
+            )
+            final_hits = filtered.kept
+            final_removed_hits = filtered.removed
         if _retrieval_observability_enabled(self.settings):
             snapshots = _replace_snapshot(
                 snapshots,
@@ -934,6 +982,7 @@ class TaskGraphRAG:
                     stage="final_after_retry",
                     query_text=state.get("rewritten_query_text") or state.get("question", ""),
                     hits=final_hits,
+                    removed_hits=final_removed_hits,
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=bool(state.get("used_rerank", False)),
                     rerank_fallback_reason=state.get("rerank_fallback_reason"),
@@ -1060,6 +1109,8 @@ class TaskGraphRAG:
                 "unsupported_claims": state.get("unsupported_claims", []),
                 "agent_chunk_grading_used": state.get("agent_chunk_grading_used", False),
                 "agent_chunk_grading_hit_count": state.get("agent_chunk_grading_hit_count", 0),
+                "agent_chunk_removed_hit_count": state.get("agent_chunk_removed_hit_count", 0),
+                "agent_chunk_removed_reasons": state.get("agent_chunk_removed_reasons", {}),
                 "agent_retry_used": state.get("agent_retry_used", False),
                 "agent_retry_reasoning": state.get("agent_retry_reasoning", ""),
                 "agent_fallback_reason": state.get("agent_fallback_reason"),
@@ -1074,11 +1125,6 @@ class TaskGraphRAG:
                 "retrieval_visualization_error": retrieval_visualization_error,
             },
         )
-        for row in state.get("citations", []):
-            try:
-                result.citations.append(Citation(**row))
-            except Exception:
-                continue
         if state.get("refusal") and self.settings.tg_allow_refusal:
             result.answer = self.settings.uncertain_answer_text
         self._progress_done("generation")

@@ -1,0 +1,11 @@
+{
+  "text": "For v/c ≪ 1 and ζ ≲ 1, what asymptotic form is given for Ξ0(y, τ)?",
+  "rewritten_text": null,
+  "filters": {},
+  "route": "formula_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "formula"
+  ]
+}
