@@ -37,6 +37,9 @@ class ChunkGradingResult(BaseModel):
 class AgentChunkGradingOutput:
     hits: list[SearchHit]
     removed_hits: list[SearchHit]
+    grade_cache: dict[str, dict[str, Any]]
+    cache_hits: int = 0
+    llm_graded_hits: int = 0
 
 
 class AgentChunkGrader:
@@ -61,18 +64,35 @@ class AgentChunkGrader:
         question: str,
         hits: list[SearchHit],
         context_pool: list[SearchHit] | None = None,
+        grade_cache: dict[str, Any] | None = None,
     ) -> AgentChunkGradingOutput:
         if not self.settings.tg_agent_chunk_grading_enabled or not hits:
-            return AgentChunkGradingOutput(hits=hits, removed_hits=[])
+            return AgentChunkGradingOutput(hits=hits, removed_hits=[], grade_cache=dict(grade_cache or {}))
         context_pool = context_pool or hits
         selected = self._select_hits(hits)
-        if not selected:
-            return AgentChunkGradingOutput(hits=hits, removed_hits=[])
-        payload = [
-            self._grade_payload(hit, context_pool=context_pool)
+        cache_enabled = bool(self.settings.tg_agent_chunk_grade_cache_enabled)
+        incoming_cache = dict(grade_cache or {}) if cache_enabled else {}
+        grades: dict[str, ChunkGrade] = {}
+        grade_sources: dict[str, str] = {}
+        for hit in hits:
+            key = _hit_id(hit)
+            cached = _cached_grade(incoming_cache.get(key))
+            if cached is None:
+                continue
+            grades[key] = cached
+            grade_sources[key] = "cache"
+
+        uncached_selected = [
+            hit
             for hit in selected
+            if _hit_id(hit) not in grades
         ]
-        prompt = _agent_contract(self.settings) + f"""
+        if uncached_selected:
+            payload = [
+                self._grade_payload(hit, context_pool=context_pool)
+                for hit in uncached_selected
+            ]
+            prompt = _agent_contract(self.settings) + f"""
 Task: grade each candidate chunk for relevance to the user question.
 
 User question:
@@ -98,9 +118,23 @@ Return only JSON:
   ]
 }}
 """
-        result = generate_json(self.llm_client, prompt, ChunkGradingResult)
-        grades = {grade.node_id: grade for grade in result.grades}
-        graded = [self._apply_grade(hit, grades.get(_hit_id(hit)), question=question) for hit in hits]
+            result = generate_json(self.llm_client, prompt, ChunkGradingResult)
+            for grade in result.grades:
+                grades[grade.node_id] = grade
+                grade_sources[grade.node_id] = "agent"
+
+        if not grades:
+            return AgentChunkGradingOutput(hits=hits, removed_hits=[], grade_cache=incoming_cache)
+
+        graded = [
+            self._apply_grade(
+                hit,
+                grades.get(_hit_id(hit)),
+                question=question,
+                grade_source=grade_sources.get(_hit_id(hit), "agent"),
+            )
+            for hit in hits
+        ]
         graded = self._apply_related_context_policy(graded, grades, context_pool=context_pool)
         removed_hits: list[SearchHit] = []
         if self.settings.tg_agent_chunk_drop_enabled:
@@ -111,7 +145,19 @@ Return only JSON:
                 else:
                     kept.append(hit)
             graded = kept
-        return AgentChunkGradingOutput(hits=graded, removed_hits=removed_hits)
+        updated_cache = dict(incoming_cache)
+        if cache_enabled:
+            for key, grade in grades.items():
+                updated_cache[key] = _grade_to_cache(grade)
+        cache_hits = sum(1 for source in grade_sources.values() if source == "cache")
+        llm_graded_hits = sum(1 for source in grade_sources.values() if source == "agent")
+        return AgentChunkGradingOutput(
+            hits=graded,
+            removed_hits=removed_hits,
+            grade_cache=updated_cache,
+            cache_hits=cache_hits,
+            llm_graded_hits=llm_graded_hits,
+        )
 
     def _select_hits(self, hits: list[SearchHit]) -> list[SearchHit]:
         mode = (self.settings.tg_agent_chunk_grading_mode or "head_tail").lower()
@@ -188,13 +234,22 @@ Return only JSON:
             result.append(context)
         return result
 
-    def _apply_grade(self, hit: SearchHit, grade: ChunkGrade | None, *, question: str) -> SearchHit:
+    def _apply_grade(
+        self,
+        hit: SearchHit,
+        grade: ChunkGrade | None,
+        *,
+        question: str,
+        grade_source: str = "agent",
+    ) -> SearchHit:
         if grade is None:
             return hit
         copy = hit.model_copy(deep=True)
+        cache_key = _hit_id(copy)
         score = _clamp_score(grade.relevance_score)
         label = grade.relevance_label
         before = score_value(copy)
+        already_applied = bool(copy.metadata.get("agent_relevance_used")) and copy.metadata.get("agent_grade_cache_key") == cache_key
         drop, drop_reason, protected_reason = self._should_drop(
             hit=copy,
             grade=grade,
@@ -205,13 +260,16 @@ Return only JSON:
         )
         after = before
         label_delta = 0.0
-        if self.settings.tg_agent_chunk_score_adjust_enabled:
+        if self.settings.tg_agent_chunk_score_adjust_enabled and not already_applied:
             label_delta = _label_float_map(self.settings.tg_agent_chunk_label_score_deltas).get(label, 0.0)
             after = _clamp_score(before + label_delta)
             _set_score(copy, after, score_policy="agent_chunk_label_delta_v1")
         copy.metadata.update(
             {
                 "agent_relevance_used": True,
+                "agent_relevance_source": grade_source,
+                "agent_relevance_cache_hit": grade_source == "cache",
+                "agent_grade_cache_key": cache_key,
                 "agent_relevance_score": score,
                 "agent_relevance_label": label,
                 "agent_relevance_keep": bool(not drop),
@@ -222,6 +280,7 @@ Return only JSON:
                 "agent_relevance_drop_protected_reason": protected_reason,
                 "agent_relevance_score_before": before,
                 "agent_relevance_score_after": after,
+                "agent_relevance_score_adjust_reused": already_applied,
                 "agent_score_before": before,
                 "agent_label_score_delta": label_delta,
                 "agent_score_after": after,
@@ -342,6 +401,8 @@ Return only JSON:
             current_hit = by_id.get(_hit_id(hit))
             if current_hit is None:
                 continue
+            if current_hit.metadata.get("agent_related_context_policy_applied"):
+                continue
             if context_id in by_id:
                 context_hit = by_id[context_id]
                 modality_delta = existing_modality_deltas.get(label, 0.0)
@@ -357,6 +418,7 @@ Return only JSON:
                         "agent_related_context_text_delta": text_delta,
                         "agent_related_context_fixed_score": None,
                         "agent_related_context_policy": self.settings.tg_agent_chunk_related_context_trigger_mode,
+                        "agent_related_context_policy_applied": True,
                         "agent_score_after": score_value(current_hit),
                         "agent_relevance_score_after": score_value(current_hit),
                     }
@@ -374,6 +436,7 @@ Return only JSON:
                     "agent_related_context_node_id": context_id,
                     "agent_related_context_present": False,
                     "agent_related_context_policy": self.settings.tg_agent_chunk_related_context_trigger_mode,
+                    "agent_related_context_policy_applied": True,
                 }
             )
             if not _related_context_should_add(
@@ -454,6 +517,21 @@ def _metadata_float(hit: SearchHit, key: str) -> float | None:
     if isinstance(value, (int, float)):
         return float(value)
     return None
+
+
+def _cached_grade(value: Any) -> ChunkGrade | None:
+    if isinstance(value, ChunkGrade):
+        return value
+    if not isinstance(value, dict):
+        return None
+    try:
+        return ChunkGrade.model_validate(value)
+    except Exception:
+        return None
+
+
+def _grade_to_cache(grade: ChunkGrade) -> dict[str, Any]:
+    return grade.model_dump(mode="json")
 
 
 def _clamp_score(value: float) -> float:

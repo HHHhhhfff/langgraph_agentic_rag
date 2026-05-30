@@ -501,6 +501,10 @@ class Settings(BaseSettings):
     tg_agent_context_expansion_max_rounds: int = Field(default=2, description="Agent context expansion max rounds")
     tg_agent_context_expansion_max_context_hits: int = Field(default=4, description="Agent context expansion max hits")
     tg_agent_chunk_grading_enabled: bool = Field(default=False, description="Enable agent per-chunk relevance grading")
+    tg_agent_chunk_grade_cache_enabled: bool = Field(
+        default=True,
+        description="Reuse prior agent chunk grades for repeated node_id/point_id across retry rounds",
+    )
     tg_agent_chunk_grading_mode: str = Field(default="head_tail", description="Chunk grading selection mode: all/head/head_tail/none")
     tg_agent_chunk_grading_head_m: int = Field(default=6, description="Head chunks sent to agent chunk grader")
     tg_agent_chunk_grading_tail_n: int = Field(default=2, description="Tail chunks sent to agent chunk grader")
@@ -588,7 +592,8 @@ class Settings(BaseSettings):
     tg_retry_page_window_step: int = Field(default=1, description="Page-window increment applied by TaskGraph local retry")
     tg_retry_max_page_window: int = Field(default=3, description="Maximum relationship page window during TaskGraph local retry")
     tg_retry_rewrite_enabled: bool = Field(default=True, description="Enable rule-based query rewrite during local retry")
-    tg_citation_strict: bool = Field(default=True, description="Require answer to include citation markers")
+    tg_citation_verify_enabled: bool = Field(default=True, description="Enable citation verification after answer generation")
+    tg_citation_strict: bool = Field(default=False, description="Require answer to include citation markers when citation verification is enabled")
     tg_allow_refusal: bool = Field(default=True, description="Allow refusal when evidence remains insufficient")
     tg_route_llm_enabled: bool = Field(default=False, description="Use LLM-assisted route analysis (off by default)")
     tg_agent_route_enabled: bool = Field(default=False, description="Enable constrained LLM route analysis")

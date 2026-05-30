@@ -65,6 +65,7 @@ REMOVED_REASON_LABELS = {
     "rerank_empty": "Rerank returned empty",
     "rerank_failed_fallback_excluded": "Excluded after rerank fallback",
     "context_top_n_limit": "Exceeded context_top_n",
+    "citation_not_selected": "Not selected by final citation",
     "stage_top_k_limit": "Exceeded stage top-k",
     "relationship_expansion_limit": "Relationship expansion limit",
     "duplicate_deduped": "Duplicate deduped",
@@ -425,6 +426,8 @@ def removed_reason_group(reason: str | None) -> str:
         return "threshold"
     if reason in {"reranker_not_selected", "context_top_n_limit", "stage_top_k_limit", "rerank_empty", "rerank_failed_fallback_excluded"}:
         return "topk"
+    if reason == "citation_not_selected":
+        return "citation"
     return "other"
 
 
@@ -448,7 +451,9 @@ def infer_removed_reason(hit: dict[str, Any], from_stage: str, to_stage: str) ->
         )
     if to_stage in {"rerank", "retry_1_rerank"}:
         return "reranker_not_selected", f"present in {from_stage}, absent in {to_stage}"
-    if to_stage in {"final_after_retry", "final_output", "local_recheck"}:
+    if to_stage == "final_output":
+        return "citation_not_selected", f"present in {from_stage}, absent in {to_stage}; not referenced by final citations"
+    if to_stage in {"final_after_retry", "local_recheck"}:
         return "context_top_n_limit", f"present in {from_stage}, absent in {to_stage}"
     return "unknown_removed", f"present in {from_stage}, absent in {to_stage}"
 
@@ -650,6 +655,9 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
     agent_meta = [
         ("agent_label", hit.get("agent_relevance_label")),
         ("agent_score", fmt_num(hit.get("agent_relevance_score"))),
+        ("agent_source", hit.get("agent_relevance_source")),
+        ("cache_hit", hit.get("agent_relevance_cache_hit")),
+        ("cache_key", hit.get("agent_grade_cache_key")),
         ("keep", hit.get("agent_relevance_keep")),
         ("drop", hit.get("agent_relevance_drop")),
         ("label_delta", hit.get("agent_label_score_delta")),
@@ -1320,6 +1328,7 @@ def render_html(
     .removed-reason-agent {{ color: #b42318; }}
     .removed-reason-threshold {{ color: #b54708; }}
     .removed-reason-topk {{ color: #175cd3; }}
+    .removed-reason-citation {{ color: #6941c6; }}
     .chunk-source {{
       padding: 0 8px 6px;
       font-weight: 700;

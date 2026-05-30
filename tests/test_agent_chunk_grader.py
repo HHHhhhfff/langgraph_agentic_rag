@@ -282,3 +282,29 @@ def test_score_adjust_and_related_context_switches_disable_score_changes() -> No
     assert [hit.node_id for hit in graded] == ["formula"]
     assert graded[0].score == 0.4
     assert graded[0].metadata["agent_label_score_delta"] == 0.0
+
+
+def test_agent_chunk_grader_reuses_cached_grade_without_second_llm_call() -> None:
+    settings = Settings(
+        _env_file=None,
+        tg_agent_chunk_grading_enabled=True,
+        tg_agent_chunk_grade_cache_enabled=True,
+        tg_agent_chunk_grading_mode="all",
+        tg_agent_chunk_drop_enabled=False,
+        tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
+    )
+    llm = DummyLLM({"grades": [_grade("a", "strong", 0.9)]})
+    grader = AgentChunkGrader(settings, llm)
+    hit = _hit("a", "answer", 0.5)
+
+    first = grader.grade_hits_with_removed(question="q", hits=[hit])
+    assert len(llm.prompts) == 1
+    assert first.grade_cache["a"]["relevance_label"] == "strong"
+    assert first.hits[0].metadata["agent_relevance_source"] == "agent"
+
+    second = grader.grade_hits_with_removed(question="q", hits=[_hit("a", "answer", 0.5)], grade_cache=first.grade_cache)
+    assert len(llm.prompts) == 1
+    assert second.hits[0].metadata["agent_relevance_source"] == "cache"
+    assert second.hits[0].metadata["agent_relevance_cache_hit"] is True
+    assert second.hits[0].metadata["agent_grade_cache_key"] == "a"
+    assert second.hits[0].score == first.hits[0].score

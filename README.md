@@ -699,6 +699,7 @@ Agent chunk grading 可在 rerank 后、evidence_gate 前对单个 chunk 做语�
 
 ```env
 TG_AGENT_CHUNK_GRADING_ENABLED=false
+TG_AGENT_CHUNK_GRADE_CACHE_ENABLED=true
 TG_AGENT_CHUNK_GRADING_MODE=head_tail
 TG_AGENT_CHUNK_GRADING_HEAD_M=6
 TG_AGENT_CHUNK_GRADING_TAIL_N=2
@@ -725,6 +726,8 @@ TG_AGENT_CHUNK_RELATED_CONTEXT_ADDED_MODALITY_DELTAS=irrelevant:0.00,weak:0.00,r
 
 - `TG_AGENT_CHUNK_GRADING_ENABLED`
   - 是否启用逐 chunk Agent 相关性评定。
+- `TG_AGENT_CHUNK_GRADE_CACHE_ENABLED`
+  - 是否在同一次 TaskGraph 执行中缓存并继承 Agent 对同一 `node_id/point_id` 的评级。开启后，retry 中再次出现的 chunk 会复用已评定的 `agent_relevance_label`、`agent_relevance_score` 和 reasoning，不再重复调用 Agent；分数 delta 会基于该阶段当前 `score_composite` 重新计算。
 - `TG_AGENT_CHUNK_GRADING_MODE`
   - 评定范围，支持 `all/head/head_tail/none`。
 - `TG_AGENT_CHUNK_GRADING_HEAD_M` / `TG_AGENT_CHUNK_GRADING_TAIL_N`
@@ -912,8 +915,11 @@ storage/retrieval_visualization/runs/{run_id}/
   - relationship expansion 可使用的最大邻页窗口
 - `TG_RETRY_REWRITE_ENABLED=true|false`
   - 是否启用规则版 query rewrite；当前不接 LLM rewrite
+- `TG_CITATION_VERIFY_ENABLED=true|false`
+  - 是否启用 `citation_verify` 节点。关闭后该节点直接返回 `citation_ok=true`，不会因为引用标记问题触发局部重检。
 - `TG_CITATION_STRICT=true|false`
-  - 是否严格要求答案包含引用标记且引用可回溯
+  - 引用校验严格模式。`false` 时只校验已有 citation 是否能回溯到当前上下文，不强制答案文本必须包含 `[1]` 这类标记，也不因 citation 为空直接判失败；`true` 时会强制答案包含引用标记且 citation 非空。
+  - `final_output` 只展示最终 citation 使用到的 chunk；`final_after_retry -> final_output` 消失的 chunk 会在评测可视化中标记为 `citation_not_selected`，表示未被最终引用选中、未生成有效 citation 或 citation 校验失败。
 - `TG_ALLOW_REFUSAL=true|false`
   - 证据冲突不可消解时是否允许拒答
 - `TG_ROUTE_LLM_ENABLED=true|false`

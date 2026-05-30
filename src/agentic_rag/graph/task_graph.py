@@ -716,12 +716,15 @@ class TaskGraphRAG:
             ]
         )
         try:
+            grade_cache = dict(state.get("agent_chunk_grade_cache", {}) or {})
             grading = self.agent_chunk_grader.grade_hits_with_removed(
                 question=state.get("question", ""),
                 hits=hits,
                 context_pool=context_pool,
+                grade_cache=grade_cache,
             )
             graded = grading.hits
+            updated_grade_cache = grading.grade_cache if self.settings.tg_agent_chunk_grade_cache_enabled else grade_cache
             snapshots = list(state.get("retrieval_eval_snapshots", []) or [])
             if _retrieval_observability_enabled(self.settings):
                 snapshots = _replace_snapshot(
@@ -743,6 +746,10 @@ class TaskGraphRAG:
                 "agent_chunk_grading_hit_count": len(graded),
                 "agent_chunk_removed_hit_count": len(grading.removed_hits),
                 "agent_chunk_removed_reasons": _count_removed_reasons(grading.removed_hits),
+                "agent_chunk_grade_cache": updated_grade_cache,
+                "agent_chunk_grade_cache_size": len(updated_grade_cache),
+                "agent_chunk_grade_cache_hits": grading.cache_hits,
+                "agent_chunk_llm_graded_hit_count": grading.llm_graded_hits,
                 "retrieval_eval_snapshots": snapshots,
             }
         except Exception as exc:
@@ -946,33 +953,58 @@ class TaskGraphRAG:
 
     def _citation_verify_node(self, state: TaskGraphState) -> TaskGraphState:
         timer = self._log_start("citation_verify")
+        if not self.settings.tg_citation_verify_enabled:
+            self._log_end("citation_verify", timer, fallback=False, skipped=True)
+            return {
+                "citation_ok": True,
+                "citation_verify_enabled": False,
+                "citation_verify_skipped": True,
+                "citation_verify_reason": "disabled",
+            }
         answer = state.get("answer", "")
         citations = state.get("citations", [])
         hits = state.get("expanded_hits", [])
         ok = True
+        reasons: list[str] = []
 
         valid_keys = {
             (
                 str(hit.metadata.get("source", "unknown")),
-                int(hit.metadata.get("chunk_index", -1)) if str(hit.metadata.get("chunk_index", "-1")).isdigit() else -1,
+                int(hit.metadata.get("chunk_index", -1))
+                if str(hit.metadata.get("chunk_index", "-1")).lstrip("-").isdigit()
+                else -1,
             )
             for hit in hits
         }
         for c in citations:
             if isinstance(c, dict):
-                key = (str(c.get("source", "unknown")), int(c.get("chunk_index", -1)))
+                key = (
+                    str(c.get("source", "unknown")),
+                    int(c.get("chunk_index", -1))
+                    if str(c.get("chunk_index", "-1")).lstrip("-").isdigit()
+                    else -1,
+                )
                 if key not in valid_keys:
                     ok = False
+                    reasons.append("citation_key_not_in_context")
                     break
 
         if self.settings.tg_citation_strict and citations:
             tags = {f"[{c.get('index')}]" for c in citations if isinstance(c, dict)}
             if not any(tag in answer for tag in tags):
                 ok = False
+                reasons.append("citation_marker_missing")
         if self.settings.tg_citation_strict and not citations:
             ok = False
+            reasons.append("citation_empty")
         self._log_end("citation_verify", timer, fallback=not ok)
-        return {"citation_ok": ok}
+        return {
+            "citation_ok": ok,
+            "citation_verify_enabled": True,
+            "citation_verify_skipped": False,
+            "citation_verify_strict": self.settings.tg_citation_strict,
+            "citation_verify_reasons": reasons,
+        }
 
     def _finalize_node(self, state: TaskGraphState) -> TaskGraphState:
         if int(state.get("retry_count", 0) or 0) <= 0:
@@ -1037,12 +1069,39 @@ class TaskGraphRAG:
                     output_hits = final_hits[: len(citation_rows)]
             else:
                 output_hits = []
+            output_keys = {(hit.node_id or hit.point_id or f"{hit.doc_id}:{hit.metadata.get('chunk_index')}") for hit in output_hits}
+            final_output_removed_hits = []
+            for rank, hit in enumerate(final_hits, start=1):
+                key = hit.node_id or hit.point_id or f"{hit.doc_id}:{hit.metadata.get('chunk_index')}"
+                if key in output_keys:
+                    continue
+                detail = "not referenced by final citations"
+                if not citation_rows:
+                    detail = "no final citations were produced"
+                elif state.get("citation_ok") is False:
+                    detail = "citation verification failed or citation was not selected"
+                final_output_removed_hits.append(
+                    mark_removed_hit(
+                        hit.model_copy(deep=True),
+                        stage="final_output",
+                        reason="citation_not_selected",
+                        detail=detail,
+                        previous_rank=rank,
+                        extra={
+                            "citation_verify_enabled": state.get("citation_verify_enabled", self.settings.tg_citation_verify_enabled),
+                            "citation_verify_strict": state.get("citation_verify_strict", self.settings.tg_citation_strict),
+                            "citation_ok": state.get("citation_ok"),
+                            "citation_verify_reasons": state.get("citation_verify_reasons", []),
+                        },
+                    )
+                )
             snapshots = _replace_snapshot(
                 snapshots,
                 build_snapshot(
                     stage="final_output",
                     query_text=state.get("rewritten_query_text") or state.get("question", ""),
                     hits=output_hits,
+                    removed_hits=final_output_removed_hits,
                     max_text_chars=self.settings.retrieval_eval_max_text_chars,
                     used_rerank=bool(state.get("used_rerank", False)),
                     rerank_fallback_reason=state.get("rerank_fallback_reason"),
@@ -1094,6 +1153,10 @@ class TaskGraphRAG:
                 **self._retry_skip_debug(state),
                 "evidence_ok": state.get("evidence_ok", False),
                 "citation_ok": state.get("citation_ok", False),
+                "citation_verify_enabled": state.get("citation_verify_enabled", self.settings.tg_citation_verify_enabled),
+                "citation_verify_skipped": state.get("citation_verify_skipped", not self.settings.tg_citation_verify_enabled),
+                "citation_verify_strict": state.get("citation_verify_strict", self.settings.tg_citation_strict),
+                "citation_verify_reasons": state.get("citation_verify_reasons", []),
                 "refusal": state.get("refusal", False),
                 "refusal_reason": state.get("refusal_reason"),
                 "evidence_gaps": state.get("evidence_gaps", []),
@@ -1134,6 +1197,10 @@ class TaskGraphRAG:
                 "agent_chunk_grading_hit_count": state.get("agent_chunk_grading_hit_count", 0),
                 "agent_chunk_removed_hit_count": state.get("agent_chunk_removed_hit_count", 0),
                 "agent_chunk_removed_reasons": state.get("agent_chunk_removed_reasons", {}),
+                "agent_chunk_grade_cache_enabled": self.settings.tg_agent_chunk_grade_cache_enabled,
+                "agent_chunk_grade_cache_size": state.get("agent_chunk_grade_cache_size", 0),
+                "agent_chunk_grade_cache_hits": state.get("agent_chunk_grade_cache_hits", 0),
+                "agent_chunk_llm_graded_hit_count": state.get("agent_chunk_llm_graded_hit_count", 0),
                 "agent_retry_used": state.get("agent_retry_used", False),
                 "agent_retry_reasoning": state.get("agent_retry_reasoning", ""),
                 "agent_fallback_reason": state.get("agent_fallback_reason"),

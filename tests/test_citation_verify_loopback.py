@@ -96,3 +96,27 @@ def test_citation_verify_does_not_loopback_when_local_retry_disabled() -> None:
     assert result.debug.get("local_retry_skipped") is True
     assert len(retriever.top_k_by_call) == 1
 
+
+def test_citation_verify_can_be_disabled_to_avoid_loopback() -> None:
+    settings = Settings(
+        tg_max_retries=1,
+        tg_min_evidence_hits=1,
+        tg_min_coverage_ratio=0.0,
+        tg_citation_verify_enabled=False,
+        tg_citation_strict=True,
+    )
+    llm = NoCitationLLM()
+    retriever = StableRetriever()
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=retriever,
+        llm_client=llm,
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    result = graph.invoke("question")
+
+    assert result.debug.get("citation_ok") is True
+    assert result.debug.get("citation_verify_skipped") is True
+    assert result.debug.get("retry_count") == 0

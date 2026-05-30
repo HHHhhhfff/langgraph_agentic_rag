@@ -236,3 +236,37 @@ def test_visual_report_infers_removed_hit_when_stage_diff_loses_chunk() -> None:
 
     assert "Removed: AI marked drop" in html
     assert "visual_removed_inferred" in html
+
+
+def test_visual_report_marks_final_output_diff_as_citation_not_selected() -> None:
+    html = render_html(
+        {
+            "name": "run1",
+            "source": "check/runs/run1",
+            "mode": "run",
+            "runs": [{"run_name": "run1", "summary": {"case_count": 1, "error_count": 0}}],
+            "cases": [
+                {
+                    "id": "case1",
+                    "run_name": "run1",
+                    "question": "q",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [],
+                    "metrics": {},
+                    "ai_evaluation": {},
+                    "model_debug": {"citation_ok": False},
+                    "stages": {
+                        "final_after_retry": [{"rank": 1, "node_id": "not-cited", "text": "candidate"}],
+                        "final_output": [],
+                    },
+                }
+            ],
+        },
+        top_n=0,
+        max_text_chars=100,
+    )
+
+    assert "Removed: Not selected by final citation" in html
+    assert "not referenced by final citations" in html
