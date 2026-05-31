@@ -399,6 +399,24 @@ def _matches_spec(hit: dict[str, Any], spec: dict[str, Any], *, page_tolerance: 
     return True, "+".join(reasons) if reasons else "match"
 
 
+def _spec_is_exhaustive_chunk(spec: dict[str, Any]) -> bool:
+    keys = {key for key, value in spec.items() if key != "grade" and value not in (None, "")}
+    if keys & {"point_id", "node_id"}:
+        return True
+    if "chunk_index" in keys and (keys & {"source", "doc_id", "title", "page"}):
+        return True
+    return False
+
+
+def _hit_has_required_fields(hit: dict[str, Any], spec: dict[str, Any]) -> bool:
+    checks = [key for key, value in spec.items() if key != "grade" and value not in (None, "")]
+    if not checks:
+        return False
+    if "any_id" in checks:
+        return any(_hit_value(hit, field) not in (None, "") for field in ("point_id", "node_id", "doc_id"))
+    return all(_hit_value(hit, field) not in (None, "") for field in checks)
+
+
 def relevance_grades_for_hits(
     hits: list[dict[str, Any]],
     specs: list[dict[str, Any]],
@@ -407,11 +425,12 @@ def relevance_grades_for_hits(
 ) -> tuple[list[float], list[float]]:
     grades: list[float] = []
     matched_specs: set[int] = set()
+    exhaustive = all(_spec_is_exhaustive_chunk(spec) for spec in specs)
     for hit in hits:
         best_index: int | None = None
         best_grade = 0.0
         for index, spec in enumerate(specs):
-            if index in matched_specs:
+            if exhaustive and index in matched_specs:
                 continue
             matched, reason = _matches_spec(hit, spec, page_tolerance=page_tolerance)
             if matched:
@@ -425,11 +444,30 @@ def relevance_grades_for_hits(
             hit["relevance_grade"] = 0.0
             hit["relevance_reason"] = "not_match"
             continue
-        matched_specs.add(best_index)
+        if exhaustive:
+            matched_specs.add(best_index)
         grades.append(best_grade)
         hit["relevance_grade"] = best_grade
     ideal = [optional_float(spec.get("grade")) or 1.0 for spec in specs]
     return grades, ideal
+
+
+def partial_ranking_metrics(relevance: list[float], *, k: int) -> dict[str, float | None]:
+    cutoff = max(1, k)
+    top_relevance = [float(score) for score in relevance[:cutoff]]
+    relevant_flags = [1 if score > 0 else 0 for score in top_relevance]
+    relevant_hits = sum(relevant_flags)
+    first_rank = next((idx + 1 for idx, flag in enumerate(relevant_flags) if flag), None)
+    return {
+        "hit_rate": 1.0 if relevant_hits else 0.0,
+        "mrr": (1.0 / float(first_rank)) if first_rank else 0.0,
+        "precision_at_1": sum(1 for score in relevance[:1] if score > 0) / 1.0,
+        "precision_at_3": sum(1 for score in relevance[:3] if score > 0) / 3.0,
+        "precision": float(relevant_hits) / float(cutoff),
+        "recall": None,
+        "ap": None,
+        "ndcg": None,
+    }
 
 
 def compute_stage_ranking_metrics(
@@ -438,23 +476,44 @@ def compute_stage_ranking_metrics(
     specs: list[dict[str, Any]],
     k: int,
     page_tolerance: int = 0,
-) -> tuple[dict[str, dict[str, float]], dict[str, float], dict[str, list[dict[str, Any]]]]:
-    stage_metrics: dict[str, dict[str, float]] = {}
-    flat_metrics: dict[str, float] = {}
+) -> tuple[dict[str, dict[str, float | None]], dict[str, float | None], dict[str, list[dict[str, Any]]]]:
+    stage_metrics: dict[str, dict[str, float | None]] = {}
+    flat_metrics: dict[str, float | None] = {}
     annotated: dict[str, list[dict[str, Any]]] = {}
     if not specs:
         return stage_metrics, flat_metrics, annotated
 
     ideal: list[float] = []
+    exhaustive = all(_spec_is_exhaustive_chunk(spec) for spec in specs)
     for stage, hits in hits_by_stage.items():
         copied_hits = [dict(hit) for hit in hits]
-        grades, ideal = relevance_grades_for_hits(copied_hits, specs, page_tolerance=page_tolerance)
-        metrics = ranking_metrics(
-            grades,
-            total_relevant=len(specs),
-            ideal_relevance=ideal,
-            k=k,
+        can_judge = not copied_hits or any(
+            _hit_has_required_fields(hit, spec)
+            for hit in copied_hits
+            for spec in specs
         )
+        if not can_judge:
+            for hit in copied_hits:
+                hit["relevance_grade"] = None
+                hit["relevance_reason"] = "missing_relevance_fields"
+            metrics = {name: None for name, _label in RETRIEVAL_REPORT_METRICS}
+            stage_metrics[stage] = metrics
+            annotated[stage] = copied_hits
+            for name, value in metrics.items():
+                flat_metrics[f"{stage}_{name}"] = value
+            continue
+        grades, ideal = relevance_grades_for_hits(copied_hits, specs, page_tolerance=page_tolerance)
+        if exhaustive:
+            metrics = ranking_metrics(
+                grades,
+                total_relevant=len(specs),
+                ideal_relevance=ideal,
+                k=k,
+            )
+        else:
+            metrics = partial_ranking_metrics(grades, k=k)
+            for hit in copied_hits:
+                hit["relevance_scope"] = "partial_page_or_source"
         stage_metrics[stage] = metrics
         annotated[stage] = copied_hits
         prefix = f"{stage}_"
@@ -911,7 +970,7 @@ def evaluate_case(
     ranked_hits_by_stage: dict[str, list[dict[str, Any]]] = {}
     removed_hits_by_stage: dict[str, list[dict[str, Any]]] = {}
     visual_hits_by_stage: dict[str, list[dict[str, Any]]] = {}
-    stage_metrics: dict[str, dict[str, float]] = {}
+    stage_metrics: dict[str, dict[str, float | None]] = {}
     ai_evaluation: dict[str, Any] = {}
     model_debug: dict[str, Any] = {}
     specs: list[dict[str, Any]] = []
@@ -1040,7 +1099,7 @@ def evaluate_case(
             metrics.update(flat_stage_metrics)
             preferred_stage = args.rank_source
             if preferred_stage == "retrieved":
-                preferred_stage = "local_recheck"
+                preferred_stage = "initial_expanded"
             elif preferred_stage == "reranked":
                 preferred_stage = "rerank"
             elif preferred_stage == "context":

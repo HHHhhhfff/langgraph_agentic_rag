@@ -210,6 +210,56 @@ def test_task_graph_local_retry_uses_updated_plan() -> None:
     assert result.debug.get("rewritten_query_text")
 
 
+def test_task_graph_generates_with_hits_when_retry_exhausted() -> None:
+    settings = Settings(
+        tg_max_retries=1,
+        tg_min_evidence_hits=2,
+        tg_min_coverage_ratio=1.0,
+        tg_generate_on_retry_exhausted=True,
+        tg_generate_on_retry_exhausted_min_hits=1,
+        tg_citation_verify_enabled=False,
+        tg_citation_strict=False,
+    )
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=RetryAwareRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    result = graph.invoke("retry exhausted")
+
+    assert result.debug.get("evidence_ok") is False
+    assert result.debug.get("retry_count") == 1
+    assert result.citations
+    assert result.answer
+
+
+def test_task_graph_can_skip_generation_when_retry_exhausted_config_disabled() -> None:
+    settings = Settings(
+        tg_max_retries=1,
+        tg_min_evidence_hits=2,
+        tg_min_coverage_ratio=1.0,
+        tg_generate_on_retry_exhausted=False,
+        tg_citation_verify_enabled=False,
+        tg_citation_strict=False,
+    )
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=RetryAwareRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+
+    result = graph.invoke("retry exhausted")
+
+    assert result.debug.get("evidence_ok") is False
+    assert result.citations == []
+    assert result.answer == settings.uncertain_answer_text
+
+
 def test_task_graph_local_retry_adds_table_from_missing_slot() -> None:
     settings = Settings(tg_max_retries=1)
     graph = TaskGraphRAG(

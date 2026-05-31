@@ -932,6 +932,10 @@ Agent hard drop 会缓存到同一次 TaskGraph run 的 `agent_chunk_drop_cache`
 - `TG_CITATION_STRICT=true|false`
   - 引用校验严格模式。`false` 时只校验已有 citation 是否能回溯到当前上下文，不强制答案文本必须包含 `[1]` 这类标记，也不因 citation 为空直接判失败；`true` 时会强制答案包含引用标记且 citation 非空。
   - `final_output` 只展示最终 citation 使用到的 chunk；`final_after_retry -> final_output` 消失的 chunk 会在评测可视化中标记为 `citation_not_selected`，表示未被最终引用选中、未生成有效 citation 或 citation 校验失败。
+- `TG_GENERATE_ON_RETRY_EXHAUSTED=true|false`
+  - retry 达到 `TG_MAX_RETRIES` 但仍有候选证据时，是否继续进入 `build_prompt -> generate_answer`。开启后不会因为证据门仍建议 retry 就直接 finalize。
+- `TG_GENERATE_ON_RETRY_EXHAUSTED_MIN_HITS`
+  - retry 用尽后允许生成所需的最少候选 hit 数量。默认 `1`。
 - `TG_ALLOW_REFUSAL=true|false`
   - 证据冲突不可消解时是否允许拒答
 - `TG_ROUTE_LLM_ENABLED=true|false`

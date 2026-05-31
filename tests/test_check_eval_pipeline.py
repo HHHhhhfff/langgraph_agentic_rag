@@ -105,6 +105,54 @@ def test_page_tolerance_marks_nearby_expected_page_relevant() -> None:
     assert annotated["rerank"][0]["relevance_reason"] == "source+page_tolerance"
 
 
+def test_page_level_specs_can_mark_multiple_chunks_relevant_and_hide_unknown_recall_metrics() -> None:
+    hits = {
+        "final_after_retry": [
+            {"node_id": "n1", "page": 3, "source": "doc.pdf"},
+            {"node_id": "n2", "page": 3, "source": "doc.pdf"},
+            {"node_id": "n3", "page": 3, "source": "doc.pdf"},
+            {"node_id": "n4", "page": 2, "source": "doc.pdf"},
+        ]
+    }
+    specs = [{"source": "doc.pdf", "page": 3, "grade": 1.0}]
+
+    stage_metrics, flat, annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        k=10,
+        page_tolerance=0,
+    )
+
+    assert [hit["relevance_grade"] for hit in annotated["final_after_retry"][:4]] == [1.0, 1.0, 1.0, 0.0]
+    assert stage_metrics["final_after_retry"]["precision_at_3"] == 1.0
+    assert stage_metrics["final_after_retry"]["recall"] is None
+    assert stage_metrics["final_after_retry"]["ap"] is None
+    assert stage_metrics["final_after_retry"]["ndcg"] is None
+    assert flat["final_after_retry_recall"] is None
+
+
+def test_exact_chunk_specs_still_match_each_expected_chunk_once() -> None:
+    hits = {
+        "rerank": [
+            {"node_id": "n1", "page": 3, "source": "doc.pdf"},
+            {"node_id": "n1", "page": 3, "source": "doc.pdf"},
+            {"node_id": "n2", "page": 3, "source": "doc.pdf"},
+        ]
+    }
+    specs = [{"node_id": "n1", "grade": 1.0}]
+
+    stage_metrics, _, annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        k=10,
+        page_tolerance=0,
+    )
+
+    assert [hit["relevance_grade"] for hit in annotated["rerank"]] == [1.0, 0.0, 0.0]
+    assert stage_metrics["rerank"]["precision_at_3"] == 1.0 / 3.0
+    assert stage_metrics["rerank"]["recall"] == 1.0
+
+
 def test_visual_report_renders_dynamic_agent_stage_fields(tmp_path: Path) -> None:
     html = render_html(
         {
@@ -270,3 +318,35 @@ def test_visual_report_marks_final_output_diff_as_citation_not_selected() -> Non
 
     assert "Removed: Not selected by final citation" in html
     assert "not referenced by final citations" in html
+
+
+def test_visual_report_does_not_synthesize_local_recheck_from_final_output() -> None:
+    html = render_html(
+        {
+            "name": "run1",
+            "source": "check/runs/run1",
+            "mode": "run",
+            "runs": [{"run_name": "run1", "summary": {"case_count": 1, "error_count": 0}}],
+            "cases": [
+                {
+                    "id": "case1",
+                    "run_name": "run1",
+                    "question": "q",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [],
+                    "metrics": {"final_output_precision_at_3": 1.0},
+                    "stage_metrics": {"final_output": {"precision_at_3": 1.0}},
+                    "ai_evaluation": {},
+                    "model_debug": {},
+                    "stages": {"final_output": [{"rank": 1, "node_id": "n1", "text": "final"}]},
+                }
+            ],
+        },
+        top_n=0,
+        max_text_chars=100,
+    )
+
+    assert "Final output" in html
+    assert "Local recheck" not in html

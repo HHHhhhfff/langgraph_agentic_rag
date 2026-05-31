@@ -432,12 +432,8 @@ class TaskGraphEvaluationPipeline:
         context_count = len(result.citations)
         context_hits = _stage(stages, "final_output") or final_hits[:context_count]
         ranked_hits_by_stage = dict(stages)
-        ranked_hits_by_stage.setdefault("initial_recall", _stage(stages, "initial_retrieval"))
-        ranked_hits_by_stage.setdefault("local_recheck", _stage(stages, "final_after_retry", "retry_1_expanded", "initial_expanded"))
         ranked_hits_by_stage.setdefault("final_output", context_hits)
         visual_hits_by_stage = dict(visual_stages)
-        visual_hits_by_stage.setdefault("initial_recall", ranked_hits_by_stage.get("initial_recall", []))
-        visual_hits_by_stage.setdefault("local_recheck", ranked_hits_by_stage.get("local_recheck", []))
         visual_hits_by_stage.setdefault("final_output", [*context_hits, *(removed_stages.get("final_output") or [])])
         token_usage = {
             "query_tokens_est": estimate_tokens(question, self.settings.llm_model),
@@ -462,7 +458,7 @@ class TaskGraphEvaluationPipeline:
             evidence_gate_hits=_stage(stages, "evidence_gate"),
             retry_hits=_stage(stages, "retry_1_expanded", "retry_1_retrieval"),
             final_hits=final_hits,
-            local_recheck_hits=ranked_hits_by_stage.get("local_recheck", []),
+            local_recheck_hits=_stage(stages, "local_recheck"),
             context_hits=context_hits,
             ranked_hits_by_stage=ranked_hits_by_stage,
             removed_hits_by_stage=removed_stages,

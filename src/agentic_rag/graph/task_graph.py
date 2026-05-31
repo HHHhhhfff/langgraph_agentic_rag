@@ -1269,12 +1269,17 @@ class TaskGraphRAG:
                 output_hits = []
             output_keys = {(hit.node_id or hit.point_id or f"{hit.doc_id}:{hit.metadata.get('chunk_index')}") for hit in output_hits}
             final_output_removed_hits = []
+            generation_skipped = not state.get("prompt")
             for rank, hit in enumerate(final_hits, start=1):
                 key = hit.node_id or hit.point_id or f"{hit.doc_id}:{hit.metadata.get('chunk_index')}"
                 if key in output_keys:
                     continue
+                reason = "citation_not_selected"
                 detail = "not referenced by final citations"
-                if not citation_rows:
+                if generation_skipped:
+                    reason = "generation_skipped"
+                    detail = "build_prompt/generate_answer was skipped before final output"
+                elif not citation_rows:
                     detail = "no final citations were produced"
                 elif state.get("citation_ok") is False:
                     detail = "citation verification failed or citation was not selected"
@@ -1282,7 +1287,7 @@ class TaskGraphRAG:
                     mark_removed_hit(
                         hit.model_copy(deep=True),
                         stage="final_output",
-                        reason="citation_not_selected",
+                        reason=reason,
                         detail=detail,
                         previous_rank=rank,
                         extra={
@@ -1479,6 +1484,8 @@ class TaskGraphRAG:
             return "build_prompt"
         retry_count = int(state.get("retry_count", 0))
         if retry_count >= int(state.get("max_retries", self.settings.tg_max_retries)):
+            if self._should_generate_on_retry_exhausted(state):
+                return "build_prompt"
             return "finalize"
         started_at = int(state.get("started_at_ms", _now_ms()))
         elapsed = _now_ms() - started_at
@@ -1490,6 +1497,14 @@ class TaskGraphRAG:
         if retry_count > 0 and float(state.get("evidence_gain", 1.0)) < self.settings.tg_min_gain_threshold:
             return "finalize"
         return "local_retry"
+
+    def _should_generate_on_retry_exhausted(self, state: TaskGraphState) -> bool:
+        if not self.settings.tg_generate_on_retry_exhausted:
+            return False
+        if state.get("refusal") and self.settings.tg_allow_refusal:
+            return False
+        hits = state.get("expanded_hits", []) or []
+        return len(hits) >= self.settings.tg_generate_on_retry_exhausted_min_hits
 
     def _citation_decision(self, state: TaskGraphState) -> str:
         if self._should_skip_local_retry(state):

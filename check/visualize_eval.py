@@ -67,6 +67,7 @@ REMOVED_REASON_LABELS = {
     "rerank_failed_fallback_excluded": "Excluded after rerank fallback",
     "context_top_n_limit": "Exceeded context_top_n",
     "citation_not_selected": "Not selected by final citation",
+    "generation_skipped": "Generation skipped",
     "stage_top_k_limit": "Exceeded stage top-k",
     "relationship_expansion_limit": "Relationship expansion limit",
     "duplicate_deduped": "Duplicate deduped",
@@ -226,10 +227,6 @@ def normalize_stage_hits(record: dict[str, Any], query_record: dict[str, Any] | 
             for stage, value in q_stages.items():
                 stage_hits[stage] = normalize_hits_from_query_stage(value)
 
-    if "local_recheck" not in stage_hits and "final_output" in stage_hits:
-        stage_hits["local_recheck"] = stage_hits["final_output"]
-    if "final_output" not in stage_hits and "local_recheck" in stage_hits:
-        stage_hits["final_output"] = stage_hits["local_recheck"]
     return stage_hits
 
 
@@ -370,10 +367,6 @@ def stage_metrics(case: dict[str, Any], stage: str) -> dict[str, Any]:
         value = nested.get(stage)
         if isinstance(value, dict):
             return value
-        if stage == "local_recheck":
-            value = nested.get("final_output")
-            if isinstance(value, dict):
-                return value
 
     flat = case.get("metrics")
     if not isinstance(flat, dict):
@@ -384,12 +377,6 @@ def stage_metrics(case: dict[str, Any], stage: str) -> dict[str, Any]:
         for name in METRIC_NAMES
         if f"{prefix}{name}" in flat
     }
-    if stage == "local_recheck" and not metrics:
-        metrics = {
-            name: flat.get(f"final_output_{name}")
-            for name in METRIC_NAMES
-            if f"final_output_{name}" in flat
-        }
     return metrics
 
 
@@ -427,7 +414,7 @@ def removed_reason_group(reason: str | None) -> str:
         return "threshold"
     if reason in {"reranker_not_selected", "context_top_n_limit", "stage_top_k_limit", "rerank_empty", "rerank_failed_fallback_excluded"}:
         return "topk"
-    if reason == "citation_not_selected":
+    if reason in {"citation_not_selected", "generation_skipped"}:
         return "citation"
     return "other"
 
@@ -753,8 +740,6 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
 def render_stage(case: dict[str, Any], stage: str, top_n: int, max_text_chars: int, *, show_removed: bool) -> str:
     real_hits = case.get("stages", {}).get(stage)
     hits = (case.get("visual_stages", {}).get(stage) if show_removed else None) or real_hits
-    if not isinstance(hits, list) and stage == "local_recheck":
-        hits = (case.get("visual_stages", {}).get("final_output") if show_removed else None) or case.get("stages", {}).get("final_output")
     if not isinstance(hits, list):
         hits = []
     if not isinstance(real_hits, list):

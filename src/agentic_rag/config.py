@@ -599,6 +599,8 @@ class Settings(BaseSettings):
     tg_retry_carry_forward_include_citation_candidates: bool = Field(default=True, description="Allow final/prompt citation candidates to be carried into citation retry")
     tg_citation_verify_enabled: bool = Field(default=True, description="Enable citation verification after answer generation")
     tg_citation_strict: bool = Field(default=False, description="Require answer to include citation markers when citation verification is enabled")
+    tg_generate_on_retry_exhausted: bool = Field(default=True, description="Generate with available evidence when local retry budget is exhausted")
+    tg_generate_on_retry_exhausted_min_hits: int = Field(default=1, description="Minimum candidate hits required to generate after retry exhaustion")
     tg_allow_refusal: bool = Field(default=True, description="Allow refusal when evidence remains insufficient")
     tg_route_llm_enabled: bool = Field(default=False, description="Use LLM-assisted route analysis (off by default)")
     tg_agent_route_enabled: bool = Field(default=False, description="Enable constrained LLM route analysis")
@@ -689,6 +691,7 @@ class Settings(BaseSettings):
         "tg_retry_page_window_step",
         "tg_retry_max_page_window",
         "tg_retry_carry_forward_top_n",
+        "tg_generate_on_retry_exhausted_min_hits",
         "tg_agent_max_context_hits",
         "tg_agent_max_retries",
         "embedding_batch_size",
