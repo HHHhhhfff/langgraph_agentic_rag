@@ -1,0 +1,12 @@
+{
+  "text": "At τ≈3, order Σ_tot(τ) by Q from highest to lowest.",
+  "rewritten_text": "At τ≈3, order Σ_tot(τ) by Q from highest to lowest. 图片 图像 图中 image figure",
+  "filters": {},
+  "route": "image_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "image",
+    "relationship"
+  ]
+}
