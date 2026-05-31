@@ -456,10 +456,13 @@ def _hit_page_key(hit: dict[str, Any]) -> tuple[str, int] | None:
 
 
 def _hit_chunk_key(hit: dict[str, Any], index: int) -> str:
-    for field in ("node_id", "point_id"):
+    parts: list[str] = []
+    for field in ("node_id", "point_id", "source", "doc_id", "title", "page", "chunk_index"):
         value = _hit_value(hit, field)
         if value not in (None, ""):
-            return f"{field}:{value}"
+            parts.append(f"{field}={normalize_text(value)}")
+    if parts:
+        return "chunk:" + "|".join(parts)
     chunk_index = _hit_value(hit, "chunk_index")
     if chunk_index not in (None, ""):
         identity = (
@@ -482,22 +485,52 @@ def candidate_chunk_recall_at_k(
     grades: list[float],
     *,
     k: int,
+    denominator_keys: set[str] | None = None,
 ) -> float:
-    """Recall over relevant unique chunks in the current candidate list."""
+    """Recall over relevant unique chunks seen across the pipeline."""
 
-    relevant_keys: set[str] = set()
     top_relevant_keys: set[str] = set()
     cutoff = max(1, k)
     for index, (hit, grade) in enumerate(zip(hits, grades), start=1):
         if float(grade or 0.0) <= 0:
             continue
         key = _hit_chunk_key(hit, index)
-        relevant_keys.add(key)
         if index <= cutoff:
             top_relevant_keys.add(key)
+    relevant_keys = denominator_keys or set(top_relevant_keys)
     if not relevant_keys:
         return 0.0
     return float(len(top_relevant_keys)) / float(len(relevant_keys))
+
+
+def global_relevant_chunk_keys_by_stage(
+    hits_by_stage: dict[str, list[dict[str, Any]]],
+    specs: list[dict[str, Any]],
+    *,
+    page_tolerance: int = 0,
+) -> dict[str, set[str]]:
+    stage_keys: dict[str, set[str]] = {}
+    all_keys: set[str] = set()
+    for stage, hits in hits_by_stage.items():
+        copied_hits = [dict(hit) for hit in hits]
+        can_judge = not copied_hits or any(
+            _hit_has_required_fields(hit, spec)
+            for hit in copied_hits
+            for spec in specs
+        )
+        if not can_judge:
+            stage_keys[stage] = set()
+            continue
+        grades, _ideal = relevance_grades_for_hits(copied_hits, specs, page_tolerance=page_tolerance)
+        keys = {
+            _hit_chunk_key(hit, index)
+            for index, (hit, grade) in enumerate(zip(copied_hits, grades), start=1)
+            if float(grade or 0.0) > 0
+        }
+        stage_keys[stage] = keys
+        all_keys.update(keys)
+    stage_keys["__all__"] = all_keys
+    return stage_keys
 
 
 def page_level_metrics(
@@ -628,6 +661,11 @@ def compute_stage_ranking_metrics(
 
     ideal: list[float] = []
     exhaustive = all(_spec_is_exhaustive_chunk(spec) for spec in specs)
+    global_relevant_keys = global_relevant_chunk_keys_by_stage(
+        hits_by_stage,
+        specs,
+        page_tolerance=page_tolerance,
+    ).get("__all__", set())
     for stage, hits in hits_by_stage.items():
         copied_hits = [dict(hit) for hit in hits]
         can_judge = not copied_hits or any(
@@ -657,7 +695,12 @@ def compute_stage_ranking_metrics(
             metrics = partial_ranking_metrics(grades, k=k)
             for hit in copied_hits:
                 hit["relevance_scope"] = "partial_page_or_source"
-        metrics["recall"] = candidate_chunk_recall_at_k(copied_hits, grades, k=k)
+        metrics["recall"] = candidate_chunk_recall_at_k(
+            copied_hits,
+            grades,
+            k=k,
+            denominator_keys=global_relevant_keys,
+        )
         metrics.update(page_level_metrics(copied_hits, specs, page_tolerance=page_tolerance))
         stage_metrics[stage] = metrics
         annotated[stage] = copied_hits

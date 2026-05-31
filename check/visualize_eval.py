@@ -72,6 +72,7 @@ REMOVED_REASON_LABELS = {
     "context_top_n_limit": "Exceeded context_top_n",
     "citation_not_selected": "Not selected by final citation",
     "generation_skipped": "Generation skipped",
+    "not_selected_for_final_candidates": "Not selected for final candidates",
     "stage_top_k_limit": "Exceeded stage top-k",
     "relationship_expansion_limit": "Relationship expansion limit",
     "duplicate_deduped": "Duplicate deduped",
@@ -400,14 +401,14 @@ def stage_order_for_cases(cases: list[dict[str, Any]]) -> tuple[str, ...]:
 
 
 def hit_key(hit: dict[str, Any]) -> str:
-    for field in ("node_id", "point_id"):
+    parts: list[str] = []
+    for field in ("node_id", "point_id", "source", "doc_id", "title", "page", "chunk_index"):
         value = hit.get(field)
         if value not in (None, ""):
-            return str(value)
-    doc_id = hit.get("doc_id") or hit.get("source") or ""
-    chunk_index = hit.get("chunk_index")
-    page = hit.get("page")
-    return f"{doc_id}:{chunk_index}:{page}:{hit.get('text', '')[:32]}"
+            parts.append(f"{field}={str(value).strip().lower()}")
+    if parts:
+        return "chunk:" + "|".join(parts)
+    return f"text:{str(hit.get('text', ''))[:200].strip().lower()}"
 
 
 def removed_reason_group(reason: str | None) -> str:
@@ -446,7 +447,7 @@ def infer_removed_reason(hit: dict[str, Any], from_stage: str, to_stage: str) ->
     if to_stage == "final_output":
         return "citation_not_selected", f"present in {from_stage}, absent in {to_stage}; not referenced by final citations"
     if to_stage in {"final_after_retry", "local_recheck"}:
-        return "context_top_n_limit", f"present in {from_stage}, absent in {to_stage}"
+        return "not_selected_for_final_candidates", f"present in {from_stage}, absent in {to_stage}"
     return "unknown_removed", f"present in {from_stage}, absent in {to_stage}"
 
 
@@ -494,6 +495,8 @@ def augment_removed_hits_for_visualization(
 
     if use_inferred:
         for previous, current in zip(stage_order, stage_order[1:]):
+            if current.startswith("retry_") and not stages.get(current) and not removed_stages.get(current):
+                continue
             previous_hits = stages.get(previous) or []
             current_keys = {hit_key(hit) for hit in stages.get(current, [])}
             explicit_keys = {hit_key(hit) for hit in removed_stages.get(current, [])}
@@ -530,6 +533,22 @@ def removed_summary(hits: list[dict[str, Any]]) -> dict[str, int]:
         if hit.get("visual_removed_inferred"):
             summary["inferred"] += 1
     return summary
+
+
+def agent_status(hit: dict[str, Any], stage: str) -> str | None:
+    if hit.get("agent_relevance_label") not in (None, "") or hit.get("agent_relevance_score") not in (None, ""):
+        return None
+    if stage in {
+        "initial_recall",
+        "initial_retrieval",
+        "initial_expanded",
+        "rerank",
+        "retry_1_retrieval",
+        "retry_1_expanded",
+        "retry_1_rerank",
+    }:
+        return "not_graded_yet"
+    return "not_graded"
 
 
 def stage_summary(hits: list[dict[str, Any]], expected_pages: list[int]) -> dict[str, Any]:
@@ -592,7 +611,7 @@ def render_citations(citations: Any) -> str:
     return f"<ol class=\"citations\">{''.join(rows)}</ol>" if rows else '<div class="muted">No citations</div>'
 
 
-def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars: int) -> str:
+def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars: int, *, stage: str) -> str:
     relevant, reason = is_relevant(hit, expected_pages)
     agent_label = str(hit.get("agent_relevance_label") or "").lower()
     agent_drop = bool(hit.get("agent_relevance_drop"))
@@ -653,6 +672,7 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("carry_score", fmt_num(hit.get("retry_carry_forward_score"))),
     ]
     agent_meta = [
+        ("agent_status", agent_status(hit, stage)),
         ("agent_label", hit.get("agent_relevance_label")),
         ("agent_score", fmt_num(hit.get("agent_relevance_score"))),
         ("agent_source", hit.get("agent_relevance_source")),
@@ -753,7 +773,7 @@ def render_stage(case: dict[str, Any], stage: str, top_n: int, max_text_chars: i
     summary = stage_summary(real_hits, expected_pages)
     removed_stats = removed_summary(hits)
     top1_class = "ok" if summary["top1"] else "bad"
-    chunks_html = "".join(render_chunk(hit, expected_pages, max_text_chars) for hit in shown_hits)
+    chunks_html = "".join(render_chunk(hit, expected_pages, max_text_chars, stage=stage) for hit in shown_hits)
     if not chunks_html:
         chunks_html = '<div class="empty-stage">No chunks recorded</div>'
     top_n_note = f"showing top {len(shown_hits)} of {len(hits)}" if top_n > 0 and len(hits) > top_n else f"{len(hits)} chunks"

@@ -208,6 +208,71 @@ def test_candidate_chunk_recall_dedupes_same_chunk_in_denominator() -> None:
     assert flat["rerank_recall"] == 2.0 / 3.0
 
 
+def test_candidate_chunk_recall_does_not_merge_same_node_with_different_stable_fields() -> None:
+    hits = {
+        "rerank": [
+            {"node_id": "n1", "point_id": "p1", "page": 3, "chunk_index": 1, "source": "doc.pdf"},
+            {"node_id": "n1", "point_id": "p2", "page": 3, "chunk_index": 2, "source": "doc.pdf"},
+            {"node_id": "n1", "point_id": "p1", "page": 3, "chunk_index": 1, "source": "doc.pdf"},
+        ]
+    }
+    specs = [{"source": "doc.pdf", "page": 3, "grade": 1.0}]
+
+    stage_metrics, _flat, _annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        k=1,
+        page_tolerance=0,
+    )
+
+    assert stage_metrics["rerank"]["recall"] == 0.5
+
+
+def test_candidate_chunk_recall_dedupes_same_chunk_in_topk_numerator() -> None:
+    hits = {
+        "rerank": [
+            {"node_id": "n1", "point_id": "p1", "page": 3, "chunk_index": 1, "source": "doc.pdf"},
+            {"node_id": "n1", "point_id": "p1", "page": 3, "chunk_index": 1, "source": "doc.pdf"},
+            {"node_id": "n2", "point_id": "p2", "page": 3, "chunk_index": 2, "source": "doc.pdf"},
+        ]
+    }
+    specs = [{"source": "doc.pdf", "page": 3, "grade": 1.0}]
+
+    stage_metrics, _flat, _annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        k=2,
+        page_tolerance=0,
+    )
+
+    assert stage_metrics["rerank"]["recall"] == 0.5
+
+
+def test_recall_denominator_uses_relevant_unique_chunks_seen_across_all_stages() -> None:
+    hits = {
+        "initial_expanded": [
+            {"node_id": "n1", "page": 3, "source": "doc.pdf"},
+            {"node_id": "n2", "page": 3, "source": "doc.pdf"},
+            {"node_id": "n3", "page": 3, "source": "doc.pdf"},
+        ],
+        "final_output": [
+            {"node_id": "n1", "page": 3, "source": "doc.pdf"},
+        ],
+    }
+    specs = [{"source": "doc.pdf", "page": 3, "grade": 1.0}]
+
+    stage_metrics, flat, _annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        k=10,
+        page_tolerance=0,
+    )
+
+    assert stage_metrics["initial_expanded"]["recall"] == 1.0
+    assert stage_metrics["final_output"]["recall"] == 1.0 / 3.0
+    assert flat["final_output_recall"] == 1.0 / 3.0
+
+
 def test_visual_report_renders_dynamic_agent_stage_fields(tmp_path: Path) -> None:
     html = render_html(
         {
@@ -339,6 +404,156 @@ def test_visual_report_infers_removed_hit_when_stage_diff_loses_chunk() -> None:
 
     assert "Removed: AI marked drop" in html
     assert "visual_removed_inferred" in html
+
+
+def test_visual_report_does_not_infer_final_after_retry_diff_as_context_top_n() -> None:
+    html = render_html(
+        {
+            "name": "run1",
+            "source": "check/runs/run1",
+            "mode": "run",
+            "runs": [{"run_name": "run1", "summary": {"case_count": 1, "error_count": 0}}],
+            "cases": [
+                {
+                    "id": "case1",
+                    "run_name": "run1",
+                    "question": "q",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [],
+                    "metrics": {},
+                    "ai_evaluation": {},
+                    "model_debug": {},
+                    "stages": {
+                        "retry_1_rerank": [
+                            {"rank": 1, "node_id": "kept", "point_id": "p1", "text": "kept"},
+                            {"rank": 2, "node_id": "lost", "point_id": "p2", "text": "lost"},
+                        ],
+                        "final_after_retry": [
+                            {"rank": 1, "node_id": "kept", "point_id": "p1", "text": "kept"},
+                        ],
+                    },
+                }
+            ],
+        },
+        top_n=0,
+        max_text_chars=100,
+    )
+
+    assert "Removed: Not selected for final candidates" in html
+    assert "Removed: Exceeded context_top_n" not in html
+
+
+def test_visual_report_uses_composite_hit_key_for_removed_deduplication() -> None:
+    html = render_html(
+        {
+            "name": "run1",
+            "source": "check/runs/run1",
+            "mode": "run",
+            "runs": [{"run_name": "run1", "summary": {"case_count": 1, "error_count": 0}}],
+            "cases": [
+                {
+                    "id": "case1",
+                    "run_name": "run1",
+                    "question": "q",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [],
+                    "metrics": {},
+                    "ai_evaluation": {},
+                    "model_debug": {},
+                    "stages": {
+                        "rerank": [
+                            {"rank": 1, "node_id": "same", "point_id": "p1", "chunk_index": 1, "text": "kept"},
+                        ]
+                    },
+                    "removed_stages": {
+                        "rerank": [
+                            {
+                                "rank": 2,
+                                "node_id": "same",
+                                "point_id": "p2",
+                                "chunk_index": 2,
+                                "text": "removed",
+                                "removed_reason": "context_top_n_limit",
+                                "removed_reason_detail": "rank=2 > context_top_n=1",
+                            }
+                        ]
+                    },
+                }
+            ],
+        },
+        top_n=0,
+        max_text_chars=100,
+    )
+
+    assert "Removed: Exceeded context_top_n" in html
+    assert "removed" in html
+
+
+def test_visual_report_marks_pre_grading_stage_as_not_graded_yet() -> None:
+    html = render_html(
+        {
+            "name": "run1",
+            "source": "check/runs/run1",
+            "mode": "run",
+            "runs": [{"run_name": "run1", "summary": {"case_count": 1, "error_count": 0}}],
+            "cases": [
+                {
+                    "id": "case1",
+                    "run_name": "run1",
+                    "question": "q",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [],
+                    "metrics": {},
+                    "ai_evaluation": {},
+                    "model_debug": {},
+                    "stages": {"retry_1_rerank": [{"rank": 1, "node_id": "n1", "text": "candidate"}]},
+                }
+            ],
+        },
+        top_n=0,
+        max_text_chars=100,
+    )
+
+    assert "agent_status</b>: not_graded_yet" in html
+
+
+def test_visual_report_does_not_infer_removed_into_empty_retry_stage() -> None:
+    html = render_html(
+        {
+            "name": "run1",
+            "source": "check/runs/run1",
+            "mode": "run",
+            "runs": [{"run_name": "run1", "summary": {"case_count": 1, "error_count": 0}}],
+            "cases": [
+                {
+                    "id": "case1",
+                    "run_name": "run1",
+                    "question": "q",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [],
+                    "metrics": {},
+                    "ai_evaluation": {},
+                    "model_debug": {},
+                    "stages": {
+                        "evidence_gate": [{"rank": 1, "node_id": "n1", "text": "kept"}],
+                        "retry_1_retrieval": [],
+                    },
+                }
+            ],
+        },
+        top_n=0,
+        max_text_chars=100,
+    )
+
+    assert "Removed: Missing after stage transition" not in html
 
 
 def test_visual_report_marks_final_output_diff_as_citation_not_selected() -> None:

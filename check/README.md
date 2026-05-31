@@ -169,8 +169,8 @@ check/query_records/<run-name>_query_stage_chunks.json
 
 - `precision_at_1` / `precision_at_3` 是单 query 的 top-k 指标。
 - `precision` 是单 query、单阶段的实际返回精确率，分母是当前阶段参与评测的返回 chunk 数。
-- `recall` 当前定义为候选集内去重 `Chunk Recall@k`：Top-k 中相关唯一 chunk 数 / 当前阶段候选集中所有相关唯一 chunk 数。
-- `recall` 的分母只来自当前阶段已经记录的候选集，不代表全库召回率；同一个 `node_id/point_id/chunk_index` 不会重复计入分母。
+- `recall` 当前定义为链路内去重 `Chunk Recall@k`：当前阶段 Top-k 中相关唯一 chunk 数 / 从初召回到最终所有记录阶段中出现过的相关唯一 chunk 数。
+- `recall` 的分母只来自本次 query 已记录阶段的候选并集，不代表全库召回率；去重使用可用稳定字段组成的复合 key：`node_id`、`point_id`、`source/doc_id/title + page + chunk_index`，避免只按 `node_id` 合并同一 node 下的不同 chunk。
 - 当标准答案只标到 `source/page/title` 级别时，`ap` / `ndcg` 没有可靠的理想排序，报告中显示为 `-`。
 - 只有当标准答案提供 `node_id` / `point_id` / `chunk_index` 这类精确 chunk 级标注时，`ap` / `ndcg` 才会计算。
 - `page_recall` 是页级召回率：命中的标准页数 / 标准页总数。它不把标准页内所有 chunk 都当作相关 chunk。
