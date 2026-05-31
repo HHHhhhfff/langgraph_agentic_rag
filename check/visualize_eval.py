@@ -48,6 +48,10 @@ METRIC_NAMES = (
     "recall",
     "ap",
     "ndcg",
+    "page_hit_rate",
+    "page_mrr",
+    "page_precision",
+    "page_recall",
 )
 AI_NAMES = (
     "ai_correctness",
@@ -1005,9 +1009,13 @@ def render_html(
         "final_after_retry_precision_at_1": average_metric(cases, "final_after_retry_precision_at_1"),
         "final_after_retry_precision_at_3": average_metric(cases, "final_after_retry_precision_at_3"),
         "final_after_retry_precision": average_metric(cases, "final_after_retry_precision"),
+        "final_after_retry_page_recall": average_metric(cases, "final_after_retry_page_recall"),
+        "final_after_retry_page_precision": average_metric(cases, "final_after_retry_page_precision"),
         "final_output_precision_at_1": average_metric(cases, "final_output_precision_at_1"),
         "final_output_precision_at_3": average_metric(cases, "final_output_precision_at_3"),
         "final_output_precision": average_metric(cases, "final_output_precision"),
+        "final_output_page_recall": average_metric(cases, "final_output_page_recall"),
+        "final_output_page_precision": average_metric(cases, "final_output_page_precision"),
         "ai_score_100": average_metric(cases, "ai_score_100"),
     }
 

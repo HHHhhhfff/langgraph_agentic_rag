@@ -65,10 +65,14 @@ RETRIEVAL_REPORT_METRICS = (
     ("mrr", "MRR（Mean Reciprocal Rank）"),
     ("precision_at_1", "Precision@1（精确率 Top1）"),
     ("precision_at_3", "Precision@3（精确率 Top3）"),
-    ("precision", "Precision@k（精确率）"),
-    ("recall", "Recall（召回率）"),
+    ("precision", "Precision（实际返回精确率）"),
+    ("recall", "Chunk Recall@k（候选集内去重 chunk 召回率）"),
     ("ap", "AP（Average Precision）"),
     ("ndcg", "nDCG（Normalized Discounted Cumulative Gain）"),
+    ("page_hit_rate", "Page Hit Rate（页级命中率）"),
+    ("page_mrr", "Page MRR（页级首命中倒数排名）"),
+    ("page_precision", "Page Precision（返回页精确率）"),
+    ("page_recall", "Page Recall（标准页召回率）"),
 )
 AI_REPORT_FIELDS = (
     ("ai_correctness", "Correctness（正确性）"),
@@ -417,6 +421,144 @@ def _hit_has_required_fields(hit: dict[str, Any], spec: dict[str, Any]) -> bool:
     return all(_hit_value(hit, field) not in (None, "") for field in checks)
 
 
+def _page_specs(specs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    page_specs: list[dict[str, Any]] = []
+    seen: set[tuple[str, ...]] = set()
+    for spec in specs:
+        page = _int_value(spec.get("page"))
+        if page is None:
+            continue
+        row = {
+            key: spec[key]
+            for key in ("source", "doc_id", "title")
+            if spec.get(key) not in (None, "")
+        }
+        row["page"] = page
+        key = tuple(f"{name}={normalize_text(value)}" for name, value in sorted(row.items()))
+        if key in seen:
+            continue
+        seen.add(key)
+        page_specs.append(row)
+    return page_specs
+
+
+def _hit_page_key(hit: dict[str, Any]) -> tuple[str, int] | None:
+    page = _int_value(_hit_value(hit, "page"))
+    if page is None:
+        return None
+    identity = (
+        _hit_value(hit, "source")
+        or _hit_value(hit, "doc_id")
+        or _hit_value(hit, "title")
+        or ""
+    )
+    return normalize_text(identity), page
+
+
+def _hit_chunk_key(hit: dict[str, Any], index: int) -> str:
+    for field in ("node_id", "point_id"):
+        value = _hit_value(hit, field)
+        if value not in (None, ""):
+            return f"{field}:{value}"
+    chunk_index = _hit_value(hit, "chunk_index")
+    if chunk_index not in (None, ""):
+        identity = (
+            _hit_value(hit, "doc_id")
+            or _hit_value(hit, "source")
+            or _hit_value(hit, "title")
+            or ""
+        )
+        page = _hit_value(hit, "page")
+        return f"chunk:{normalize_text(identity)}:{page}:{chunk_index}"
+    text = normalize_text(_hit_value(hit, "text") or hit.get("text") or "")
+    if text:
+        identity = _hit_value(hit, "source") or _hit_value(hit, "doc_id") or ""
+        return f"text:{normalize_text(identity)}:{text[:200]}"
+    return f"row:{index}"
+
+
+def candidate_chunk_recall_at_k(
+    hits: list[dict[str, Any]],
+    grades: list[float],
+    *,
+    k: int,
+) -> float:
+    """Recall over relevant unique chunks in the current candidate list."""
+
+    relevant_keys: set[str] = set()
+    top_relevant_keys: set[str] = set()
+    cutoff = max(1, k)
+    for index, (hit, grade) in enumerate(zip(hits, grades), start=1):
+        if float(grade or 0.0) <= 0:
+            continue
+        key = _hit_chunk_key(hit, index)
+        relevant_keys.add(key)
+        if index <= cutoff:
+            top_relevant_keys.add(key)
+    if not relevant_keys:
+        return 0.0
+    return float(len(top_relevant_keys)) / float(len(relevant_keys))
+
+
+def page_level_metrics(
+    hits: list[dict[str, Any]],
+    specs: list[dict[str, Any]],
+    *,
+    page_tolerance: int = 0,
+) -> dict[str, float | None]:
+    expected = _page_specs(specs)
+    if not expected:
+        return {
+            "page_hit_rate": None,
+            "page_mrr": None,
+            "page_precision": None,
+            "page_recall": None,
+        }
+    if not hits:
+        return {
+            "page_hit_rate": 0.0,
+            "page_mrr": 0.0,
+            "page_precision": 0.0,
+            "page_recall": 0.0,
+        }
+    if not any(
+        _hit_has_required_fields(hit, spec)
+        for hit in hits
+        for spec in expected
+    ):
+        return {
+            "page_hit_rate": None,
+            "page_mrr": None,
+            "page_precision": None,
+            "page_recall": None,
+        }
+
+    covered_expected: set[int] = set()
+    returned_pages: dict[tuple[str, int], bool] = {}
+    first_rank: int | None = None
+    for rank, hit in enumerate(hits, start=1):
+        page_key = _hit_page_key(hit)
+        matched = False
+        for index, spec in enumerate(expected):
+            ok, _reason = _matches_spec(hit, spec, page_tolerance=page_tolerance)
+            if ok:
+                matched = True
+                covered_expected.add(index)
+        if matched and first_rank is None:
+            first_rank = rank
+        if page_key is not None:
+            returned_pages[page_key] = returned_pages.get(page_key, False) or matched
+
+    relevant_pages = sum(1 for matched in returned_pages.values() if matched)
+    returned_page_count = len(returned_pages)
+    return {
+        "page_hit_rate": 1.0 if covered_expected else 0.0,
+        "page_mrr": (1.0 / float(first_rank)) if first_rank else 0.0,
+        "page_precision": (float(relevant_pages) / float(returned_page_count)) if returned_page_count else 0.0,
+        "page_recall": float(len(covered_expected)) / float(len(expected)),
+    }
+
+
 def relevance_grades_for_hits(
     hits: list[dict[str, Any]],
     specs: list[dict[str, Any]],
@@ -515,6 +657,8 @@ def compute_stage_ranking_metrics(
             metrics = partial_ranking_metrics(grades, k=k)
             for hit in copied_hits:
                 hit["relevance_scope"] = "partial_page_or_source"
+        metrics["recall"] = candidate_chunk_recall_at_k(copied_hits, grades, k=k)
+        metrics.update(page_level_metrics(copied_hits, specs, page_tolerance=page_tolerance))
         stage_metrics[stage] = metrics
         annotated[stage] = copied_hits
         prefix = f"{stage}_"
@@ -851,8 +995,8 @@ def build_metrics_report_markdown(report: dict[str, Any]) -> str:
         "",
         "## 检索指标",
         "",
-        "| 阶段 | Hit Rate | MRR | Precision@1 | Precision@3 | Precision@k | Recall | AP | nDCG |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| 阶段 | " + " | ".join(label for _name, label in RETRIEVAL_REPORT_METRICS) + " |",
+        "|---" + "|---:" * len(RETRIEVAL_REPORT_METRICS) + "|",
     ]
     retrieval = report.get("retrieval_metrics") or {}
     for stage in retrieval:
@@ -864,17 +1008,8 @@ def build_metrics_report_markdown(report: dict[str, Any]) -> str:
         lines.append(
             "| "
             + " | ".join(
-                [
-                    str(row.get("label") or stage),
-                    format_metric(values.get("hit_rate")),
-                    format_metric(values.get("mrr")),
-                    format_metric(values.get("precision_at_1")),
-                    format_metric(values.get("precision_at_3")),
-                    format_metric(values.get("precision")),
-                    format_metric(values.get("recall")),
-                    format_metric(values.get("ap")),
-                    format_metric(values.get("ndcg")),
-                ]
+                [str(row.get("label") or stage)]
+                + [format_metric(values.get(metric)) for metric, _label in RETRIEVAL_REPORT_METRICS]
             )
             + " |"
         )
@@ -1302,14 +1437,10 @@ def print_summary(run_dir: Path, summary: dict[str, Any]) -> None:
             }
             print(
                 f"{stage}: "
-                f"hit_rate={format_metric(values.get('hit_rate'))}, "
-                f"mrr={format_metric(values.get('mrr'))}, "
-                f"precision@1={format_metric(values.get('precision_at_1'))}, "
-                f"precision@3={format_metric(values.get('precision_at_3'))}, "
-                f"precision@k={format_metric(values.get('precision'))}, "
-                f"recall={format_metric(values.get('recall'))}, "
-                f"ap={format_metric(values.get('ap'))}, "
-                f"ndcg={format_metric(values.get('ndcg'))}"
+                + ", ".join(
+                    f"{metric}={format_metric(values.get(metric))}"
+                    for metric, _label in RETRIEVAL_REPORT_METRICS
+                )
             )
 
 
