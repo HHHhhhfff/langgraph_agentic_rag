@@ -683,6 +683,10 @@ IMAGE_QUERY_CONTEXT_WEIGHT=0.70
   - 同一 chunk 被多个 query variant 命中时，对 `score_composite` 做小幅加分，避免单 query embedding 漏掉符号/caption 类证据。
 - `RERANK_GUARDRAIL_ENABLED`
   - 标记与 query 有强锚点重合、且 prior 分不低的 chunk，适度扩大 reranker 返回名额；最终是否进入 `CONTEXT_TOP_N` 仍由 reranker 分数和 composite 决定，不再绕过 reranker 硬插入。
+- `RERANK_GUARDRAIL_MAX_ANCHOR_HITS`
+  - 单次最多标记多少个 guardrail anchor candidate；用于限制因符号/实体锚点保护而额外请求 reranker 返回的候选数量。
+- `RERANK_GUARDRAIL_MIN_ANCHOR_SCORE`
+  - 触发 guardrail 的最低 prior `score_composite`；低于该分数的 anchor overlap chunk 不会被标记，避免低质量候选扩大 reranker 输入/输出范围。
 - `RERANK_GUARDRAIL_REQUIRE_STRONG_ANCHOR`
   - 仅允许数字、符号/公式 token、连字符术语、专名等强锚点触发 guardrail，避免普通长词触发保护。
 - `IMAGE_QUERY_CONTEXT_EXPAND_ENABLED`
