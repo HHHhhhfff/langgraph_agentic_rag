@@ -100,6 +100,7 @@ def ranking_metrics(
 ) -> dict[str, float]:
     cutoff = max(1, k)
     top_relevance = [float(score) for score in relevance[:cutoff]]
+    evaluated_count = max(1, len(top_relevance))
     relevant_flags = [1 if score > 0 else 0 for score in top_relevance]
     relevant_hits = sum(relevant_flags)
 
@@ -125,7 +126,7 @@ def ranking_metrics(
         "mrr": safe_div(1.0, float(first_rank)) if first_rank else 0.0,
         "precision_at_1": precision_at(relevance, 1),
         "precision_at_3": precision_at(relevance, 3),
-        "precision": safe_div(float(relevant_hits), float(cutoff)),
+        "precision": safe_div(float(relevant_hits), float(evaluated_count)),
         "recall": safe_div(float(relevant_hits), float(total_relevant)),
         "ap": ap,
         "ndcg": ndcg,

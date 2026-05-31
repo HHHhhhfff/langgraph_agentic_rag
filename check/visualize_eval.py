@@ -944,12 +944,14 @@ def render_run_cards(runs: list[dict[str, Any]]) -> str:
             f"""
             <div class="run-card">
               <h3>{esc(run.get('run_name'))}</h3>
-              <div><b>cases</b>: {esc(summary.get('case_count', len(run.get('cases', []))))}</div>
-              <div><b>errors</b>: {esc(summary.get('error_count', '-'))}</div>
-              <div><b>rerank P@1</b>: {fmt_num(mean.get('rerank_precision_at_1'))}</div>
-              <div><b>final P@1</b>: {fmt_num(mean.get('local_recheck_precision_at_1', mean.get('final_output_precision_at_1')))}</div>
-              <div><b>AI/100</b>: {fmt_num(mean.get('ai_score_100'), 2)}</div>
-            </div>
+                <div><b>cases</b>: {esc(summary.get('case_count', len(run.get('cases', []))))}</div>
+                <div><b>errors</b>: {esc(summary.get('error_count', '-'))}</div>
+                <div><b>rerank P@1</b>: {fmt_num(mean.get('rerank_precision_at_1'))}</div>
+                <div><b>final P@1</b>: {fmt_num(mean.get('final_output_precision_at_1'))}</div>
+                <div><b>final P@3</b>: {fmt_num(mean.get('final_output_precision_at_3'))}</div>
+                <div><b>final precision</b>: {fmt_num(mean.get('final_output_precision'))}</div>
+                <div><b>AI/100</b>: {fmt_num(mean.get('ai_score_100'), 2)}</div>
+              </div>
             """
         )
     return "".join(cards)
@@ -991,13 +993,21 @@ def render_html(
 
     overview_chips = {
         "cases": len(cases),
+        "errors": sum(1 for case in cases if case.get("error")),
         "initial_recall_precision_at_1": average_metric(cases, "initial_recall_precision_at_1"),
         "initial_expanded_precision_at_1": average_metric(cases, "initial_expanded_precision_at_1"),
+        "initial_expanded_precision_at_3": average_metric(cases, "initial_expanded_precision_at_3"),
         "rerank_precision_at_1": average_metric(cases, "rerank_precision_at_1"),
+        "rerank_precision_at_3": average_metric(cases, "rerank_precision_at_3"),
+        "rerank_precision": average_metric(cases, "rerank_precision"),
         "agent_chunk_grading_precision_at_1": average_metric(cases, "agent_chunk_grading_precision_at_1"),
+        "agent_chunk_grading_precision_at_3": average_metric(cases, "agent_chunk_grading_precision_at_3"),
         "final_after_retry_precision_at_1": average_metric(cases, "final_after_retry_precision_at_1"),
-        "local_recheck_precision_at_1": average_metric(cases, "local_recheck_precision_at_1")
-        or average_metric(cases, "final_output_precision_at_1"),
+        "final_after_retry_precision_at_3": average_metric(cases, "final_after_retry_precision_at_3"),
+        "final_after_retry_precision": average_metric(cases, "final_after_retry_precision"),
+        "final_output_precision_at_1": average_metric(cases, "final_output_precision_at_1"),
+        "final_output_precision_at_3": average_metric(cases, "final_output_precision_at_3"),
+        "final_output_precision": average_metric(cases, "final_output_precision"),
         "ai_score_100": average_metric(cases, "ai_score_100"),
     }
 

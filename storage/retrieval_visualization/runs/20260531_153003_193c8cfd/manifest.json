@@ -1,0 +1,36 @@
+{
+  "run_id": "20260531_153003_193c8cfd",
+  "mode": "retrieval_visualization",
+  "source_mode": "auto_after_query",
+  "history_path": null,
+  "query_id": "ba3f95f0-5d32-4b29-87c9-e76a168dec21",
+  "query_text": "retry question",
+  "stages": [
+    "initial_retrieval",
+    "rerank",
+    "final_after_retry"
+  ],
+  "hit_counts": {
+    "initial_retrieval": 0,
+    "initial_expanded": 0,
+    "rerank": 0,
+    "retry_1_retrieval": 1,
+    "retry_1_expanded": 1,
+    "retry_1_rerank": 1,
+    "evidence_gate": 1,
+    "final_after_retry": 1,
+    "final_output": 1
+  },
+  "include_full_vectors": false,
+  "created_at": "2026-05-31T07:30:03.762511+00:00",
+  "warnings": [],
+  "artifacts": {
+    "query": "query.json",
+    "snapshots": "snapshots.json",
+    "chunks_html": "chunks.html",
+    "stage_compare_html": "stage_compare.html",
+    "rank_flow_html": "rank_flow.html",
+    "citations_html": "citations.html",
+    "raw_record": "raw_record.json"
+  }
+}

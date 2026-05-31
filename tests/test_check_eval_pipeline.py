@@ -125,6 +125,7 @@ def test_page_level_specs_can_mark_multiple_chunks_relevant_and_hide_unknown_rec
 
     assert [hit["relevance_grade"] for hit in annotated["final_after_retry"][:4]] == [1.0, 1.0, 1.0, 0.0]
     assert stage_metrics["final_after_retry"]["precision_at_3"] == 1.0
+    assert stage_metrics["final_after_retry"]["precision"] == 0.75
     assert stage_metrics["final_after_retry"]["recall"] is None
     assert stage_metrics["final_after_retry"]["ap"] is None
     assert stage_metrics["final_after_retry"]["ndcg"] is None
@@ -150,6 +151,7 @@ def test_exact_chunk_specs_still_match_each_expected_chunk_once() -> None:
 
     assert [hit["relevance_grade"] for hit in annotated["rerank"]] == [1.0, 0.0, 0.0]
     assert stage_metrics["rerank"]["precision_at_3"] == 1.0 / 3.0
+    assert stage_metrics["rerank"]["precision"] == 1.0 / 3.0
     assert stage_metrics["rerank"]["recall"] == 1.0
 
 

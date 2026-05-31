@@ -1,0 +1,33 @@
+{
+  "run_id": "20260531_152649_9b5f1b1b",
+  "mode": "retrieval_visualization",
+  "source_mode": "auto_after_query",
+  "history_path": null,
+  "query_id": "97222fdf-d2f6-4ac5-8f24-bada9d903efb",
+  "query_text": "请给出答案",
+  "stages": [
+    "initial_retrieval",
+    "rerank",
+    "final_after_retry"
+  ],
+  "hit_counts": {
+    "initial_retrieval": 1,
+    "initial_expanded": 1,
+    "rerank": 1,
+    "evidence_gate": 1,
+    "final_after_retry": 1,
+    "final_output": 1
+  },
+  "include_full_vectors": false,
+  "created_at": "2026-05-31T07:26:49.474126+00:00",
+  "warnings": [],
+  "artifacts": {
+    "query": "query.json",
+    "snapshots": "snapshots.json",
+    "chunks_html": "chunks.html",
+    "stage_compare_html": "stage_compare.html",
+    "rank_flow_html": "rank_flow.html",
+    "citations_html": "citations.html",
+    "raw_record": "raw_record.json"
+  }
+}

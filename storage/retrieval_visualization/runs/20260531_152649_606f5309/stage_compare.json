@@ -1,0 +1,32 @@
+[
+  {
+    "key": "n2",
+    "node_id": "n2",
+    "point_id": "p2",
+    "source": "retry.md",
+    "title": "Retry",
+    "chunk_index": 0,
+    "page": null,
+    "modality": "text",
+    "channel": "vector",
+    "score": 0.9,
+    "score_composite": null,
+    "retry_1_retrieval_rank": 1,
+    "retry_1_retrieval_score": 0.9,
+    "retry_1_retrieval_composite": null,
+    "retry_1_expanded_rank": 1,
+    "retry_1_expanded_score": 0.9,
+    "retry_1_expanded_composite": null,
+    "retry_1_rerank_rank": 1,
+    "retry_1_rerank_score": 0.9,
+    "retry_1_rerank_composite": null,
+    "evidence_gate_rank": 1,
+    "evidence_gate_score": 0.9,
+    "evidence_gate_composite": null,
+    "final_after_retry_rank": 1,
+    "final_after_retry_score": 0.9,
+    "final_after_retry_composite": null,
+    "status": "new_in_final",
+    "rank_flow": "initial dropped -> rerank dropped -> final #1"
+  }
+]

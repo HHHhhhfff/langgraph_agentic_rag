@@ -455,6 +455,7 @@ def relevance_grades_for_hits(
 def partial_ranking_metrics(relevance: list[float], *, k: int) -> dict[str, float | None]:
     cutoff = max(1, k)
     top_relevance = [float(score) for score in relevance[:cutoff]]
+    evaluated_count = max(1, len(top_relevance))
     relevant_flags = [1 if score > 0 else 0 for score in top_relevance]
     relevant_hits = sum(relevant_flags)
     first_rank = next((idx + 1 for idx, flag in enumerate(relevant_flags) if flag), None)
@@ -463,7 +464,7 @@ def partial_ranking_metrics(relevance: list[float], *, k: int) -> dict[str, floa
         "mrr": (1.0 / float(first_rank)) if first_rank else 0.0,
         "precision_at_1": sum(1 for score in relevance[:1] if score > 0) / 1.0,
         "precision_at_3": sum(1 for score in relevance[:3] if score > 0) / 3.0,
-        "precision": float(relevant_hits) / float(cutoff),
+        "precision": float(relevant_hits) / float(evaluated_count),
         "recall": None,
         "ap": None,
         "ndcg": None,

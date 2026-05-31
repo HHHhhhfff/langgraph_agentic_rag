@@ -1,0 +1,486 @@
+{
+  "schema_version": "retrieval_eval.v1",
+  "query_id": "b84b5ad7-d276-44bd-b020-2036d917400f",
+  "timestamp": "2026-05-31T07:18:22.991798+00:00",
+  "query": {
+    "text": "TaskGraph",
+    "rewritten_text": null,
+    "filters": {},
+    "route": "text_first",
+    "executed_channels": [
+      "vector",
+      "bm25",
+      "image"
+    ]
+  },
+  "taskgraph": {
+    "retry_count": 0,
+    "retry_actions": [],
+    "retry_history": [],
+    "gate_decision": "retry",
+    "evidence_ok": false,
+    "support_level": "partial",
+    "support_score": 0.7794,
+    "citation_ok": true,
+    "used_rerank": false,
+    "rerank_fallback_reason": null,
+    "evidence_gate_enabled": true,
+    "local_retry_enabled": false,
+    "evidence_gate_skipped": false,
+    "local_retry_skipped": true
+  },
+  "snapshots": [
+    {
+      "stage": "initial_retrieval",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n1",
+          "point_id": "p1",
+          "doc_id": "d1",
+          "chunk_id": "n1",
+          "chunk_index": 0,
+          "text": "这是证据文本",
+          "metadata": {
+            "source": "doc.md",
+            "title": "Doc",
+            "chunk_index": 0,
+            "modality": "text",
+            "page": 1,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.95,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": null,
+            "score_stage": null,
+            "score_policy": null,
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "initial_expanded",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n1",
+          "point_id": "p1",
+          "doc_id": "d1",
+          "chunk_id": "n1",
+          "chunk_index": 0,
+          "text": "这是证据文本",
+          "metadata": {
+            "source": "doc.md",
+            "title": "Doc",
+            "chunk_index": 0,
+            "modality": "text",
+            "page": 1,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.95,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": null,
+            "score_stage": null,
+            "score_policy": null,
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "rerank",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n1",
+          "point_id": "p1",
+          "doc_id": "d1",
+          "chunk_id": "n1",
+          "chunk_index": 0,
+          "text": "这是证据文本",
+          "metadata": {
+            "source": "doc.md",
+            "title": "Doc",
+            "chunk_index": 0,
+            "modality": "text",
+            "page": 1,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.95,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": null,
+            "score_stage": null,
+            "score_policy": null,
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "evidence_gate",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n1",
+          "point_id": "p1",
+          "doc_id": "d1",
+          "chunk_id": "n1",
+          "chunk_index": 0,
+          "text": "这是证据文本",
+          "metadata": {
+            "source": "doc.md",
+            "title": "Doc",
+            "chunk_index": 0,
+            "modality": "text",
+            "page": 1,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.95,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": null,
+            "score_stage": null,
+            "score_policy": null,
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      },
+      "evidence_gate": {
+        "evidence_ok": false,
+        "support_score": 0.7794,
+        "support_level": "partial",
+        "supporting_hit_ids": [
+          "n1"
+        ],
+        "missing_slots": [
+          "hits"
+        ],
+        "gate_reasons": [
+          "missing_hits"
+        ],
+        "conflict_level": "none",
+        "conflict_reasons": [],
+        "gate_decision": "retry"
+      }
+    },
+    {
+      "stage": "final_after_retry",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n1",
+          "point_id": "p1",
+          "doc_id": "d1",
+          "chunk_id": "n1",
+          "chunk_index": 0,
+          "text": "这是证据文本",
+          "metadata": {
+            "source": "doc.md",
+            "title": "Doc",
+            "chunk_index": 0,
+            "modality": "text",
+            "score_raw_before_composite": 0.95,
+            "score_composite": 0.95,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.95,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.15,
+              "rrf": 0.05,
+              "rerank": 0.3,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.95,
+            "score_threshold": 0.2,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "prompt_context_truncated": false,
+            "prompt_context_chars": 6,
+            "page": 1,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.95,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": 0.95,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.95,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.15,
+              "rrf": 0.05,
+              "rerank": 0.3,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.2,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "final_output",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n1",
+          "point_id": "p1",
+          "doc_id": "d1",
+          "chunk_id": "n1",
+          "chunk_index": 0,
+          "text": "这是证据文本",
+          "metadata": {
+            "source": "doc.md",
+            "title": "Doc",
+            "chunk_index": 0,
+            "modality": "text",
+            "score_raw_before_composite": 0.95,
+            "score_composite": 0.95,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.95,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.15,
+              "rrf": 0.05,
+              "rerank": 0.3,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.95,
+            "score_threshold": 0.2,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "prompt_context_truncated": false,
+            "prompt_context_chars": 6,
+            "page": 1,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.95,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": 0.95,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.95,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.15,
+              "rrf": 0.05,
+              "rerank": 0.3,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.2,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    }
+  ],
+  "labels": {
+    "relevant_node_ids": [],
+    "relevant_doc_ids": [],
+    "graded_relevance": {}
+  }
+}

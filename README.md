@@ -459,6 +459,13 @@ py -3.11 -m check --dataset check/sciqa_2412_16030_cases.jsonl --pipeline taskgr
   - 例如标准页 `page=5` 且 `--page-tolerance 1` 时，命中 `page=4/5/6` 都算相关。
   - 该参数不对应 `.env` 配置，也不改变检索、rerank、TaskGraph 或最终回答。
 
+检索指标说明：
+
+- `precision_at_1` / `precision_at_3` 是单 query 的 top-k 精确率。
+- `precision` 是当前阶段实际返回结果的相关占比，分母是该阶段返回 chunk 数，不是 `--k`。
+- `recall` / `ap` / `ndcg` 需要知道该 query 的全量相关 chunk 或理想排序；如果标准答案只标到 `source/page/title` 级别，报告中会显示为 `-`。
+- 只有 `node_id` / `point_id` / `chunk_index` 等精确 chunk 级标注足够完整时，`recall` / `ap` / `ndcg` 才会计算。
+
 可视化报告支持展示“被剔除 chunk”的灰色 ghost card，仅用于诊断，不参与指标计算：
 
 ```powershell

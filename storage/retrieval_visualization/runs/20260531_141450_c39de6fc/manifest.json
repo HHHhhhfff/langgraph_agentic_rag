@@ -1,0 +1,37 @@
+{
+  "run_id": "20260531_141450_c39de6fc",
+  "mode": "retrieval_visualization",
+  "source_mode": "auto_after_query",
+  "history_path": null,
+  "query_id": "66c21ec4-34a3-4dbd-81fa-b5fcfae27044",
+  "query_text": "At ϑ ≈ 1.5, which f (3 or 4) has the larger value in both Σ_s(ϑ) and Σ_a(ϑ) plots?",
+  "stages": [
+    "initial_retrieval",
+    "rerank",
+    "final_after_retry"
+  ],
+  "hit_counts": {
+    "initial_retrieval": 7,
+    "initial_expanded": 7,
+    "rerank": 7,
+    "retry_1_retrieval": 5,
+    "retry_1_expanded": 5,
+    "retry_1_rerank": 5,
+    "agent_chunk_grading": 5,
+    "evidence_gate": 5,
+    "final_after_retry": 5,
+    "final_output": 5
+  },
+  "include_full_vectors": false,
+  "created_at": "2026-05-31T06:14:50.582413+00:00",
+  "warnings": [],
+  "artifacts": {
+    "query": "query.json",
+    "snapshots": "snapshots.json",
+    "chunks_html": "chunks.html",
+    "stage_compare_html": "stage_compare.html",
+    "rank_flow_html": "rank_flow.html",
+    "citations_html": "citations.html",
+    "raw_record": "raw_record.json"
+  }
+}

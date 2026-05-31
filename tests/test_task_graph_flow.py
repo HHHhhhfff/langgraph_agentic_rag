@@ -592,3 +592,49 @@ def test_task_graph_local_retry_disabled_still_runs_evidence_gate() -> None:
     assert result.debug["local_retry_skipped"] is True
     assert result.debug["retry_count"] == 0
 
+
+def test_build_prompt_sorts_final_hits_by_recomputed_composite_score() -> None:
+    settings = Settings(
+        context_top_n=5,
+        retrieval_final_min_composite_score=0.0,
+        retrieval_score_vector_weight=1.0,
+        retrieval_score_bm25_weight=0.0,
+        retrieval_score_rrf_weight=0.0,
+        retrieval_score_rerank_weight=0.0,
+        retrieval_score_relationship_weight=0.0,
+        retrieval_score_agent_relevance_weight=0.0,
+    )
+    graph = TaskGraphRAG(
+        settings=settings,
+        embedding_provider=DummyEmbedding(),
+        retriever=DummyRetriever(),
+        llm_client=DummyLLM(),
+        prompt_builder=PromptBuilder(settings),
+    )
+    low = SearchHit(
+        point_id="p-low",
+        node_id="n-low",
+        text="low score evidence",
+        score=0.2,
+        score_vector=0.2,
+        doc_id="d1",
+        page=1,
+        metadata={"source": "doc.md", "title": "Doc", "chunk_index": 1, "modality": "text"},
+    )
+    high = SearchHit(
+        point_id="p-high",
+        node_id="n-high",
+        text="high score evidence",
+        score=0.8,
+        score_vector=0.8,
+        doc_id="d1",
+        page=1,
+        metadata={"source": "doc.md", "title": "Doc", "chunk_index": 2, "modality": "text"},
+    )
+
+    state = graph._build_prompt_node({"question": "q", "expanded_hits": [low, high]})
+
+    citations = state["citations"]
+    assert [citation["chunk_index"] for citation in citations[:2]] == [2, 1]
+    assert state["expanded_hits"][0].node_id == "n-high"
+

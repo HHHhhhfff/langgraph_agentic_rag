@@ -1128,6 +1128,7 @@ class TaskGraphRAG:
         self._progress_start("generation")
         hits = state.get("expanded_hits", [])
         hits = compute_composite_scores(hits, stage=STAGE_FINAL, settings=self.settings)
+        hits = sorted(hits, key=score_value, reverse=True)
         filtered = filter_by_stage_threshold_with_removed(hits, stage=STAGE_FINAL, settings=self.settings)
         hits = filtered.kept
         context, citations = self.prompt_builder.build_context(hits)
@@ -1225,7 +1226,7 @@ class TaskGraphRAG:
                 stage=STAGE_FINAL,
                 settings=self.settings,
             )
-            final_hits = filtered.kept
+            final_hits = sorted(filtered.kept, key=score_value, reverse=True)
             final_removed_hits = filtered.removed
         if _retrieval_observability_enabled(self.settings):
             snapshots = _replace_snapshot(

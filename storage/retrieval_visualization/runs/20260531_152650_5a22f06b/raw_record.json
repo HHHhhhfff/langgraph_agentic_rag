@@ -1,0 +1,473 @@
+{
+  "schema_version": "retrieval_eval.v1",
+  "query_id": "d0cce841-4e9d-4de2-a6d3-196d8aa109c0",
+  "timestamp": "2026-05-31T07:26:50.268434+00:00",
+  "query": {
+    "text": "TaskGraph",
+    "rewritten_text": "TaskGraph",
+    "filters": {},
+    "route": "text_first",
+    "executed_channels": [
+      "vector",
+      "bm25",
+      "image"
+    ]
+  },
+  "taskgraph": {
+    "retry_count": 1,
+    "retry_actions": [
+      "increase_top_k"
+    ],
+    "retry_history": [
+      {
+        "retry_count": 1,
+        "actions": [
+          "increase_top_k"
+        ],
+        "reasons": [
+          "low_support_score"
+        ],
+        "query_text": "TaskGraph",
+        "channels": [
+          "vector",
+          "bm25",
+          "image"
+        ],
+        "top_k": {
+          "bm25": 18,
+          "image": 18
+        },
+        "page_window": null,
+        "evidence_gain": 0.0
+      }
+    ],
+    "gate_decision": "skipped",
+    "evidence_ok": true,
+    "support_level": "skipped",
+    "support_score": 0.0,
+    "citation_ok": true,
+    "used_rerank": false,
+    "rerank_fallback_reason": null,
+    "evidence_gate_enabled": false,
+    "local_retry_enabled": true,
+    "evidence_gate_skipped": true,
+    "local_retry_skipped": false
+  },
+  "snapshots": [
+    {
+      "stage": "initial_retrieval",
+      "query_text": "TaskGraph",
+      "top_k": 0,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "initial_expanded",
+      "query_text": "TaskGraph",
+      "top_k": 0,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "rerank",
+      "query_text": "TaskGraph",
+      "top_k": 0,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "retry_1_retrieval",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n2",
+          "point_id": "p2",
+          "doc_id": null,
+          "chunk_id": "n2",
+          "chunk_index": 0,
+          "text": "retry evidence",
+          "metadata": {
+            "source": "retry.md",
+            "title": "Retry",
+            "chunk_index": 0,
+            "modality": "text",
+            "page": null,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.9,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": null,
+            "score_stage": null,
+            "score_policy": null,
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "retry_1_expanded",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n2",
+          "point_id": "p2",
+          "doc_id": null,
+          "chunk_id": "n2",
+          "chunk_index": 0,
+          "text": "retry evidence",
+          "metadata": {
+            "source": "retry.md",
+            "title": "Retry",
+            "chunk_index": 0,
+            "modality": "text",
+            "page": null,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.9,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": null,
+            "score_stage": null,
+            "score_policy": null,
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "retry_1_rerank",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n2",
+          "point_id": "p2",
+          "doc_id": null,
+          "chunk_id": "n2",
+          "chunk_index": 0,
+          "text": "retry evidence",
+          "metadata": {
+            "source": "retry.md",
+            "title": "Retry",
+            "chunk_index": 0,
+            "modality": "text",
+            "page": null,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.9,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": null,
+            "score_stage": null,
+            "score_policy": null,
+            "score_components": null,
+            "score_weights": null,
+            "score_threshold": null,
+            "score_threshold_passed": null
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "final_after_retry",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n2",
+          "point_id": "p2",
+          "doc_id": null,
+          "chunk_id": "n2",
+          "chunk_index": 0,
+          "text": "retry evidence",
+          "metadata": {
+            "source": "retry.md",
+            "title": "Retry",
+            "chunk_index": 0,
+            "modality": "text",
+            "score_raw_before_composite": 0.9,
+            "score_composite": 0.9,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.9,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.15,
+              "rrf": 0.05,
+              "rerank": 0.3,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.9,
+            "score_threshold": 0.2,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "prompt_context_truncated": false,
+            "prompt_context_chars": 14,
+            "page": null,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.9,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": 0.9,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.9,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.15,
+              "rrf": 0.05,
+              "rerank": 0.3,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.2,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    },
+    {
+      "stage": "final_output",
+      "query_text": "TaskGraph",
+      "top_k": 1,
+      "used_rerank": false,
+      "rerank_fallback_reason": null,
+      "hits": [
+        {
+          "rank": 1,
+          "node_id": "n2",
+          "point_id": "p2",
+          "doc_id": null,
+          "chunk_id": "n2",
+          "chunk_index": 0,
+          "text": "retry evidence",
+          "metadata": {
+            "source": "retry.md",
+            "title": "Retry",
+            "chunk_index": 0,
+            "modality": "text",
+            "score_raw_before_composite": 0.9,
+            "score_composite": 0.9,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.9,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.15,
+              "rrf": 0.05,
+              "rerank": 0.3,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_composite_prior": 0.9,
+            "score_threshold": 0.2,
+            "score_threshold_stage": "final_after_retry",
+            "score_threshold_passed": true,
+            "prompt_context_truncated": false,
+            "prompt_context_chars": 14,
+            "page": null,
+            "section_path": [],
+            "parser_name": null
+          },
+          "relationships": {},
+          "scores": {
+            "score": 0.9,
+            "score_vector": null,
+            "score_bm25": null,
+            "score_rrf": null,
+            "rerank_score": null,
+            "score_composite": 0.9,
+            "score_stage": "final_after_retry",
+            "score_policy": "weighted_v1",
+            "score_components": {
+              "vector_norm": 0.9,
+              "bm25_norm": null,
+              "rrf_norm": null,
+              "rerank_norm": null,
+              "relationship_norm": null,
+              "agent_relevance_norm": null
+            },
+            "score_weights": {
+              "bm25": 0.15,
+              "rrf": 0.05,
+              "rerank": 0.3,
+              "relationship": 0.75,
+              "agent_relevance": 0.2
+            },
+            "score_threshold": 0.2,
+            "score_threshold_passed": true
+          },
+          "retrieval": {
+            "channel": "vector",
+            "vector_name": null,
+            "modality": "text",
+            "image_semantic_type": null,
+            "source_parser": null
+          },
+          "eval": {
+            "is_relevant": null,
+            "relevance_label": null,
+            "graded_relevance": null
+          }
+        }
+      ],
+      "removed_hits": [],
+      "removed_summary": {
+        "total": 0,
+        "by_reason": {}
+      }
+    }
+  ],
+  "labels": {
+    "relevant_node_ids": [],
+    "relevant_doc_ids": [],
+    "graded_relevance": {}
+  }
+}

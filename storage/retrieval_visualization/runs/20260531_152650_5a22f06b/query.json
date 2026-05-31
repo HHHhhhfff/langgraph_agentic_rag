@@ -1,0 +1,11 @@
+{
+  "text": "TaskGraph",
+  "rewritten_text": "TaskGraph",
+  "filters": {},
+  "route": "text_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "image"
+  ]
+}

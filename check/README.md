@@ -156,10 +156,17 @@ check/query_records/<run-name>_query_stage_chunks.json
 - `mrr`
 - `precision_at_1`
 - `precision_at_3`
-- `precision`（运行参数 `--k` 对应的 Precision@k）
+- `precision`（当前阶段实际返回结果中的相关占比，即 relevant / returned；不是 `--k` 分母）
 - `recall`
 - `ap`
 - `ndcg`
+
+说明：
+
+- `precision_at_1` / `precision_at_3` 是单 query 的 top-k 指标。
+- `precision` 是单 query、单阶段的实际返回精确率，分母是当前阶段参与评测的返回 chunk 数。
+- 当标准答案只标到 `source/page/title` 级别时，`recall` / `ap` / `ndcg` 没有可靠的全量相关 chunk 分母和理想排序，报告中显示为 `-`。
+- 只有当标准答案提供 `node_id` / `point_id` / `chunk_index` 这类精确 chunk 级标注时，`recall` / `ap` / `ndcg` 才会计算。
 - `exact_match`
 - `token_precision`
 - `token_recall`

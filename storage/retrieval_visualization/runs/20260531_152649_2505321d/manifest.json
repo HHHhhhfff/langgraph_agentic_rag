@@ -1,0 +1,36 @@
+{
+  "run_id": "20260531_152649_2505321d",
+  "mode": "retrieval_visualization",
+  "source_mode": "auto_after_query",
+  "history_path": null,
+  "query_id": "9bfafd54-c8e8-4415-8af6-9108d6b49887",
+  "query_text": "retry exhausted",
+  "stages": [
+    "initial_retrieval",
+    "rerank",
+    "final_after_retry"
+  ],
+  "hit_counts": {
+    "initial_retrieval": 0,
+    "initial_expanded": 0,
+    "rerank": 0,
+    "retry_1_retrieval": 1,
+    "retry_1_expanded": 1,
+    "retry_1_rerank": 1,
+    "evidence_gate": 1,
+    "final_after_retry": 1,
+    "final_output": 1
+  },
+  "include_full_vectors": false,
+  "created_at": "2026-05-31T07:26:49.716948+00:00",
+  "warnings": [],
+  "artifacts": {
+    "query": "query.json",
+    "snapshots": "snapshots.json",
+    "chunks_html": "chunks.html",
+    "stage_compare_html": "stage_compare.html",
+    "rank_flow_html": "rank_flow.html",
+    "citations_html": "citations.html",
+    "raw_record": "raw_record.json"
+  }
+}

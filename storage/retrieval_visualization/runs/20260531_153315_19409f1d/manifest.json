@@ -1,0 +1,33 @@
+{
+  "run_id": "20260531_153315_19409f1d",
+  "mode": "retrieval_visualization",
+  "source_mode": "auto_after_query",
+  "history_path": null,
+  "query_id": "349c8e2a-933a-4e3f-8555-7ce51c6ea9e0",
+  "query_text": "TaskGraph",
+  "stages": [
+    "initial_retrieval",
+    "rerank",
+    "final_after_retry"
+  ],
+  "hit_counts": {
+    "initial_retrieval": 1,
+    "initial_expanded": 1,
+    "rerank": 1,
+    "evidence_gate": 1,
+    "final_after_retry": 1,
+    "final_output": 1
+  },
+  "include_full_vectors": false,
+  "created_at": "2026-05-31T07:33:15.263253+00:00",
+  "warnings": [],
+  "artifacts": {
+    "query": "query.json",
+    "snapshots": "snapshots.json",
+    "chunks_html": "chunks.html",
+    "stage_compare_html": "stage_compare.html",
+    "rank_flow_html": "rank_flow.html",
+    "citations_html": "citations.html",
+    "raw_record": "raw_record.json"
+  }
+}
