@@ -121,8 +121,8 @@ def build_domain_variant(text: str, *, include_terms: Iterable[str]) -> str:
     return " ".join(_dedupe_preserve_order([*include_terms, *anchors]))
 
 
-def has_query_anchor_overlap(query: str, hit: SearchHit) -> bool:
-    anchors = [token.lower() for token in _query_tokens(normalize_query_symbols(query)) if _looks_like_anchor(token)]
+def has_query_anchor_overlap(query: str, hit: SearchHit, *, require_strong_anchor: bool = True) -> bool:
+    anchors = _query_anchor_tokens(query, require_strong_anchor=require_strong_anchor)
     if not anchors:
         return False
     haystack = " ".join(
@@ -142,6 +142,19 @@ def has_query_anchor_overlap(query: str, hit: SearchHit) -> bool:
     return any(anchor in normalized_haystack for anchor in anchors)
 
 
+def _query_anchor_tokens(query: str, *, require_strong_anchor: bool) -> list[str]:
+    normalized = normalize_query_symbols(query)
+    anchors = [token.lower() for token in _query_tokens(normalized) if _looks_like_anchor(token)]
+    if not require_strong_anchor:
+        anchors.extend(
+            token.lower()
+            for token in _query_tokens(normalized)
+            if _looks_like_loose_anchor(token)
+        )
+    anchors.extend(_proper_name_anchors(query))
+    return _dedupe_preserve_order(anchors)
+
+
 def _query_tokens(text: str) -> list[str]:
     return re.findall(r"[A-Za-z][A-Za-z0-9_.-]*|[0-9]+(?:\.[0-9]+)?", text or "")
 
@@ -159,16 +172,53 @@ def _looks_like_anchor(token: str) -> bool:
         "theta",
         "vartheta",
         "tau",
+        "zeta",
+        "xi",
+        "omega",
+        "delta",
+        "lambda",
+        "alpha",
+        "beta",
+        "gamma",
         "figure",
         "fig",
-        "caption",
         "plot",
         "curve",
         "funding",
         "grant",
-        "program",
     }:
         return True
+    return False
+
+
+def _proper_name_anchors(text: str) -> list[str]:
+    stop = {
+        "At",
+        "In",
+        "On",
+        "The",
+        "This",
+        "That",
+        "Which",
+        "What",
+        "Where",
+        "When",
+        "According",
+        "Figure",
+        "Fig",
+    }
+    anchors: list[str] = []
+    for token in re.findall(r"\b[A-Z][A-Za-z0-9]+(?:-[A-Z][A-Za-z0-9]+)*\b|\b[A-Z]{2,}\b", text or ""):
+        if token in stop:
+            continue
+        if len(token) < 3:
+            continue
+        anchors.append(token.lower())
+    return anchors
+
+
+def _looks_like_loose_anchor(token: str) -> bool:
+    token = token.strip().lower()
     return len(token) >= 5 and token not in {"which", "what", "where", "according", "value", "larger"}
 
 

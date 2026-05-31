@@ -41,7 +41,8 @@ class RerankService:
             filtered = filter_by_stage_threshold_with_removed(scoped, stage=STAGE_RERANK, settings=self.settings)
             return RerankResult(hits=filtered.kept, used_rerank=False, removed_hits=[*filtered.removed, *top_removed])
 
-        top_n = min(self.settings.rerank_top_n, len(hits))
+        guardrail_count = self._mark_guardrail_anchor_candidates(query=query, hits=hits)
+        top_n = min(max(self.settings.rerank_top_n, self.settings.context_top_n + guardrail_count), len(hits))
         try:
             if hasattr(self.reranker, "rerank_hits"):
                 rows = self.reranker.rerank_hits(query=query, hits=hits, top_n=top_n)
@@ -70,6 +71,7 @@ class RerankService:
             if isinstance(score, (int, float)):
                 hit.metadata["rerank_score"] = float(score)
             hit.metadata["rerank_rank"] = rank
+            hit.metadata["rerank_selection_source"] = "reranker"
             picked.append(hit)
             picked_ids.add(_hit_key(hit))
 
@@ -83,14 +85,6 @@ class RerankService:
                 fallback_reason="rerank_empty",
                 removed_hits=[*filtered.removed, *top_removed],
             )
-
-        guarded = self._guardrail_anchor_hits(query=query, hits=hits, picked_ids=picked_ids)
-        if guarded:
-            insert_at = max(0, min(len(picked), self.settings.context_top_n - len(guarded)))
-            for guarded_hit in guarded:
-                picked.insert(insert_at, guarded_hit)
-                insert_at += 1
-                picked_ids.add(_hit_key(guarded_hit))
 
         removed: list[SearchHit] = []
         for input_rank, hit in enumerate(hits, start=1):
@@ -115,31 +109,34 @@ class RerankService:
         kept, top_removed = self._split_context_top_n(filtered.kept, reason_prefix="context")
         return RerankResult(hits=kept, used_rerank=True, removed_hits=[*removed, *filtered.removed, *top_removed])
 
-    def _guardrail_anchor_hits(
+    def _mark_guardrail_anchor_candidates(
         self,
         *,
         query: str,
         hits: list[SearchHit],
-        picked_ids: set[str],
-    ) -> list[SearchHit]:
+    ) -> int:
         if not self.settings.rerank_guardrail_enabled:
-            return []
-        candidates: list[tuple[int, SearchHit]] = []
+            return 0
+        candidates: list[tuple[float, int, SearchHit]] = []
         for input_rank, hit in enumerate(hits, start=1):
-            if _hit_key(hit) in picked_ids:
-                continue
             if score_value(hit) < self.settings.rerank_guardrail_min_anchor_score:
                 continue
-            if not has_query_anchor_overlap(query, hit):
+            if not has_query_anchor_overlap(
+                query,
+                hit,
+                require_strong_anchor=self.settings.rerank_guardrail_require_strong_anchor,
+            ):
                 continue
-            copy = hit.model_copy(deep=True)
-            copy.metadata["rerank_guardrail_protected"] = True
-            copy.metadata["rerank_guardrail_reason"] = "query_anchor_overlap"
-            copy.metadata["rerank_guardrail_input_rank"] = input_rank
-            copy.metadata.setdefault("rerank_rank", 10_000 + input_rank)
-            candidates.append((input_rank, copy))
-        candidates.sort(key=lambda item: (-(score_value(item[1])), item[0]))
-        return [hit for _, hit in candidates[: self.settings.rerank_guardrail_max_anchor_hits]]
+            candidates.append((score_value(hit), input_rank, hit))
+        candidates.sort(key=lambda item: (-item[0], item[1]))
+        selected = candidates[: self.settings.rerank_guardrail_max_anchor_hits]
+        for _score, input_rank, hit in selected:
+            hit.metadata["rerank_guardrail_candidate"] = True
+            hit.metadata["rerank_guardrail_reason"] = "query_anchor_overlap"
+            hit.metadata["rerank_guardrail_input_rank"] = input_rank
+            hit.metadata["rerank_guardrail_min_anchor_score"] = self.settings.rerank_guardrail_min_anchor_score
+            hit.metadata["rerank_selection_source"] = "reranker_candidate"
+        return len(selected)
 
     def _split_context_top_n(self, hits: list[SearchHit], *, reason_prefix: str) -> tuple[list[SearchHit], list[SearchHit]]:
         kept = hits[: self.settings.context_top_n]

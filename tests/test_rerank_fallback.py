@@ -109,11 +109,15 @@ def test_rerank_service_records_context_top_n_removed_hit() -> None:
 
 
 class OneRowReranker:
+    def __init__(self):
+        self.calls = []
+
     def rerank_hits(self, query: str, hits: list[SearchHit], top_n: int):
+        self.calls.append((query, hits, top_n))
         return [{"index": 0, "score": 0.99}]
 
 
-def test_rerank_guardrail_keeps_exact_anchor_hit_not_selected_by_reranker() -> None:
+def test_rerank_guardrail_expands_top_n_but_does_not_inject_unscored_hit() -> None:
     settings = Settings(
         _env_file=None,
         rerank_enabled=True,
@@ -132,16 +136,63 @@ def test_rerank_guardrail_keeps_exact_anchor_hit_not_selected_by_reranker() -> N
             metadata={"score_composite": 0.6},
         ),
     ]
+    reranker = OneRowReranker()
 
-    result = RerankService(settings=settings, reranker=OneRowReranker()).rerank(
+    result = RerankService(settings=settings, reranker=reranker).rerank(
         "Which program financially supported Ivan Terekhov?",
         hits,
     )
 
-    assert "2" in [hit.point_id for hit in result.hits]
-    protected = next(hit for hit in result.hits if hit.point_id == "2")
-    assert protected.metadata["rerank_guardrail_protected"] is True
-    assert "2" not in [hit.point_id for hit in result.removed_hits]
+    assert reranker.calls[0][2] == 2
+    assert [hit.point_id for hit in result.hits] == ["1"]
+    removed = next(hit for hit in result.removed_hits if hit.point_id == "2")
+    assert removed.metadata["rerank_guardrail_candidate"] is True
+    assert removed.metadata["rerank_guardrail_reason"] == "query_anchor_overlap"
+    assert removed.metadata["removed_reason"] == "reranker_not_selected"
+
+
+class GuardrailAwareReranker:
+    def __init__(self):
+        self.calls = []
+
+    def rerank_hits(self, query: str, hits: list[SearchHit], top_n: int):
+        self.calls.append((query, hits, top_n))
+        return [
+            {"index": 1, "score": 0.88},
+            {"index": 0, "score": 0.77},
+        ][:top_n]
+
+
+def test_rerank_guardrail_candidate_must_be_selected_by_reranker_to_survive() -> None:
+    settings = Settings(
+        _env_file=None,
+        rerank_enabled=True,
+        rerank_top_n=1,
+        context_top_n=2,
+        rerank_guardrail_enabled=True,
+        rerank_guardrail_min_anchor_score=0.3,
+        retrieval_rerank_min_composite_score=0.0,
+    )
+    hits = [
+        SearchHit(point_id="1", text="generic background", score=0.9, metadata={"score_composite": 0.9}),
+        SearchHit(
+            point_id="2",
+            text="Ivan Terekhov was financially supported by the program.",
+            score=0.6,
+            metadata={"score_composite": 0.6},
+        ),
+    ]
+
+    result = RerankService(settings=settings, reranker=GuardrailAwareReranker()).rerank(
+        "Which program financially supported Ivan Terekhov?",
+        hits,
+    )
+
+    assert [hit.point_id for hit in result.hits] == ["2", "1"]
+    protected = result.hits[0]
+    assert protected.metadata["rerank_guardrail_candidate"] is True
+    assert protected.metadata["rerank_selection_source"] == "reranker"
+    assert protected.metadata["rerank_score"] == 0.88
 
 
 def test_dashscope_text_reranker_uses_string_documents(monkeypatch) -> None:

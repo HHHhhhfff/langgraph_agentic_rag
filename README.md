@@ -656,7 +656,8 @@ QUERY_VARIANT_MAX_BOOST=0.12
 QUERY_VARIANT_MIN_TOKEN_LEN=3
 RERANK_GUARDRAIL_ENABLED=true
 RERANK_GUARDRAIL_MAX_ANCHOR_HITS=3
-RERANK_GUARDRAIL_MIN_ANCHOR_SCORE=0.20
+RERANK_GUARDRAIL_MIN_ANCHOR_SCORE=0.30
+RERANK_GUARDRAIL_REQUIRE_STRONG_ANCHOR=true
 IMAGE_QUERY_CONTEXT_EXPAND_ENABLED=true
 IMAGE_QUERY_CONTEXT_MAX_TEXT_HITS=3
 IMAGE_QUERY_CONTEXT_WEIGHT=0.70
@@ -681,7 +682,9 @@ IMAGE_QUERY_CONTEXT_WEIGHT=0.70
 - `QUERY_VARIANT_BOOST_PER_HIT` / `QUERY_VARIANT_MAX_BOOST`
   - 同一 chunk 被多个 query variant 命中时，对 `score_composite` 做小幅加分，避免单 query embedding 漏掉符号/caption 类证据。
 - `RERANK_GUARDRAIL_ENABLED`
-  - reranker 未选中但与 query 有精确锚点重合、且 prior 分不低的 chunk，可被少量保护回流，防止关键实体/符号证据被 rerank 误删。
+  - 标记与 query 有强锚点重合、且 prior 分不低的 chunk，适度扩大 reranker 返回名额；最终是否进入 `CONTEXT_TOP_N` 仍由 reranker 分数和 composite 决定，不再绕过 reranker 硬插入。
+- `RERANK_GUARDRAIL_REQUIRE_STRONG_ANCHOR`
+  - 仅允许数字、符号/公式 token、连字符术语、专名等强锚点触发 guardrail，避免普通长词触发保护。
 - `IMAGE_QUERY_CONTEXT_EXPAND_ENABLED`
   - image hit 被召回后，是否补入同页 text context 作为证据，补入分数为 `image_score * IMAGE_QUERY_CONTEXT_WEIGHT`。
 

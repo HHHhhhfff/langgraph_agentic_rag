@@ -26,3 +26,15 @@ def test_query_anchor_overlap_matches_normalized_symbols() -> None:
     )
 
     assert has_query_anchor_overlap("At ϑ≈1.5, compare Σ_s and Σ_a.", hit)
+
+
+def test_query_anchor_overlap_does_not_match_plain_long_words_by_default() -> None:
+    hit = SearchHit(
+        point_id="1",
+        node_id="n1",
+        text="This paragraph mentions according value larger effect without exact entities.",
+        score=0.5,
+        metadata={},
+    )
+
+    assert not has_query_anchor_overlap("Which effect has the larger value according to the snippet?", hit)
