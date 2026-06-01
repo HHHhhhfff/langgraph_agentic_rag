@@ -1,0 +1,37 @@
+{
+  "run_id": "20260601_171409_d459b279",
+  "mode": "retrieval_visualization",
+  "source_mode": "auto_after_query",
+  "history_path": null,
+  "query_id": "34d940f7-39bb-49b1-a1a0-e72a3357781a",
+  "query_text": "In Eq. (8), what is the exact coefficient multiplying P^2 t in the exponent, and in Fig. 2 which line style corresponds to Q = 3?",
+  "stages": [
+    "initial_retrieval",
+    "rerank",
+    "final_after_retry"
+  ],
+  "hit_counts": {
+    "initial_retrieval": 12,
+    "initial_expanded": 12,
+    "rerank": 7,
+    "retry_1_retrieval": 12,
+    "retry_1_expanded": 12,
+    "retry_1_rerank": 7,
+    "agent_chunk_grading": 7,
+    "evidence_gate": 7,
+    "final_after_retry": 7,
+    "final_output": 7
+  },
+  "include_full_vectors": false,
+  "created_at": "2026-06-01T09:14:09.166884+00:00",
+  "warnings": [],
+  "artifacts": {
+    "query": "query.json",
+    "snapshots": "snapshots.json",
+    "chunks_html": "chunks.html",
+    "stage_compare_html": "stage_compare.html",
+    "rank_flow_html": "rank_flow.html",
+    "citations_html": "citations.html",
+    "raw_record": "raw_record.json"
+  }
+}

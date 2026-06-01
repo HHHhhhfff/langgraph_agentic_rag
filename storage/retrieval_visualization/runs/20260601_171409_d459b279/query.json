@@ -1,0 +1,14 @@
+{
+  "text": "In Eq. (8), what is the exact coefficient multiplying P^2 t in the exponent, and in Fig. 2 which line style corresponds to Q = 3?",
+  "rewritten_text": "In Eq. (8), what is the exact coefficient multiplying P^2 t in the exponent, and in Fig. 2 which line style corresponds to Q = 3 图片 图像 图中 image figure",
+  "filters": {},
+  "route": "image_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "page",
+    "image",
+    "formula",
+    "relationship"
+  ]
+}

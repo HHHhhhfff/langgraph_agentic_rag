@@ -1,0 +1,11 @@
+{
+  "text": "In the time-averaged cross section σ̄(Q), what exact y-integrand (including differential) appears inside the 0-to-1 integral multiplying πσ0?",
+  "rewritten_text": null,
+  "filters": {},
+  "route": "formula_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "formula"
+  ]
+}

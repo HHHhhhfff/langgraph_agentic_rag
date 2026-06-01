@@ -1,0 +1,13 @@
+{
+  "text": "Across the two figures, what parameter values correspond to the dashed curve in Figure 1 and in Figure 2, respectively?",
+  "rewritten_text": "Figure 1 dashed curve parameter value; Figure 2 dashed curve parameter value; 图中 虚线 dashed curve figure legend caption OCR object whole image; extract numeric parameter values from Figure 1 and Figure 2 captions/legends",
+  "filters": {},
+  "route": "image_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "page",
+    "image",
+    "relationship"
+  ]
+}

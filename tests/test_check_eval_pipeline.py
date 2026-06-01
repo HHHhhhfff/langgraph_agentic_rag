@@ -660,3 +660,67 @@ def test_visual_report_renders_page_level_metrics() -> None:
 
     assert "page_recall" in html
     assert "final_output_page_recall" in html
+
+
+def test_visual_report_overview_renders_average_recall_metrics() -> None:
+    html = render_html(
+        {
+            "name": "run1",
+            "source": "check/runs/run1",
+            "mode": "run",
+            "runs": [
+                {
+                    "run_name": "run1",
+                    "summary": {
+                        "case_count": 2,
+                        "error_count": 0,
+                        "mean_metrics": {"final_output_recall": 0.75},
+                    },
+                }
+            ],
+            "cases": [
+                {
+                    "id": "case1",
+                    "run_name": "run1",
+                    "question": "q1",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [],
+                    "metrics": {
+                        "rerank_recall": 0.5,
+                        "final_after_retry_recall": 0.5,
+                        "final_output_recall": 0.5,
+                    },
+                    "ai_evaluation": {},
+                    "model_debug": {},
+                    "stages": {},
+                },
+                {
+                    "id": "case2",
+                    "run_name": "run1",
+                    "question": "q2",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [],
+                    "metrics": {
+                        "rerank_recall": 1.0,
+                        "final_after_retry_recall": 1.0,
+                        "final_output_recall": 1.0,
+                    },
+                    "ai_evaluation": {},
+                    "model_debug": {},
+                    "stages": {},
+                },
+            ],
+        },
+        top_n=0,
+        max_text_chars=100,
+    )
+
+    assert "rerank_recall" in html
+    assert "final_after_retry_recall" in html
+    assert "final_output_recall" in html
+    assert "<strong>0.7500</strong>" in html
+    assert "final recall" in html

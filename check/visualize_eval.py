@@ -979,6 +979,7 @@ def render_run_cards(runs: list[dict[str, Any]]) -> str:
                 <div><b>final P@1</b>: {fmt_num(mean.get('final_output_precision_at_1'))}</div>
                 <div><b>final P@3</b>: {fmt_num(mean.get('final_output_precision_at_3'))}</div>
                 <div><b>final precision</b>: {fmt_num(mean.get('final_output_precision'))}</div>
+                <div><b>final recall</b>: {fmt_num(mean.get('final_output_recall'))}</div>
                 <div><b>AI/100</b>: {fmt_num(mean.get('ai_score_100'), 2)}</div>
               </div>
             """
@@ -1024,21 +1025,27 @@ def render_html(
         "cases": len(cases),
         "errors": sum(1 for case in cases if case.get("error")),
         "initial_recall_precision_at_1": average_metric(cases, "initial_recall_precision_at_1"),
+        "initial_recall_recall": average_metric(cases, "initial_recall_recall"),
         "initial_expanded_precision_at_1": average_metric(cases, "initial_expanded_precision_at_1"),
         "initial_expanded_precision_at_3": average_metric(cases, "initial_expanded_precision_at_3"),
+        "initial_expanded_recall": average_metric(cases, "initial_expanded_recall"),
         "rerank_precision_at_1": average_metric(cases, "rerank_precision_at_1"),
         "rerank_precision_at_3": average_metric(cases, "rerank_precision_at_3"),
         "rerank_precision": average_metric(cases, "rerank_precision"),
+        "rerank_recall": average_metric(cases, "rerank_recall"),
         "agent_chunk_grading_precision_at_1": average_metric(cases, "agent_chunk_grading_precision_at_1"),
         "agent_chunk_grading_precision_at_3": average_metric(cases, "agent_chunk_grading_precision_at_3"),
+        "agent_chunk_grading_recall": average_metric(cases, "agent_chunk_grading_recall"),
         "final_after_retry_precision_at_1": average_metric(cases, "final_after_retry_precision_at_1"),
         "final_after_retry_precision_at_3": average_metric(cases, "final_after_retry_precision_at_3"),
         "final_after_retry_precision": average_metric(cases, "final_after_retry_precision"),
+        "final_after_retry_recall": average_metric(cases, "final_after_retry_recall"),
         "final_after_retry_page_recall": average_metric(cases, "final_after_retry_page_recall"),
         "final_after_retry_page_precision": average_metric(cases, "final_after_retry_page_precision"),
         "final_output_precision_at_1": average_metric(cases, "final_output_precision_at_1"),
         "final_output_precision_at_3": average_metric(cases, "final_output_precision_at_3"),
         "final_output_precision": average_metric(cases, "final_output_precision"),
+        "final_output_recall": average_metric(cases, "final_output_recall"),
         "final_output_page_recall": average_metric(cases, "final_output_page_recall"),
         "final_output_page_precision": average_metric(cases, "final_output_page_precision"),
         "ai_score_100": average_metric(cases, "ai_score_100"),

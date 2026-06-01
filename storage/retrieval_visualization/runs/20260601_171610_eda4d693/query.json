@@ -1,0 +1,12 @@
+{
+  "text": "Based on the crops, which curve style represents Q = 3, and what symbol denotes the solenoid's number of turns per unit length?",
+  "rewritten_text": "Based on the crops, which curve style represents Q = 3, and what symbol denotes the solenoid's number of turns per unit length 图片 图像 图中 image figure",
+  "filters": {},
+  "route": "image_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "image",
+    "relationship"
+  ]
+}

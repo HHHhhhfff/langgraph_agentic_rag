@@ -1,0 +1,37 @@
+{
+  "run_id": "20260601_171610_eda4d693",
+  "mode": "retrieval_visualization",
+  "source_mode": "auto_after_query",
+  "history_path": null,
+  "query_id": "666b54dd-bf5a-41cc-8005-7820424eb90f",
+  "query_text": "Based on the crops, which curve style represents Q = 3, and what symbol denotes the solenoid's number of turns per unit length?",
+  "stages": [
+    "initial_retrieval",
+    "rerank",
+    "final_after_retry"
+  ],
+  "hit_counts": {
+    "initial_retrieval": 12,
+    "initial_expanded": 12,
+    "rerank": 7,
+    "retry_1_retrieval": 12,
+    "retry_1_expanded": 12,
+    "retry_1_rerank": 7,
+    "agent_chunk_grading": 7,
+    "evidence_gate": 7,
+    "final_after_retry": 7,
+    "final_output": 7
+  },
+  "include_full_vectors": false,
+  "created_at": "2026-06-01T09:16:10.496810+00:00",
+  "warnings": [],
+  "artifacts": {
+    "query": "query.json",
+    "snapshots": "snapshots.json",
+    "chunks_html": "chunks.html",
+    "stage_compare_html": "stage_compare.html",
+    "rank_flow_html": "rank_flow.html",
+    "citations_html": "citations.html",
+    "raw_record": "raw_record.json"
+  }
+}

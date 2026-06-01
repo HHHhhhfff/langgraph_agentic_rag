@@ -1,0 +1,13 @@
+{
+  "text": "What dimension is assigned to the 2D cross section, and by which constant is Σ̄_tot normalized in Figure 3?",
+  "rewritten_text": "What dimension is assigned to the 2D cross section, and by which constant is Σ̄_tot normalized in Figure 3 图片 图像 图中 image figure",
+  "filters": {},
+  "route": "image_first",
+  "executed_channels": [
+    "vector",
+    "bm25",
+    "page",
+    "image",
+    "relationship"
+  ]
+}

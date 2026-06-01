@@ -1,0 +1,10 @@
+{
+  "text": "Under which solenoid-current condition is the electron-accessible topology unchanged, and which two solenoid parameters are later specified?",
+  "rewritten_text": null,
+  "filters": {},
+  "route": "text_first",
+  "executed_channels": [
+    "vector",
+    "bm25"
+  ]
+}
