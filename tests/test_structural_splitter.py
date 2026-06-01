@@ -41,3 +41,35 @@ def test_structural_splitter_splits_oversized_text_and_rewrites_relationship_ref
     assert formula_result.relationships["context_node_ids"] == part_ids
     first_part = next(node for node in result if node.node_id == part_ids[0])
     assert first_part.relationships["chunk_original_node_id"] == "text:1"
+
+
+def test_structural_splitter_drops_parent_union_bbox_for_multi_bbox_parts() -> None:
+    node = _node("text:1", "alpha. beta. gamma. delta.")
+    node = node.model_copy(
+        deep=True,
+        update={
+            "metadata": node.metadata.model_copy(
+                update={
+                    "bbox": [0, 0, 200, 200],
+                    "bbox_items": [[0, 0, 50, 50], [100, 100, 200, 200]],
+                    "bbox_coordinate_system": "mineru_content_list_1000",
+                    "bbox_source": "content_list",
+                    "bbox_merge_policy": "union",
+                }
+            )
+        },
+    )
+    settings = Settings(
+        _env_file=None,
+        chunk_structural_split_enabled=True,
+        chunk_hard_max_chars=8,
+        chunk_structural_split_min_part_chars=4,
+        chunk_structural_split_overlap=1,
+    )
+
+    parts = split_oversized_text_nodes([node], settings)
+
+    assert len(parts) > 1
+    assert all(part.metadata.bbox is None for part in parts)
+    assert all(part.metadata.bbox_items is None for part in parts)
+    assert all(part.relationships["bbox_dropped_on_structural_split"] is True for part in parts)

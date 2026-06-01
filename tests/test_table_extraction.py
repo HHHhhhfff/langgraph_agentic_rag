@@ -89,6 +89,47 @@ def test_mineru_adapter_extracts_html_table_nodes(tmp_path: Path) -> None:
     assert any(node.modality == "text" for node in nodes)
 
 
+def test_mineru_adapter_preserves_content_list_bbox_in_node_metadata(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {
+            "type": "table",
+            "table_body": "<table><tr><td>a</td><td>b</td></tr></table>",
+            "page_idx": 0,
+            "bbox": [100, 200, 300, 400],
+        }
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
+
+    table = next(node for node in nodes if node.modality == "table")
+    assert table.metadata.bbox == [100.0, 200.0, 300.0, 400.0]
+    assert table.metadata.bbox_items == [[100.0, 200.0, 300.0, 400.0]]
+    assert table.metadata.bbox_coordinate_system == "mineru_content_list_1000"
+    assert table.metadata.bbox_source == "content_list"
+    assert table.relationships["bbox"] == [100.0, 200.0, 300.0, 400.0]
+    assert table.relationships["bbox_items"] == [[100.0, 200.0, 300.0, 400.0]]
+
+
+def test_mineru_adapter_preserves_multiple_bbox_items_for_single_chunk(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {"type": "text", "text": "alpha", "page_idx": 0, "bbox": [10, 10, 50, 50]},
+        {"type": "text", "text": "beta", "page_idx": 0, "bbox": [100, 100, 200, 200]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("alpha beta", path, structured_content=structured_content)  # noqa: SLF001
+
+    text = next(node for node in nodes if node.modality == "text")
+    assert text.metadata.bbox == [10.0, 10.0, 200.0, 200.0]
+    assert text.metadata.bbox_items == [[10.0, 10.0, 50.0, 50.0], [100.0, 100.0, 200.0, 200.0]]
+    assert text.metadata.bbox_merge_policy == "union"
+
+
 def test_mineru_adapter_keeps_markdown_table_when_text_nodes_exist(tmp_path: Path) -> None:
     path = tmp_path / "docx.md"
     path.write_text(

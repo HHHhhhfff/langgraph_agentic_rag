@@ -206,3 +206,18 @@ check/query_records/<run-name>_query_stage_chunks.json
 - `ai_judge_total_tokens_est`
 
 每条样本的 `ai_evaluation` 字段会保存 AI 给出的评分理由 `ai_reason`。
+
+### BBox / Region Metrics
+
+When cases contain SciEGQA `rel_bbox` and retrieved chunks contain `metadata.bbox`, the check pipeline also reports:
+
+- `bbox_hit_rate`: whether at least one expected region is hit by IoU.
+- `bbox_precision`: matched unique returned chunks / comparable returned chunks with bbox.
+- `bbox_recall`: expected regions covered by returned chunks / expected regions.
+- `bbox_max_iou`: max IoU between returned chunk bbox and expected bbox.
+
+The implementation uses 0-1000 normalized page coordinates. Existing indexes must be rebuilt after MinerU bbox metadata is added; old runs without chunk bbox will show these metrics as `-`.
+
+For chunks that cover multiple MinerU regions, `bbox_items` stores each region bbox and `bbox` stores the union. Region metrics compare against `bbox_items` first, then fall back to `bbox`. If structural splitting creates `part` nodes from a parent text node with multiple bbox regions, the part nodes do not inherit the parent union bbox to avoid inflated IoU.
+
+When a case provides bbox labels, relevance coloring and retrieval metrics use region-level matching first: same file + same page + IoU > 0.5 is green/relevant; 0 < IoU <= 0.5 is yellow/partial and is not counted as relevant; IoU = 0 or a different file/page is red. Cases without bbox labels keep the old source/page matching behavior.

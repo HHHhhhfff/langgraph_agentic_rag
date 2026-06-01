@@ -37,6 +37,23 @@ def split_oversized_text_nodes(nodes: list[Node], settings: Settings) -> list[No
             relationships["chunk_part_count"] = len(parts)
             relationships["chunk_original_node_id"] = node.node_id
             relationships["chunk_original_length"] = len(node.text)
+            part_metadata = node.metadata
+            bbox_items = node.metadata.bbox_items or []
+            if len(bbox_items) > 1:
+                relationships["parent_bbox"] = node.metadata.bbox
+                relationships["parent_bbox_items"] = bbox_items
+                relationships["bbox_dropped_on_structural_split"] = True
+                # Without block-level char offsets, assigning the parent union bbox to every part
+                # would overstate region overlap in bbox-based evaluation.
+                part_metadata = node.metadata.model_copy(
+                    update={
+                        "bbox": None,
+                        "bbox_items": None,
+                        "bbox_coordinate_system": node.metadata.bbox_coordinate_system,
+                        "bbox_source": node.metadata.bbox_source,
+                        "bbox_merge_policy": "dropped_on_structural_split",
+                    }
+                )
             if index > 0:
                 relationships["prev_id"] = part_ids[index - 1]
                 relationships["doc_prev_node_id"] = part_ids[index - 1]
@@ -49,6 +66,7 @@ def split_oversized_text_nodes(nodes: list[Node], settings: Settings) -> list[No
                     update={
                         "node_id": part_id,
                         "text": text,
+                        "metadata": part_metadata,
                         "relationships": relationships,
                     },
                 )

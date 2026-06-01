@@ -116,6 +116,11 @@ class QdrantStore:
                 "image_semantic_type": payload.get("image_semantic_type"),
                 "parent_image_node_id": payload.get("parent_image_node_id"),
                 "source_parser": payload.get("source_parser"),
+                "bbox": payload.get("bbox"),
+                "bbox_items": payload.get("bbox_items"),
+                "bbox_coordinate_system": payload.get("bbox_coordinate_system"),
+                "bbox_source": payload.get("bbox_source"),
+                "bbox_merge_policy": payload.get("bbox_merge_policy"),
             }
         text = payload.get("text") if isinstance(payload, dict) else ""
         page = payload.get("page") if isinstance(payload, dict) else None
@@ -443,6 +448,11 @@ class QdrantStore:
                     "title": md.title,
                     "section": md.section,
                     "parser_name": md.parser_name,
+                    "bbox": md.bbox,
+                    "bbox_items": md.bbox_items,
+                    "bbox_coordinate_system": md.bbox_coordinate_system,
+                    "bbox_source": md.bbox_source,
+                    "bbox_merge_policy": md.bbox_merge_policy,
                     # backward compatible nested metadata
                     "metadata": md.model_dump(),
                 }
@@ -455,6 +465,11 @@ class QdrantStore:
                     "ocr_text",
                     "object_label",
                     "object_description",
+                    "bbox",
+                    "bbox_items",
+                    "bbox_coordinate_system",
+                    "bbox_source",
+                    "bbox_merge_policy",
                 ):
                     if payload.get(key) is not None:
                         payload["metadata"][key] = payload[key]

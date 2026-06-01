@@ -52,6 +52,10 @@ METRIC_NAMES = (
     "page_mrr",
     "page_precision",
     "page_recall",
+    "bbox_hit_rate",
+    "bbox_precision",
+    "bbox_recall",
+    "bbox_max_iou",
 )
 AI_NAMES = (
     "ai_correctness",
@@ -199,14 +203,40 @@ def relevance_grade(hit: dict[str, Any]) -> float:
         return 0.0
 
 
-def is_relevant(hit: dict[str, Any], expected_pages: list[int]) -> tuple[bool, str]:
+def relevance_state(hit: dict[str, Any], expected_pages: list[int]) -> tuple[str, str]:
+    region_label = str(hit.get("region_relevance_label") or "").lower()
+    iou_threshold = hit.get("bbox_iou_threshold")
+    try:
+        threshold = float(iou_threshold) if iou_threshold not in (None, "") else 0.5
+    except (TypeError, ValueError):
+        threshold = 0.5
+    iou_value = hit.get("bbox_iou")
+    try:
+        iou = float(iou_value) if iou_value not in (None, "") else None
+    except (TypeError, ValueError):
+        iou = None
+    has_region_signal = region_label in {"match", "partial", "miss", "missing_bbox"} or iou is not None or hit.get("bbox_match") is not None
+    if has_region_signal:
+        if bool(hit.get("bbox_match")) or (iou is not None and iou > threshold):
+            return "relevant", f"bbox IoU {fmt_num(iou, 3)} > {fmt_num(threshold, 2)}"
+        if iou is not None and iou > 0:
+            return "partial", f"bbox IoU {fmt_num(iou, 3)} <= {fmt_num(threshold, 2)}"
+        if region_label == "missing_bbox":
+            return "irrelevant", "same file/page but missing bbox"
+        return "irrelevant", "bbox IoU 0 or wrong file/page"
+
     grade = relevance_grade(hit)
     if grade > 0:
-        return True, f"metric grade {fmt_num(grade, 2)}"
+        return "relevant", f"metric grade {fmt_num(grade, 2)}"
     page = hit_page(hit)
     if page is not None and page in expected_pages:
-        return True, "evidence page"
-    return False, "not evidence"
+        return "relevant", "evidence page"
+    return "irrelevant", "not evidence"
+
+
+def is_relevant(hit: dict[str, Any], expected_pages: list[int]) -> tuple[bool, str]:
+    state, reason = relevance_state(hit, expected_pages)
+    return state == "relevant", reason
 
 
 def normalize_hits_from_query_stage(stage: Any) -> list[dict[str, Any]]:
@@ -273,6 +303,7 @@ def merge_case(result: dict[str, Any], query_record: dict[str, Any] | None, run_
         "prediction": result.get("prediction") or query_record.get("prediction"),
         "citations": result.get("citations") if isinstance(result.get("citations"), list) else [],
         "expected_pages": expected_pages,
+        "bbox_specs": result.get("bbox_specs") or query_record.get("bbox_specs") or [],
         "case_metadata": result.get("case_metadata") or query_record.get("case_metadata") or {},
         "metrics": merged_metrics,
         "stage_metrics": result.get("stage_metrics") if isinstance(result.get("stage_metrics"), dict) else {},
@@ -611,13 +642,30 @@ def render_citations(citations: Any) -> str:
     return f"<ol class=\"citations\">{''.join(rows)}</ol>" if rows else '<div class="muted">No citations</div>'
 
 
+def render_bbox_specs(specs: Any) -> str:
+    if not isinstance(specs, list) or not specs:
+        return '<div class="small-line"><b>expected bbox</b>: -</div>'
+    rows = []
+    for index, spec in enumerate(specs, start=1):
+        if not isinstance(spec, dict):
+            continue
+        rows.append(
+            "<li>"
+            f"#{index} page={esc(spec.get('page'))} "
+            f"bbox={esc(spec.get('bbox'))} "
+            f"<span class=\"muted\">{esc(spec.get('bbox_coordinate_system'))}</span>"
+            "</li>"
+        )
+    return f"<div class=\"small-line\"><b>expected bbox</b>:</div><ol class=\"citations\">{''.join(rows)}</ol>" if rows else '<div class="small-line"><b>expected bbox</b>: -</div>'
+
+
 def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars: int, *, stage: str) -> str:
-    relevant, reason = is_relevant(hit, expected_pages)
+    relevance, reason = relevance_state(hit, expected_pages)
     agent_label = str(hit.get("agent_relevance_label") or "").lower()
     agent_drop = bool(hit.get("agent_relevance_drop"))
     is_removed = bool(hit.get("visual_removed"))
-    status = "Removed" if is_removed else ("Relevant" if relevant else "Irrelevant")
-    status_class = "removed" if is_removed else ("relevant" if relevant else "irrelevant")
+    status = "Removed" if is_removed else {"relevant": "Relevant", "partial": "Partial"}.get(relevance, "Irrelevant")
+    status_class = "removed" if is_removed else relevance
     if agent_drop or agent_label == "irrelevant":
         status_class += " agent-drop"
     elif agent_label in {"strong", "relevant", "weak"}:
@@ -642,6 +690,15 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("page", hit.get("page")),
         ("modality", hit.get("modality")),
         ("channel", hit.get("channel")),
+        ("bbox", hit.get("bbox")),
+        ("bbox_items", len(hit.get("bbox_items") or []) if isinstance(hit.get("bbox_items"), list) else None),
+        ("bbox_system", hit.get("bbox_coordinate_system")),
+        ("bbox_source", hit.get("bbox_source")),
+        ("bbox_policy", hit.get("bbox_merge_policy")),
+        ("bbox_iou", fmt_num(hit.get("bbox_iou"))),
+        ("bbox_item_count", hit.get("bbox_item_count")),
+        ("bbox_match", hit.get("bbox_match")),
+        ("bbox_threshold", hit.get("bbox_iou_threshold")),
         ("removed", hit.get("visual_removed")),
     ]
     score_meta = [
@@ -875,6 +932,7 @@ def render_case(
             <p>{esc(case.get('question'))}</p>
             <div class="small-line"><b>run</b>: {esc(case.get('run_name'))}</div>
             <div class="small-line"><b>evidence pages</b>: {esc(expected_pages)}</div>
+            {render_bbox_specs(case.get('bbox_specs'))}
           </section>
           <section>
             <h3>Reference answer</h3>
@@ -980,6 +1038,8 @@ def render_run_cards(runs: list[dict[str, Any]]) -> str:
                 <div><b>final P@3</b>: {fmt_num(mean.get('final_output_precision_at_3'))}</div>
                 <div><b>final precision</b>: {fmt_num(mean.get('final_output_precision'))}</div>
                 <div><b>final recall</b>: {fmt_num(mean.get('final_output_recall'))}</div>
+                <div><b>final bbox recall</b>: {fmt_num(mean.get('final_output_bbox_recall'))}</div>
+                <div><b>final bbox max IoU</b>: {fmt_num(mean.get('final_output_bbox_max_iou'))}</div>
                 <div><b>AI/100</b>: {fmt_num(mean.get('ai_score_100'), 2)}</div>
               </div>
             """
@@ -1042,12 +1102,18 @@ def render_html(
         "final_after_retry_recall": average_metric(cases, "final_after_retry_recall"),
         "final_after_retry_page_recall": average_metric(cases, "final_after_retry_page_recall"),
         "final_after_retry_page_precision": average_metric(cases, "final_after_retry_page_precision"),
+        "final_after_retry_bbox_recall": average_metric(cases, "final_after_retry_bbox_recall"),
+        "final_after_retry_bbox_precision": average_metric(cases, "final_after_retry_bbox_precision"),
+        "final_after_retry_bbox_max_iou": average_metric(cases, "final_after_retry_bbox_max_iou"),
         "final_output_precision_at_1": average_metric(cases, "final_output_precision_at_1"),
         "final_output_precision_at_3": average_metric(cases, "final_output_precision_at_3"),
         "final_output_precision": average_metric(cases, "final_output_precision"),
         "final_output_recall": average_metric(cases, "final_output_recall"),
         "final_output_page_recall": average_metric(cases, "final_output_page_recall"),
         "final_output_page_precision": average_metric(cases, "final_output_page_precision"),
+        "final_output_bbox_recall": average_metric(cases, "final_output_bbox_recall"),
+        "final_output_bbox_precision": average_metric(cases, "final_output_bbox_precision"),
+        "final_output_bbox_max_iou": average_metric(cases, "final_output_bbox_max_iou"),
         "ai_score_100": average_metric(cases, "ai_score_100"),
     }
 
@@ -1319,6 +1385,7 @@ def render_html(
       overflow: hidden;
     }}
     .chunk.relevant {{ border-left-color: var(--green); background: var(--green-bg); }}
+    .chunk.partial {{ border-left-color: #f79009; background: #fffaeb; }}
     .chunk.irrelevant {{ border-left-color: var(--red); background: var(--red-bg); }}
     .chunk.agent-strong {{ border-left-color: #175cd3; }}
     .chunk.agent-relevant {{ border-left-color: #2e90fa; }}
@@ -1344,6 +1411,7 @@ def render_html(
       font-weight: 700;
     }}
     .status.relevant {{ color: var(--green); background: #ffffff; border: 1px solid #8fd7a7; }}
+    .status.partial {{ color: #b54708; background: #ffffff; border: 1px solid #fedf89; }}
     .status.irrelevant {{ color: var(--red); background: #ffffff; border: 1px solid #f4a6a0; }}
     .status.removed {{ color: #374151; background: #ffffff; border: 1px solid #9ca3af; }}
     .reason, .mini-badge {{

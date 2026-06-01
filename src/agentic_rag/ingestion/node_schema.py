@@ -19,6 +19,11 @@ class NodeMetadata(BaseModel):
     section: str | None = None
     modality: NodeModality
     parser_name: str | None = None
+    bbox: list[float] | None = None
+    bbox_items: list[list[float]] | None = None
+    bbox_coordinate_system: str | None = None
+    bbox_source: str | None = None
+    bbox_merge_policy: str | None = None
 
 
 class Node(BaseModel):

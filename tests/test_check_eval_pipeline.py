@@ -28,6 +28,8 @@ def test_snapshot_hits_by_stage_flattens_agent_and_source_fields() -> None:
                         "agent_relevance_score": 0.91,
                         "agent_relevance_label": "strong",
                         "agent_label_score_delta": 0.1,
+                        "bbox": [100, 100, 300, 300],
+                        "bbox_coordinate_system": "mineru_content_list_1000",
                     },
                     "scores": {"score": 0.8, "score_composite": 0.8},
                     "retrieval": {"channel": "formula", "modality": "formula"},
@@ -44,6 +46,7 @@ def test_snapshot_hits_by_stage_flattens_agent_and_source_fields() -> None:
     assert hit["agent_relevance_score"] == 0.91
     assert hit["agent_relevance_label"] == "strong"
     assert hit["score_composite"] == 0.8
+    assert hit["bbox"] == [100, 100, 300, 300]
 
 
 def test_snapshot_removed_and_visual_hits_by_stage_include_removed_metadata() -> None:
@@ -105,6 +108,61 @@ def test_page_tolerance_marks_nearby_expected_page_relevant() -> None:
     assert stage_metrics["rerank"]["page_recall"] == 1.0
     assert annotated["rerank"][0]["relevance_grade"] == 1.0
     assert annotated["rerank"][0]["relevance_reason"] == "source+page_tolerance"
+
+
+def test_bbox_metrics_compute_iou_precision_and_recall() -> None:
+    hits = {
+        "rerank": [
+            {"node_id": "n1", "page": 3, "source": "doc.pdf", "bbox": [100, 100, 300, 300]},
+            {"node_id": "n2", "page": 3, "source": "doc.pdf", "bbox": [700, 700, 900, 900]},
+        ]
+    }
+    specs = [{"source": "doc.pdf", "page": 3, "grade": 1.0}]
+    region_specs = [{"source": "doc.pdf", "page": 3, "bbox": [120, 120, 280, 280]}]
+
+    stage_metrics, flat, annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        region_specs=region_specs,
+        k=10,
+        page_tolerance=0,
+    )
+
+    assert stage_metrics["rerank"]["bbox_hit_rate"] == 1.0
+    assert stage_metrics["rerank"]["bbox_precision"] == 0.5
+    assert stage_metrics["rerank"]["bbox_recall"] == 1.0
+    assert flat["rerank_bbox_recall"] == 1.0
+    assert annotated["rerank"][0]["bbox_match"] is True
+    assert annotated["rerank"][0]["bbox_iou"] > 0.5
+
+
+def test_bbox_specs_override_page_relevance_with_region_threshold() -> None:
+    hits = {
+        "rerank": [
+            {"node_id": "green", "page": 3, "source": "doc.pdf", "bbox": [100, 100, 300, 300]},
+            {"node_id": "yellow", "page": 3, "source": "doc.pdf", "bbox": [250, 250, 450, 450]},
+            {"node_id": "red", "page": 3, "source": "doc.pdf", "bbox": [700, 700, 900, 900]},
+            {"node_id": "wrong_page", "page": 4, "source": "doc.pdf", "bbox": [100, 100, 300, 300]},
+        ]
+    }
+    specs = [{"source": "doc.pdf", "page": 3, "grade": 1.0}]
+    region_specs = [{"source": "doc.pdf", "page": 3, "bbox": [100, 100, 300, 300]}]
+
+    stage_metrics, _flat, annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        region_specs=region_specs,
+        k=10,
+        page_tolerance=0,
+    )
+
+    rows = annotated["rerank"]
+    assert [hit["relevance_grade"] for hit in rows] == [1.0, 0.0, 0.0, 0.0]
+    assert rows[0]["region_relevance_label"] == "match"
+    assert rows[1]["region_relevance_label"] == "partial"
+    assert rows[2]["region_relevance_label"] == "miss"
+    assert rows[3]["relevance_reason"] == "not_same_source_page"
+    assert stage_metrics["rerank"]["precision"] == 0.25
 
 
 def test_page_level_specs_can_mark_multiple_chunks_relevant_and_hide_unknown_recall_metrics() -> None:
@@ -318,6 +376,54 @@ def test_visual_report_renders_dynamic_agent_stage_fields(tmp_path: Path) -> Non
     assert "doc.pdf" in html
     assert "agent strong" in html
     assert "score_composite" in html or "composite" in html
+
+
+def test_visual_report_marks_partial_bbox_overlap_yellow() -> None:
+    html = render_html(
+        {
+            "name": "run1",
+            "source": "check/runs/run1",
+            "mode": "run",
+            "runs": [{"run_name": "run1", "summary": {"case_count": 1, "error_count": 0}}],
+            "cases": [
+                {
+                    "id": "case1",
+                    "run_name": "run1",
+                    "question": "q",
+                    "reference_answer": "a",
+                    "prediction": "a",
+                    "citations": [],
+                    "expected_pages": [3],
+                    "bbox_specs": [{"source": "doc.pdf", "page": 3, "bbox": [100, 100, 300, 300]}],
+                    "metrics": {},
+                    "ai_evaluation": {},
+                    "model_debug": {},
+                    "stages": {
+                        "rerank": [
+                            {
+                                "rank": 1,
+                                "node_id": "partial",
+                                "source": "doc.pdf",
+                                "page": 3,
+                                "bbox": [250, 250, 450, 450],
+                                "bbox_iou": 0.032,
+                                "bbox_match": False,
+                                "bbox_iou_threshold": 0.5,
+                                "region_relevance_label": "partial",
+                                "text": "chunk",
+                            }
+                        ]
+                    },
+                }
+            ],
+        },
+        top_n=0,
+        max_text_chars=100,
+    )
+
+    assert "Partial" in html
+    assert "chunk partial" in html
+    assert "bbox IoU" in html
 
 
 def test_visual_report_renders_explicit_removed_hit_as_gray_card() -> None:

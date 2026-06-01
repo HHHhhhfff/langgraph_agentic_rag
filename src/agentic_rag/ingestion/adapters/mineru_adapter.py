@@ -298,6 +298,7 @@ class MinerUAdapter:
                         page=table_block.page,
                         title=file_path.stem,
                         section=table_block.section,
+                        **_mineru_bbox_payload([table_block]),
                         relationships=_mineru_relationships(table_block),
                     )
                 )
@@ -334,6 +335,7 @@ class MinerUAdapter:
                         page=page,
                         title=file_path.stem,
                         section=section,
+                        **_mineru_bbox_payload([matched_block] if matched_block else []),
                         relationships=_mineru_relationships(
                             matched_block
                             or MinerUStructuredBlock(type="table", text=table_chunk, page=page, section=section)
@@ -352,7 +354,11 @@ class MinerUAdapter:
             if not text:
                 return
             for chunk in self.text_strategy.chunk_text(text):
-                matched_block = _infer_block_for_text(chunk, structured_blocks) or _infer_block_for_text(text, structured_blocks)
+                matched_blocks = _infer_blocks_for_text(chunk, structured_blocks)
+                if not matched_blocks:
+                    fallback_block = _infer_block_for_text(text, structured_blocks)
+                    matched_blocks = [fallback_block] if fallback_block else []
+                matched_block = _best_block(matched_blocks)
                 page = matched_block.page if matched_block else None
                 section = (matched_block.section if matched_block else None) or _section_from_markdown(chunk)
                 nodes.append(
@@ -365,6 +371,7 @@ class MinerUAdapter:
                         page=page,
                         title=file_path.stem,
                         section=section,
+                        **_mineru_bbox_payload(matched_blocks),
                         relationships=_mineru_relationships(
                             matched_block or MinerUStructuredBlock(type="text", text=chunk, page=page, section=section)
                         ),
@@ -412,6 +419,7 @@ class MinerUAdapter:
                                 page=page,
                                 title=file_path.stem,
                                 section=section,
+                                **_mineru_bbox_payload([matched_block] if matched_block else []),
                                 relationships=_mineru_relationships(
                                     matched_block
                                     or MinerUStructuredBlock(type="table", text=table_chunk, page=page, section=section)
@@ -463,6 +471,7 @@ class MinerUAdapter:
                         page=page,
                         title=file_path.stem,
                         section=section,
+                        **_mineru_bbox_payload([matched_block] if matched_block else []),
                         relationships=relationships,
                     )
                 )
@@ -949,10 +958,15 @@ def _source_priority(source_kind: str | None) -> int:
 
 
 def _infer_block_for_text(text: str, blocks: list[MinerUStructuredBlock]) -> MinerUStructuredBlock | None:
+    matches = _infer_blocks_for_text(text, blocks)
+    return _best_block(matches)
+
+
+def _infer_blocks_for_text(text: str, blocks: list[MinerUStructuredBlock]) -> list[MinerUStructuredBlock]:
     needle = _compact_text(text)
     if not needle:
-        return None
-    best: tuple[int, MinerUStructuredBlock] | None = None
+        return []
+    scored: list[tuple[int, int, int, MinerUStructuredBlock]] = []
     for block in blocks:
         if block.page is None and block.section is None:
             continue
@@ -966,9 +980,14 @@ def _infer_block_for_text(text: str, blocks: list[MinerUStructuredBlock]) -> Min
             score = 40
         elif len(haystack) >= 40 and haystack[:40] in needle:
             score = 40
-        if score and (best is None or score > best[0]):
-            best = (score, block)
-    return best[1] if best else None
+        if score:
+            scored.append((score, _source_priority(block.source_kind), 1 if block.bbox is not None else 0, block))
+    scored.sort(key=lambda row: (row[0], row[1], row[2]), reverse=True)
+    return [block for _score, _priority, _has_bbox, block in scored]
+
+
+def _best_block(blocks: list[MinerUStructuredBlock]) -> MinerUStructuredBlock | None:
+    return blocks[0] if blocks else None
 
 
 def _compact_text(text: str) -> str:
@@ -1159,6 +1178,92 @@ def _section_from_markdown(text: str) -> str | None:
     return None
 
 
+def _mineru_bbox_source(block: MinerUStructuredBlock | None) -> str | None:
+    if block is None or block.bbox is None:
+        return None
+    return block.source_kind or "mineru"
+
+
+def _mineru_bbox_coordinate_system(block: MinerUStructuredBlock | None) -> str | None:
+    if block is None or block.bbox is None:
+        return None
+    source_kind = str(block.source_kind or "").lower()
+    if source_kind in {"content_list", "content_list_v2"}:
+        return "mineru_content_list_1000"
+    if source_kind == "model":
+        return "mineru_model_raw"
+    if source_kind == "layout":
+        return "mineru_layout_raw"
+    return "mineru_raw"
+
+
+def _mineru_bbox_payload(blocks: list[MinerUStructuredBlock]) -> dict[str, Any]:
+    located = [block for block in blocks if block is not None and block.bbox is not None]
+    if not located:
+        return {
+            "bbox": None,
+            "bbox_items": None,
+            "bbox_coordinate_system": None,
+            "bbox_source": None,
+            "bbox_merge_policy": None,
+        }
+
+    # Avoid mixing duplicate detections from different MinerU output files or coordinate systems.
+    best_priority = max(_source_priority(block.source_kind) for block in located)
+    located = [block for block in located if _source_priority(block.source_kind) == best_priority]
+    coordinate_system = _mineru_bbox_coordinate_system(located[0])
+    located = [block for block in located if _mineru_bbox_coordinate_system(block) == coordinate_system]
+
+    pages = {block.page for block in located if block.page is not None}
+    if len(pages) > 1:
+        return {
+            "bbox": None,
+            "bbox_items": None,
+            "bbox_coordinate_system": coordinate_system,
+            "bbox_source": _mineru_bbox_source(located[0]),
+            "bbox_merge_policy": "skipped_multi_page",
+        }
+
+    bbox_items = _unique_bboxes([_normalize_bbox(block.bbox or [0, 0, 0, 0]) for block in located])
+    if not bbox_items:
+        return {
+            "bbox": None,
+            "bbox_items": None,
+            "bbox_coordinate_system": coordinate_system,
+            "bbox_source": _mineru_bbox_source(located[0]),
+            "bbox_merge_policy": None,
+        }
+    return {
+        "bbox": _union_bboxes(bbox_items),
+        "bbox_items": bbox_items,
+        "bbox_coordinate_system": coordinate_system,
+        "bbox_source": _mineru_bbox_source(located[0]),
+        "bbox_merge_policy": "single" if len(bbox_items) == 1 else "union",
+    }
+
+
+def _unique_bboxes(values: list[tuple[float, float, float, float]]) -> list[list[float]]:
+    seen: set[tuple[float, float, float, float]] = set()
+    result: list[list[float]] = []
+    for value in values:
+        key = tuple(round(coord, 3) for coord in value)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append([float(coord) for coord in value])
+    return result
+
+
+def _union_bboxes(values: list[list[float]]) -> list[float]:
+    normalized = [_normalize_bbox(value) for value in values]
+    return [
+        min(box[0] for box in normalized),
+        min(box[1] for box in normalized),
+        max(box[2] for box in normalized),
+        max(box[3] for box in normalized),
+    ]
+
+
 def _mineru_relationships(block: MinerUStructuredBlock | None) -> dict[str, Any]:
     relationships: dict[str, Any] = {"source_parser": "mineru"}
     if block is None:
@@ -1168,6 +1273,13 @@ def _mineru_relationships(block: MinerUStructuredBlock | None) -> dict[str, Any]
         relationships["mineru_raw_type"] = block.raw_type
     if block.source_kind:
         relationships["mineru_source_kind"] = block.source_kind
+    if block.bbox is not None:
+        bbox_payload = _mineru_bbox_payload([block])
+        relationships["bbox"] = bbox_payload.get("bbox")
+        relationships["bbox_items"] = bbox_payload.get("bbox_items")
+        relationships["bbox_source"] = _mineru_bbox_source(block)
+        relationships["bbox_coordinate_system"] = _mineru_bbox_coordinate_system(block)
+        relationships["bbox_merge_policy"] = bbox_payload.get("bbox_merge_policy")
     if block.structured_duplicate_count > 1:
         relationships["structured_duplicate_count"] = block.structured_duplicate_count
     if block.page is not None:

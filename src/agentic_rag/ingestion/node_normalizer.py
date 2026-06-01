@@ -23,6 +23,11 @@ class NodeNormalizer:
         page: int | None = None,
         title: str | None = None,
         section: str | None = None,
+        bbox: list[float] | None = None,
+        bbox_items: list[list[float]] | None = None,
+        bbox_coordinate_system: str | None = None,
+        bbox_source: str | None = None,
+        bbox_merge_policy: str | None = None,
         relationships: dict[str, Any] | None = None,
     ) -> Node:
         normalized_modality = modality if modality in {"text", "image", "table", "formula"} else "text"
@@ -39,6 +44,11 @@ class NodeNormalizer:
             section=section,
             modality=normalized_modality,
             parser_name=parser_name,
+            bbox=bbox,
+            bbox_items=bbox_items,
+            bbox_coordinate_system=bbox_coordinate_system,
+            bbox_source=bbox_source,
+            bbox_merge_policy=bbox_merge_policy,
         )
 
         return Node(

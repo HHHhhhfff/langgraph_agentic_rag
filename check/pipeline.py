@@ -51,6 +51,11 @@ def hit_to_dict(hit: Any, rank: int) -> dict[str, Any]:
         "score": getattr(hit, "score", None),
         "channel": getattr(hit, "channel", None),
         "modality": getattr(hit, "modality", None) or metadata.get("modality"),
+        "bbox": metadata.get("bbox"),
+        "bbox_items": metadata.get("bbox_items"),
+        "bbox_coordinate_system": metadata.get("bbox_coordinate_system"),
+        "bbox_source": metadata.get("bbox_source"),
+        "bbox_merge_policy": metadata.get("bbox_merge_policy"),
         "text": str(getattr(hit, "text", "") or ""),
     }
 
@@ -84,6 +89,11 @@ def _flatten_serialized_hit(row: dict[str, Any]) -> dict[str, Any]:
         "score_stage": scores.get("score_stage"),
         "score_threshold": scores.get("score_threshold"),
         "score_threshold_passed": scores.get("score_threshold_passed"),
+        "bbox": metadata.get("bbox"),
+        "bbox_items": metadata.get("bbox_items"),
+        "bbox_coordinate_system": metadata.get("bbox_coordinate_system"),
+        "bbox_source": metadata.get("bbox_source"),
+        "bbox_merge_policy": metadata.get("bbox_merge_policy"),
     }
     for key in (
         "retrieval_candidate_pool",

@@ -95,6 +95,11 @@ def build_qdrant_payload_preview(
         "title": md.title,
         "section": md.section,
         "parser_name": md.parser_name,
+        "bbox": md.bbox,
+        "bbox_items": md.bbox_items,
+        "bbox_coordinate_system": md.bbox_coordinate_system,
+        "bbox_source": md.bbox_source,
+        "bbox_merge_policy": md.bbox_merge_policy,
         "metadata": md.model_dump(),
     }
     for key in (
@@ -106,6 +111,11 @@ def build_qdrant_payload_preview(
         "ocr_text",
         "object_label",
         "object_description",
+        "bbox",
+        "bbox_items",
+        "bbox_coordinate_system",
+        "bbox_source",
+        "bbox_merge_policy",
     ):
         if payload.get(key) is not None:
             payload["metadata"][key] = payload[key]
@@ -397,6 +407,9 @@ def render_chunks_html(path: Path, nodes: list[dict[str, Any]]) -> None:
                 <span>chunk={html.escape(str(md.get("chunk_index")))}</span>
                 <span>section={html.escape(str(md.get("section")))}</span>
                 <span>parser={html.escape(str(md.get("parser_name")))}</span>
+                <span>bbox={html.escape(str(md.get("bbox")))}</span>
+                <span>bbox_items={html.escape(str(len(md.get("bbox_items") or [])))}</span>
+                <span>bbox_system={html.escape(str(md.get("bbox_coordinate_system")))}</span>
               </div>
               <div class="warnings">{html.escape(", ".join(warnings))}</div>
               <pre>{html.escape(str(content))}</pre>
@@ -579,7 +592,7 @@ def _render_node_list(nodes: list[dict[str, Any]]) -> str:
         items.append(
             f"""
             <article class="node {html.escape(modality)}">
-              <div class="meta"><strong>{html.escape(modality)}</strong><span>{html.escape(str(node.get("node_id") or ""))}</span><span>chunk={html.escape(str(md.get("chunk_index")))}</span></div>
+              <div class="meta"><strong>{html.escape(modality)}</strong><span>{html.escape(str(node.get("node_id") or ""))}</span><span>chunk={html.escape(str(md.get("chunk_index")))}</span><span>bbox={html.escape(str(md.get("bbox")))}</span><span>bbox_items={html.escape(str(len(md.get("bbox_items") or [])))}</span></div>
               <pre>{html.escape(str(content))}</pre>
             </article>
             """

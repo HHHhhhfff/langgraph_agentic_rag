@@ -73,7 +73,12 @@ RETRIEVAL_REPORT_METRICS = (
     ("page_mrr", "Page MRR（页级首命中倒数排名）"),
     ("page_precision", "Page Precision（返回页精确率）"),
     ("page_recall", "Page Recall（标准页召回率）"),
+    ("bbox_hit_rate", "BBox Hit Rate"),
+    ("bbox_precision", "BBox Precision"),
+    ("bbox_recall", "BBox Recall"),
+    ("bbox_max_iou", "BBox Max IoU"),
 )
+BBOX_IOU_THRESHOLD = 0.5
 AI_REPORT_FIELDS = (
     ("ai_correctness", "Correctness（正确性）"),
     ("ai_completeness", "Completeness（完整性）"),
@@ -592,6 +597,301 @@ def page_level_metrics(
     }
 
 
+def bbox_specs(case: dict[str, Any]) -> list[dict[str, Any]]:
+    specs: list[dict[str, Any]] = []
+    for doc in case.get("relevant_docs") or []:
+        if not isinstance(doc, dict):
+            continue
+        for bbox in _flatten_bbox_groups(doc.get("rel_bbox") or doc.get("bbox")):
+            spec = {
+                key: doc[key]
+                for key in ("source", "doc_id", "title", "page")
+                if doc.get(key) not in (None, "")
+            }
+            spec["bbox"] = bbox
+            spec["bbox_coordinate_system"] = "sciqa_rel_bbox_1000" if doc.get("rel_bbox") else "sciqa_bbox_raw"
+            if doc.get("subimg_type") is not None:
+                spec["subimg_type"] = doc.get("subimg_type")
+            specs.append(spec)
+    meta = case.get("sciqa_meta") or case.get("metadata") or {}
+    if isinstance(meta, dict):
+        source = None
+        expected_sources = _as_list(case.get("expected_sources") or case.get("expected_source"))
+        if expected_sources:
+            source = expected_sources[0]
+        pages = _as_list(meta.get("evidence_page"))
+        bboxes = _flatten_bbox_groups(meta.get("rel_bbox") or meta.get("bbox"))
+        types = meta.get("subimg_type")
+        for index, bbox in enumerate(bboxes):
+            page = pages[min(index, len(pages) - 1)] if pages else None
+            spec = {"bbox": bbox, "bbox_coordinate_system": "sciqa_rel_bbox_1000" if meta.get("rel_bbox") else "sciqa_bbox_raw"}
+            if source:
+                spec["source"] = source
+            if page not in (None, ""):
+                spec["page"] = page
+            if types is not None:
+                spec["subimg_type"] = types
+            specs.append(spec)
+    return _dedupe_bbox_specs(specs)
+
+
+def _flatten_bbox_groups(value: Any) -> list[list[float]]:
+    if value in (None, ""):
+        return []
+    boxes: list[list[float]] = []
+
+    def walk(item: Any) -> None:
+        if isinstance(item, (list, tuple)):
+            if len(item) >= 4 and all(_float_or_none(v) is not None for v in item[:4]):
+                boxes.append([float(_float_or_none(v) or 0.0) for v in item[:4]])
+                return
+            for child in item:
+                walk(child)
+
+    walk(value)
+    return boxes
+
+
+def _float_or_none(value: Any) -> float | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def _dedupe_bbox_specs(specs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    unique: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for spec in specs:
+        box = _normalize_bbox_1000(spec.get("bbox"))
+        if box is None:
+            continue
+        spec = dict(spec)
+        spec["bbox"] = box
+        key = "|".join(
+            [
+                normalize_text(spec.get("source") or ""),
+                normalize_text(spec.get("doc_id") or ""),
+                normalize_text(spec.get("title") or ""),
+                str(_int_value(spec.get("page"))),
+                ",".join(f"{v:.3f}" for v in box),
+            ]
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(spec)
+    return unique
+
+
+def _normalize_bbox_1000(value: Any) -> list[float] | None:
+    boxes = _flatten_bbox_groups(value)
+    if not boxes:
+        return None
+    x0, y0, x1, y1 = boxes[0]
+    x0, x1 = min(x0, x1), max(x0, x1)
+    y0, y1 = min(y0, y1), max(y0, y1)
+    max_coord = max(abs(x0), abs(y0), abs(x1), abs(y1))
+    if max_coord <= 1.0:
+        return [x0 * 1000.0, y0 * 1000.0, x1 * 1000.0, y1 * 1000.0]
+    if max_coord <= 1000.0:
+        return [x0, y0, x1, y1]
+    return None
+
+
+def _hit_bboxes_1000(hit: dict[str, Any]) -> list[list[float]]:
+    boxes = [_normalize_bbox_1000(box) for box in _flatten_bbox_groups(_hit_value(hit, "bbox_items"))]
+    boxes = [box for box in boxes if box is not None]
+    if boxes:
+        return boxes
+    fallback = _normalize_bbox_1000(_hit_value(hit, "bbox"))
+    return [fallback] if fallback is not None else []
+
+
+def _bbox_iou(left: list[float], right: list[float]) -> float:
+    lx0, ly0, lx1, ly1 = left
+    rx0, ry0, rx1, ry1 = right
+    inter_x0 = max(lx0, rx0)
+    inter_y0 = max(ly0, ry0)
+    inter_x1 = min(lx1, rx1)
+    inter_y1 = min(ly1, ry1)
+    inter_area = max(0.0, inter_x1 - inter_x0) * max(0.0, inter_y1 - inter_y0)
+    left_area = max(0.0, lx1 - lx0) * max(0.0, ly1 - ly0)
+    right_area = max(0.0, rx1 - rx0) * max(0.0, ry1 - ry0)
+    union = left_area + right_area - inter_area
+    return inter_area / union if union > 0 else 0.0
+
+
+def _bbox_source_page_matches(hit: dict[str, Any], spec: dict[str, Any], *, page_tolerance: int) -> bool:
+    for field in ("source", "doc_id", "title"):
+        expected = spec.get(field)
+        if expected not in (None, "") and not _value_matches(field, expected, _hit_value(hit, field)):
+            return False
+    expected_page = _int_value(spec.get("page"))
+    if expected_page is not None:
+        actual_page = _int_value(_hit_value(hit, "page"))
+        if actual_page is None:
+            return False
+        if actual_page != expected_page and not (page_tolerance > 0 and abs(actual_page - expected_page) <= page_tolerance):
+            return False
+    return True
+
+
+def bbox_level_metrics(
+    hits: list[dict[str, Any]],
+    specs: list[dict[str, Any]],
+    *,
+    page_tolerance: int = 0,
+    iou_threshold: float = BBOX_IOU_THRESHOLD,
+) -> dict[str, float | None]:
+    if not specs:
+        return {"bbox_hit_rate": None, "bbox_precision": None, "bbox_recall": None, "bbox_max_iou": None}
+    comparable_hits = 0
+    matched_hit_keys: set[str] = set()
+    covered_specs: set[int] = set()
+    max_iou = 0.0
+    for hit_index, hit in enumerate(hits, start=1):
+        hit_boxes = _hit_bboxes_1000(hit)
+        if not hit_boxes:
+            hit["bbox_iou"] = None
+            continue
+        comparable_hits += 1
+        best_iou = 0.0
+        best_spec_index: int | None = None
+        hit["bbox_item_count"] = len(hit_boxes)
+        for spec_index, spec in enumerate(specs):
+            spec_box = _normalize_bbox_1000(spec.get("bbox"))
+            if spec_box is None or not _bbox_source_page_matches(hit, spec, page_tolerance=page_tolerance):
+                continue
+            iou = max((_bbox_iou(hit_box, spec_box) for hit_box in hit_boxes), default=0.0)
+            if iou > best_iou:
+                best_iou = iou
+                best_spec_index = spec_index
+        hit["bbox_iou"] = best_iou
+        hit["bbox_match"] = best_iou > iou_threshold
+        hit["bbox_iou_threshold"] = iou_threshold
+        if best_spec_index is not None:
+            hit["bbox_matched_spec_index"] = best_spec_index
+        max_iou = max(max_iou, best_iou)
+        if best_iou > iou_threshold and best_spec_index is not None:
+            matched_hit_keys.add(_hit_chunk_key(hit, hit_index))
+            covered_specs.add(best_spec_index)
+    if comparable_hits <= 0:
+        return {"bbox_hit_rate": None, "bbox_precision": None, "bbox_recall": None, "bbox_max_iou": None}
+    return {
+        "bbox_hit_rate": 1.0 if covered_specs else 0.0,
+        "bbox_precision": float(len(matched_hit_keys)) / float(comparable_hits),
+        "bbox_recall": float(len(covered_specs)) / float(len(specs)) if specs else None,
+        "bbox_max_iou": max_iou,
+    }
+
+
+def region_relevance_grades_for_hits(
+    hits: list[dict[str, Any]],
+    specs: list[dict[str, Any]],
+    *,
+    page_tolerance: int = 0,
+    iou_threshold: float = BBOX_IOU_THRESHOLD,
+) -> tuple[list[float], list[float]]:
+    grades: list[float] = []
+    for hit_index, hit in enumerate(hits, start=1):
+        hit_boxes = _hit_bboxes_1000(hit)
+        hit["bbox_iou_threshold"] = iou_threshold
+        if hit_boxes:
+            hit["bbox_item_count"] = len(hit_boxes)
+
+        source_page_specs = [
+            spec
+            for spec in specs
+            if _bbox_source_page_matches(hit, spec, page_tolerance=page_tolerance)
+        ]
+        if not source_page_specs:
+            hit["relevance_grade"] = 0.0
+            hit["relevance_reason"] = "not_same_source_page"
+            hit["region_relevance_label"] = "miss"
+            hit["bbox_match"] = False
+            if hit_boxes:
+                hit["bbox_iou"] = 0.0
+            grades.append(0.0)
+            continue
+
+        if not hit_boxes:
+            hit["relevance_grade"] = 0.0
+            hit["relevance_reason"] = "missing_bbox"
+            hit["region_relevance_label"] = "missing_bbox"
+            hit["bbox_match"] = False
+            hit["bbox_iou"] = None
+            grades.append(0.0)
+            continue
+
+        best_iou = 0.0
+        best_spec_index: int | None = None
+        for spec in source_page_specs:
+            spec_index = specs.index(spec)
+            spec_box = _normalize_bbox_1000(spec.get("bbox"))
+            if spec_box is None:
+                continue
+            iou = max((_bbox_iou(hit_box, spec_box) for hit_box in hit_boxes), default=0.0)
+            if iou > best_iou:
+                best_iou = iou
+                best_spec_index = spec_index
+
+        hit["bbox_iou"] = best_iou
+        if best_spec_index is not None:
+            hit["bbox_matched_spec_index"] = best_spec_index
+        if best_iou > iou_threshold:
+            hit["relevance_grade"] = 1.0
+            hit["relevance_reason"] = "bbox_iou_gt_threshold"
+            hit["region_relevance_label"] = "match"
+            hit["bbox_match"] = True
+            grades.append(1.0)
+        elif best_iou > 0.0:
+            hit["relevance_grade"] = 0.0
+            hit["relevance_reason"] = "bbox_iou_partial"
+            hit["region_relevance_label"] = "partial"
+            hit["bbox_match"] = False
+            grades.append(0.0)
+        else:
+            hit["relevance_grade"] = 0.0
+            hit["relevance_reason"] = "bbox_iou_zero"
+            hit["region_relevance_label"] = "miss"
+            hit["bbox_match"] = False
+            grades.append(0.0)
+    return grades, [1.0 for _spec in specs]
+
+
+def global_region_relevant_chunk_keys_by_stage(
+    hits_by_stage: dict[str, list[dict[str, Any]]],
+    specs: list[dict[str, Any]],
+    *,
+    page_tolerance: int = 0,
+) -> dict[str, set[str]]:
+    stage_keys: dict[str, set[str]] = {}
+    all_keys: set[str] = set()
+    for stage, hits in hits_by_stage.items():
+        copied_hits = [dict(hit) for hit in hits]
+        grades, _ideal = region_relevance_grades_for_hits(
+            copied_hits,
+            specs,
+            page_tolerance=page_tolerance,
+        )
+        keys = {
+            _hit_chunk_key(hit, index)
+            for index, (hit, grade) in enumerate(zip(copied_hits, grades), start=1)
+            if float(grade or 0.0) > 0
+        }
+        stage_keys[stage] = keys
+        all_keys.update(keys)
+    stage_keys["__all__"] = all_keys
+    return stage_keys
+
+
 def relevance_grades_for_hits(
     hits: list[dict[str, Any]],
     specs: list[dict[str, Any]],
@@ -650,6 +950,7 @@ def compute_stage_ranking_metrics(
     *,
     hits_by_stage: dict[str, list[dict[str, Any]]],
     specs: list[dict[str, Any]],
+    region_specs: list[dict[str, Any]] | None = None,
     k: int,
     page_tolerance: int = 0,
 ) -> tuple[dict[str, dict[str, float | None]], dict[str, float | None], dict[str, list[dict[str, Any]]]]:
@@ -660,12 +961,21 @@ def compute_stage_ranking_metrics(
         return stage_metrics, flat_metrics, annotated
 
     ideal: list[float] = []
+    region_specs = region_specs or []
+    use_region_relevance = bool(region_specs)
     exhaustive = all(_spec_is_exhaustive_chunk(spec) for spec in specs)
-    global_relevant_keys = global_relevant_chunk_keys_by_stage(
-        hits_by_stage,
-        specs,
-        page_tolerance=page_tolerance,
-    ).get("__all__", set())
+    if use_region_relevance:
+        global_relevant_keys = global_region_relevant_chunk_keys_by_stage(
+            hits_by_stage,
+            region_specs,
+            page_tolerance=page_tolerance,
+        ).get("__all__", set())
+    else:
+        global_relevant_keys = global_relevant_chunk_keys_by_stage(
+            hits_by_stage,
+            specs,
+            page_tolerance=page_tolerance,
+        ).get("__all__", set())
     for stage, hits in hits_by_stage.items():
         copied_hits = [dict(hit) for hit in hits]
         can_judge = not copied_hits or any(
@@ -683,8 +993,15 @@ def compute_stage_ranking_metrics(
             for name, value in metrics.items():
                 flat_metrics[f"{stage}_{name}"] = value
             continue
-        grades, ideal = relevance_grades_for_hits(copied_hits, specs, page_tolerance=page_tolerance)
-        if exhaustive:
+        if use_region_relevance:
+            grades, ideal = region_relevance_grades_for_hits(
+                copied_hits,
+                region_specs,
+                page_tolerance=page_tolerance,
+            )
+        else:
+            grades, ideal = relevance_grades_for_hits(copied_hits, specs, page_tolerance=page_tolerance)
+        if exhaustive and not use_region_relevance:
             metrics = ranking_metrics(
                 grades,
                 total_relevant=len(specs),
@@ -694,7 +1011,7 @@ def compute_stage_ranking_metrics(
         else:
             metrics = partial_ranking_metrics(grades, k=k)
             for hit in copied_hits:
-                hit["relevance_scope"] = "partial_page_or_source"
+                hit["relevance_scope"] = "bbox_region" if use_region_relevance else "partial_page_or_source"
         metrics["recall"] = candidate_chunk_recall_at_k(
             copied_hits,
             grades,
@@ -702,6 +1019,7 @@ def compute_stage_ranking_metrics(
             denominator_keys=global_relevant_keys,
         )
         metrics.update(page_level_metrics(copied_hits, specs, page_tolerance=page_tolerance))
+        metrics.update(bbox_level_metrics(copied_hits, region_specs, page_tolerance=page_tolerance))
         stage_metrics[stage] = metrics
         annotated[stage] = copied_hits
         prefix = f"{stage}_"
@@ -732,6 +1050,10 @@ def compact_hit_for_chunk_log(hit: dict[str, Any]) -> dict[str, Any]:
         "modality": hit.get("modality"),
         "score": hit.get("score"),
         "relevance_grade": hit.get("relevance_grade"),
+        "bbox": hit.get("bbox"),
+        "bbox_items": hit.get("bbox_items"),
+        "bbox_iou": hit.get("bbox_iou"),
+        "bbox_match": hit.get("bbox_match"),
     }
 
 
@@ -793,6 +1115,7 @@ def build_query_stage_records(
             "expected_pages": expected_pages_from_specs(specs if isinstance(specs, list) else []),
             "case_metadata": record.get("case_metadata") or {},
             "metrics": record.get("metrics") or {},
+            "bbox_specs": record.get("bbox_specs") or [],
             "ai_evaluation": record.get("ai_evaluation") or {},
             "model_debug": record.get("model_debug") or {},
             "stages": {},
@@ -1153,6 +1476,7 @@ def evaluate_case(
     ai_evaluation: dict[str, Any] = {}
     model_debug: dict[str, Any] = {}
     specs: list[dict[str, Any]] = []
+    region_specs: list[dict[str, Any]] = []
     error: str | None = None
 
     try:
@@ -1266,12 +1590,14 @@ def evaluate_case(
             token_usage=token_usage,
         )
         specs = relevance_specs(case)
+        region_specs = bbox_specs(case)
         if specs and (ranked_hits_by_stage or ranked_hits):
             if not ranked_hits_by_stage:
                 ranked_hits_by_stage = {args.rank_source: ranked_hits}
             stage_metrics, flat_stage_metrics, annotated_stage_hits = compute_stage_ranking_metrics(
                 hits_by_stage=ranked_hits_by_stage,
                 specs=specs,
+                region_specs=region_specs,
                 k=args.k,
                 page_tolerance=args.page_tolerance,
             )
@@ -1291,6 +1617,7 @@ def evaluate_case(
                 stage: len(hits) for stage, hits in ranked_hits_by_stage.items()
             }
             model_debug["relevance_spec_count"] = len(specs)
+            model_debug["bbox_spec_count"] = len(region_specs)
             model_debug["expected_pages"] = expected_pages_from_specs(specs)
             model_debug["page_tolerance"] = args.page_tolerance
 
@@ -1330,6 +1657,7 @@ def evaluate_case(
         "metrics": metrics,
         "stage_metrics": stage_metrics,
         "relevance_specs": specs,
+        "bbox_specs": region_specs,
         "case_metadata": case.get("sciqa_meta") or case.get("metadata") or {},
         "ai_evaluation": ai_evaluation,
         "model_debug": model_debug,
