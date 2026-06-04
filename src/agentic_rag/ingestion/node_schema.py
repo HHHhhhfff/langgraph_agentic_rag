@@ -21,6 +21,9 @@ class NodeMetadata(BaseModel):
     parser_name: str | None = None
     bbox: list[float] | None = None
     bbox_items: list[list[float]] | None = None
+    pages: list[int] | None = None
+    bbox_by_page: dict[str, list[list[float]]] | None = None
+    page_spans: list[dict[str, Any]] | None = None
     bbox_coordinate_system: str | None = None
     bbox_source: str | None = None
     bbox_merge_policy: str | None = None

@@ -100,10 +100,18 @@ def test_recorder_writes_expected_artifacts(tmp_path: Path) -> None:
     assert (run_dir / "chunks.html").exists()
     assert (run_dir / "document_map.html").exists()
     assert (run_dir / "mineru_raw" / "structured_content.json").exists()
+    assert (run_dir / "mineru_raw" / "bbox_summary.json").exists()
+    assert (run_dir / "mineru_raw" / "structured_bbox_blocks.jsonl").exists()
     assert (run_dir / "previews" / "qdrant_payload_preview.jsonl").exists()
     assert (run_dir / "previews" / "retrieval_index_preview.json").exists()
     assert (run_dir / "previews" / "embedding_preview.jsonl").exists()
     assert "page=null" not in (run_dir / "chunks.html").read_text(encoding="utf-8")
+
+    import json
+
+    bbox_summary = json.loads((run_dir / "mineru_raw" / "bbox_summary.json").read_text(encoding="utf-8"))
+    assert bbox_summary["blocks_with_bbox"] == 1
+    assert bbox_summary["by_type"]["table"]["with_bbox"] == 1
 
 
 def test_recorder_updates_manifest_after_write(tmp_path: Path) -> None:

@@ -136,6 +136,37 @@ def test_bbox_metrics_compute_iou_precision_and_recall() -> None:
     assert annotated["rerank"][0]["bbox_iou"] > 0.5
 
 
+def test_bbox_metrics_use_matching_page_span_for_cross_page_chunk() -> None:
+    hits = {
+        "rerank": [
+            {
+                "node_id": "cross",
+                "page": 1,
+                "pages": [1, 2],
+                "source": "doc.pdf",
+                "page_spans": [
+                    {"page": 1, "bbox_items": [[0, 0, 100, 100]]},
+                    {"page": 2, "bbox_items": [[400, 400, 600, 600]]},
+                ],
+            }
+        ]
+    }
+    specs = [{"source": "doc.pdf", "page": 2, "grade": 1.0}]
+    region_specs = [{"source": "doc.pdf", "page": 2, "bbox": [410, 410, 590, 590]}]
+
+    stage_metrics, _flat, annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        region_specs=region_specs,
+        k=10,
+        page_tolerance=0,
+    )
+
+    assert stage_metrics["rerank"]["bbox_precision"] == 1.0
+    assert annotated["rerank"][0]["bbox_match"] is True
+    assert annotated["rerank"][0]["bbox_iou"] > 0.5
+
+
 def test_bbox_specs_override_page_relevance_with_region_threshold() -> None:
     hits = {
         "rerank": [

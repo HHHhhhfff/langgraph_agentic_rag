@@ -1,0 +1,25 @@
+{
+  "summary": {
+    "documents": 7,
+    "chunks": 174,
+    "vectors": 174,
+    "upserted": 174,
+    "vector_size": 1024,
+    "failed_files": 0,
+    "named_vectors_enabled": true,
+    "named_vector_counts": {
+      "table": 7,
+      "text": 159,
+      "image": 8
+    }
+  },
+  "node_count": 174,
+  "embedded_count": 174,
+  "upserted_point_count": 174,
+  "wrote_qdrant": true,
+  "wrote_local_index": true,
+  "recreated_collection": true,
+  "qdrant_collection": "agentic_rag_docs",
+  "elapsed_ms": 37689,
+  "run_id": "3c8e0714-7ceb-4148-87f0-8e13b93a972f"
+}

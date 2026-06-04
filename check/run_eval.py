@@ -705,7 +705,66 @@ def _normalize_bbox_1000(value: Any) -> list[float] | None:
     return None
 
 
-def _hit_bboxes_1000(hit: dict[str, Any]) -> list[list[float]]:
+def _hit_pages(hit: dict[str, Any]) -> list[int]:
+    pages: list[int] = []
+    raw_pages = _hit_value(hit, "pages")
+    if isinstance(raw_pages, list):
+        for value in raw_pages:
+            page = _int_value(value)
+            if page is not None and page not in pages:
+                pages.append(page)
+    page = _int_value(_hit_value(hit, "page"))
+    if page is not None and page not in pages:
+        pages.append(page)
+    return pages
+
+
+def _page_matches(actual: int | None, expected: int | None, *, page_tolerance: int) -> bool:
+    if actual is None or expected is None:
+        return False
+    return actual == expected or (page_tolerance > 0 and abs(actual - expected) <= page_tolerance)
+
+
+def _hit_bboxes_1000(
+    hit: dict[str, Any],
+    *,
+    page: int | None = None,
+    page_tolerance: int = 0,
+) -> list[list[float]]:
+    span_boxes: list[list[float]] = []
+    page_spans = _hit_value(hit, "page_spans")
+    if isinstance(page_spans, list):
+        for span in page_spans:
+            if not isinstance(span, dict):
+                continue
+            span_page = _int_value(span.get("page"))
+            if page is not None and not _page_matches(span_page, page, page_tolerance=page_tolerance):
+                continue
+            for box in _flatten_bbox_groups(span.get("bbox_items") or span.get("bbox")):
+                normalized = _normalize_bbox_1000(box)
+                if normalized is not None:
+                    span_boxes.append(normalized)
+    if span_boxes:
+        return span_boxes
+
+    bbox_by_page = _hit_value(hit, "bbox_by_page")
+    if isinstance(bbox_by_page, dict):
+        for raw_page, raw_boxes in bbox_by_page.items():
+            box_page = _int_value(raw_page)
+            if page is not None and not _page_matches(box_page, page, page_tolerance=page_tolerance):
+                continue
+            for box in _flatten_bbox_groups(raw_boxes):
+                normalized = _normalize_bbox_1000(box)
+                if normalized is not None:
+                    span_boxes.append(normalized)
+    if span_boxes:
+        return span_boxes
+
+    if page is not None:
+        pages = _hit_pages(hit)
+        if pages and not any(_page_matches(actual, page, page_tolerance=page_tolerance) for actual in pages):
+            return []
+
     boxes = [_normalize_bbox_1000(box) for box in _flatten_bbox_groups(_hit_value(hit, "bbox_items"))]
     boxes = [box for box in boxes if box is not None]
     if boxes:
@@ -735,10 +794,10 @@ def _bbox_source_page_matches(hit: dict[str, Any], spec: dict[str, Any], *, page
             return False
     expected_page = _int_value(spec.get("page"))
     if expected_page is not None:
-        actual_page = _int_value(_hit_value(hit, "page"))
-        if actual_page is None:
+        actual_pages = _hit_pages(hit)
+        if not actual_pages:
             return False
-        if actual_page != expected_page and not (page_tolerance > 0 and abs(actual_page - expected_page) <= page_tolerance):
+        if not any(_page_matches(actual_page, expected_page, page_tolerance=page_tolerance) for actual_page in actual_pages):
             return False
     return True
 
@@ -757,18 +816,23 @@ def bbox_level_metrics(
     covered_specs: set[int] = set()
     max_iou = 0.0
     for hit_index, hit in enumerate(hits, start=1):
-        hit_boxes = _hit_bboxes_1000(hit)
-        if not hit_boxes:
+        all_hit_boxes = _hit_bboxes_1000(hit)
+        if not all_hit_boxes:
             hit["bbox_iou"] = None
             continue
         comparable_hits += 1
         best_iou = 0.0
         best_spec_index: int | None = None
-        hit["bbox_item_count"] = len(hit_boxes)
+        hit["bbox_item_count"] = len(all_hit_boxes)
         for spec_index, spec in enumerate(specs):
             spec_box = _normalize_bbox_1000(spec.get("bbox"))
             if spec_box is None or not _bbox_source_page_matches(hit, spec, page_tolerance=page_tolerance):
                 continue
+            hit_boxes = _hit_bboxes_1000(
+                hit,
+                page=_int_value(spec.get("page")),
+                page_tolerance=page_tolerance,
+            )
             iou = max((_bbox_iou(hit_box, spec_box) for hit_box in hit_boxes), default=0.0)
             if iou > best_iou:
                 best_iou = iou
@@ -837,7 +901,12 @@ def region_relevance_grades_for_hits(
             spec_box = _normalize_bbox_1000(spec.get("bbox"))
             if spec_box is None:
                 continue
-            iou = max((_bbox_iou(hit_box, spec_box) for hit_box in hit_boxes), default=0.0)
+            page_hit_boxes = _hit_bboxes_1000(
+                hit,
+                page=_int_value(spec.get("page")),
+                page_tolerance=page_tolerance,
+            )
+            iou = max((_bbox_iou(hit_box, spec_box) for hit_box in page_hit_boxes), default=0.0)
             if iou > best_iou:
                 best_iou = iou
                 best_spec_index = spec_index

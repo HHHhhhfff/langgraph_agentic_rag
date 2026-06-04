@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 from agentic_rag.config import Settings
 from agentic_rag.ingestion.adapters.mineru_client import MinerUClient
@@ -13,6 +14,11 @@ from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import IngestionFailure, MultimodalIngestionResult
 from agentic_rag.ingestion.table_extractor import extract_table_blocks, html_table_to_markdown, strip_table_blocks
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
+
+
+class _TextChunkStrategy(Protocol):
+    def chunk_text(self, text: str) -> list[str]:
+        ...
 
 
 class MinerUAdapterError(RuntimeError):
@@ -29,6 +35,22 @@ class MinerUStructuredBlock:
     source_kind: str | None = None
     raw_type: str | None = None
     structured_duplicate_count: int = 1
+    block_id: str | None = None
+    order: int = 0
+    title_region_id: int | None = None
+
+
+@dataclass(slots=True)
+class MinerULogicalSegment:
+    blocks: list[MinerUStructuredBlock]
+    cross_page_merge: bool = False
+    merge_reason: str | None = None
+
+
+_CROSS_PAGE_TAIL_BOTTOM_THRESHOLD = 0.85
+_CROSS_PAGE_HEAD_TOP_THRESHOLD = 0.20
+_BODY_CONTINUATION_TYPES = {"text", "formula"}
+_CROSS_PAGE_BARRIER_TYPES = {"heading", "table", "image"}
 
 
 class MinerUAdapter:
@@ -268,7 +290,10 @@ class MinerUAdapter:
         formula_count = 0
 
         structured_blocks = _extract_structured_blocks(structured_content)
-        table_blocks_with_metadata = [block for block in structured_blocks if block.type == "table"]
+        table_blocks_with_metadata = [
+            block for block in structured_blocks if _is_structured_table_node_source(block)
+        ]
+        table_blocks_with_metadata = _select_structured_table_blocks_for_nodes(table_blocks_with_metadata)
         if self.settings.mineru_structured_table_coalesce_enabled:
             table_blocks_with_metadata = _coalesce_structured_table_blocks(
                 table_blocks_with_metadata,
@@ -305,7 +330,7 @@ class MinerUAdapter:
                 idx += 1
                 table_count += 1
 
-        if self.settings.mineru_table_markdown_fallback:
+        if self.settings.mineru_table_markdown_fallback and not table_blocks_with_metadata and not structured_blocks:
             markdown_table_blocks = table_blocks
         else:
             markdown_table_blocks = []
@@ -347,6 +372,129 @@ class MinerUAdapter:
 
         clean_markdown = strip_table_blocks(markdown, table_blocks)
 
+        structured_text_blocks = _select_structured_text_blocks_for_chunking(structured_blocks)
+
+        def add_text_node(
+            *,
+            chunk: str,
+            page: int | None,
+            section: str | None,
+            bbox_blocks: list[MinerUStructuredBlock],
+            relationships: dict[str, Any],
+        ) -> None:
+            nonlocal idx, text_count
+            nodes.append(
+                self.normalizer.normalize(
+                    source=str(file_path),
+                    parser_name="mineru",
+                    chunk_index=idx,
+                    modality="text",
+                    text=chunk,
+                    page=page,
+                    title=file_path.stem,
+                    section=section,
+                    **_mineru_bbox_payload(bbox_blocks),
+                    relationships=relationships,
+                )
+            )
+            idx += 1
+            text_count += 1
+
+        def flush_structured_text_group(
+            group: list[MinerUStructuredBlock],
+            *,
+            policy: str = "block_aware_v1",
+            extra_relationships: dict[str, Any] | None = None,
+            part_index: int | None = None,
+            part_count: int | None = None,
+        ) -> None:
+            if not group:
+                return
+            text = _blocks_to_markdown(group)
+            if not text:
+                return
+            first = group[0]
+            page = first.page
+            section = _section_for_text_blocks(group)
+            relationships = _mineru_text_chunk_relationships(
+                group,
+                policy=policy,
+                part_index=part_index,
+                part_count=part_count,
+            )
+            if extra_relationships:
+                relationships.update(extra_relationships)
+            add_text_node(chunk=text, page=page, section=section, bbox_blocks=group, relationships=relationships)
+
+        def add_large_structured_text_segment(
+            segment: MinerULogicalSegment,
+            *,
+            policy: str = "block_aware_split_large_segment_v1",
+            extra_relationships: dict[str, Any] | None = None,
+        ) -> None:
+            text = _blocks_to_markdown(segment.blocks)
+            if not text:
+                return
+            hard_max_chars = max(1, self.settings.chunk_hard_max_chars, self.settings.chunk_size)
+            chunks = _split_large_structured_text(
+                text,
+                self.text_strategy,
+                max_chars=hard_max_chars,
+                overlap=max(0, self.settings.chunk_overlap),
+            )
+            chunks = chunks or [text]
+            for part_index, chunk in enumerate(chunks):
+                chunk_blocks = _infer_blocks_for_text(chunk, segment.blocks) or segment.blocks
+                chunk_blocks = sorted(chunk_blocks, key=lambda block: block.order)
+                relationships = _mineru_text_chunk_relationships(
+                    chunk_blocks,
+                    policy=policy,
+                    part_index=part_index,
+                    part_count=len(chunks),
+                )
+                if chunk_blocks == segment.blocks and len(segment.blocks) > 1:
+                    relationships["bbox_merge_policy_detail"] = "large_segment_inherited"
+                if extra_relationships:
+                    relationships.update(extra_relationships)
+                add_text_node(
+                    chunk=chunk,
+                    page=chunk_blocks[0].page if chunk_blocks else None,
+                    section=_section_for_text_blocks(chunk_blocks) or _section_from_markdown(chunk),
+                    bbox_blocks=chunk_blocks,
+                    relationships=relationships,
+                )
+
+        use_markdown_text_fallback = not structured_text_blocks
+
+        if structured_text_blocks:
+            hard_max_chars = max(1, self.settings.chunk_hard_max_chars, self.settings.chunk_size)
+            segments = _assemble_logical_text_segments(
+                structured_text_blocks,
+                structured_blocks,
+                markdown,
+                max_chars=max(1, self.settings.chunk_size),
+            )
+            for segment in segments:
+                extra_relationships = _logical_segment_relationships(segment)
+                segment_text = _blocks_to_markdown(segment.blocks)
+                is_plain_single_block = len(segment.blocks) == 1 and not segment.cross_page_merge
+                if len(segment_text) > hard_max_chars:
+                    add_large_structured_text_segment(
+                        segment,
+                        policy="block_aware_split_large_block_v1"
+                        if is_plain_single_block
+                        else "block_aware_split_large_segment_v1",
+                        extra_relationships=extra_relationships,
+                    )
+                else:
+                    flush_structured_text_group(
+                        segment.blocks,
+                        policy="block_aware_v1" if is_plain_single_block else "block_aware_logical_segment_v1",
+                        extra_relationships=extra_relationships,
+                    )
+
+        buffer: list[str] = []
+
         def flush_text() -> None:
             nonlocal idx, text_count
             text = "\n".join(buffer).strip()
@@ -359,28 +507,15 @@ class MinerUAdapter:
                     fallback_block = _infer_block_for_text(text, structured_blocks)
                     matched_blocks = [fallback_block] if fallback_block else []
                 matched_block = _best_block(matched_blocks)
+                bbox_blocks, bbox_diagnostics = _select_bbox_blocks_for_text_chunk(matched_blocks)
                 page = matched_block.page if matched_block else None
                 section = (matched_block.section if matched_block else None) or _section_from_markdown(chunk)
-                nodes.append(
-                    self.normalizer.normalize(
-                        source=str(file_path),
-                        parser_name="mineru",
-                        chunk_index=idx,
-                        modality="text",
-                        text=chunk,
-                        page=page,
-                        title=file_path.stem,
-                        section=section,
-                        **_mineru_bbox_payload(matched_blocks),
-                        relationships=_mineru_relationships(
-                            matched_block or MinerUStructuredBlock(type="text", text=chunk, page=page, section=section)
-                        ),
-                    )
+                relationships = _mineru_relationships(
+                    matched_block or MinerUStructuredBlock(type="text", text=chunk, page=page, section=section)
                 )
-                idx += 1
-                text_count += 1
+                relationships.update(bbox_diagnostics)
+                add_text_node(chunk=chunk, page=page, section=section, bbox_blocks=bbox_blocks, relationships=relationships)
 
-        buffer: list[str] = []
         i = 0
         lines = clean_markdown.splitlines()
         while i < len(lines):
@@ -430,7 +565,8 @@ class MinerUAdapter:
                         table_count += 1
                     i = j
                     continue
-            buffer.append(line)
+            if use_markdown_text_fallback:
+                buffer.append(line)
             i += 1
 
         flush_text()
@@ -518,7 +654,11 @@ def _extract_structured_blocks(structured_content: list[Any]) -> list[MinerUStru
                 source_kind=source_kind,
             )
         )
-    return [block for block in blocks if block.text]
+    kept = [block for block in blocks if block.text]
+    for order, block in enumerate(kept):
+        block.order = order
+        block.block_id = f"{block.source_kind or 'structured'}:{order}"
+    return kept
 
 
 def _walk_structured_item(
@@ -530,13 +670,17 @@ def _walk_structured_item(
 ) -> list[MinerUStructuredBlock]:
     if isinstance(item, list):
         blocks: list[MinerUStructuredBlock] = []
+        list_source_kind = source_kind
+        inferred = _infer_structured_source_kind(item, 0)
+        if _should_prefer_inferred_source_kind(source_kind, inferred):
+            list_source_kind = inferred
         for sub in item:
             blocks.extend(
                 _walk_structured_item(
                     sub,
                     inherited_page=inherited_page,
                     inherited_section=inherited_section,
-                    source_kind=source_kind,
+                    source_kind=list_source_kind,
                 )
             )
         return blocks
@@ -544,11 +688,13 @@ def _walk_structured_item(
         return []
 
     if "structured_content" in item and isinstance(item.get("structured_content"), (list, dict)):
+        inferred = _infer_structured_source_kind(item, 0)
+        child_source_kind = inferred if _should_prefer_inferred_source_kind(source_kind, inferred) else source_kind
         return _walk_structured_item(
             item.get("structured_content"),
             inherited_page=inherited_page,
             inherited_section=inherited_section,
-            source_kind=_infer_structured_source_kind(item, 0),
+            source_kind=child_source_kind,
         )
 
     page = _extract_page(item)
@@ -557,6 +703,9 @@ def _walk_structured_item(
     section = _extract_section(item) or inherited_section
     raw_type = _raw_block_type(item)
     item_type = _normalize_block_type(raw_type)
+    if item_type == "text" and _is_text_level_heading(item):
+        item_type = "heading"
+        raw_type = _text_level_raw_type(item) or raw_type
     bbox = _extract_bbox(item)
 
     blocks: list[MinerUStructuredBlock] = []
@@ -588,6 +737,16 @@ def _walk_structured_item(
                 )
             )
     return blocks
+
+
+def _should_prefer_inferred_source_kind(current: str | None, inferred: str | None) -> bool:
+    if not inferred:
+        return False
+    if inferred.startswith("structured_json"):
+        return False
+    if current is None:
+        return True
+    return current.startswith("structured_json")
 
 
 def _extract_block_text(item: dict[str, Any], item_type: str) -> str:
@@ -673,15 +832,38 @@ def _extract_section(item: dict[str, Any]) -> str | None:
 
 def _normalize_block_type(value: Any) -> str:
     raw = str(value or "text").strip().lower()
-    if "table" in raw:
-        return "table"
+    if raw in {"table_caption", "table_footnote"}:
+        return "text"
+    if raw in {"page_number", "page_footer", "page_header"}:
+        return "page_marker"
     if "formula" in raw or "equation" in raw:
         return "formula"
+    if raw in {"table", "table_body", "html_table", "latex_table", "chart_table"}:
+        return "table"
     if "title" in raw or "heading" in raw:
         return "heading"
     if "image" in raw or "figure" in raw:
         return "image"
     return "text"
+
+
+def _is_text_level_heading(item: dict[str, Any]) -> bool:
+    value = item.get("text_level")
+    if isinstance(value, bool) or value is None:
+        return False
+    if isinstance(value, (int, float)):
+        return int(value) > 0
+    if isinstance(value, str):
+        stripped = value.strip()
+        return stripped.isdigit() and int(stripped) > 0
+    return False
+
+
+def _text_level_raw_type(item: dict[str, Any]) -> str | None:
+    value = item.get("text_level")
+    if value in (None, "") or isinstance(value, bool):
+        return None
+    return f"text_level_{value}"
 
 
 def _infer_structured_source_kind(item: Any, idx: int) -> str:
@@ -962,6 +1144,585 @@ def _infer_block_for_text(text: str, blocks: list[MinerUStructuredBlock]) -> Min
     return _best_block(matches)
 
 
+def _select_structured_text_blocks_for_chunking(blocks: list[MinerUStructuredBlock]) -> list[MinerUStructuredBlock]:
+    candidates = [block for block in blocks if block.type in {"text", "heading", "formula"} and block.page is not None]
+    candidates = [block for block in candidates if not _skip_structured_text_block(block)]
+    candidates = [block for block in candidates if _compact_text(block.text)]
+    if not candidates:
+        return []
+
+    grouped: dict[str, list[MinerUStructuredBlock]] = {}
+    for block in candidates:
+        grouped.setdefault(str(block.source_kind or "unknown"), []).append(block)
+
+    def group_quality(item: tuple[str, list[MinerUStructuredBlock]]) -> tuple[int, int, int]:
+        source_kind, group = item
+        with_bbox = sum(1 for block in group if block.bbox is not None)
+        return (_source_priority(source_kind), with_bbox, len(group))
+
+    _source_kind, selected = max(grouped.items(), key=group_quality)
+    return selected
+
+
+def _skip_structured_text_block(block: MinerUStructuredBlock) -> bool:
+    raw = str(block.raw_type or "").strip().lower()
+    if raw in {"page_number", "page_header", "page_footer", "chart"}:
+        return True
+    text = str(block.text or "").strip()
+    if raw in {"table_caption", "table_footnote"}:
+        return False
+    if text.isdigit() and len(text) <= 4:
+        return True
+    return False
+
+
+def _is_structured_table_node_source(block: MinerUStructuredBlock) -> bool:
+    raw = str(block.raw_type or "").strip().lower()
+    if raw in {"table_caption", "table_footnote", "chart"}:
+        return False
+    if raw in {"table", "table_body", "html_table", "latex_table", "chart_table"}:
+        return _table_exact_content_key(block.text) != ()
+    return block.type == "table" and _table_exact_content_key(block.text) != ()
+
+
+def _select_structured_table_blocks_for_nodes(
+    blocks: list[MinerUStructuredBlock],
+) -> list[MinerUStructuredBlock]:
+    if not blocks:
+        return []
+    grouped: dict[str, list[MinerUStructuredBlock]] = {}
+    for block in blocks:
+        grouped.setdefault(str(block.source_kind or "unknown"), []).append(block)
+
+    def group_quality(item: tuple[str, list[MinerUStructuredBlock]]) -> tuple[int, int, int]:
+        source_kind, group = item
+        with_page = sum(1 for block in group if block.page is not None)
+        return (_source_priority(source_kind), with_page, len(group))
+
+    _source_kind, selected = max(grouped.items(), key=group_quality)
+    return selected
+
+
+def _assemble_logical_text_segments(
+    blocks: list[MinerUStructuredBlock],
+    all_blocks: list[MinerUStructuredBlock],
+    markdown: str,
+    *,
+    max_chars: int,
+) -> list[MinerULogicalSegment]:
+    if not blocks:
+        return []
+
+    stream = sorted(blocks, key=lambda block: block.order)
+    _assign_title_regions(stream)
+    source_kind = stream[0].source_kind
+    boundary_blocks = [
+        block
+        for block in all_blocks
+        if source_kind is None or block.source_kind == source_kind
+    ] or all_blocks
+    first_body_by_page, last_body_by_page = _body_boundary_blocks_by_page(stream)
+    markdown_paragraphs = _markdown_paragraph_signatures(markdown)
+
+    segments: list[MinerULogicalSegment] = []
+    current: list[MinerUStructuredBlock] = []
+    pending_headings: list[MinerUStructuredBlock] = []
+    current_cross_page = False
+    current_reason: str | None = None
+
+    def flush_current() -> None:
+        nonlocal current, current_cross_page, current_reason
+        if current:
+            segments.append(
+                MinerULogicalSegment(
+                    blocks=current,
+                    cross_page_merge=current_cross_page,
+                    merge_reason=current_reason,
+                )
+            )
+        current = []
+        current_cross_page = False
+        current_reason = None
+
+    for block in stream:
+        if block.type == "heading":
+            flush_current()
+            pending_headings.append(block)
+            continue
+
+        block_text = _block_to_markdown(block)
+        if not block_text:
+            continue
+
+        if not current and pending_headings:
+            current.extend(pending_headings)
+            pending_headings = []
+
+        if current:
+            last = current[-1]
+            if _title_region_id(last) != _title_region_id(block):
+                flush_current()
+                if pending_headings:
+                    current.extend(pending_headings)
+                    pending_headings = []
+                current.append(block)
+                continue
+            projected = len(_blocks_to_markdown([*current, block]))
+            current_is_heading_only = all(item.type == "heading" for item in current)
+            cross_page_allowed, reason = _should_merge_cross_page_text(
+                last,
+                block,
+                boundary_blocks,
+                markdown_paragraphs,
+                first_body_by_page,
+                last_body_by_page,
+            )
+            if last.page != block.page and not cross_page_allowed:
+                flush_current()
+                if pending_headings:
+                    current.extend(pending_headings)
+                    pending_headings = []
+            elif last.page == block.page and projected > max_chars and not current_is_heading_only:
+                flush_current()
+                if pending_headings:
+                    current.extend(pending_headings)
+                    pending_headings = []
+            elif cross_page_allowed:
+                current_cross_page = True
+                current_reason = reason
+
+        current.append(block)
+
+    flush_current()
+    if pending_headings:
+        segments.append(MinerULogicalSegment(blocks=pending_headings))
+    return segments
+
+
+def _assign_title_regions(blocks: list[MinerUStructuredBlock]) -> None:
+    """Mark heading-started regions so chunks do not straddle section titles."""
+    current_region_id: int | None = None
+    next_region_id = 1
+    in_heading_run = False
+    for block in blocks:
+        if block.type == "heading":
+            if not in_heading_run:
+                current_region_id = next_region_id
+                next_region_id += 1
+            block.title_region_id = current_region_id
+            in_heading_run = True
+            continue
+        in_heading_run = False
+        block.title_region_id = current_region_id
+
+
+def _title_region_id(block: MinerUStructuredBlock | None) -> int | None:
+    return block.title_region_id if block else None
+
+
+def _body_boundary_blocks_by_page(
+    blocks: list[MinerUStructuredBlock],
+) -> tuple[dict[int, MinerUStructuredBlock], dict[int, MinerUStructuredBlock]]:
+    first: dict[int, MinerUStructuredBlock] = {}
+    last: dict[int, MinerUStructuredBlock] = {}
+    for block in sorted(blocks, key=lambda item: item.order):
+        if block.page is None or block.type not in _BODY_CONTINUATION_TYPES:
+            continue
+        first.setdefault(block.page, block)
+        last[block.page] = block
+    return first, last
+
+
+def _should_merge_cross_page_text(
+    previous: MinerUStructuredBlock,
+    current: MinerUStructuredBlock,
+    all_blocks: list[MinerUStructuredBlock],
+    markdown_paragraphs: list[str],
+    first_body_by_page: dict[int, MinerUStructuredBlock],
+    last_body_by_page: dict[int, MinerUStructuredBlock],
+) -> tuple[bool, str | None]:
+    if previous.page is None or current.page is None or current.page != previous.page + 1:
+        return False, None
+    if previous.type not in _BODY_CONTINUATION_TYPES or current.type not in _BODY_CONTINUATION_TYPES:
+        return False, None
+    if last_body_by_page.get(previous.page) is not previous:
+        return False, None
+    if first_body_by_page.get(current.page) is not current:
+        return False, None
+    if not _bbox_near_bottom(previous.bbox) or not _bbox_near_top(current.bbox):
+        return False, None
+    if _has_cross_page_barrier(previous, current, all_blocks):
+        return False, None
+    if not _in_same_markdown_paragraph(previous.text, current.text, markdown_paragraphs):
+        return False, None
+    return True, "markdown_same_paragraph_page_boundary"
+
+
+def _has_cross_page_barrier(
+    previous: MinerUStructuredBlock,
+    current: MinerUStructuredBlock,
+    all_blocks: list[MinerUStructuredBlock],
+) -> bool:
+    left, right = sorted((previous.order, current.order))
+    for block in all_blocks:
+        if not (left < block.order < right):
+            continue
+        if block.type in _CROSS_PAGE_BARRIER_TYPES:
+            return True
+    return False
+
+
+def _bbox_near_bottom(bbox: list[float] | None) -> bool:
+    normalized = _bbox_y_span_01(bbox)
+    return normalized is not None and normalized[1] >= _CROSS_PAGE_TAIL_BOTTOM_THRESHOLD
+
+
+def _bbox_near_top(bbox: list[float] | None) -> bool:
+    normalized = _bbox_y_span_01(bbox)
+    return normalized is not None and normalized[0] <= _CROSS_PAGE_HEAD_TOP_THRESHOLD
+
+
+def _bbox_y_span_01(bbox: list[float] | None) -> tuple[float, float] | None:
+    if bbox is None or len(bbox) < 4:
+        return None
+    _x0, y0, _x1, y1 = _normalize_bbox(bbox)
+    max_coord = max(abs(value) for value in bbox[:4])
+    if max_coord <= 1.0:
+        return y0, y1
+    if max_coord <= 1000.0:
+        return y0 / 1000.0, y1 / 1000.0
+    return None
+
+
+def _markdown_paragraph_signatures(markdown: str) -> list[str]:
+    paragraphs = re.split(r"\n\s*\n+", str(markdown or ""))
+    return [_continuity_text_signature(paragraph) for paragraph in paragraphs if _continuity_text_signature(paragraph)]
+
+
+def _in_same_markdown_paragraph(left_text: str, right_text: str, paragraphs: list[str]) -> bool:
+    left = _continuity_text_signature(left_text)
+    right = _continuity_text_signature(right_text)
+    if not left or not right:
+        return False
+    left_probe = left[-min(120, len(left)) :]
+    right_probe = right[: min(120, len(right))]
+    for paragraph in paragraphs:
+        left_pos = paragraph.find(left_probe)
+        right_pos = paragraph.find(right_probe)
+        if left_pos >= 0 and right_pos >= 0 and left_pos <= right_pos:
+            return True
+        left_full = paragraph.find(left)
+        right_full = paragraph.find(right)
+        if left_full >= 0 and right_full >= 0 and left_full <= right_full:
+            return True
+    return False
+
+
+def _continuity_text_signature(text: str) -> str:
+    normalized = str(text or "").lower()
+    normalized = normalized.replace("\u00a0", " ")
+    normalized = re.sub(r"[\\${}_^`*#>\[\]()]|\|", "", normalized)
+    normalized = re.sub(r"\s+", "", normalized)
+    return normalized
+
+
+def _split_large_structured_text(
+    text: str,
+    strategy: _TextChunkStrategy,
+    *,
+    max_chars: int,
+    overlap: int,
+) -> list[str]:
+    semantic_chunks = [chunk.strip() for chunk in strategy.chunk_text(text) if chunk.strip()]
+    spans = _semantic_chunk_spans(text, semantic_chunks) if semantic_chunks else []
+    if not spans:
+        return _merge_heading_only_chunks_with_following(
+            _hard_split_text(text, max_chars=max_chars, overlap=overlap)
+        )
+
+    repaired: list[str] = []
+    for index, (start, end) in enumerate(spans):
+        repaired_start = 0 if index == 0 else _repair_semantic_start(text, start=start, end=end, overlap=overlap)
+        repaired_end = len(text) if index == len(spans) - 1 else _repair_semantic_end(text, start=repaired_start, end=end)
+        if repaired_end <= repaired_start:
+            repaired_start, repaired_end = start, end
+        piece = text[repaired_start:repaired_end].strip() or text[start:end].strip()
+        if not piece:
+            continue
+        if len(piece) <= max_chars:
+            repaired.append(piece)
+        else:
+            repaired.extend(_hard_split_text(piece, max_chars=max_chars, overlap=overlap))
+    return _merge_heading_only_chunks_with_following(
+        repaired or _hard_split_text(text, max_chars=max_chars, overlap=overlap)
+    )
+
+
+def _merge_heading_only_chunks_with_following(chunks: list[str]) -> list[str]:
+    """Keep section titles attached to the first body chunk in the same logical segment."""
+    merged: list[str] = []
+    pending_headings: list[str] = []
+    for chunk in chunks:
+        stripped = str(chunk or "").strip()
+        if not stripped:
+            continue
+        if _is_heading_only_markdown(stripped):
+            pending_headings.append(stripped)
+            continue
+        if pending_headings:
+            merged.append("\n\n".join([*pending_headings, stripped]).strip())
+            pending_headings = []
+        else:
+            merged.append(stripped)
+    merged.extend(pending_headings)
+    return merged
+
+
+def _is_heading_only_markdown(text: str) -> bool:
+    lines = [line.strip() for line in str(text or "").splitlines() if line.strip()]
+    return bool(lines) and all(line.startswith("#") for line in lines)
+
+
+def _semantic_chunk_spans(text: str, chunks: list[str]) -> list[tuple[int, int]]:
+    compact_source, offsets = _compact_text_with_offsets(text)
+    spans: list[tuple[int, int]] = []
+    search_from = 0
+    compact_search_from = 0
+    for chunk in chunks:
+        exact = text.find(chunk, search_from)
+        if exact >= 0:
+            start, end = exact, exact + len(chunk)
+        else:
+            compact_chunk = _compact_text(chunk)
+            if not compact_chunk:
+                return []
+            compact_pos = compact_source.find(compact_chunk, compact_search_from)
+            if compact_pos < 0:
+                return []
+            start = offsets[compact_pos]
+            end = offsets[compact_pos + len(compact_chunk) - 1] + 1
+        spans.append((start, end))
+        search_from = min(len(text), start + 1)
+        compact_search_from = _compact_offset_at_or_after(offsets, search_from)
+    return spans
+
+
+def _compact_text_with_offsets(text: str) -> tuple[str, list[int]]:
+    chars: list[str] = []
+    offsets: list[int] = []
+    for index, char in enumerate(text):
+        if char.isspace():
+            continue
+        chars.append(char)
+        offsets.append(index)
+    return "".join(chars), offsets
+
+
+def _compact_offset_at_or_after(offsets: list[int], text_offset: int) -> int:
+    for index, offset in enumerate(offsets):
+        if offset >= text_offset:
+            return index
+    return len(offsets)
+
+
+def _repair_semantic_start(text: str, *, start: int, end: int, overlap: int) -> int:
+    if start <= 0 or start >= len(text):
+        return start
+    max_shift = max(80, overlap * 2)
+    forward_window = text[start : min(end, start + max_shift)]
+    for match in _sentence_boundary_matches(forward_window):
+        adjusted = _skip_leading_space(text, start + match.end())
+        if start < adjusted < end:
+            return adjusted
+
+    search_start = max(0, start - max_shift)
+    before = text[search_start:start]
+    for match in reversed(_sentence_boundary_matches(before)):
+        adjusted = _skip_leading_space(text, search_start + match.end())
+        if 0 < adjusted < end:
+            return adjusted
+    return _adjust_overlap_start(text, start=start, end=end)
+
+
+def _repair_semantic_end(text: str, *, start: int, end: int) -> int:
+    if end >= len(text):
+        return len(text)
+    if _is_heading_only_markdown(text[start:end].strip()):
+        return end
+    stripped_end = end
+    while stripped_end > start and text[stripped_end - 1].isspace():
+        stripped_end -= 1
+    if stripped_end > start and _is_sentence_terminal(text[stripped_end - 1]):
+        return end
+    boundary = _find_text_boundary(text, start=start, end=end)
+    return boundary if boundary > start else end
+
+
+def _is_sentence_terminal(char: str) -> bool:
+    return char in ".!?\u3002\uff01\uff1f"
+
+
+def _hard_split_text(text: str, *, max_chars: int, overlap: int) -> list[str]:
+    if len(text) <= max_chars:
+        return [text.strip()] if text.strip() else []
+    parts: list[str] = []
+    start = 0
+    safe_overlap = min(max(0, overlap), max(0, max_chars - 1))
+    while start < len(text):
+        end = min(len(text), start + max_chars)
+        if end < len(text):
+            boundary = _find_text_boundary(text, start=start, end=end)
+            if boundary > start:
+                end = boundary
+        piece = text[start:end].strip()
+        if piece:
+            parts.append(piece)
+        if end >= len(text):
+            break
+        start = _adjust_overlap_start(text, start=max(end - safe_overlap, start + 1), end=end)
+    return parts
+
+
+def _adjust_overlap_start(text: str, *, start: int, end: int) -> int:
+    if start <= 0 or start >= len(text):
+        return start
+    overlap_len = max(1, end - start)
+    search_start = max(0, start - max(200, overlap_len * 2))
+    before = text[search_start:start]
+    for match in reversed(_sentence_boundary_matches(before)):
+        adjusted = _skip_leading_space(text, search_start + match.end())
+        if 0 < adjusted < end:
+            return adjusted
+
+    after = text[start:end]
+    for match in _sentence_boundary_matches(after):
+        adjusted = _skip_leading_space(text, start + match.end())
+        if adjusted < end:
+            return adjusted
+
+    for idx, char in enumerate(after):
+        if char.isspace():
+            adjusted = _skip_leading_space(text, start + idx + 1)
+            if adjusted < end:
+                return adjusted
+    return start
+
+
+def _find_text_boundary(text: str, *, start: int, end: int) -> int:
+    window = text[start:end]
+    lower_bound = max(1, int(len(window) * 0.55))
+    for match in reversed(_sentence_boundary_matches(window)):
+        if match.end() >= lower_bound:
+            return start + match.end()
+    newline = window.rfind("\n")
+    if newline >= lower_bound:
+        return start + newline + 1
+    space = window.rfind(" ")
+    if space >= lower_bound:
+        return start + space + 1
+    return end
+
+
+def _sentence_boundary_matches(text: str) -> list[re.Match[str]]:
+    return list(re.finditer(r"\n\n+|\n|(?<=[.!?])\s+|(?<=[\u3002\uff01\uff1f])\s*", text))
+
+
+def _skip_leading_space(text: str, index: int) -> int:
+    while index < len(text) and text[index].isspace():
+        index += 1
+    return index
+
+
+def _block_to_markdown(block: MinerUStructuredBlock) -> str:
+    text = str(block.text or "").strip()
+    if not text:
+        return ""
+    if block.type == "heading":
+        return text if text.lstrip().startswith("#") else f"# {text}"
+    return text
+
+
+def _blocks_to_markdown(blocks: list[MinerUStructuredBlock]) -> str:
+    parts: list[str] = []
+    previous: MinerUStructuredBlock | None = None
+    for block in blocks:
+        text = _block_to_markdown(block)
+        if not text:
+            continue
+        if (
+            previous is not None
+            and previous.page != block.page
+            and previous.type in _BODY_CONTINUATION_TYPES
+            and block.type in _BODY_CONTINUATION_TYPES
+        ):
+            parts.append(" ")
+        elif parts:
+            parts.append("\n\n")
+        parts.append(text)
+        previous = block
+    return "".join(parts).strip()
+
+
+def _section_for_text_blocks(blocks: list[MinerUStructuredBlock]) -> str | None:
+    for block in blocks:
+        if block.section:
+            return block.section
+    for block in blocks:
+        if block.type == "heading" and block.text.strip():
+            return block.text.strip().lstrip("#").strip()
+    return _section_from_markdown(_blocks_to_markdown(blocks))
+
+
+def _mineru_text_chunk_relationships(
+    blocks: list[MinerUStructuredBlock],
+    *,
+    policy: str,
+    part_index: int | None = None,
+    part_count: int | None = None,
+) -> dict[str, Any]:
+    first = blocks[0] if blocks else None
+    relationships = _mineru_relationships(first)
+    relationships["mineru_text_chunk_policy"] = policy
+    relationships["mineru_text_block_count"] = len(blocks)
+    relationships["mineru_text_block_ids"] = [block.block_id for block in blocks if block.block_id]
+    relationships["mineru_text_block_types"] = [block.type for block in blocks]
+    relationships["mineru_text_raw_types"] = [block.raw_type for block in blocks]
+    relationships["mineru_text_source_kinds"] = _unique_strings([str(block.source_kind) for block in blocks if block.source_kind])
+    pages = sorted({block.page for block in blocks if block.page is not None})
+    relationships["mineru_text_pages"] = pages
+    relationships["mineru_text_cross_page"] = len(pages) > 1
+    title_region_ids = sorted({block.title_region_id for block in blocks if block.title_region_id is not None})
+    if title_region_ids:
+        relationships["mineru_title_region_ids"] = title_region_ids
+        if len(title_region_ids) == 1:
+            relationships["mineru_title_region_id"] = title_region_ids[0]
+        relationships["mineru_text_cross_title_region"] = len(title_region_ids) > 1
+        relationships["mineru_title_region_heading_block_ids"] = [
+            block.block_id for block in blocks if block.type == "heading" and block.block_id
+        ]
+        relationships["mineru_title_region_boundary_policy"] = "no_cross_title_region_v1"
+    if first and first.source_kind:
+        relationships["mineru_source_kind"] = first.source_kind
+    if len(blocks) > 1:
+        relationships["bbox_merge_policy_detail"] = "integer_blocks_union"
+    if part_index is not None:
+        relationships["chunk_part_index"] = part_index
+    if part_count is not None:
+        relationships["chunk_part_count"] = part_count
+        relationships["bbox_merge_policy_detail"] = "large_block_inherited"
+    return relationships
+
+
+def _logical_segment_relationships(segment: MinerULogicalSegment) -> dict[str, Any]:
+    if not segment.cross_page_merge:
+        return {}
+    return {
+        "mineru_cross_page_merge": True,
+        "mineru_cross_page_merge_reason": segment.merge_reason,
+        "mineru_cross_page_formula_as_text": True,
+    }
+
+
 def _infer_blocks_for_text(text: str, blocks: list[MinerUStructuredBlock]) -> list[MinerUStructuredBlock]:
     needle = _compact_text(text)
     if not needle:
@@ -988,6 +1749,31 @@ def _infer_blocks_for_text(text: str, blocks: list[MinerUStructuredBlock]) -> li
 
 def _best_block(blocks: list[MinerUStructuredBlock]) -> MinerUStructuredBlock | None:
     return blocks[0] if blocks else None
+
+
+def _select_bbox_blocks_for_text_chunk(
+    blocks: list[MinerUStructuredBlock],
+) -> tuple[list[MinerUStructuredBlock], dict[str, Any]]:
+    if not blocks:
+        return [], {}
+    best = _best_block(blocks)
+    if best is None or best.page is None:
+        return blocks, {}
+
+    located_pages = sorted({block.page for block in blocks if block.page is not None})
+    if len(located_pages) <= 1:
+        return blocks, {}
+
+    same_page = [block for block in blocks if block.page == best.page]
+    if not same_page:
+        return blocks, {}
+
+    return same_page, {
+        "bbox_match_page_filtered": True,
+        "bbox_match_selected_page": best.page,
+        "bbox_match_candidate_pages": located_pages,
+        "bbox_cross_page_candidate_count": len(blocks) - len(same_page),
+    }
 
 
 def _compact_text(text: str) -> str:
@@ -1203,6 +1989,9 @@ def _mineru_bbox_payload(blocks: list[MinerUStructuredBlock]) -> dict[str, Any]:
         return {
             "bbox": None,
             "bbox_items": None,
+            "pages": None,
+            "bbox_by_page": None,
+            "page_spans": None,
             "bbox_coordinate_system": None,
             "bbox_source": None,
             "bbox_merge_policy": None,
@@ -1216,12 +2005,34 @@ def _mineru_bbox_payload(blocks: list[MinerUStructuredBlock]) -> dict[str, Any]:
 
     pages = {block.page for block in located if block.page is not None}
     if len(pages) > 1:
+        bbox_by_page: dict[str, list[list[float]]] = {}
+        page_spans: list[dict[str, Any]] = []
+        for page in sorted(page for page in pages if page is not None):
+            page_blocks = [block for block in located if block.page == page]
+            page_bbox_items = _unique_bboxes(
+                [_normalize_bbox(block.bbox or [0, 0, 0, 0]) for block in page_blocks]
+            )
+            if not page_bbox_items:
+                continue
+            page_key = str(page)
+            bbox_by_page[page_key] = page_bbox_items
+            page_spans.append(
+                {
+                    "page": page,
+                    "bbox_items": page_bbox_items,
+                    "block_ids": [block.block_id for block in page_blocks if block.block_id],
+                    "block_types": [block.type for block in page_blocks],
+                }
+            )
         return {
             "bbox": None,
             "bbox_items": None,
+            "pages": sorted(page for page in pages if page is not None),
+            "bbox_by_page": bbox_by_page or None,
+            "page_spans": page_spans or None,
             "bbox_coordinate_system": coordinate_system,
             "bbox_source": _mineru_bbox_source(located[0]),
-            "bbox_merge_policy": "skipped_multi_page",
+            "bbox_merge_policy": "multi_page_by_page",
         }
 
     bbox_items = _unique_bboxes([_normalize_bbox(block.bbox or [0, 0, 0, 0]) for block in located])
@@ -1229,6 +2040,9 @@ def _mineru_bbox_payload(blocks: list[MinerUStructuredBlock]) -> dict[str, Any]:
         return {
             "bbox": None,
             "bbox_items": None,
+            "pages": None,
+            "bbox_by_page": None,
+            "page_spans": None,
             "bbox_coordinate_system": coordinate_system,
             "bbox_source": _mineru_bbox_source(located[0]),
             "bbox_merge_policy": None,
@@ -1236,6 +2050,9 @@ def _mineru_bbox_payload(blocks: list[MinerUStructuredBlock]) -> dict[str, Any]:
     return {
         "bbox": _union_bboxes(bbox_items),
         "bbox_items": bbox_items,
+        "pages": None,
+        "bbox_by_page": None,
+        "page_spans": None,
         "bbox_coordinate_system": coordinate_system,
         "bbox_source": _mineru_bbox_source(located[0]),
         "bbox_merge_policy": "single" if len(bbox_items) == 1 else "union",

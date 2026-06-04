@@ -97,6 +97,9 @@ def build_qdrant_payload_preview(
         "parser_name": md.parser_name,
         "bbox": md.bbox,
         "bbox_items": md.bbox_items,
+        "pages": md.pages,
+        "bbox_by_page": md.bbox_by_page,
+        "page_spans": md.page_spans,
         "bbox_coordinate_system": md.bbox_coordinate_system,
         "bbox_source": md.bbox_source,
         "bbox_merge_policy": md.bbox_merge_policy,
@@ -113,6 +116,9 @@ def build_qdrant_payload_preview(
         "object_description",
         "bbox",
         "bbox_items",
+        "pages",
+        "bbox_by_page",
+        "page_spans",
         "bbox_coordinate_system",
         "bbox_source",
         "bbox_merge_policy",
@@ -157,7 +163,7 @@ def build_block_map(source: str, structured_content: list[Any], nodes: list[Node
         node_lookup[(node.metadata.page, node.modality)].append(node.node_id)
     blocks = []
     for idx, item in enumerate(_iter_structured_dicts(structured_content)):
-        block_type = _normalize_block_type(item.get("type") or item.get("category") or item.get("role"))
+        block_type = _normalize_structured_item_type(item)
         page = _extract_page(item)
         node_ids = node_lookup.get((page, block_type), [])
         if not node_ids and block_type == "heading":
@@ -276,6 +282,9 @@ class IngestionInspectionRecorder:
                 "chunks_html": "chunks.html",
                 "document_map_html": "document_map.html",
                 "mineru_raw_dir": "mineru_raw" if mineru_raw and self.settings.ingestion_inspect_include_mineru_raw else None,
+                "mineru_raw_bbox_summary": "mineru_raw/bbox_summary.json"
+                if mineru_raw and self.settings.ingestion_inspect_include_mineru_raw
+                else None,
                 "pages_dir": "pages" if rendered_pages else None,
                 "previews_dir": "previews",
             },
@@ -358,6 +367,100 @@ def save_mineru_raw_artifacts(output_dir: Path, mineru_raw: dict[str, Any]) -> N
     (output_dir / "parsed_markdown.md").write_text(str(mineru_raw.get("parsed_markdown") or ""), encoding="utf-8")
     _write_json(output_dir / "structured_content.json", mineru_raw.get("structured_content") or [])
     _write_json(output_dir / "raw_result_manifest.json", mineru_raw.get("raw_result_manifest") or {})
+
+    structured_content = mineru_raw.get("structured_content") or []
+    bbox_rows, bbox_summary = build_mineru_bbox_diagnostics(structured_content)
+    _write_jsonl(output_dir / "structured_bbox_blocks.jsonl", bbox_rows)
+    _write_json(output_dir / "bbox_summary.json", bbox_summary)
+
+
+def build_mineru_bbox_diagnostics(structured_content: list[Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    type_counts: dict[str, Counter[str]] = defaultdict(Counter)
+    page_bbox_counts: Counter[str] = Counter()
+    coord_counts: Counter[str] = Counter()
+
+    for idx, (item, inherited_page, inherited_source_kind) in enumerate(
+        _iter_structured_dicts_with_context(structured_content)
+    ):
+        if not isinstance(item, dict):
+            continue
+        block_type = _normalize_structured_item_type(item)
+        raw_type = _raw_block_type(item)
+        source_kind = inherited_source_kind or _infer_structured_source_kind(item, idx)
+        page = _extract_page(item)
+        if page is None:
+            page = inherited_page
+        bbox = _extract_bbox(item)
+        text = _extract_structured_text(item, block_type)
+        row = {
+            "block_index": idx,
+            "type": block_type,
+            "raw_type": raw_type,
+            "source_kind": source_kind,
+            "page": page,
+            "has_bbox": bbox is not None,
+            "bbox": bbox,
+            "bbox_coordinate_system": _bbox_coordinate_system_guess(bbox, source_kind),
+            "text_excerpt": _truncate(text, 300),
+            "text_chars": len(text or ""),
+            "keys": sorted(str(key) for key in item.keys()),
+        }
+        rows.append(row)
+
+        type_counts[block_type]["total"] += 1
+        if bbox is not None:
+            type_counts[block_type]["with_bbox"] += 1
+            page_bbox_counts[str(page)] += 1
+            coord_counts[row["bbox_coordinate_system"]] += 1
+        else:
+            type_counts[block_type]["without_bbox"] += 1
+
+    summary = {
+        "total_blocks": len(rows),
+        "blocks_with_bbox": sum(1 for row in rows if row["has_bbox"]),
+        "blocks_without_bbox": sum(1 for row in rows if not row["has_bbox"]),
+        "by_type": {key: dict(value) for key, value in type_counts.items()},
+        "bbox_by_page": dict(page_bbox_counts),
+        "bbox_coordinate_system_counts": dict(coord_counts),
+        "sample_with_bbox": [row for row in rows if row["has_bbox"]][:20],
+        "sample_without_bbox": [row for row in rows if not row["has_bbox"]][:20],
+    }
+    return rows, summary
+
+
+def _bbox_coordinate_system_guess(bbox: list[float] | None, source_kind: str | None) -> str | None:
+    if bbox is None:
+        return None
+    coords = [abs(float(value)) for value in bbox[:4]]
+    if coords and max(coords) <= 1.5:
+        return "mineru_relative_0_1"
+    if source_kind in {"content_list", "content_list_v2"}:
+        return "mineru_content_list_raw"
+    if source_kind == "model":
+        return "mineru_model_raw"
+    if source_kind == "layout":
+        return "mineru_layout_raw"
+    return "mineru_raw"
+
+
+def _extract_structured_text(item: dict[str, Any], block_type: str) -> str:
+    if block_type == "table":
+        candidates: list[Any] = [item.get("table_body"), item.get("html"), item.get("markdown"), item.get("md"), item.get("text"), item.get("content")]
+        content = item.get("content")
+        if isinstance(content, dict):
+            candidates.extend(content.get(key) for key in ("table_body", "html", "markdown", "md", "text", "content"))
+        for value in candidates:
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    for key in ("text", "content", "md", "markdown", "latex", "formula", "caption", "title"):
+        value = item.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    content = item.get("content")
+    if isinstance(content, dict):
+        return _extract_structured_text(content, block_type)
+    return ""
 
 
 def render_pdf_pages_with_pymupdf(pdf_path: Path, output_dir: Path) -> tuple[list[dict[str, Any]], bool, list[str]]:
@@ -592,7 +695,7 @@ def _render_node_list(nodes: list[dict[str, Any]]) -> str:
         items.append(
             f"""
             <article class="node {html.escape(modality)}">
-              <div class="meta"><strong>{html.escape(modality)}</strong><span>{html.escape(str(node.get("node_id") or ""))}</span><span>chunk={html.escape(str(md.get("chunk_index")))}</span><span>bbox={html.escape(str(md.get("bbox")))}</span><span>bbox_items={html.escape(str(len(md.get("bbox_items") or [])))}</span></div>
+              <div class="meta"><strong>{html.escape(modality)}</strong><span>{html.escape(str(node.get("node_id") or ""))}</span><span>chunk={html.escape(str(md.get("chunk_index")))}</span><span>page={html.escape(str(md.get("page")))}</span><span>pages={html.escape(str(md.get("pages")))}</span><span>bbox={html.escape(str(md.get("bbox")))}</span><span>bbox_items={html.escape(str(len(md.get("bbox_items") or [])))}</span><span>page_spans={html.escape(str(len(md.get("page_spans") or [])))}</span><span>bbox_by_page={html.escape(str(sorted((md.get("bbox_by_page") or {}).keys()) if isinstance(md.get("bbox_by_page"), dict) else None))}</span></div>
               <pre>{html.escape(str(content))}</pre>
             </article>
             """
@@ -610,6 +713,41 @@ def _iter_structured_dicts(value: Any):
             yield from _iter_structured_dicts(item)
 
 
+def _iter_structured_dicts_with_context(
+    value: Any,
+    *,
+    inherited_page: int | None = None,
+    inherited_source_kind: str | None = None,
+):
+    if isinstance(value, dict):
+        source_kind = _source_kind_from_name(value.get("source") or value.get("filename") or value.get("file_name") or value.get("name"))
+        if source_kind is None:
+            source_kind = inherited_source_kind
+        if source_kind is None:
+            source_kind = _infer_structured_source_kind(value, 0)
+
+        page = _extract_page(value)
+        if page is None:
+            page = inherited_page
+        yield value, page, source_kind
+
+        for key, child in value.items():
+            if isinstance(child, (list, dict)):
+                child_source_kind = "nested_content" if key == "content" and isinstance(child, (list, dict)) else source_kind
+                yield from _iter_structured_dicts_with_context(
+                    child,
+                    inherited_page=page,
+                    inherited_source_kind=child_source_kind,
+                )
+    elif isinstance(value, list):
+        for item in value:
+            yield from _iter_structured_dicts_with_context(
+                item,
+                inherited_page=inherited_page,
+                inherited_source_kind=inherited_source_kind,
+            )
+
+
 def _normalize_block_type(value: Any) -> str:
     raw = str(value or "text").strip().lower()
     if "table" in raw:
@@ -621,6 +759,85 @@ def _normalize_block_type(value: Any) -> str:
     if "image" in raw or "figure" in raw:
         return "image"
     return "text"
+
+
+def _normalize_structured_item_type(item: dict[str, Any]) -> str:
+    block_type = _normalize_block_type(item.get("type") or item.get("category") or item.get("role"))
+    if block_type == "text" and _is_text_level_heading(item):
+        return "heading"
+    return block_type
+
+
+def _is_text_level_heading(item: dict[str, Any]) -> bool:
+    value = item.get("text_level")
+    if isinstance(value, bool) or value is None:
+        return False
+    if isinstance(value, (int, float)):
+        return int(value) > 0
+    if isinstance(value, str):
+        stripped = value.strip()
+        return stripped.isdigit() and int(stripped) > 0
+    return False
+
+
+def _raw_block_type(item: dict[str, Any]) -> str | None:
+    for key in ("type", "block_type", "layout_type", "category", "kind", "sub_type", "role"):
+        value = item.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip().lower()
+    content = item.get("content")
+    if isinstance(content, dict):
+        table_type = content.get("table_type")
+        if isinstance(table_type, str) and table_type.strip():
+            return table_type.strip().lower()
+        if any(isinstance(content.get(key), str) and content.get(key).strip() for key in ("html", "table_body")):
+            return "table"
+    if any(isinstance(item.get(key), str) and item.get(key).strip() for key in ("table_body", "html")):
+        return "table"
+    return None
+
+
+def _infer_structured_source_kind(item: Any, idx: int) -> str:
+    if isinstance(item, dict):
+        source = item.get("source") or item.get("filename") or item.get("file_name") or item.get("name")
+        source_kind = _source_kind_from_name(source)
+        if source_kind:
+            return source_kind
+
+        keys = {str(key).lower() for key in item}
+        if "content_list_v2" in keys:
+            return "content_list_v2"
+        if "content_list" in keys:
+            return "content_list"
+        if "layout" in keys:
+            return "layout"
+        if "model" in keys or "middle" in keys or "pages" in keys:
+            return "model"
+        if {"type", "table_body"} & keys or {"type", "page_idx"} <= keys:
+            return "content_list"
+        content = item.get("content")
+        if isinstance(content, dict) and {"html", "table_type"} & {str(key).lower() for key in content}:
+            return "model"
+    if isinstance(item, list):
+        sample = [sub for sub in item[:5] if isinstance(sub, dict)]
+        if sample and any("table_body" in sub or "page_idx" in sub for sub in sample):
+            return "content_list"
+    return f"structured_json_{idx}"
+
+
+def _source_kind_from_name(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    name = value.replace("\\", "/").lower()
+    if "content_list_v2" in name:
+        return "content_list_v2"
+    if "content_list" in name:
+        return "content_list"
+    if "layout" in name:
+        return "layout"
+    if "middle" in name or "model" in name:
+        return "model"
+    return None
 
 
 def _extract_page(item: dict[str, Any]) -> int | None:
@@ -653,10 +870,63 @@ def _coerce_page(value: Any, *, zero_based: bool) -> int | None:
 
 
 def _extract_bbox(item: dict[str, Any]) -> list[float] | None:
-    for key in ("bbox", "box", "position", "coordinates"):
-        value = item.get(key)
-        if isinstance(value, list) and len(value) >= 4 and all(isinstance(x, (int, float)) for x in value[:4]):
-            return [float(x) for x in value[:4]]
+    for key in ("bbox", "box", "bounding_box", "position", "coordinates"):
+        bbox = _coerce_bbox(item.get(key))
+        if bbox is not None:
+            return bbox
+    metadata = item.get("metadata") or item.get("meta")
+    if isinstance(metadata, dict):
+        return _extract_bbox(metadata)
+    return None
+
+
+def _coerce_bbox(value: Any) -> list[float] | None:
+    if isinstance(value, dict):
+        if all(key in value for key in ("x", "y", "width", "height")):
+            x = _coerce_float(value.get("x"))
+            y = _coerce_float(value.get("y"))
+            width = _coerce_float(value.get("width"))
+            height = _coerce_float(value.get("height"))
+            if None not in (x, y, width, height):
+                return [x, y, x + width, y + height]  # type: ignore[operator]
+        if all(key in value for key in ("x0", "y0", "x1", "y1")):
+            coords = [_coerce_float(value.get(key)) for key in ("x0", "y0", "x1", "y1")]
+            if all(coord is not None for coord in coords):
+                return [coord for coord in coords if coord is not None]
+    if isinstance(value, list):
+        if value and all(isinstance(item, list) and len(item) >= 2 for item in value):
+            xs = [_coerce_float(item[0]) for item in value]
+            ys = [_coerce_float(item[1]) for item in value]
+            if all(coord is not None for coord in xs + ys):
+                numeric_xs = [coord for coord in xs if coord is not None]
+                numeric_ys = [coord for coord in ys if coord is not None]
+                return [min(numeric_xs), min(numeric_ys), max(numeric_xs), max(numeric_ys)]
+        numbers: list[float] = []
+        for item in value:
+            if isinstance(item, list):
+                for sub in item:
+                    number = _coerce_float(sub)
+                    if number is not None:
+                        numbers.append(number)
+            else:
+                number = _coerce_float(item)
+                if number is not None:
+                    numbers.append(number)
+        if len(numbers) >= 4:
+            return numbers[:4]
+    return None
+
+
+def _coerce_float(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
     return None
 
 

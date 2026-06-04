@@ -7,7 +7,12 @@ from agentic_rag.config import Settings
 from agentic_rag.ingestion.adapters.image_vlm_client import ImageVLMDescription
 from agentic_rag.ingestion.adapters.llamaindex_adapter import LlamaIndexAdapter
 from agentic_rag.ingestion.adapters.llamaparse_adapter import LlamaParseAdapter
-from agentic_rag.ingestion.adapters.mineru_adapter import MinerUAdapter, _coalesce_duplicate_table_nodes
+from agentic_rag.ingestion.adapters.mineru_adapter import (
+    MinerUAdapter,
+    _coalesce_duplicate_table_nodes,
+    _merge_heading_only_chunks_with_following,
+    _split_large_structured_text,
+)
 from agentic_rag.ingestion.node_schema import MultimodalIngestionResult, Node, NodeMetadata
 from agentic_rag.ingestion.table_extractor import extract_table_blocks, html_table_to_markdown
 
@@ -113,6 +118,49 @@ def test_mineru_adapter_preserves_content_list_bbox_in_node_metadata(tmp_path: P
     assert table.relationships["bbox_items"] == [[100.0, 200.0, 300.0, 400.0]]
 
 
+def test_mineru_adapter_does_not_treat_table_caption_or_footnote_as_table(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {"type": "table_caption", "text": "TABLE I. Caption text.", "page_idx": 0, "bbox": [0, 0, 10, 10]},
+        {"type": "table_footnote", "text": "a Footnote text.", "page_idx": 0, "bbox": [0, 20, 10, 30]},
+        {
+            "type": "table",
+            "table_body": "<table><tr><td>a</td><td>b</td></tr></table>",
+            "page_idx": 0,
+            "bbox": [100, 200, 300, 400],
+        },
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
+
+    table_nodes = [node for node in nodes if node.modality == "table"]
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert len(table_nodes) == 1
+    assert table_nodes[0].metadata.page == 1
+    assert "Caption text" in " ".join(node.text or "" for node in text_nodes)
+    assert "Footnote text" in " ".join(node.text or "" for node in text_nodes)
+
+
+def test_mineru_adapter_prefers_paged_content_list_tables_over_unpaged_duplicates(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    table_html = "<table><tr><td>a</td><td>b</td></tr></table>"
+    structured_content = [
+        {"source": "layout.json", "structured_content": [{"type": "table", "table_body": table_html}]},
+        {"source": "content_list.json", "structured_content": [{"type": "table", "table_body": table_html, "page_idx": 2}]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
+
+    table_nodes = [node for node in nodes if node.modality == "table"]
+    assert len(table_nodes) == 1
+    assert table_nodes[0].metadata.page == 3
+    assert table_nodes[0].relationships["mineru_source_kind"] == "content_list"
+
+
 def test_mineru_adapter_preserves_multiple_bbox_items_for_single_chunk(tmp_path: Path) -> None:
     path = tmp_path / "doc.pdf"
     path.write_text("plain text", encoding="utf-8")
@@ -128,6 +176,301 @@ def test_mineru_adapter_preserves_multiple_bbox_items_for_single_chunk(tmp_path:
     assert text.metadata.bbox == [10.0, 10.0, 200.0, 200.0]
     assert text.metadata.bbox_items == [[10.0, 10.0, 50.0, 50.0], [100.0, 100.0, 200.0, 200.0]]
     assert text.metadata.bbox_merge_policy == "union"
+
+
+def test_mineru_adapter_block_aware_text_does_not_merge_across_pages(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {"type": "text", "text": "alpha beta", "page_idx": 0, "bbox": [10, 10, 50, 50]},
+        {"type": "text", "text": "alpha", "page_idx": 1, "bbox": [100, 100, 200, 200]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("alpha beta alpha", path, structured_content=structured_content)  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert [node.metadata.page for node in text_nodes] == [1, 2]
+    assert text_nodes[0].metadata.bbox == [10.0, 10.0, 50.0, 50.0]
+    assert text_nodes[1].metadata.bbox == [100.0, 100.0, 200.0, 200.0]
+    assert all(node.relationships["mineru_text_chunk_policy"] == "block_aware_v1" for node in text_nodes)
+    assert all(node.relationships["mineru_text_cross_page"] is False for node in text_nodes)
+
+
+def test_mineru_adapter_block_aware_text_splits_large_single_block_with_inherited_bbox(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(
+        Settings(_env_file=None, chunk_size=80, chunk_overlap=10, chunk_hard_max_chars=120)
+    )
+    large_text = "Sentence one. Sentence two. Sentence three. Sentence four. " * 4
+    structured_content = [
+        {"type": "text", "text": large_text, "page_idx": 0, "bbox": [10, 10, 300, 300]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(large_text, path, structured_content=structured_content)  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert len(text_nodes) > 1
+    assert all(node.metadata.page == 1 for node in text_nodes)
+    assert all(node.metadata.bbox == [10.0, 10.0, 300.0, 300.0] for node in text_nodes)
+    assert all(
+        node.relationships["mineru_text_chunk_policy"] == "block_aware_split_large_block_v1"
+        for node in text_nodes
+    )
+    assert [node.relationships["chunk_part_index"] for node in text_nodes] == list(range(len(text_nodes)))
+
+
+def test_mineru_adapter_large_text_overlap_starts_on_sentence_boundary(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(
+        Settings(_env_file=None, chunk_size=80, chunk_overlap=30, chunk_hard_max_chars=120)
+    )
+    large_text = (
+        "Sentence one has enough detail for the first part. "
+        "Sentence two has enough detail for the overlap region. "
+        "Sentence three has enough detail for the next part. "
+        "Sentence four has enough detail for the final part. "
+    ) * 3
+    structured_content = [
+        {"type": "text", "text": large_text, "page_idx": 0, "bbox": [10, 10, 300, 300]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(large_text, path, structured_content=structured_content)  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert len(text_nodes) > 1
+    assert all(node.text.startswith("Sentence ") for node in text_nodes)
+
+
+def test_mineru_large_text_uses_semantic_chunks_before_boundary_repair() -> None:
+    class FakeStrategy:
+        def chunk_text(self, text: str) -> list[str]:
+            return [
+                "Intro sentence. Semantic marker A.",
+                "marker A. Semantic marker B. Final sentence.",
+            ]
+
+    text = "Intro sentence. Semantic marker A. Semantic marker B. Final sentence."
+
+    chunks = _split_large_structured_text(text, FakeStrategy(), max_chars=200, overlap=30)
+
+    assert chunks == [
+        "Intro sentence. Semantic marker A.",
+        "Semantic marker B. Final sentence.",
+    ]
+
+
+def test_mineru_adapter_keeps_medium_single_structured_block_intact_until_hard_max(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(
+        Settings(_env_file=None, chunk_size=80, chunk_overlap=10, chunk_hard_max_chars=500)
+    )
+    medium_text = "Sentence one. Sentence two. Sentence three. Sentence four. " * 4
+    structured_content = [
+        {"type": "text", "text": medium_text, "page_idx": 0, "bbox": [10, 10, 300, 300]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(medium_text, path, structured_content=structured_content)  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert len(text_nodes) == 1
+    assert text_nodes[0].text == medium_text.strip()
+    assert text_nodes[0].relationships["mineru_text_chunk_policy"] == "block_aware_v1"
+
+
+def test_mineru_adapter_heading_starts_new_structured_text_group(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=500, chunk_hard_max_chars=1000))
+    structured_content = [
+        {"type": "text", "text": "Previous section final paragraph.", "page_idx": 0, "bbox": [10, 10, 300, 80]},
+        {"type": "title", "text": "III. RESULTS AND DISCUSSION", "page_idx": 0, "bbox": [50, 100, 250, 120]},
+        {"type": "text", "text": "Three new bound states were observed.", "page_idx": 0, "bbox": [10, 140, 300, 200]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(
+        "Previous section final paragraph.\n\nIII. RESULTS AND DISCUSSION\n\nThree new bound states were observed.",
+        path,
+        structured_content=structured_content,
+    )  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert [node.text for node in text_nodes] == [
+        "Previous section final paragraph.",
+        "# III. RESULTS AND DISCUSSION\n\nThree new bound states were observed.",
+    ]
+
+
+def test_mineru_adapter_text_level_heading_starts_new_structured_text_group(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=500, chunk_hard_max_chars=1000))
+    structured_content = [
+        {"type": "text", "text": "Previous section final paragraph.", "page_idx": 0, "bbox": [10, 10, 300, 80]},
+        {"type": "text", "text": "III. RESULTS AND DISCUSSION", "text_level": 1, "page_idx": 0, "bbox": [50, 100, 250, 120]},
+        {"type": "text", "text": "Three new bound states were observed.", "page_idx": 0, "bbox": [10, 140, 300, 200]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(
+        "Previous section final paragraph.\n\nIII. RESULTS AND DISCUSSION\n\nThree new bound states were observed.",
+        path,
+        structured_content=structured_content,
+    )  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert [node.text for node in text_nodes] == [
+        "Previous section final paragraph.",
+        "# III. RESULTS AND DISCUSSION\n\nThree new bound states were observed.",
+    ]
+    assert text_nodes[1].relationships["mineru_text_block_types"] == ["heading", "text"]
+    assert text_nodes[1].relationships["mineru_text_raw_types"] == ["text_level_1", "text"]
+
+
+def test_mineru_adapter_title_regions_do_not_mix_previous_body_with_next_heading(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=2000, chunk_hard_max_chars=3000))
+    structured_content = [
+        {"type": "text", "text": "Previous section final paragraph.", "page_idx": 0, "bbox": [10, 10, 300, 80]},
+        {"type": "text", "text": "III. RESULTS", "text_level": 1, "page_idx": 0, "bbox": [50, 100, 250, 120]},
+        {"type": "text", "text": "AND DISCUSSION", "text_level": 2, "page_idx": 0, "bbox": [50, 125, 250, 145]},
+        {"type": "text", "text": "Three new bound states were observed.", "page_idx": 0, "bbox": [10, 160, 300, 220]},
+        {"type": "title", "text": "IV. CONCLUSION", "page_idx": 0, "bbox": [50, 250, 250, 270]},
+        {"type": "text", "text": "The conclusion summarizes the result.", "page_idx": 0, "bbox": [10, 290, 300, 350]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(
+        "\n\n".join(item["text"] for item in structured_content),
+        path,
+        structured_content=structured_content,
+    )  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert [node.text for node in text_nodes] == [
+        "Previous section final paragraph.",
+        "# III. RESULTS\n\n# AND DISCUSSION\n\nThree new bound states were observed.",
+        "# IV. CONCLUSION\n\nThe conclusion summarizes the result.",
+    ]
+    assert text_nodes[0].relationships.get("mineru_title_region_id") is None
+    assert text_nodes[1].relationships["mineru_title_region_id"] == 1
+    assert text_nodes[2].relationships["mineru_title_region_id"] == 2
+    assert all(not node.relationships.get("mineru_text_cross_title_region") for node in text_nodes)
+
+
+def test_mineru_adapter_large_split_attaches_heading_to_first_body_chunk(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=200, chunk_overlap=20, chunk_hard_max_chars=100))
+    adapter.text_strategy = SimpleNamespace(
+        chunk_text=lambda text: [
+            "# II. EXPERIMENTAL METHODS",
+            text.split("\n\n", 1)[1],
+        ]
+    )
+    body = " ".join(["This section describes the experimental method in detail."] * 8)
+    structured_content = [
+        {"type": "text", "text": "II. EXPERIMENTAL METHODS", "text_level": 1, "page_idx": 0, "bbox": [50, 100, 250, 120]},
+        {"type": "text", "text": body, "page_idx": 0, "bbox": [10, 140, 300, 700]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(
+        f"II. EXPERIMENTAL METHODS\n\n{body}",
+        path,
+        structured_content=structured_content,
+    )  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert text_nodes
+    assert text_nodes[0].text.startswith("# II. EXPERIMENTAL METHODS\n\nThis section describes")
+    assert not any(node.text.strip() == "# II. EXPERIMENTAL METHODS" for node in text_nodes)
+    assert text_nodes[0].relationships["mineru_text_block_types"][:2] == ["heading", "text"]
+
+
+def test_merge_heading_only_chunks_with_following_body() -> None:
+    chunks = ["# A\n\n# B", "Body sentence. More body.", "# C"]
+
+    assert _merge_heading_only_chunks_with_following(chunks) == [
+        "# A\n\n# B\n\nBody sentence. More body.",
+        "# C",
+    ]
+
+
+def test_mineru_adapter_merges_cross_page_text_when_markdown_same_paragraph(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=800, chunk_hard_max_chars=1200))
+    left = "Laser cooling enables experiments at low temperatures and cycling transitions"
+    right = "between these states are uncommon in molecular anions."
+    structured_content = [
+        {"type": "text", "text": left, "page_idx": 0, "bbox": [0.08, 0.86, 0.92, 0.94]},
+        {"type": "page_number", "text": "1", "page_idx": 0, "bbox": [0.50, 0.96, 0.52, 0.98]},
+        {"type": "text", "text": right, "page_idx": 1, "bbox": [0.08, 0.05, 0.92, 0.14]},
+    ]
+    markdown = f"{left} {right}"
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=structured_content)  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert len(text_nodes) == 1
+    node = text_nodes[0]
+    assert left in (node.text or "")
+    assert right in (node.text or "")
+    assert node.metadata.page == 1
+    assert node.metadata.pages == [1, 2]
+    assert node.metadata.bbox is None
+    assert node.metadata.bbox_merge_policy == "multi_page_by_page"
+    assert sorted((node.metadata.bbox_by_page or {}).keys()) == ["1", "2"]
+    assert len(node.metadata.page_spans or []) == 2
+    assert node.relationships["mineru_cross_page_merge"] is True
+    assert node.relationships["mineru_cross_page_merge_reason"] == "markdown_same_paragraph_page_boundary"
+
+
+def test_mineru_adapter_does_not_merge_cross_page_text_when_markdown_separate_paragraphs(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=800, chunk_hard_max_chars=1200))
+    left = "This paragraph ends on the first page."
+    right = "A new paragraph starts on the next page."
+    structured_content = [
+        {"type": "text", "text": left, "page_idx": 0, "bbox": [0.08, 0.86, 0.92, 0.94]},
+        {"type": "page_number", "text": "1", "page_idx": 0, "bbox": [0.50, 0.96, 0.52, 0.98]},
+        {"type": "text", "text": right, "page_idx": 1, "bbox": [0.08, 0.05, 0.92, 0.14]},
+    ]
+    markdown = f"{left}\n\n{right}"
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=structured_content)  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert len(text_nodes) == 2
+    assert [node.metadata.page for node in text_nodes] == [1, 2]
+    assert all(node.metadata.pages is None for node in text_nodes)
+    assert all(not node.relationships.get("mineru_cross_page_merge") for node in text_nodes)
+
+
+def test_mineru_adapter_skips_chart_text_and_markdown_table_fallback_when_structured_blocks_exist(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    markdown = """Intro paragraph.
+
+| x | y |
+| --- | --- |
+| Peak 1 | Peak 2 |
+"""
+    path.write_text(markdown, encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, mineru_table_markdown_fallback=True))
+    structured_content = [
+        {"type": "text", "text": "Intro paragraph.", "page_idx": 0, "bbox": [0, 0, 10, 10]},
+        {"type": "chart", "text": markdown, "page_idx": 0, "bbox": [20, 20, 100, 100]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(markdown, path, structured_content=structured_content)  # noqa: SLF001
+
+    assert not any(node.modality == "table" for node in nodes)
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert len(text_nodes) == 1
+    assert text_nodes[0].text == "Intro paragraph."
 
 
 def test_mineru_adapter_keeps_markdown_table_when_text_nodes_exist(tmp_path: Path) -> None:
@@ -223,7 +566,7 @@ def test_mineru_adapter_coalesces_duplicate_structured_tables(tmp_path: Path) ->
 
     assert len(table_nodes) == 1
     assert table_nodes[0].metadata.page == 1
-    assert table_nodes[0].relationships["structured_duplicate_count"] == 2
+    assert table_nodes[0].relationships["mineru_source_kind"] == "content_list"
     assert table_nodes[0].relationships["mineru_raw_type"] == "table"
     assert table_nodes[0].relationships["page_source"] == "structured"
 
@@ -249,7 +592,7 @@ def test_mineru_adapter_coalesces_page_null_duplicate_from_any_structured_source
 
     assert len(table_nodes) == 1
     assert table_nodes[0].metadata.page == 1
-    assert table_nodes[0].relationships["structured_duplicate_count"] == 2
+    assert table_nodes[0].relationships["mineru_source_kind"] == "content_list"
 
 
 def test_mineru_adapter_can_disable_structured_table_coalescing(tmp_path: Path) -> None:
