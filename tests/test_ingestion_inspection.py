@@ -92,6 +92,7 @@ def test_recorder_writes_expected_artifacts(tmp_path: Path) -> None:
             "parsed_markdown": "# Parsed",
             "structured_content": [{"type": "table", "page_idx": 2, "bbox": [1, 2, 3, 4]}],
             "raw_result_manifest": {"task_id": "t1"},
+            "assets": {"images/a.jpg": b"\xff\xd8\xffdemo"},
         },
     )
 
@@ -102,6 +103,7 @@ def test_recorder_writes_expected_artifacts(tmp_path: Path) -> None:
     assert (run_dir / "mineru_raw" / "structured_content.json").exists()
     assert (run_dir / "mineru_raw" / "bbox_summary.json").exists()
     assert (run_dir / "mineru_raw" / "structured_bbox_blocks.jsonl").exists()
+    assert (run_dir / "mineru_raw" / "images" / "a.jpg").read_bytes() == b"\xff\xd8\xffdemo"
     assert (run_dir / "previews" / "qdrant_payload_preview.jsonl").exists()
     assert (run_dir / "previews" / "retrieval_index_preview.json").exists()
     assert (run_dir / "previews" / "embedding_preview.jsonl").exists()

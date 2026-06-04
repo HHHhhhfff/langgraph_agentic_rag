@@ -118,6 +118,86 @@ def test_mineru_adapter_preserves_content_list_bbox_in_node_metadata(tmp_path: P
     assert table.relationships["bbox_items"] == [[100.0, 200.0, 300.0, 400.0]]
 
 
+def test_mineru_adapter_creates_image_caption_node_with_heading_context(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {"type": "title", "content": "Figures and Tables", "page_idx": 0, "bbox": [0, 0, 100, 20]},
+        {
+            "type": "image_caption",
+            "content": "FIG. 1. Schematic view of the apparatus.",
+            "page_idx": 0,
+            "bbox": [100, 100, 900, 150],
+        },
+        {
+            "type": "image",
+            "img_path": "images/fig1.jpg",
+            "page_idx": 0,
+            "bbox": [100, 160, 900, 600],
+        },
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
+    image_nodes = [node for node in nodes if node.modality == "image"]
+
+    assert len(image_nodes) == 1
+    image = image_nodes[0]
+    assert image.image_path == "images/fig1.jpg"
+    assert image.metadata.page == 1
+    assert image.metadata.section == "Figures and Tables"
+    assert image.relationships["image_semantic_type"] == "caption"
+    assert image.relationships["mineru_heading_context"] == "Figures and Tables"
+    assert image.relationships["mineru_image_block_count"] == 2
+    assert image.relationships["mineru_image_path"] == "images/fig1.jpg"
+    assert image.text is not None
+    assert image.text.startswith("# Figures and Tables")
+    assert "FIG. 1. Schematic view" in image.text
+    assert "Image file: fig1.jpg" in image.text
+
+
+def test_mineru_adapter_creates_image_node_from_path_only(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {"type": "text", "text": "Supplementary Figures", "text_level": 1, "page_idx": 0},
+        {"type": "image", "img_path": "images/supplement.png", "page_idx": 0, "bbox": [10, 20, 300, 400]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
+    image = next(node for node in nodes if node.modality == "image")
+
+    assert image.image_path == "images/supplement.png"
+    assert image.metadata.section == "Supplementary Figures"
+    assert image.text == "# Supplementary Figures\n\nImage file: supplement.png"
+    assert image.relationships["image_semantic_type"] == "caption"
+
+
+def test_mineru_adapter_prefers_paged_duplicate_image_caption(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    caption = "FIG. 2. The measured signal over time."
+    structured_content = [
+        {"source": "layout.json", "structured_content": [{"type": "image_caption", "content": caption}]},
+        {
+            "source": "content_list.json",
+            "structured_content": [
+                {"type": "image_caption", "content": caption, "page_idx": 2, "bbox": [10, 20, 300, 80]}
+            ],
+        },
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
+    image_nodes = [node for node in nodes if node.modality == "image"]
+
+    assert len(image_nodes) == 1
+    assert image_nodes[0].metadata.page == 3
+    assert image_nodes[0].metadata.bbox == [10.0, 20.0, 300.0, 80.0]
+    assert image_nodes[0].relationships["mineru_source_kind"] == "content_list"
+
+
 def test_mineru_adapter_does_not_treat_table_caption_or_footnote_as_table(tmp_path: Path) -> None:
     path = tmp_path / "doc.pdf"
     path.write_text("plain text", encoding="utf-8")
@@ -358,6 +438,62 @@ def test_mineru_adapter_title_regions_do_not_mix_previous_body_with_next_heading
     assert text_nodes[1].relationships["mineru_title_region_id"] == 1
     assert text_nodes[2].relationships["mineru_title_region_id"] == 2
     assert all(not node.relationships.get("mineru_text_cross_title_region") for node in text_nodes)
+
+
+def test_mineru_adapter_text_level_toc_dot_leader_remains_heading(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=1000, chunk_hard_max_chars=2000))
+    structured_content = [
+        {"type": "text", "text": "Contents", "text_level": 1, "page_idx": 0, "bbox": [50, 50, 250, 70]},
+        {"type": "text", "text": "Figures and Tables....15", "text_level": 1, "page_idx": 0, "bbox": [50, 90, 400, 110]},
+        {"type": "text", "text": "References.... 18", "text_level": 1, "page_idx": 0, "bbox": [50, 120, 400, 140]},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(
+        "Contents\n\nFigures and Tables....15\n\nReferences.... 18",
+        path,
+        structured_content=structured_content,
+    )  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert [node.text for node in text_nodes] == [
+        "# Contents\n\n# Figures and Tables....15\n\n# References.... 18",
+    ]
+    assert text_nodes[0].relationships["mineru_text_block_types"] == ["heading", "heading", "heading"]
+    assert text_nodes[0].relationships["mineru_text_raw_types"] == ["text_level_1", "text_level_1", "text_level_1"]
+
+
+def test_mineru_adapter_extracts_content_list_reference_list_items(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=1000, chunk_hard_max_chars=2000))
+    structured_content = [
+        {"type": "text", "text": "References:", "text_level": 1, "page_idx": 0, "bbox": [50, 50, 250, 70]},
+        {
+            "type": "list",
+            "sub_type": "ref_text",
+            "list_items": [
+                "[1] R. C. Bilodeau and H. K. Haugen, Phys. Rev. Lett. 85, 534 (2000).",
+                "[2] A. Kellerbauer and J. Walz, New J. Phys. 8, 45 (2006).",
+            ],
+            "page_idx": 0,
+            "bbox": [50, 80, 500, 180],
+        },
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(
+        "References:\n\n[1] R. C. Bilodeau and H. K. Haugen, Phys. Rev. Lett. 85, 534 (2000).\n[2] A. Kellerbauer and J. Walz, New J. Phys. 8, 45 (2006).",
+        path,
+        structured_content=structured_content,
+    )  # noqa: SLF001
+
+    text_nodes = [node for node in nodes if node.modality == "text"]
+    assert [node.text for node in text_nodes] == [
+        "# References:\n\n[1] R. C. Bilodeau and H. K. Haugen, Phys. Rev. Lett. 85, 534 (2000).\n[2] A. Kellerbauer and J. Walz, New J. Phys. 8, 45 (2006).",
+    ]
+    assert text_nodes[0].relationships["mineru_text_block_types"] == ["heading", "text"]
+    assert text_nodes[0].relationships["mineru_text_raw_types"] == ["text_level_1", "list"]
 
 
 def test_mineru_adapter_large_split_attaches_heading_to_first_body_chunk(tmp_path: Path) -> None:

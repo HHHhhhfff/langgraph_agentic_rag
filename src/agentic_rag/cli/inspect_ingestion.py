@@ -246,6 +246,7 @@ def _inspect_input(input_path: Path, settings: Settings) -> tuple[MultimodalInge
     parsed_markdown_parts: list[str] = []
     structured_by_file = []
     raw_file_manifest = []
+    raw_assets: dict[str, bytes] = {}
     parser_names = set()
 
     for file_path in files:
@@ -263,6 +264,9 @@ def _inspect_input(input_path: Path, settings: Settings) -> tuple[MultimodalInge
                 }
             )
             raw_file_manifest.append(mineru_raw.get("raw_result_manifest") or {"source": str(file_path)})
+            assets = mineru_raw.get("assets") or {}
+            if isinstance(assets, dict):
+                raw_assets.update({str(key): value for key, value in assets.items() if isinstance(value, bytes)})
 
     parser_name = "mixed" if len(parser_names) > 1 else next(iter(parser_names), "unknown")
     combined = MultimodalIngestionResult(nodes=all_nodes, failures=failures)
@@ -273,6 +277,7 @@ def _inspect_input(input_path: Path, settings: Settings) -> tuple[MultimodalInge
             "parsed_markdown": "".join(parsed_markdown_parts),
             "structured_content": structured_by_file,
             "raw_result_manifest": {"files": raw_file_manifest},
+            "assets": raw_assets,
         }
     elif settings.enable_mineru and input_path.suffix.lower() in DOC_LIKE_SUFFIXES:
         raw = empty_mineru_raw(str(input_path))
@@ -314,6 +319,7 @@ def _parse_mineru_file_for_inspection(file_path: Path, settings: Settings) -> tu
             "raw_markdown": parse_result.markdown_content,
             "parsed_markdown": parsed_markdown,
             "structured_content": parse_result.structured_content or [],
+            "assets": parse_result.assets or {},
             "raw_result_manifest": {
                 "source": str(file_path),
                 "task_id": parse_result.task_id,

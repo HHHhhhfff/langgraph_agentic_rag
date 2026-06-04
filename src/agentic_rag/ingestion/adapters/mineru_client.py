@@ -30,6 +30,7 @@ class MinerUParseResult:
     source_url: str | None = None
     raw: dict[str, Any] | None = None
     structured_content: list[Any] | None = None
+    assets: dict[str, bytes] | None = None
 
 
 class MinerUClient:
@@ -274,6 +275,7 @@ class MinerUClient:
             source_url=markdown_url,
             raw=body,
             structured_content=structured,
+            assets=None,
         )
 
     def _precise_download_result(self, task_id: str, body: dict[str, Any]) -> MinerUParseResult:
@@ -293,7 +295,7 @@ class MinerUClient:
         if not zip_url:
             raise MinerUClientError("MinerU precise result missing full_zip_url")
 
-        markdown, structured = self._download_markdown_and_structured_from_zip(zip_url)
+        markdown, structured, assets = self._download_markdown_structured_and_assets_from_zip(zip_url)
         return MinerUParseResult(
             task_id=task_id,
             state=state,
@@ -301,6 +303,7 @@ class MinerUClient:
             source_url=zip_url,
             raw=body,
             structured_content=structured,
+            assets=assets,
         )
 
     def _download_text(self, url: str) -> str:
@@ -319,7 +322,7 @@ class MinerUClient:
         except httpx.HTTPError as exc:
             raise MinerURetryableError(f"HTTP error downloading {url}: {exc}") from exc
 
-    def _download_markdown_and_structured_from_zip(self, url: str) -> tuple[str, list[Any]]:
+    def _download_markdown_structured_and_assets_from_zip(self, url: str) -> tuple[str, list[Any], dict[str, bytes]]:
         content = self._download_with_retry(lambda: self._download_zip_bytes_once(url))
         return self._extract_markdown_and_structured_from_zip_bytes(content)
 
@@ -348,7 +351,7 @@ class MinerUClient:
                 time.sleep(self.settings.mineru_download_retry_interval_sec)
 
     @staticmethod
-    def _extract_markdown_and_structured_from_zip_bytes(content: bytes) -> tuple[str, list[Any]]:
+    def _extract_markdown_and_structured_from_zip_bytes(content: bytes) -> tuple[str, list[Any], dict[str, bytes]]:
         import io
         import zipfile
 
@@ -363,17 +366,25 @@ class MinerUClient:
                     data = f.read()
                 markdown = data.decode("utf-8", errors="ignore")
                 structured: list[Any] = []
+                assets: dict[str, bytes] = {}
                 for name in zf.namelist():
-                    if not name.lower().endswith((".json", ".md")):
-                        continue
-                    if name.lower().endswith(".md") and name != md_candidates[0]:
-                        continue
-                    if name.lower().endswith(".json"):
+                    lower = name.lower()
+                    if lower.endswith(".json"):
                         try:
                             structured.append(json.loads(zf.read(name).decode("utf-8", errors="ignore")))
                         except Exception:
                             continue
-                return markdown, structured
+                        continue
+                    if lower.endswith(".md"):
+                        if name == md_candidates[0]:
+                            continue
+                        continue
+                    if lower.endswith((".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp", ".tif", ".tiff")):
+                        try:
+                            assets[name] = zf.read(name)
+                        except Exception:
+                            continue
+                return markdown, structured, assets
         except zipfile.BadZipFile as exc:
             raise MinerUClientError(f"MinerU zip parse failed: {exc}") from exc
 

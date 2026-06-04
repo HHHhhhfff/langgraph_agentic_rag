@@ -367,11 +367,36 @@ def save_mineru_raw_artifacts(output_dir: Path, mineru_raw: dict[str, Any]) -> N
     (output_dir / "parsed_markdown.md").write_text(str(mineru_raw.get("parsed_markdown") or ""), encoding="utf-8")
     _write_json(output_dir / "structured_content.json", mineru_raw.get("structured_content") or [])
     _write_json(output_dir / "raw_result_manifest.json", mineru_raw.get("raw_result_manifest") or {})
+    _write_mineru_assets(output_dir, mineru_raw.get("assets") or {})
 
     structured_content = mineru_raw.get("structured_content") or []
     bbox_rows, bbox_summary = build_mineru_bbox_diagnostics(structured_content)
     _write_jsonl(output_dir / "structured_bbox_blocks.jsonl", bbox_rows)
     _write_json(output_dir / "bbox_summary.json", bbox_summary)
+
+
+def _write_mineru_assets(output_dir: Path, assets: Any) -> None:
+    if not isinstance(assets, dict):
+        return
+    for raw_name, content in assets.items():
+        if not isinstance(content, bytes):
+            continue
+        safe_parts = _safe_asset_parts(str(raw_name))
+        if not safe_parts:
+            continue
+        path = output_dir.joinpath(*safe_parts)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+
+
+def _safe_asset_parts(name: str) -> list[str]:
+    normalized = name.replace("\\", "/").strip("/")
+    if not normalized:
+        return []
+    parts = [part for part in normalized.split("/") if part and part not in {".", ".."}]
+    if not parts:
+        return []
+    return parts
 
 
 def build_mineru_bbox_diagnostics(structured_content: list[Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -445,6 +470,10 @@ def _bbox_coordinate_system_guess(bbox: list[float] | None, source_kind: str | N
 
 
 def _extract_structured_text(item: dict[str, Any], block_type: str) -> str:
+    list_text = _extract_list_items_text(item)
+    if list_text:
+        return list_text
+
     if block_type == "table":
         candidates: list[Any] = [item.get("table_body"), item.get("html"), item.get("markdown"), item.get("md"), item.get("text"), item.get("content")]
         content = item.get("content")
@@ -460,6 +489,40 @@ def _extract_structured_text(item: dict[str, Any], block_type: str) -> str:
     content = item.get("content")
     if isinstance(content, dict):
         return _extract_structured_text(content, block_type)
+    return ""
+
+
+def _extract_list_items_text(item: dict[str, Any]) -> str:
+    values: list[Any] = []
+    list_items = item.get("list_items")
+    if isinstance(list_items, list):
+        values.extend(list_items)
+    content = item.get("content")
+    if isinstance(content, dict):
+        nested = content.get("list_items")
+        if isinstance(nested, list):
+            values.extend(nested)
+    lines = [_stringify_list_item(value).strip() for value in values]
+    return "\n".join(line for line in lines if line)
+
+
+def _stringify_list_item(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        parts: list[str] = []
+        for key in ("text", "content"):
+            item = value.get(key)
+            if isinstance(item, str) and item.strip():
+                parts.append(item.strip())
+        item_content = value.get("item_content")
+        if isinstance(item_content, list):
+            parts.extend(_stringify_list_item(item).strip() for item in item_content)
+        if parts:
+            return " ".join(part for part in parts if part)
+    if isinstance(value, list):
+        parts = [_stringify_list_item(item).strip() for item in value]
+        return " ".join(part for part in parts if part)
     return ""
 
 

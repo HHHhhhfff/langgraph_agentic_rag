@@ -49,10 +49,12 @@ class DummyClient:
         return self.responses.pop(0)
 
 
-def _zip_with_full_md(text: str) -> bytes:
+def _zip_with_full_md(text: str, assets: dict[str, bytes] | None = None) -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("full.md", text)
+        for name, content in (assets or {}).items():
+            zf.writestr(name, content)
     return buf.getvalue()
 
 
@@ -69,7 +71,7 @@ def test_mineru_precise_success(monkeypatch, tmp_path: Path):
     file_path = tmp_path / "a.pdf"
     file_path.write_bytes(b"pdf")
 
-    zip_bytes = _zip_with_full_md("hello from mineru")
+    zip_bytes = _zip_with_full_md("hello from mineru\n![](images/a.jpg)", {"images/a.jpg": b"\xff\xd8\xffdemo"})
 
     responses = [
         DummyResp(json_data={"code": 0, "data": {"batch_id": "b1", "file_urls": ["https://upload"]}}),
@@ -83,6 +85,7 @@ def test_mineru_precise_success(monkeypatch, tmp_path: Path):
     result = client.parse_local_file(file_path)
     assert result.state == "done"
     assert "hello from mineru" in result.markdown_content
+    assert result.assets == {"images/a.jpg": b"\xff\xd8\xffdemo"}
 
 
 def test_mineru_agent_success(monkeypatch, tmp_path: Path):
