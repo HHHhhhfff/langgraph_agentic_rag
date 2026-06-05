@@ -98,6 +98,75 @@ def test_relationship_expander_assigns_inherited_scores_to_related_table() -> No
     assert round(table_hit.metadata["score_composite"], 2) == 0.72
 
 
+def test_auto_expansion_allows_related_image_semantic_from_caption_text() -> None:
+    settings = Settings(
+        _env_file=None,
+        rel_expand_min_seed_composite_score=0.3,
+        rel_expand_seed_top_m=3,
+        rel_expand_related_image_weight=0.8,
+        rel_expand_context_text_enabled=False,
+    )
+    seed = SearchHit(
+        point_id="1",
+        node_id="caption1",
+        text="Figure 1 caption",
+        score=0.75,
+        modality="text",
+        relationships={"related_image_node_ids": ["image_semantic1"]},
+        metadata={"score_composite": 0.75, "modality": "text"},
+    )
+    image_semantic = SearchHit(
+        point_id="2",
+        node_id="image_semantic1",
+        text="chart data",
+        score=0.0,
+        modality="image",
+        image_semantic_type="chart_data",
+        metadata={"modality": "image", "image_semantic_type": "chart_data"},
+        relationships={"image_semantic_type": "chart_data"},
+    )
+
+    hits = RelationshipExpander([seed, image_semantic], settings=settings).expand(
+        [seed], page_window=0, mode="auto"
+    )
+    semantic_hit = next(hit for hit in hits if hit.node_id == "image_semantic1")
+
+    assert semantic_hit.metadata["retrieval_expansion_relation"] == "related_image_node_ids"
+    assert semantic_hit.metadata["retrieval_relation_weight"] == 0.8
+    assert round(semantic_hit.metadata["score_composite"], 2) == 0.60
+
+
+def test_auto_expansion_does_not_expand_related_whole_image() -> None:
+    settings = Settings(
+        _env_file=None,
+        rel_expand_min_seed_composite_score=0.3,
+        rel_expand_context_text_enabled=False,
+    )
+    seed = SearchHit(
+        point_id="1",
+        node_id="caption1",
+        text="Figure 1 caption",
+        score=0.75,
+        modality="text",
+        relationships={"related_image_node_ids": ["whole1"]},
+        metadata={"score_composite": 0.75, "modality": "text"},
+    )
+    whole = SearchHit(
+        point_id="2",
+        node_id="whole1",
+        text="Image file",
+        score=0.0,
+        modality="image",
+        image_semantic_type="whole_image",
+        metadata={"modality": "image", "image_semantic_type": "whole_image"},
+        relationships={"image_semantic_type": "whole_image"},
+    )
+
+    hits = RelationshipExpander([seed, whole], settings=settings).expand([seed], page_window=0, mode="auto")
+
+    assert {hit.node_id for hit in hits} == {"caption1"}
+
+
 def test_auto_expansion_does_not_expand_related_table_below_seed_threshold() -> None:
     settings = Settings(
         _env_file=None,

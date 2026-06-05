@@ -51,7 +51,7 @@ class AgentEvidenceCritic:
 Task: critique whether the evidence supports answering the user question.
 
 Be conservative. If evidence is incomplete or conflicting, choose retry. If there is high conflict and refusal is allowed, choose refuse.
-For image questions, verify the evidence contains image modality and relevant image_semantic_type evidence: whole_image, caption, ocr, or object. If the question asks about a visual/figure/screenshot but evidence is text-only or lacks image semantics, choose retry.
+For image questions, verify the evidence contains image modality and relevant image_semantic_type evidence: whole_image, caption, ocr, object, or chart_data. If the question asks about a visual/figure/screenshot/chart but evidence is text-only or lacks image semantics, choose retry.
 
 User question:
 {question}

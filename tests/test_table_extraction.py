@@ -12,6 +12,7 @@ from agentic_rag.ingestion.adapters.mineru_adapter import (
     _coalesce_duplicate_table_nodes,
     _merge_heading_only_chunks_with_following,
     _split_large_structured_text,
+    _write_mineru_assets_for_doc,
 )
 from agentic_rag.ingestion.node_schema import MultimodalIngestionResult, Node, NodeMetadata
 from agentic_rag.ingestion.table_extractor import extract_table_blocks, html_table_to_markdown
@@ -112,15 +113,18 @@ def test_mineru_adapter_preserves_content_list_bbox_in_node_metadata(tmp_path: P
     table = next(node for node in nodes if node.modality == "table")
     assert table.metadata.bbox == [100.0, 200.0, 300.0, 400.0]
     assert table.metadata.bbox_items == [[100.0, 200.0, 300.0, 400.0]]
-    assert table.metadata.bbox_coordinate_system == "mineru_content_list_1000"
+    assert table.metadata.bbox_coordinate_system == "mineru_1000"
     assert table.metadata.bbox_source == "content_list"
     assert table.relationships["bbox"] == [100.0, 200.0, 300.0, 400.0]
     assert table.relationships["bbox_items"] == [[100.0, 200.0, 300.0, 400.0]]
 
 
-def test_mineru_adapter_creates_image_caption_node_with_heading_context(tmp_path: Path) -> None:
+def test_mineru_adapter_splits_whole_image_and_caption_text_without_heading_pollution(tmp_path: Path) -> None:
     path = tmp_path / "doc.pdf"
     path.write_text("plain text", encoding="utf-8")
+    image_path = tmp_path / "assets" / "images" / "fig1.jpg"
+    image_path.parent.mkdir(parents=True)
+    image_path.write_bytes(b"fake image")
     adapter = _make_mineru_adapter(Settings(_env_file=None))
     structured_content = [
         {"type": "title", "content": "Figures and Tables", "page_idx": 0, "bbox": [0, 0, 100, 20]},
@@ -138,25 +142,36 @@ def test_mineru_adapter_creates_image_caption_node_with_heading_context(tmp_path
         },
     ]
 
-    nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        "",
+        path,
+        structured_content=structured_content,
+        asset_paths={"images/fig1.jpg": str(image_path)},
+    )
     image_nodes = [node for node in nodes if node.modality == "image"]
+    text_nodes = [node for node in nodes if node.modality == "text"]
 
     assert len(image_nodes) == 1
     image = image_nodes[0]
-    assert image.image_path == "images/fig1.jpg"
+    assert image.image_path == str(image_path)
     assert image.metadata.page == 1
-    assert image.metadata.section == "Figures and Tables"
-    assert image.relationships["image_semantic_type"] == "caption"
-    assert image.relationships["mineru_heading_context"] == "Figures and Tables"
+    assert image.metadata.section is None
+    assert image.relationships["image_semantic_type"] == "whole_image"
     assert image.relationships["mineru_image_block_count"] == 2
-    assert image.relationships["mineru_image_path"] == "images/fig1.jpg"
+    assert image.relationships["mineru_image_path"] == str(image_path)
     assert image.text is not None
-    assert image.text.startswith("# Figures and Tables")
     assert "FIG. 1. Schematic view" in image.text
     assert "Image file: fig1.jpg" in image.text
+    assert len(text_nodes) == 1
+    caption = text_nodes[0]
+    assert caption.text == "FIG. 1. Schematic view of the apparatus."
+    assert caption.metadata.section is None
+    assert caption.relationships["mineru_image_role"] == "caption_text"
+    assert caption.relationships["related_image_node_ids"] == [image.node_id]
+    assert image.relationships["caption_node_id"] == caption.node_id
 
 
-def test_mineru_adapter_creates_image_node_from_path_only(tmp_path: Path) -> None:
+def test_mineru_adapter_does_not_create_whole_image_from_unresolved_relative_path(tmp_path: Path) -> None:
     path = tmp_path / "doc.pdf"
     path.write_text("plain text", encoding="utf-8")
     adapter = _make_mineru_adapter(Settings(_env_file=None))
@@ -166,12 +181,39 @@ def test_mineru_adapter_creates_image_node_from_path_only(tmp_path: Path) -> Non
     ]
 
     nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
-    image = next(node for node in nodes if node.modality == "image")
+    assert not any(
+        node.modality == "image" and node.relationships.get("image_semantic_type") == "whole_image"
+        for node in nodes
+    )
 
-    assert image.image_path == "images/supplement.png"
-    assert image.metadata.section == "Supplementary Figures"
-    assert image.text == "# Supplementary Figures\n\nImage file: supplement.png"
-    assert image.relationships["image_semantic_type"] == "caption"
+
+def test_mineru_adapter_does_not_merge_multiple_pathless_captions_into_one_image(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    image_path = tmp_path / "assets" / "images" / "fig1.jpg"
+    image_path.parent.mkdir(parents=True)
+    image_path.write_bytes(b"fake image")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {"type": "image", "img_path": "images/fig1.jpg", "page_idx": 0},
+        {"type": "image_caption", "content": "FIG. 1. Caption for first image.", "page_idx": 0},
+        {"type": "image_caption", "content": "FIG. 2. Caption for another image.", "page_idx": 0},
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        "",
+        path,
+        structured_content=structured_content,
+        asset_paths={"images/fig1.jpg": str(image_path)},
+    )
+
+    whole = next(node for node in nodes if node.modality == "image")
+    caption_nodes = [
+        node for node in nodes if node.modality == "text" and node.relationships.get("mineru_image_role") == "caption_text"
+    ]
+    assert "FIG. 1. Caption for first image." in (whole.text or "")
+    assert "FIG. 2. Caption for another image." not in (whole.text or "")
+    assert any(node.text == "FIG. 2. Caption for another image." for node in caption_nodes)
 
 
 def test_mineru_adapter_prefers_paged_duplicate_image_caption(tmp_path: Path) -> None:
@@ -191,11 +233,313 @@ def test_mineru_adapter_prefers_paged_duplicate_image_caption(tmp_path: Path) ->
 
     nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
     image_nodes = [node for node in nodes if node.modality == "image"]
+    caption_nodes = [node for node in nodes if node.modality == "text" and node.relationships.get("mineru_image_role") == "caption_text"]
 
-    assert len(image_nodes) == 1
-    assert image_nodes[0].metadata.page == 3
-    assert image_nodes[0].metadata.bbox == [10.0, 20.0, 300.0, 80.0]
-    assert image_nodes[0].relationships["mineru_source_kind"] == "content_list"
+    assert image_nodes == []
+    assert len(caption_nodes) == 1
+    assert caption_nodes[0].metadata.page == 3
+    assert caption_nodes[0].metadata.bbox == [10.0, 20.0, 300.0, 80.0]
+    assert caption_nodes[0].relationships["mineru_source_kind"] == "content_list"
+
+
+def test_mineru_adapter_infers_page_for_page_nested_image_caption(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {
+            "source": "structured.json",
+            "structured_content": [
+                [
+                    {"type": "text", "content": "Page one body.", "bbox": [0.1, 0.1, 0.9, 0.2]},
+                ],
+                [
+                    {
+                        "type": "image_caption",
+                        "content": "FIG. 1. Caption on page two.",
+                        "bbox": [0.1, 0.3, 0.9, 0.4],
+                    },
+                ],
+            ],
+        },
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
+
+    caption = next(node for node in nodes if node.relationships.get("mineru_image_role") == "caption_text")
+    assert caption.metadata.page == 2
+    assert caption.metadata.bbox == [100.0, 300.0, 900.0, 400.0]
+    assert caption.relationships["page"] == 2
+
+
+def test_mineru_adapter_merges_pathless_duplicate_caption_into_linked_image_unit(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    image_path = tmp_path / "assets" / "images" / "fig1.jpg"
+    image_path.parent.mkdir(parents=True)
+    image_path.write_bytes(b"fake image")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    caption = "Figure 1: The evolution of two simple piecewise polynomials."
+    structured_content = [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {"path": "images/fig1.jpg"},
+                "content": "",
+                "chart_caption": [{"type": "text", "content": caption}],
+            },
+            "page_idx": 4,
+            "bbox": [309, 331, 519, 472],
+        },
+        {
+            "type": "image_caption",
+            "content": caption,
+            "page_idx": 4,
+            "bbox": [95, 490, 515, 558],
+        },
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        "",
+        path,
+        structured_content=structured_content,
+        asset_paths={"images/fig1.jpg": str(image_path)},
+    )
+
+    captions = [
+        node for node in nodes if node.modality == "text" and node.relationships.get("mineru_image_role") == "caption_text"
+    ]
+    assert len(captions) == 1
+    assert captions[0].text == caption
+    assert captions[0].metadata.page == 5
+    assert captions[0].metadata.bbox == [95.0, 490.0, 515.0, 558.0]
+    assert captions[0].relationships["related_whole_image_node_ids"]
+
+
+def test_mineru_adapter_nested_chart_caption_does_not_become_plain_text(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    image_path = tmp_path / "assets" / "images" / "fig1.jpg"
+    image_path.parent.mkdir(parents=True)
+    image_path.write_bytes(b"fake image")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    caption = "Figure 1: The evolution of two simple piecewise polynomials."
+    structured_content = [
+        {
+            "type": "chart",
+            "image_path": "fig1.jpg",
+            "page_idx": 4,
+            "bbox": [309, 331, 519, 472],
+        },
+        {
+            "type": "chart_caption",
+            "page_idx": 4,
+            "bbox": [95, 490, 515, 558],
+            "lines": [
+                {
+                    "spans": [
+                        {"type": "text", "content": "Figure 1: The evolution of two simple "},
+                        {"type": "text", "content": "piecewise polynomials."},
+                    ]
+                }
+            ],
+        },
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        "",
+        path,
+        structured_content=structured_content,
+        asset_paths={"images/fig1.jpg": str(image_path)},
+    )
+
+    plain_texts = [
+        node for node in nodes if node.modality == "text" and node.relationships.get("mineru_image_role") is None
+    ]
+    captions = [
+        node for node in nodes if node.modality == "text" and node.relationships.get("mineru_image_role") == "caption_text"
+    ]
+    assert plain_texts == []
+    assert len(captions) == 1
+    assert captions[0].text == caption
+    assert captions[0].metadata.bbox == [95.0, 490.0, 515.0, 558.0]
+
+
+def test_mineru_adapter_routes_markdown_details_to_image_semantic_not_table(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    image_path = tmp_path / "assets" / "images" / "fig1.jpg"
+    image_path.parent.mkdir(parents=True)
+    image_path.write_bytes(b"fake image")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    markdown = """Figure 1. Delay ratio over time.
+
+![](images/fig1.jpg)
+
+<details>
+<summary>line</summary>
+
+| Delay | Ratio |
+| --- | --- |
+| 0 | 1.0 |
+</details>
+
+Body paragraph after the generated details.
+"""
+
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        markdown,
+        path,
+        structured_content=[],
+        asset_paths={"images/fig1.jpg": str(image_path)},
+    )
+
+    image_nodes = [node for node in nodes if node.modality == "image"]
+    table_nodes = [node for node in nodes if node.modality == "table"]
+    text = "\n".join(node.text or "" for node in nodes if node.modality == "text")
+
+    assert table_nodes == []
+    assert len(image_nodes) == 2
+    whole = next(node for node in image_nodes if node.relationships.get("image_semantic_type") == "whole_image")
+    semantic = next(node for node in image_nodes if node.relationships.get("mineru_image_role") == "image_semantic")
+    caption = next(node for node in nodes if node.relationships.get("mineru_image_role") == "caption_text")
+    assert whole.image_path == str(image_path)
+    assert semantic.relationships["parent_image_node_id"] == whole.node_id
+    assert semantic.relationships["caption_node_id"] == caption.node_id
+    assert semantic.relationships["mineru_generated_semantic"] is True
+    assert "| Delay | Ratio |" in (semantic.text or "")
+    assert "Figure 1. Delay ratio over time." not in (semantic.text or "")
+    assert "Body paragraph after" in text
+    assert "| Delay | Ratio |" not in text
+
+
+def test_mineru_adapter_image_semantic_inherits_structured_chart_location(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    image_path = tmp_path / "assets" / "images" / "fig1.jpg"
+    image_path.parent.mkdir(parents=True)
+    image_path.write_bytes(b"fake image")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    markdown = """![](images/fig1.jpg)
+
+<details>
+<summary>line</summary>
+
+| Delay | Ratio |
+| --- | --- |
+| 0 | 1.0 |
+</details>
+"""
+    structured_content = [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {"path": "images/fig1.jpg"},
+                "content": "| Delay | Ratio |\n| --- | --- |\n| 0 | 1.0 |",
+            },
+            "page_idx": 2,
+            "bbox": [100, 200, 500, 700],
+            "sub_type": "line",
+        }
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        markdown,
+        path,
+        structured_content=structured_content,
+        asset_paths={"images/fig1.jpg": str(image_path)},
+    )
+
+    semantic = next(node for node in nodes if node.relationships.get("mineru_image_role") == "image_semantic")
+    whole = next(node for node in nodes if node.relationships.get("image_semantic_type") == "whole_image")
+    assert "| Delay | Ratio |" in (semantic.text or "")
+    assert semantic.metadata.page == 3
+    assert semantic.metadata.bbox == [100.0, 200.0, 500.0, 700.0]
+    assert semantic.metadata.bbox_source == "content_list"
+    assert semantic.relationships["bbox"] == [100.0, 200.0, 500.0, 700.0]
+    assert whole.metadata.bbox == [100.0, 200.0, 500.0, 700.0]
+
+
+def test_mineru_adapter_chart_image_path_without_semantic_text_creates_located_whole_image(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    image_path = tmp_path / "assets" / "images" / "fig1.jpg"
+    image_path.parent.mkdir(parents=True)
+    image_path.write_bytes(b"fake image")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    markdown = """![](images/fig1.jpg)
+
+Figure 1: The evolution of two simple piecewise polynomials.
+"""
+    structured_content = [
+        {
+            "type": "chart",
+            "content": "",
+            "img_path": "images/fig1.jpg",
+            "page_idx": 4,
+            "bbox": [504, 417, 848, 595],
+        },
+        {
+            "type": "chart",
+            "content": "",
+            "image_path": "fig1.jpg",
+            "page_idx": 4,
+            "bbox": [309, 331, 519, 472],
+        }
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        markdown,
+        path,
+        structured_content=structured_content,
+        asset_paths={"images/fig1.jpg": str(image_path)},
+    )
+
+    whole = next(node for node in nodes if node.relationships.get("image_semantic_type") == "whole_image")
+    assert whole.metadata.page == 5
+    assert whole.metadata.bbox == [309.0, 331.0, 519.0, 472.0]
+    assert whole.metadata.bbox_coordinate_system == "mineru_1000"
+    assert whole.relationships["bbox"] == [309.0, 331.0, 519.0, 472.0]
+
+
+def test_mineru_adapter_uses_stable_asset_path_for_whole_image(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [{"type": "image", "img_path": "images/fig1.jpg", "page_idx": 0}]
+
+    nodes = adapter._build_nodes_from_markdown(
+        "",
+        path,
+        structured_content=structured_content,
+        asset_paths={"images/fig1.jpg": "storage/mineru_assets/doc/images/fig1.jpg"},
+    )  # noqa: SLF001
+
+    image = next(node for node in nodes if node.modality == "image")
+    assert image.image_path == "storage/mineru_assets/doc/images/fig1.jpg"
+    assert image.relationships["image_semantic_type"] == "whole_image"
+
+
+def test_mineru_adapter_writes_assets_and_uses_written_image_path(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    assets = {"images/fig1.jpg": b"fake image"}
+    asset_paths = _write_mineru_assets_for_doc(assets, file_path=path, output_dir=tmp_path / "mineru_assets")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [{"type": "image", "img_path": "images/fig1.jpg", "page_idx": 0}]
+
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        "",
+        path,
+        structured_content=structured_content,
+        asset_paths=asset_paths,
+    )
+
+    image = next(node for node in nodes if node.modality == "image")
+    assert image.image_path is not None
+    assert Path(image.image_path).exists()
+    assert Path(image.image_path).read_bytes() == b"fake image"
+    assert image.relationships["image_semantic_type"] == "whole_image"
 
 
 def test_mineru_adapter_does_not_treat_table_caption_or_footnote_as_table(tmp_path: Path) -> None:
@@ -440,7 +784,7 @@ def test_mineru_adapter_title_regions_do_not_mix_previous_body_with_next_heading
     assert all(not node.relationships.get("mineru_text_cross_title_region") for node in text_nodes)
 
 
-def test_mineru_adapter_text_level_toc_dot_leader_remains_heading(tmp_path: Path) -> None:
+def test_mineru_adapter_discards_heading_only_toc_blocks(tmp_path: Path) -> None:
     path = tmp_path / "doc.pdf"
     path.write_text("plain text", encoding="utf-8")
     adapter = _make_mineru_adapter(Settings(_env_file=None, chunk_size=1000, chunk_hard_max_chars=2000))
@@ -457,11 +801,7 @@ def test_mineru_adapter_text_level_toc_dot_leader_remains_heading(tmp_path: Path
     )  # noqa: SLF001
 
     text_nodes = [node for node in nodes if node.modality == "text"]
-    assert [node.text for node in text_nodes] == [
-        "# Contents\n\n# Figures and Tables....15\n\n# References.... 18",
-    ]
-    assert text_nodes[0].relationships["mineru_text_block_types"] == ["heading", "heading", "heading"]
-    assert text_nodes[0].relationships["mineru_text_raw_types"] == ["text_level_1", "text_level_1", "text_level_1"]
+    assert text_nodes == []
 
 
 def test_mineru_adapter_extracts_content_list_reference_list_items(tmp_path: Path) -> None:

@@ -10,3 +10,5 @@ __pycache__/
 *.ckpt
 src/*.egg-info/
 storage/retrieval_indexes/
+storage/mineru_assets/
+storage/retrieval_visualization

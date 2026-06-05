@@ -164,6 +164,8 @@ Copy-Item .env.example .env
   - 写入表格/公式上下文关系时记录的上下文窗口大小。
 - `MINERU_SAME_PAGE_LINK_MAX_NODES=30`
   - 每个 Node 的 `same_page_node_ids` 最多保存多少个同页 Node ID。
+- `MINERU_ASSET_OUTPUT_DIR=storage/mineru_assets`
+  - MinerU 精准模式 ZIP 中的图片资产会写入该稳定目录，并将 `whole_image` 节点的 `image_path` 改写到该本地路径。
 - `ENABLE_IMAGE_CAPTION=true|false`
   - 图片是否生成 caption 文本
 - `IMAGE_EMBED_MODE=direct|caption_text`
@@ -239,6 +241,19 @@ storage/ingestion_visualization/runs/{run_id}/
 - `retrieval_index_preview.json` 预览 BM25/page/table 本地索引来源。
 
 ### 3.4 图像向量配置（新增）
+
+MinerU PDF 入库会把图片相关内容拆成三类节点：
+
+- `whole_image`
+  - `modality=image`，`image_semantic_type=whole_image`，`image_path` 指向 `MINERU_ASSET_OUTPUT_DIR` 下的真实图片文件。
+- `image_semantic`
+  - `modality=image`，保存 MinerU 生成的 `<details>...</details>` 图像语义描述，例如 chart data / OCR 文本。
+  - 写入 `mineru_generated_semantic=true`、`parent_image_node_id`、`caption_node_id`。
+- `caption_text`
+  - `modality=text`，保存原文图注 `image_caption`。
+  - 写入 `related_image_node_ids`、`related_whole_image_node_ids`、`mineru_caption_for_image_node_id`。
+
+Markdown 中的 `![](images/xxx)` 和 `<details>...</details>` 不再进入普通 text/table/formula 抽取，避免 MinerU 生成的图片语义表格污染正文或普通表格节点。`title/heading` 只在后面近邻为正文 text 时作为上下文；后面是 image/table/formula 时不继承到这些节点。
 
 - `IMAGE_EMBED_BASE_URL`
   - 图像 embedding 服务地址（OpenAI-Compatible）。
@@ -540,7 +555,7 @@ RETRIEVAL_RERANK_PRIOR_LOW_SCORE_PENALTY=0.70
 - `RETRIEVAL_RERANK_PRIOR_LOW_SCORE_PENALTY`
   - prior 低于阈值时，对 rerank 后综合分施加的惩罚系数。 惩罚系数越低，对应的rerank分值越低，相当于权重。
 
-表格/公式优先作为 text chunk 的关系上下文补充召回。高分 text 命中后，会根据 `related_table_node_ids`、`related_formula_node_ids` 派生相关 table/formula 分数，并记录扩展来源；这些关系扩展不依赖 query 必须显式包含“表格/公式”。
+表格/公式/图片语义优先作为 text chunk 的关系上下文补充召回。高分 text 命中后，会根据 `related_table_node_ids`、`related_formula_node_ids`、`related_image_node_ids` 派生相关 table/formula/image semantic 分数，并记录扩展来源；这些关系扩展不依赖 query 必须显式包含“表格/公式/图片”。
 
 ```env
 REL_EXPAND_RELATED_MODALITY_ENABLED=true
@@ -548,8 +563,10 @@ REL_EXPAND_MIN_SEED_COMPOSITE_SCORE=0.30
 REL_EXPAND_SEED_TOP_M=6
 REL_EXPAND_MAX_RELATED_TABLES=5
 REL_EXPAND_MAX_RELATED_FORMULAS=5
+REL_EXPAND_MAX_RELATED_IMAGES=3
 REL_EXPAND_RELATED_TABLE_WEIGHT=0.90
 REL_EXPAND_RELATED_FORMULA_WEIGHT=0.85
+REL_EXPAND_RELATED_IMAGE_WEIGHT=0.80
 REL_EXPAND_CONTEXT_TEXT_ENABLED=true
 REL_EXPAND_CONTEXT_TEXT_WEIGHT=0.60
 REL_EXPAND_PAGE_WINDOW_WEIGHT=0.30
@@ -575,7 +592,7 @@ REL_EXPAND_RETRY_MAX_TOTAL=12
 ```
 
 - `REL_EXPAND_RELATED_MODALITY_ENABLED`
-  - 是否根据高分 text seed 的 `related_table_node_ids` / `related_formula_node_ids` 扩展 table/formula。
+  - 是否根据高分 text seed 的 `related_table_node_ids` / `related_formula_node_ids` / `related_image_node_ids` 扩展 table/formula/image semantic。
 - `REL_EXPAND_MIN_SEED_COMPOSITE_SCORE`
   - 触发 table/formula 关系扩展的 seed 最低综合分。
 - `REL_EXPAND_SEED_TOP_M`
@@ -584,10 +601,14 @@ REL_EXPAND_RETRY_MAX_TOTAL=12
   - 单次扩展中 related table 的数量上限。
 - `REL_EXPAND_MAX_RELATED_FORMULAS`
   - 单次扩展中 related formula 的数量上限。
+- `REL_EXPAND_MAX_RELATED_IMAGES`
+  - 单次扩展中 related image semantic 的数量上限。auto 模式不会扩展 `whole_image`。
 - `REL_EXPAND_RELATED_TABLE_WEIGHT`
   - related table 继承 seed 分数的权重，派生分约为 `seed_score_composite * weight`。
 - `REL_EXPAND_RELATED_FORMULA_WEIGHT`
   - related formula 继承 seed 分数的权重。
+- `REL_EXPAND_RELATED_IMAGE_WEIGHT`
+  - related image semantic 继承 seed 分数的权重。
 - `REL_EXPAND_CONTEXT_TEXT_ENABLED`
   - 是否扩展高分 text seed 的上下文 text，例如 `context_node_ids`、`prev_id`、`next_id`。
 - `REL_EXPAND_CONTEXT_TEXT_WEIGHT`
@@ -609,7 +630,7 @@ REL_EXPAND_RETRY_MAX_TOTAL=12
 - `REL_EXPAND_CONTEXT_TEXT_MAX_PER_SEED`
   - 每个 seed 最多扩展的上下文 text 数量。
 - `RETRIEVAL_RELATED_EVIDENCE_MAX_TOTAL`
-  - protected related evidence 的总数上限，避免一个高分 seed 带出过多 table/formula/context。
+  - protected related evidence 的总数上限，避免一个高分 seed 带出过多 table/formula/image/context。
 - `RETRIEVAL_RELATED_EVIDENCE_MAX_PER_SEED`
   - 单个 seed 可带出的 protected related evidence 数量上限。
 - `REL_EXPAND_ROUTED_MIN_SEED_SCORE`

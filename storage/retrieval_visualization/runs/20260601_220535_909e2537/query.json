@@ -1,9 +1,0 @@
-{
-  "text": "TaskGraph",
-  "rewritten_text": null,
-  "filters": {},
-  "route": "text_first",
-  "executed_channels": [
-    "vector"
-  ]
-}

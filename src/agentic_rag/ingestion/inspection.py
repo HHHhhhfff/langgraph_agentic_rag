@@ -76,6 +76,12 @@ def build_qdrant_payload_preview(
         "image_path": node.image_path,
         "image_semantic_type": node.relationships.get("image_semantic_type"),
         "parent_image_node_id": node.relationships.get("parent_image_node_id"),
+        "caption_node_id": node.relationships.get("caption_node_id"),
+        "related_image_node_ids": node.relationships.get("related_image_node_ids"),
+        "image_semantic_node_ids": node.relationships.get("image_semantic_node_ids"),
+        "mineru_image_role": node.relationships.get("mineru_image_role"),
+        "mineru_generated_semantic": node.relationships.get("mineru_generated_semantic"),
+        "details_summary": node.relationships.get("details_summary"),
         "source_parser": node.relationships.get("source_parser"),
         "confidence": node.relationships.get("confidence"),
         "caption": node.relationships.get("caption"),
@@ -108,6 +114,12 @@ def build_qdrant_payload_preview(
     for key in (
         "image_semantic_type",
         "parent_image_node_id",
+        "caption_node_id",
+        "related_image_node_ids",
+        "image_semantic_node_ids",
+        "mineru_image_role",
+        "mineru_generated_semantic",
+        "details_summary",
         "source_parser",
         "confidence",
         "caption",
@@ -573,10 +585,18 @@ def render_chunks_html(path: Path, nodes: list[dict[str, Any]]) -> None:
                 <span>chunk={html.escape(str(md.get("chunk_index")))}</span>
                 <span>section={html.escape(str(md.get("section")))}</span>
                 <span>parser={html.escape(str(md.get("parser_name")))}</span>
+                <span>image_role={html.escape(str(rel.get("mineru_image_role")))}</span>
+                <span>image_semantic_type={html.escape(str(rel.get("image_semantic_type")))}</span>
+                <span>parent_image_node_id={html.escape(str(rel.get("parent_image_node_id")))}</span>
+                <span>caption_node_id={html.escape(str(rel.get("caption_node_id")))}</span>
+                <span>caption_for={html.escape(str(rel.get("mineru_caption_for_image_node_id")))}</span>
+                <span>generated_semantic={html.escape(str(rel.get("mineru_generated_semantic")))}</span>
+                <span>image_path={html.escape(str(node.get("image_path") or rel.get("image_path") or rel.get("mineru_image_path")))}</span>
                 <span>bbox={html.escape(str(md.get("bbox")))}</span>
                 <span>bbox_items={html.escape(str(len(md.get("bbox_items") or [])))}</span>
                 <span>bbox_system={html.escape(str(md.get("bbox_coordinate_system")))}</span>
               </div>
+              <div class="note">details_summary={html.escape(str(rel.get("details_summary") or ""))}</div>
               <div class="warnings">{html.escape(", ".join(warnings))}</div>
               <pre>{html.escape(str(content))}</pre>
               <details><summary>Node JSON</summary><pre>{html.escape(json.dumps(node, ensure_ascii=False, indent=2))}</pre></details>

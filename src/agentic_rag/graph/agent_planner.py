@@ -105,7 +105,7 @@ Allowed filter keys: source, doc_id, page, tags, modality, image_semantic_type.
 Do not modify max_retries, budget_tokens, or budget_ms.
 Use top_k no larger than {self.settings.tg_retry_max_top_k}.
 For image questions, consider image channel first. Add page if the question mentions page, figure number, position, or layout. Add bm25 for OCR/caption keywords. Add relationship for cross-document image comparison.
-Allowed image_semantic_type values: whole_image, caption, ocr, object.
+Allowed image_semantic_type values: whole_image, caption, ocr, object, chart_data.
 
 User question:
 {question}

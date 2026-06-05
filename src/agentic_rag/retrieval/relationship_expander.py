@@ -28,6 +28,7 @@ class RelationshipExpander:
         "same_page_node_ids",
         "related_table_node_ids",
         "related_formula_node_ids",
+        "related_image_node_ids",
     )
 
     def __init__(self, all_hits: list[SearchHit], settings: Settings | None = None):
@@ -239,11 +240,20 @@ class RelationshipExpander:
         seed_score = score_value(seed)
         if not self._relation_allowed_in_mode(relation, mode=mode, expansion_reason=expansion_reason):
             return False
-        if relation in {"related_table_node_ids", "related_formula_node_ids"}:
+        if relation in {"related_table_node_ids", "related_formula_node_ids", "related_image_node_ids"}:
             if not self.settings.rel_expand_related_modality_enabled:
                 return False
             if not self._is_text_modality(seed):
                 return False
+            if relation == "related_table_node_ids" and not self._is_modality(neighbor, "table"):
+                return False
+            if relation == "related_formula_node_ids" and not self._is_modality(neighbor, "formula"):
+                return False
+            if relation == "related_image_node_ids":
+                if not self._is_modality(neighbor, "image"):
+                    return False
+                if mode == "auto" and self._is_whole_image(neighbor):
+                    return False
             if seed_rank > self.settings.rel_expand_seed_top_m:
                 return False
             if seed_score < self.settings.rel_expand_min_seed_composite_score:
@@ -255,6 +265,8 @@ class RelationshipExpander:
             if relation == "related_table_node_ids" and per_seed_related >= self.settings.rel_expand_max_related_tables:
                 return False
             if relation == "related_formula_node_ids" and per_seed_related >= self.settings.rel_expand_max_related_formulas:
+                return False
+            if relation == "related_image_node_ids" and per_seed_related >= self.settings.rel_expand_max_related_images:
                 return False
             return True
         if relation in {"context_node_ids", "context_prev_node_id", "context_next_node_id", "prev_id", "next_id"}:
@@ -330,6 +342,7 @@ class RelationshipExpander:
             return relation in {
                 "related_table_node_ids",
                 "related_formula_node_ids",
+                "related_image_node_ids",
                 "context_node_ids",
                 "context_prev_node_id",
                 "context_next_node_id",
@@ -359,6 +372,7 @@ class RelationshipExpander:
         return relation in {
             "related_table_node_ids",
             "related_formula_node_ids",
+            "related_image_node_ids",
             "context_node_ids",
             "context_prev_node_id",
             "context_next_node_id",
@@ -375,6 +389,19 @@ class RelationshipExpander:
     @staticmethod
     def _is_text_modality(hit: SearchHit) -> bool:
         return (hit.modality or hit.metadata.get("modality") or "text") == "text"
+
+    @staticmethod
+    def _is_modality(hit: SearchHit, modality: str) -> bool:
+        return (hit.modality or hit.metadata.get("modality") or "text") == modality
+
+    @staticmethod
+    def _is_whole_image(hit: SearchHit) -> bool:
+        semantic_type = (
+            hit.image_semantic_type
+            or hit.metadata.get("image_semantic_type")
+            or (hit.relationships or {}).get("image_semantic_type")
+        )
+        return str(semantic_type or "").strip().lower() == "whole_image"
 
     @staticmethod
     def _modality_allowed(hit: SearchHit, allowed_modalities: str) -> bool:
@@ -429,6 +456,8 @@ class RelationshipExpander:
             return self.settings.rel_expand_related_table_weight
         if relation == "related_formula_node_ids":
             return self.settings.rel_expand_related_formula_weight
+        if relation == "related_image_node_ids":
+            return self.settings.rel_expand_related_image_weight
         if relation in {"context_node_ids", "context_prev_node_id", "context_next_node_id"}:
             return self.settings.rel_expand_context_text_weight
         if relation in {"prev_id", "next_id"}:
@@ -445,7 +474,7 @@ class RelationshipExpander:
 
     @staticmethod
     def _relation_priority(relation: str) -> int:
-        if relation in {"related_table_node_ids", "related_formula_node_ids"}:
+        if relation in {"related_table_node_ids", "related_formula_node_ids", "related_image_node_ids"}:
             return 100
         if relation in {"context_node_ids", "context_prev_node_id", "context_next_node_id"}:
             return 80
@@ -461,7 +490,7 @@ class RelationshipExpander:
 
     @staticmethod
     def _candidate_pool(relation: str, *, mode: ExpansionMode) -> str:
-        if relation in {"related_table_node_ids", "related_formula_node_ids"}:
+        if relation in {"related_table_node_ids", "related_formula_node_ids", "related_image_node_ids"}:
             return "related_modality"
         if mode == "routed" and relation in {"same_page_node_ids", "page_window", "parent_id", "child_ids", "doc_prev_node_id", "doc_next_node_id"}:
             return "routed"
@@ -473,7 +502,7 @@ class RelationshipExpander:
 
     @staticmethod
     def _allowed_by(relation: str, *, mode: ExpansionMode) -> str:
-        if relation in {"related_table_node_ids", "related_formula_node_ids"}:
+        if relation in {"related_table_node_ids", "related_formula_node_ids", "related_image_node_ids"}:
             return "related_modality_threshold"
         if relation in {"context_node_ids", "context_prev_node_id", "context_next_node_id", "prev_id", "next_id"}:
             return "context_text_threshold"
@@ -486,7 +515,7 @@ class RelationshipExpander:
     def _seed_threshold(self, relation: str, *, mode: ExpansionMode) -> float | None:
         if self.settings is None:
             return None
-        if relation in {"related_table_node_ids", "related_formula_node_ids"}:
+        if relation in {"related_table_node_ids", "related_formula_node_ids", "related_image_node_ids"}:
             return self.settings.rel_expand_min_seed_composite_score
         if relation in {"context_node_ids", "context_prev_node_id", "context_next_node_id", "prev_id", "next_id"}:
             return self.settings.rel_expand_context_text_min_seed_score

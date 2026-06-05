@@ -1,0 +1,114 @@
+{
+  "files": [
+    {
+      "source": "data\\demo_docs\\2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+      "task_id": "batch:2b13294e-160d-4d76-9208-76281fb26d10:2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-27/2cadbd54-5e52-4e2a-8bb1-86343851f045.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "d0212a5429d84020540b1c6e565beae4",
+        "data": {
+          "batch_id": "2b13294e-160d-4d76-9208-76281fb26d10",
+          "extract_result": [
+            {
+              "file_name": "2409.18430_Energy_Levels_and_Transition_Rates_of_Laser-Cooling_Candidate_Th-.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-27/2cadbd54-5e52-4e2a-8bb1-86343851f045.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\2411.15169_Exact_solution_of_the_Heat_Equation_for_initial_polynomials_or_splines.pdf",
+      "task_id": "batch:10b0821e-4362-4a7c-974c-8484090d8189:2411.15169_Exact_solution_of_the_Heat_Equation_for_initial_polynomials_or_splines.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-27/60cabf0e-d977-49da-8f91-4cb046169428.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "20e94dc5630cf04b7ee59e399f642c50",
+        "data": {
+          "batch_id": "10b0821e-4362-4a7c-974c-8484090d8189",
+          "extract_result": [
+            {
+              "file_name": "2411.15169_Exact_solution_of_the_Heat_Equation_for_initial_polynomials_or_splines.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-27/60cabf0e-d977-49da-8f91-4cb046169428.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+      "task_id": "batch:fdfe4321-ce0a-462b-a3ba-32ec48be5805:2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "ba9b86709a5d478e99ee4c4a0985a78e",
+        "data": {
+          "batch_id": "fdfe4321-ce0a-462b-a3ba-32ec48be5805",
+          "extract_result": [
+            {
+              "file_name": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/2f424ad3-1437-4690-b44c-e85eda6aad19.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\测试文档.pdf",
+      "task_id": "batch:aff6cfc9-ac35-4a42-b48a-aadb14e84d60:测试文档.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "fb9105b54d93cd55d7bc7bc162f55b08",
+        "data": {
+          "batch_id": "aff6cfc9-ac35-4a42-b48a-aadb14e84d60",
+          "extract_result": [
+            {
+              "file_name": "测试文档.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-23/377742f9-0bdf-4413-9e1f-e99c3640087c.zip"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "source": "data\\demo_docs\\测试文档2.pdf",
+      "task_id": "batch:d20bfd75-7bb8-4167-81de-aa28eb59efdf:测试文档2.pdf",
+      "state": "done",
+      "source_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-24/e632dc31-a4df-48d1-ab07-a3fe5cdce607.zip",
+      "raw": {
+        "code": 0,
+        "msg": "ok",
+        "trace_id": "9a1f731ea4ff0a018231a9f5379313d5",
+        "data": {
+          "batch_id": "d20bfd75-7bb8-4167-81de-aa28eb59efdf",
+          "extract_result": [
+            {
+              "file_name": "测试文档2.pdf",
+              "state": "done",
+              "err_msg": "",
+              "full_zip_url": "https://cdn-mineru.openxlab.org.cn/pdf/2026-05-24/e632dc31-a4df-48d1-ab07-a3fe5cdce607.zip"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

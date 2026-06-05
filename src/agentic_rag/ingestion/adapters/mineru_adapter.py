@@ -13,6 +13,7 @@ from agentic_rag.ingestion.formula_extractor import extract_formulas
 from agentic_rag.ingestion.node_normalizer import NodeNormalizer
 from agentic_rag.ingestion.node_schema import IngestionFailure, MultimodalIngestionResult
 from agentic_rag.ingestion.table_extractor import extract_table_blocks, html_table_to_markdown, strip_table_blocks
+from agentic_rag.ingestion.utils import build_doc_id
 from agentic_rag.observability.stage_logger import StageLogger, StageTimer
 
 
@@ -32,6 +33,7 @@ class MinerUStructuredBlock:
     page: int | None = None
     section: str | None = None
     bbox: list[float] | None = None
+    bbox_coordinate_system: str | None = None
     image_path: str | None = None
     source_kind: str | None = None
     raw_type: str | None = None
@@ -49,10 +51,33 @@ class MinerULogicalSegment:
     merge_reason: str | None = None
 
 
+@dataclass(slots=True)
+class MinerUImageUnit:
+    image_path: str | None = None
+    caption_blocks: list[MinerUStructuredBlock] | None = None
+    semantic_blocks: list[MinerUStructuredBlock] | None = None
+    image_blocks: list[MinerUStructuredBlock] | None = None
+    semantic_kind: str | None = None
+
+    @property
+    def blocks(self) -> list[MinerUStructuredBlock]:
+        return [
+            *(self.image_blocks or []),
+            *(self.caption_blocks or []),
+            *(self.semantic_blocks or []),
+        ]
+
+
 _CROSS_PAGE_TAIL_BOTTOM_THRESHOLD = 0.85
 _CROSS_PAGE_HEAD_TOP_THRESHOLD = 0.20
 _BODY_CONTINUATION_TYPES = {"text", "formula"}
-_CROSS_PAGE_BARRIER_TYPES = {"heading", "table", "image"}
+_CROSS_PAGE_BARRIER_TYPES = {"heading", "table", "image", "image_caption", "image_semantic"}
+IMAGE_SEMANTIC_WHOLE = "whole_image"
+IMAGE_SEMANTIC_CAPTION = "caption"
+IMAGE_SEMANTIC_OCR = "ocr"
+_IMAGE_MARKDOWN_RE = re.compile(r"!\[[^\]]*\]\(([^)]+)\)")
+_DETAILS_BLOCK_RE = re.compile(r"<details\b[^>]*>.*?</details>", re.IGNORECASE | re.DOTALL)
+_DETAILS_SUMMARY_RE = re.compile(r"<summary\b[^>]*>(.*?)</summary>", re.IGNORECASE | re.DOTALL)
 
 
 class MinerUAdapter:
@@ -122,7 +147,26 @@ class MinerUAdapter:
 
         try:
             markdown = parse_mineru_markdown(result, self.settings)
-            nodes = self._build_nodes_from_markdown(markdown, file_path, structured_content=result.structured_content or [])
+            asset_paths = _write_mineru_assets_for_doc(
+                result.assets or {},
+                file_path=file_path,
+                output_dir=Path(self.settings.mineru_asset_output_dir),
+            )
+            if self.stage_logger:
+                self.stage_logger.log_counter(
+                    "mineru_assets",
+                    source=str(file_path),
+                    parser="mineru",
+                    raw_asset_count=len(result.assets or {}),
+                    resolved_asset_count=len(asset_paths),
+                    asset_output_dir=self.settings.mineru_asset_output_dir,
+                )
+            nodes = self._build_nodes_from_markdown(
+                markdown,
+                file_path,
+                structured_content=result.structured_content or [],
+                asset_paths=asset_paths,
+            )
         except Exception as exc:
             if self.stage_logger:
                 self.stage_logger.log_stage_error(
@@ -283,8 +327,16 @@ class MinerUAdapter:
             )
         return result
 
-    def _build_nodes_from_markdown(self, markdown: str, file_path: Path, structured_content: list[Any] | None = None):
+    def _build_nodes_from_markdown(
+        self,
+        markdown: str,
+        file_path: Path,
+        structured_content: list[Any] | None = None,
+        asset_paths: dict[str, str] | None = None,
+    ):
         structured_content = structured_content or []
+        asset_paths = asset_paths or {}
+        document_markdown = _strip_mineru_markdown_image_blocks(markdown)
         nodes = []
         idx = 0
         text_count = 0
@@ -304,7 +356,7 @@ class MinerUAdapter:
                 table_blocks_with_metadata,
                 keep_chart=self.settings.mineru_structured_table_coalesce_keep_chart,
             )
-        table_blocks = extract_table_blocks(markdown)
+        table_blocks = extract_table_blocks(document_markdown)
         covered_table_fingerprints: set[str] = set()
 
         if self.settings.mineru_table_structured_first:
@@ -335,31 +387,22 @@ class MinerUAdapter:
                 idx += 1
                 table_count += 1
 
-        image_blocks_with_metadata = _select_structured_image_blocks_for_nodes(structured_blocks)
-        for image_group in image_blocks_with_metadata:
-            image_text = _build_mineru_image_text(image_group)
-            if not image_text:
-                continue
-            image_path = next((block.image_path for block in image_group if block.image_path), None)
-            section = _section_for_image_blocks(image_group)
-            relationships = _mineru_image_relationships(image_group)
-            nodes.append(
-                self.normalizer.normalize(
-                    source=str(file_path),
-                    parser_name="mineru",
-                    chunk_index=idx,
-                    modality="image",
-                    text=image_text,
-                    image_path=image_path,
-                    page=image_group[0].page if image_group else None,
-                    title=file_path.stem,
-                    section=section,
-                    **_mineru_bbox_payload(image_group),
-                    relationships=relationships,
-                )
+        image_units = _extract_mineru_image_units(
+            structured_blocks,
+            markdown=markdown,
+            asset_paths=asset_paths,
+        )
+        for image_unit in image_units:
+            created = self._add_mineru_image_unit_nodes(
+                nodes=nodes,
+                file_path=file_path,
+                image_unit=image_unit,
+                start_index=idx,
             )
-            idx += 1
-            image_count += 1
+            new_nodes = nodes[-created:] if created else []
+            idx += created
+            image_count += sum(1 for node in new_nodes if node.modality == "image")
+            text_count += sum(1 for node in new_nodes if node.modality == "text")
 
         if self.settings.mineru_table_markdown_fallback and not table_blocks_with_metadata and not structured_blocks:
             markdown_table_blocks = table_blocks
@@ -401,7 +444,7 @@ class MinerUAdapter:
                 idx += 1
                 table_count += 1
 
-        clean_markdown = strip_table_blocks(markdown, table_blocks)
+        clean_markdown = strip_table_blocks(document_markdown, table_blocks)
 
         structured_text_blocks = _select_structured_text_blocks_for_chunking(structured_blocks)
 
@@ -502,7 +545,7 @@ class MinerUAdapter:
             segments = _assemble_logical_text_segments(
                 structured_text_blocks,
                 structured_blocks,
-                markdown,
+                document_markdown,
                 max_chars=max(1, self.settings.chunk_size),
             )
             for segment in segments:
@@ -603,7 +646,7 @@ class MinerUAdapter:
         flush_text()
 
         if self.settings.enable_formula_recognition:
-            formula_source = strip_table_blocks(markdown, table_blocks)
+            formula_source = strip_table_blocks(document_markdown, table_blocks)
             for formula in extract_formulas(
                 formula_source,
                 min_chars=self.settings.formula_node_min_chars,
@@ -672,6 +715,150 @@ class MinerUAdapter:
 
         return nodes
 
+    def _add_mineru_image_unit_nodes(
+        self,
+        *,
+        nodes: list,
+        file_path: Path,
+        image_unit: MinerUImageUnit,
+        start_index: int,
+    ) -> int:
+        created = 0
+        all_image_blocks = list(image_unit.image_blocks or [])
+        all_caption_blocks = list(image_unit.caption_blocks or [])
+        all_semantic_blocks = list(image_unit.semantic_blocks or [])
+        all_unit_blocks = image_unit.blocks
+        image_unit.caption_blocks = _select_image_caption_blocks(image_unit.caption_blocks or [])
+        image_unit.semantic_blocks = _select_image_semantic_blocks(image_unit.semantic_blocks or [])
+        unit_blocks = image_unit.blocks
+        caption_text = _join_unique_block_texts(image_unit.caption_blocks or [])
+        semantic_text = _join_unique_block_texts(image_unit.semantic_blocks or [])
+        resolved_image_path = image_unit.image_path
+        page = _page_for_blocks(all_unit_blocks or unit_blocks)
+        section = _section_for_text_blocks(image_unit.caption_blocks or []) if image_unit.caption_blocks else None
+        whole_node = None
+        semantic_node = None
+        caption_node = None
+
+        if resolved_image_path:
+            whole_location_blocks = _whole_image_location_blocks(
+                all_image_blocks,
+                all_semantic_blocks,
+                all_caption_blocks,
+                unit_blocks,
+            )
+            whole_relationships = _mineru_image_unit_relationships(
+                image_unit,
+                role="whole_image",
+                semantic_type=IMAGE_SEMANTIC_WHOLE,
+            )
+            _apply_location_to_relationships(whole_relationships, whole_location_blocks)
+            whole_relationships["image_path"] = resolved_image_path
+            whole_relationships["mineru_image_path"] = resolved_image_path
+            whole_node = self.normalizer.normalize(
+                source=str(file_path),
+                parser_name="mineru:image",
+                chunk_index=start_index + created,
+                modality="image",
+                text=_whole_image_text(resolved_image_path, caption_text=caption_text, semantic_text=semantic_text),
+                image_path=resolved_image_path,
+                page=_page_for_blocks(whole_location_blocks) or page,
+                title=file_path.stem,
+                section=section,
+                **_mineru_bbox_payload(whole_location_blocks),
+                relationships=whole_relationships,
+            )
+            nodes.append(whole_node)
+            created += 1
+
+        if semantic_text:
+            semantic_location_blocks = _image_unit_location_blocks(
+                all_semantic_blocks,
+                all_image_blocks,
+                all_caption_blocks,
+                unit_blocks,
+            )
+            semantic_type = image_unit.semantic_kind or _infer_image_semantic_type(image_unit.semantic_blocks or [])
+            semantic_relationships = _mineru_image_unit_relationships(
+                image_unit,
+                role="image_semantic",
+                semantic_type=semantic_type,
+            )
+            _apply_location_to_relationships(semantic_relationships, semantic_location_blocks)
+            semantic_relationships["mineru_generated_semantic"] = True
+            semantic_relationships["details_summary"] = _details_summary(semantic_text)
+            if whole_node is not None:
+                semantic_relationships["parent_image_node_id"] = whole_node.node_id
+            if resolved_image_path:
+                semantic_relationships["image_path"] = resolved_image_path
+                semantic_relationships["mineru_image_path"] = resolved_image_path
+            semantic_node = self.normalizer.normalize(
+                source=str(file_path),
+                parser_name="mineru:image_semantic",
+                chunk_index=start_index + created,
+                modality="image",
+                text=_image_semantic_text(caption_text=caption_text, semantic_text=semantic_text),
+                image_path=resolved_image_path,
+                page=_page_for_blocks(semantic_location_blocks) or page,
+                title=file_path.stem,
+                section=section,
+                **_mineru_bbox_payload(semantic_location_blocks),
+                relationships=semantic_relationships,
+            )
+            nodes.append(semantic_node)
+            created += 1
+
+        if caption_text:
+            caption_location_blocks = _caption_location_blocks(
+                all_caption_blocks,
+                all_image_blocks,
+                all_semantic_blocks,
+                unit_blocks,
+            )
+            caption_relationships = _mineru_image_unit_relationships(
+                image_unit,
+                role="caption_text",
+                semantic_type=IMAGE_SEMANTIC_CAPTION,
+            )
+            _apply_location_to_relationships(caption_relationships, caption_location_blocks)
+            related_image_ids = []
+            if semantic_node is not None:
+                related_image_ids.append(semantic_node.node_id)
+            if whole_node is not None:
+                caption_relationships["related_whole_image_node_ids"] = [whole_node.node_id]
+                if not related_image_ids:
+                    related_image_ids.append(whole_node.node_id)
+            if related_image_ids:
+                caption_relationships["related_image_node_ids"] = related_image_ids
+                caption_relationships["mineru_caption_for_image_node_id"] = related_image_ids[0]
+            if resolved_image_path:
+                caption_relationships["image_path"] = resolved_image_path
+                caption_relationships["mineru_image_path"] = resolved_image_path
+            caption_node = self.normalizer.normalize(
+                source=str(file_path),
+                parser_name="mineru:image_caption",
+                chunk_index=start_index + created,
+                modality="text",
+                text=caption_text,
+                page=_page_for_blocks(caption_location_blocks) or page,
+                title=file_path.stem,
+                section=section,
+                **_mineru_bbox_payload(caption_location_blocks),
+                relationships=caption_relationships,
+            )
+            nodes.append(caption_node)
+            created += 1
+
+        if caption_node is not None:
+            if semantic_node is not None:
+                semantic_node.relationships["caption_node_id"] = caption_node.node_id
+            if whole_node is not None:
+                whole_node.relationships["caption_node_id"] = caption_node.node_id
+        if semantic_node is not None and whole_node is not None:
+            whole_node.relationships["image_semantic_node_ids"] = [semantic_node.node_id]
+
+        return created
+
 
 def _extract_structured_blocks(structured_content: list[Any]) -> list[MinerUStructuredBlock]:
     blocks: list[MinerUStructuredBlock] = []
@@ -709,11 +896,15 @@ def _walk_structured_item(
         inferred = _infer_structured_source_kind(item, 0)
         if _should_prefer_inferred_source_kind(source_kind, inferred):
             list_source_kind = inferred
-        for sub in item:
+        page_list = _looks_like_page_block_list(item)
+        for idx, sub in enumerate(item):
+            child_page = inherited_page
+            if page_list and child_page is None:
+                child_page = idx + 1
             blocks.extend(
                 _walk_structured_item(
                     sub,
-                    inherited_page=inherited_page,
+                    inherited_page=child_page,
                     inherited_section=inherited_section,
                     source_kind=list_source_kind,
                 )
@@ -721,6 +912,24 @@ def _walk_structured_item(
         return blocks
     if not isinstance(item, dict):
         return []
+
+    numeric_page_items = [
+        (str(key), value)
+        for key, value in item.items()
+        if str(key).isdigit() and isinstance(value, (list, dict))
+    ]
+    if numeric_page_items:
+        blocks: list[MinerUStructuredBlock] = []
+        for key, value in sorted(numeric_page_items, key=lambda pair: int(pair[0])):
+            blocks.extend(
+                _walk_structured_item(
+                    value,
+                    inherited_page=_coerce_page(int(key), zero_based=True),
+                    inherited_section=inherited_section,
+                    source_kind=source_kind,
+                )
+            )
+        return blocks
 
     if "structured_content" in item and isinstance(item.get("structured_content"), (list, dict)):
         inferred = _infer_structured_source_kind(item, 0)
@@ -741,12 +950,16 @@ def _walk_structured_item(
     if item_type == "text" and _is_text_level_heading(item):
         item_type = "heading"
         raw_type = _text_level_raw_type(item) or raw_type
-    bbox = _extract_bbox(item)
+    bbox, bbox_coordinate_system = _extract_bbox_with_coordinate_system(item)
     image_path = _extract_image_path(item)
 
     blocks: list[MinerUStructuredBlock] = []
     text = _extract_block_text(item, item_type)
     if item_type == "image" and not text:
+        text = _image_fallback_text(image_path)
+    if item_type == "image_semantic" and image_path and not text:
+        # A MinerU chart span with only image_path is the image body, not generated semantic text.
+        item_type = "image"
         text = _image_fallback_text(image_path)
     if text:
         blocks.append(
@@ -756,15 +969,44 @@ def _walk_structured_item(
                 page=page,
                 section=section,
                 bbox=bbox,
+                bbox_coordinate_system=bbox_coordinate_system,
                 image_path=image_path,
                 source_kind=source_kind,
                 raw_type=str(raw_type or item_type).strip().lower(),
             )
         )
+        if item_type in {"image", "image_semantic"}:
+            for caption_text in _extract_embedded_image_captions(item):
+                blocks.append(
+                    MinerUStructuredBlock(
+                        type="image_caption",
+                        text=caption_text,
+                        page=page,
+                        section=None,
+                        bbox=None,
+                        image_path=image_path,
+                        source_kind=source_kind,
+                        raw_type="embedded_image_caption",
+                    )
+                )
+            return blocks
+        if item_type == "image_caption":
+            return blocks
         if item_type == "table":
             return blocks
 
-    for key in ("children", "blocks", "content", "items", "spans", "lines", "layout"):
+    for key in (
+        "children",
+        "blocks",
+        "content",
+        "items",
+        "spans",
+        "lines",
+        "layout",
+        "pdf_info",
+        "preproc_blocks",
+        "para_blocks",
+    ):
         value = item.get(key)
         if isinstance(value, (list, dict)):
             blocks.extend(
@@ -788,10 +1030,35 @@ def _should_prefer_inferred_source_kind(current: str | None, inferred: str | Non
     return current.startswith("structured_json")
 
 
+def _looks_like_page_block_list(value: list[Any]) -> bool:
+    """MinerU may return one list per page without repeating page_idx on blocks."""
+
+    if len(value) < 2:
+        return False
+    sample = value[: min(len(value), 12)]
+    page_like = 0
+    for item in sample:
+        if not isinstance(item, list):
+            continue
+        dict_items = [sub for sub in item if isinstance(sub, dict)]
+        if not dict_items:
+            continue
+        if any(_extract_page(sub) is not None for sub in dict_items):
+            continue
+        if any({"type", "bbox"} & {str(key).lower() for key in sub.keys()} for sub in dict_items):
+            page_like += 1
+    return page_like >= max(2, len(sample) // 2)
+
+
 def _extract_block_text(item: dict[str, Any], item_type: str) -> str:
     list_text = _extract_list_items_text(item)
     if list_text:
         return list_text
+
+    if item_type == "image_caption":
+        nested_caption = _extract_nested_caption_text(item)
+        if nested_caption:
+            return nested_caption
 
     if item_type == "table":
         table_values: list[Any] = [item.get("table_body"), item.get("html"), item.get("content")]
@@ -809,6 +1076,11 @@ def _extract_block_text(item: dict[str, Any], item_type: str) -> str:
                 return table_md
             if "|" in value:
                 return value.strip()
+
+    if item_type == "image_semantic":
+        semantic = _extract_generated_image_semantic_text(item)
+        if semantic:
+            return semantic
 
     for key in (
         "text",
@@ -837,6 +1109,11 @@ def _extract_image_path(item: dict[str, Any]) -> str | None:
             return value.strip()
     content = item.get("content")
     if isinstance(content, dict):
+        image_source = content.get("image_source")
+        if isinstance(image_source, dict):
+            nested = _extract_image_path(image_source)
+            if nested:
+                return nested
         for key in ("image_path", "img_path", "path", "src", "url", "file_path"):
             value = content.get(key)
             if isinstance(value, str) and value.strip():
@@ -851,6 +1128,174 @@ def _image_fallback_text(image_path: str | None) -> str:
     if image_path:
         return f"Image file: {Path(image_path).name}"
     return "Image"
+
+
+def _extract_generated_image_semantic_text(item: dict[str, Any]) -> str:
+    content = item.get("content")
+    if isinstance(content, dict):
+        for key in ("content", "ocr_text", "text", "markdown", "md", "html", "table_body"):
+            value = content.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    if isinstance(content, str) and content.strip():
+        return content.strip()
+    for key in ("text", "markdown", "md", "html", "table_body", "alt"):
+        value = item.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""
+
+
+def _extract_nested_caption_text(item: dict[str, Any]) -> str:
+    parts: list[str] = []
+
+    def walk(value: Any) -> None:
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped:
+                parts.append(stripped)
+            return
+        if isinstance(value, list):
+            for sub in value:
+                walk(sub)
+            return
+        if not isinstance(value, dict):
+            return
+        value_type = str(value.get("type") or "").lower()
+        if value_type in {"text", "inline_equation", "equation_inline"}:
+            content = value.get("content") or value.get("text")
+            if isinstance(content, str) and content.strip():
+                parts.append(content.strip())
+        for key in ("content", "blocks", "lines", "spans", "children", "items"):
+            nested = value.get(key)
+            if isinstance(nested, (list, dict)):
+                walk(nested)
+
+    for key in ("content", "blocks", "lines", "spans"):
+        value = item.get(key)
+        if isinstance(value, (str, list, dict)):
+            walk(value)
+    return " ".join(part for part in parts if part).strip()
+
+
+def _extract_embedded_image_captions(item: dict[str, Any]) -> list[str]:
+    values: list[Any] = []
+    for key in ("image_caption", "figure_caption", "chart_caption", "caption"):
+        if key in item:
+            values.append(item.get(key))
+    content = item.get("content")
+    if isinstance(content, dict):
+        for key in ("image_caption", "figure_caption", "chart_caption", "caption"):
+            if key in content:
+                values.append(content.get(key))
+    captions: list[str] = []
+    for value in values:
+        captions.extend(_caption_strings(value))
+    return _unique_strings([caption for caption in captions if caption])
+
+
+def _caption_strings(value: Any) -> list[str]:
+    if isinstance(value, str):
+        stripped = value.strip()
+        return [stripped] if stripped else []
+    if isinstance(value, list):
+        results: list[str] = []
+        for item in value:
+            results.extend(_caption_strings(item))
+        return results
+    if isinstance(value, dict):
+        results: list[str] = []
+        for key in ("text", "content", "caption"):
+            item = value.get(key)
+            if isinstance(item, str) and item.strip():
+                results.append(item.strip())
+        return results
+    return []
+
+
+def _strip_mineru_markdown_image_blocks(markdown: str) -> str:
+    without_details = _DETAILS_BLOCK_RE.sub("", str(markdown or ""))
+    without_images = _IMAGE_MARKDOWN_RE.sub("", without_details)
+    return without_images.strip()
+
+
+def _write_mineru_assets_for_doc(
+    assets: dict[str, bytes],
+    *,
+    file_path: Path,
+    output_dir: Path,
+) -> dict[str, str]:
+    if not isinstance(assets, dict) or not assets:
+        return {}
+    doc_id = build_doc_id(str(file_path))
+    root = output_dir / doc_id
+    resolved: dict[str, str] = {}
+    for raw_name, content in assets.items():
+        if isinstance(content, bytes):
+            data = content
+        elif isinstance(content, bytearray):
+            data = bytes(content)
+        elif isinstance(content, memoryview):
+            data = content.tobytes()
+        elif isinstance(content, (str, Path)):
+            source = Path(content)
+            if not source.exists() or not source.is_file():
+                continue
+            data = source.read_bytes()
+        else:
+            continue
+        safe_parts = _safe_asset_parts(str(raw_name))
+        if not safe_parts:
+            continue
+        target = root.joinpath(*safe_parts)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+        key = _normalize_asset_name(str(raw_name))
+        value = str(target)
+        resolved[key] = value
+        resolved[Path(key).name] = value
+    return resolved
+
+
+def _safe_asset_parts(name: str) -> list[str]:
+    normalized = _normalize_asset_name(name).strip("/")
+    if not normalized:
+        return []
+    return [part for part in normalized.split("/") if part and part not in {".", ".."}]
+
+
+def _normalize_asset_name(name: str) -> str:
+    return str(name or "").replace("\\", "/").strip()
+
+
+def _resolve_mineru_image_path(
+    image_path: str | None,
+    asset_paths: dict[str, str],
+    *,
+    base_dir: Path | None = None,
+) -> str | None:
+    if not image_path:
+        return None
+    raw = str(image_path).strip()
+    if raw.startswith(("http://", "https://", "data:")):
+        return raw
+    normalized = _normalize_asset_name(image_path)
+    if normalized in asset_paths:
+        return asset_paths[normalized]
+    basename = Path(normalized).name
+    if basename in asset_paths:
+        return asset_paths[basename]
+    for key, value in asset_paths.items():
+        if key.endswith("/" + normalized) or normalized.endswith("/" + key):
+            return value
+    direct = Path(raw)
+    if direct.exists() and direct.is_file():
+        return str(direct)
+    if base_dir is not None:
+        candidate = base_dir / normalized
+        if candidate.exists() and candidate.is_file():
+            return str(candidate)
+    return None
 
 
 def _extract_list_items_text(item: dict[str, Any]) -> str:
@@ -935,12 +1380,16 @@ def _extract_section(item: dict[str, Any]) -> str | None:
 
 def _normalize_block_type(value: Any) -> str:
     raw = str(value or "text").strip().lower()
+    if raw in {"image_caption", "figure_caption", "chart_caption", "image_footnote", "chart_footnote"}:
+        return "image_caption"
     if raw in {"table_caption", "table_footnote"}:
         return "text"
     if raw in {"page_number", "page_footer", "page_header"}:
         return "page_marker"
     if "formula" in raw or "equation" in raw:
         return "formula"
+    if raw in {"chart", "figure", "graphic"}:
+        return "image_semantic"
     if raw in {"table", "table_body", "html_table", "latex_table", "chart_table"}:
         return "table"
     if "title" in raw or "heading" in raw:
@@ -983,7 +1432,7 @@ def _infer_structured_source_kind(item: Any, idx: int) -> str:
             return "content_list"
         if "layout" in keys:
             return "layout"
-        if "model" in keys or "middle" in keys or "pages" in keys:
+        if "model" in keys or "middle" in keys or "pages" in keys or "pdf_info" in keys:
             return "model"
         if {"type", "table_body"} & keys or {"type", "page_idx"} <= keys:
             return "content_list"
@@ -1029,6 +1478,13 @@ def _raw_block_type(item: dict[str, Any]) -> Any:
     return None
 
 
+def _extract_bbox_with_coordinate_system(item: dict[str, Any]) -> tuple[list[float] | None, str | None]:
+    bbox = _extract_bbox(item)
+    if bbox is None:
+        return None, None
+    return _normalize_mineru_bbox_units(bbox)
+
+
 def _extract_bbox(item: dict[str, Any]) -> list[float] | None:
     for key in ("bbox", "box", "bounding_box", "position"):
         bbox = _coerce_bbox(item.get(key))
@@ -1038,6 +1494,14 @@ def _extract_bbox(item: dict[str, Any]) -> list[float] | None:
     if isinstance(metadata, dict):
         return _extract_bbox(metadata)
     return None
+
+
+def _normalize_mineru_bbox_units(bbox: list[float]) -> tuple[list[float], str]:
+    values = [float(value) for value in bbox[:4]]
+    max_abs = max((abs(value) for value in values), default=0.0)
+    if max_abs <= 1.5:
+        return [round(value * 1000.0, 3) for value in values], "mineru_1000"
+    return values, "mineru_1000"
 
 
 def _coerce_bbox(value: Any) -> list[float] | None:
@@ -1331,6 +1795,626 @@ def _select_structured_image_blocks_for_nodes(
     return _dedupe_image_groups(groups)
 
 
+def _extract_mineru_image_units(
+    blocks: list[MinerUStructuredBlock],
+    *,
+    markdown: str,
+    asset_paths: dict[str, str],
+) -> list[MinerUImageUnit]:
+    markdown_units = _image_units_from_markdown(markdown, asset_paths=asset_paths)
+    structured_units = _image_units_from_structured_blocks(blocks, asset_paths=asset_paths)
+    if any(unit.semantic_blocks for unit in markdown_units):
+        structured_units = [
+            unit
+            for unit in structured_units
+            if unit.image_path or not unit.semantic_blocks
+        ]
+    units = [*structured_units, *markdown_units]
+    return _dedupe_image_units(units)
+
+
+def _image_units_from_structured_blocks(
+    blocks: list[MinerUStructuredBlock],
+    *,
+    asset_paths: dict[str, str],
+) -> list[MinerUImageUnit]:
+    units: list[MinerUImageUnit] = []
+    by_path: dict[str, MinerUImageUnit] = {}
+    pending_captions: list[MinerUStructuredBlock] = []
+    last_path_unit: MinerUImageUnit | None = None
+
+    def flush_pending_captions() -> None:
+        nonlocal pending_captions
+        for caption in pending_captions:
+            unit = MinerUImageUnit(
+                image_path=None,
+                caption_blocks=[],
+                semantic_blocks=[],
+                image_blocks=[],
+                semantic_kind=None,
+            )
+            _append_image_unit_block(unit, caption)
+            units.append(unit)
+        pending_captions = []
+
+    for block in sorted(blocks, key=lambda item: item.order):
+        if block.type not in {"image", "image_caption", "image_semantic"} and not block.image_path:
+            if block.type != "page_number":
+                flush_pending_captions()
+                last_path_unit = None
+            continue
+        resolved_path = _resolve_mineru_image_path(block.image_path, asset_paths)
+        if block.type == "image_caption" and not resolved_path:
+            if (
+                last_path_unit is not None
+                and not last_path_unit.caption_blocks
+                and _image_caption_adjacent_to_unit(block, last_path_unit)
+            ):
+                _append_image_unit_block(last_path_unit, block)
+            else:
+                flush_pending_captions()
+                pending_captions = [block]
+            continue
+        if resolved_path:
+            unit = by_path.get(resolved_path)
+            if unit is None:
+                unit = MinerUImageUnit(
+                    image_path=resolved_path,
+                    caption_blocks=[],
+                    semantic_blocks=[],
+                    image_blocks=[],
+                    semantic_kind=None,
+                )
+                by_path[resolved_path] = unit
+                units.append(unit)
+            _append_image_unit_block(unit, block)
+            for caption in pending_captions[-1:]:
+                if not unit.caption_blocks and _image_caption_adjacent_to_unit(caption, unit, fallback_page=block.page):
+                    _append_image_unit_block(unit, caption)
+            pending_captions = []
+            if block.type == "image":
+                last_path_unit = unit
+            continue
+
+        # Pathless MinerU captions/details are still useful textual evidence, but they
+        # are kept as standalone units so they do not get merged with unrelated images.
+        unit = MinerUImageUnit(
+            image_path=None,
+            caption_blocks=[],
+            semantic_blocks=[],
+            image_blocks=[],
+            semantic_kind=None,
+        )
+        _append_image_unit_block(unit, block)
+        units.append(unit)
+        last_path_unit = None
+    flush_pending_captions()
+    return units
+
+
+def _image_caption_adjacent_to_unit(
+    caption: MinerUStructuredBlock,
+    unit: MinerUImageUnit,
+    *,
+    fallback_page: int | None = None,
+    max_order_gap: int = 5,
+) -> bool:
+    pages = {block.page for block in unit.blocks if block.page is not None}
+    page = caption.page if caption.page is not None else fallback_page
+    if page is None or not pages:
+        page_ok = True
+    else:
+        page_ok = page in pages
+    if not page_ok:
+        return False
+    image_orders = [block.order for block in unit.image_blocks or []]
+    if not image_orders:
+        return False
+    return min(abs(caption.order - order) for order in image_orders) <= max_order_gap
+
+
+def _append_image_unit_block(unit: MinerUImageUnit, block: MinerUStructuredBlock) -> None:
+    if block.type == "image_caption":
+        if unit.caption_blocks is None:
+            unit.caption_blocks = []
+        unit.caption_blocks.append(block)
+    elif block.type == "image_semantic":
+        if unit.semantic_blocks is None:
+            unit.semantic_blocks = []
+        unit.semantic_blocks.append(block)
+        if unit.semantic_kind is None:
+            unit.semantic_kind = _infer_image_semantic_type([block])
+    else:
+        if unit.image_blocks is None:
+            unit.image_blocks = []
+        unit.image_blocks.append(block)
+
+
+def _image_units_from_markdown(markdown: str, *, asset_paths: dict[str, str]) -> list[MinerUImageUnit]:
+    units: list[MinerUImageUnit] = []
+    text = str(markdown or "")
+    for match in _IMAGE_MARKDOWN_RE.finditer(text):
+        raw_path = match.group(1).strip()
+        resolved_path = _resolve_mineru_image_path(raw_path, asset_paths)
+        image_block = MinerUStructuredBlock(
+            type="image",
+            text=_image_fallback_text(raw_path),
+            image_path=resolved_path,
+            source_kind="markdown",
+            raw_type="markdown_image",
+            order=match.start(),
+        )
+        caption_text = _markdown_caption_before(text, match.start())
+        if not caption_text:
+            caption_text = _markdown_caption_after_image_block(text, match.end())
+        caption_blocks = []
+        if caption_text:
+            caption_blocks.append(
+                MinerUStructuredBlock(
+                    type="image_caption",
+                    text=caption_text,
+                    image_path=resolved_path,
+                    source_kind="markdown",
+                    raw_type="markdown_image_caption",
+                    order=max(0, match.start() - 1),
+                )
+            )
+        details_text, summary = _markdown_details_after(text, match.end())
+        semantic_blocks = []
+        if details_text:
+            semantic_blocks.append(
+                MinerUStructuredBlock(
+                    type="image_semantic",
+                    text=details_text,
+                    image_path=resolved_path,
+                    source_kind="markdown",
+                    raw_type=f"markdown_details_{summary}" if summary else "markdown_details",
+                    order=match.end(),
+                )
+            )
+        units.append(
+            MinerUImageUnit(
+                image_path=resolved_path,
+                caption_blocks=caption_blocks,
+                semantic_blocks=semantic_blocks,
+                image_blocks=[image_block],
+                semantic_kind=_semantic_type_from_summary(summary) if summary else None,
+            )
+        )
+    return units
+
+
+def _dedupe_image_units(units: list[MinerUImageUnit]) -> list[MinerUImageUnit]:
+    keyed: dict[str, MinerUImageUnit] = {}
+    ordered_keys: list[str] = []
+    for unit in units:
+        key = _image_unit_key(unit)
+        if not key:
+            continue
+        existing = keyed.get(key)
+        if existing is None:
+            keyed[key] = unit
+            ordered_keys.append(key)
+            continue
+        _merge_image_unit(existing, unit)
+
+    path_units = [unit for unit in keyed.values() if unit.image_path]
+    result: list[MinerUImageUnit] = []
+    for key in ordered_keys:
+        unit = keyed[key]
+        if not unit.image_path:
+            linked = _matching_path_image_unit_for_caption(unit, path_units)
+            if linked is not None:
+                _merge_image_unit(linked, unit)
+                continue
+        result.append(unit)
+    return result
+
+
+def _matching_path_image_unit_for_caption(
+    standalone: MinerUImageUnit,
+    path_units: list[MinerUImageUnit],
+) -> MinerUImageUnit | None:
+    caption_text = _join_unique_block_texts(standalone.caption_blocks or [])
+    if not caption_text:
+        return None
+    scored: list[tuple[float, MinerUImageUnit]] = []
+    for candidate in path_units:
+        if not _image_unit_pages_compatible(standalone, candidate):
+            continue
+        candidate_caption = _join_unique_block_texts(candidate.caption_blocks or [])
+        score = _caption_similarity_score(caption_text, candidate_caption)
+        if score >= 0.82:
+            scored.append((score, candidate))
+    if not scored:
+        return None
+    return max(scored, key=lambda item: item[0])[1]
+
+
+def _image_unit_pages_compatible(left: MinerUImageUnit, right: MinerUImageUnit) -> bool:
+    left_pages = {block.page for block in left.blocks if block.page is not None}
+    right_pages = {block.page for block in right.blocks if block.page is not None}
+    if not left_pages or not right_pages:
+        return True
+    return bool(left_pages & right_pages)
+
+
+def _caption_similarity_score(left: str, right: str) -> float:
+    left_norm = _normalize_caption_for_dedupe(left)
+    right_norm = _normalize_caption_for_dedupe(right)
+    if not left_norm or not right_norm:
+        return 0.0
+    left_label = _figure_label_for_caption(left_norm)
+    right_label = _figure_label_for_caption(right_norm)
+    if left_label and right_label and left_label != right_label:
+        return 0.0
+    if left_norm == right_norm:
+        return 1.0
+    shorter, longer = sorted((left_norm, right_norm), key=len)
+    if len(shorter) >= 48 and shorter in longer:
+        return 0.95
+    left_tokens = set(left_norm.split())
+    right_tokens = set(right_norm.split())
+    if not left_tokens or not right_tokens:
+        return 0.0
+    return len(left_tokens & right_tokens) / max(1, min(len(left_tokens), len(right_tokens)))
+
+
+def _normalize_caption_for_dedupe(text: str) -> str:
+    value = str(text or "").lower()
+    value = re.sub(r"\\[()[\]]", " ", value)
+    value = re.sub(r"[$^_{}\\]", " ", value)
+    value = re.sub(r"[^a-z0-9]+", " ", value)
+    return " ".join(value.split())
+
+
+def _figure_label_for_caption(normalized: str) -> str | None:
+    match = re.search(r"\b(?:fig|figure|supplemental figure)\s*([a-z0-9]+)", normalized)
+    if match:
+        return match.group(1)
+    return None
+
+
+def _image_unit_key(unit: MinerUImageUnit) -> str:
+    if unit.image_path:
+        return "path:" + _normalize_asset_name(unit.image_path)
+    fingerprint = _compact_text(
+        _join_unique_block_texts(unit.semantic_blocks or []) + _join_unique_block_texts(unit.caption_blocks or [])
+    )
+    if fingerprint:
+        return "text:" + fingerprint[:200]
+    blocks = unit.blocks
+    if blocks:
+        return f"block:{blocks[0].source_kind}:{blocks[0].order}"
+    return ""
+
+
+def _merge_image_unit(target: MinerUImageUnit, source: MinerUImageUnit) -> None:
+    if not target.image_path and source.image_path:
+        target.image_path = source.image_path
+    target.caption_blocks = _unique_blocks([*(target.caption_blocks or []), *(source.caption_blocks or [])])
+    target.semantic_blocks = _unique_blocks([*(target.semantic_blocks or []), *(source.semantic_blocks or [])])
+    target.image_blocks = _unique_blocks([*(target.image_blocks or []), *(source.image_blocks or [])])
+    if not target.semantic_kind:
+        target.semantic_kind = source.semantic_kind
+
+
+def _select_image_caption_blocks(blocks: list[MinerUStructuredBlock]) -> list[MinerUStructuredBlock]:
+    if not blocks:
+        return []
+    unique = _unique_blocks(blocks)
+    scored = []
+    for block in unique:
+        text = str(block.text or "")
+        score = (
+            1 if _looks_like_image_caption(text) else 0,
+            1 if block.bbox is not None else 0,
+            _source_priority(block.source_kind),
+            -abs(len(text) - 300),
+            -block.order,
+        )
+        scored.append((score, block))
+    return [max(scored, key=lambda item: item[0])[1]]
+
+
+def _select_image_semantic_blocks(blocks: list[MinerUStructuredBlock]) -> list[MinerUStructuredBlock]:
+    if not blocks:
+        return []
+    unique = _unique_blocks(blocks)
+    scored = []
+    for block in unique:
+        raw_type = str(block.raw_type or "").lower()
+        score = (
+            1 if block.source_kind == "markdown" else 0,
+            1 if raw_type.startswith("markdown_details") else 0,
+            1 if block.bbox is not None else 0,
+            _source_priority(block.source_kind),
+            -block.order,
+        )
+        scored.append((score, block))
+    return [max(scored, key=lambda item: item[0])[1]]
+
+
+def _unique_blocks(blocks: list[MinerUStructuredBlock]) -> list[MinerUStructuredBlock]:
+    seen: set[tuple[str | None, int, str]] = set()
+    unique: list[MinerUStructuredBlock] = []
+    for block in blocks:
+        key = (block.source_kind, block.order, _compact_text(block.text))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(block)
+    return sorted(unique, key=lambda item: item.order)
+
+
+def _markdown_caption_before(markdown: str, image_start: int) -> str:
+    before = markdown[:image_start].rstrip()
+    if not before:
+        return ""
+    paragraphs = [item.strip() for item in re.split(r"\n\s*\n+", before) if item.strip()]
+    if not paragraphs:
+        return ""
+    candidate = paragraphs[-1]
+    if candidate.startswith("#"):
+        return ""
+    if not _looks_like_image_caption(candidate):
+        return ""
+    return candidate
+
+
+def _markdown_caption_after_image_block(markdown: str, image_end: int) -> str:
+    tail = markdown[image_end:]
+    tail = tail[len(tail) - len(tail.lstrip()) :]
+    details = _DETAILS_BLOCK_RE.match(tail)
+    if details:
+        details_text = details.group(0)
+        # Long generated descriptions usually describe a standalone image block;
+        # the following paragraph is often the next figure caption, not this image.
+        if len(details_text) > 1500:
+            return ""
+        tail = tail[details.end() :]
+        tail = tail[len(tail) - len(tail.lstrip()) :]
+    next_image = _IMAGE_MARKDOWN_RE.search(tail)
+    boundary = next_image.start() if next_image else len(tail)
+    candidate_region = tail[:boundary].strip()
+    if not candidate_region:
+        return ""
+    paragraphs = [item.strip() for item in re.split(r"\n\s*\n+", candidate_region) if item.strip()]
+    if not paragraphs:
+        return ""
+    candidate = paragraphs[0]
+    if candidate.startswith("#") or not _looks_like_image_caption(candidate):
+        return ""
+    return candidate
+
+
+def _looks_like_image_caption(text: str) -> bool:
+    value = str(text or "").strip()
+    if len(value) < 6:
+        return False
+    return bool(re.search(r"\b(fig\.?|figure|supplemental figure|图)\b", value, flags=re.IGNORECASE))
+
+
+def _markdown_details_after(markdown: str, image_end: int) -> tuple[str, str | None]:
+    tail = markdown[image_end:]
+    leading = len(tail) - len(tail.lstrip())
+    tail = tail[leading:]
+    match = _DETAILS_BLOCK_RE.match(tail)
+    if not match:
+        return "", None
+    raw = match.group(0)
+    summary_match = _DETAILS_SUMMARY_RE.search(raw)
+    summary = _compact_text(summary_match.group(1)).lower() if summary_match else None
+    body = _DETAILS_SUMMARY_RE.sub("", raw)
+    body = re.sub(r"</?details\b[^>]*>", "", body, flags=re.IGNORECASE).strip()
+    return body, summary
+
+
+def _join_unique_block_texts(blocks: list[MinerUStructuredBlock]) -> str:
+    parts: list[str] = []
+    seen: set[str] = set()
+    for block in sorted(blocks, key=lambda item: item.order):
+        text = str(block.text or "").strip()
+        if not text:
+            continue
+        compact = _compact_text(text)
+        if compact in seen:
+            continue
+        seen.add(compact)
+        parts.append(text)
+    return "\n\n".join(parts).strip()
+
+
+def _page_for_blocks(blocks: list[MinerUStructuredBlock]) -> int | None:
+    for block in blocks:
+        if block.page is not None:
+            return block.page
+    return None
+
+
+def _whole_image_text(image_path: str, *, caption_text: str, semantic_text: str) -> str:
+    parts = [f"Image file: {Path(image_path).name}"]
+    if caption_text:
+        parts.append(caption_text)
+    elif semantic_text:
+        parts.append(_details_summary(semantic_text, max_chars=500))
+    return "\n\n".join(parts).strip()
+
+
+def _image_semantic_text(*, caption_text: str, semantic_text: str) -> str:
+    return str(semantic_text or "").strip()
+
+
+def _details_summary(text: str, max_chars: int = 500) -> str:
+    compact = " ".join(str(text or "").split())
+    return compact[:max_chars]
+
+
+def _infer_image_semantic_type(blocks: list[MinerUStructuredBlock]) -> str:
+    raw = " ".join(str(block.raw_type or "") for block in blocks).lower()
+    if "line" in raw or "chart" in raw or "table" in raw or "|" in _join_unique_block_texts(blocks):
+        return "chart_data"
+    return IMAGE_SEMANTIC_OCR
+
+
+def _semantic_type_from_summary(summary: str | None) -> str:
+    value = str(summary or "").lower()
+    if value in {"line", "bar", "pie", "scatter", "contour", "radar", "surface_3d", "flowchart"}:
+        return "chart_data"
+    if value in {"natural_image", "other"}:
+        return IMAGE_SEMANTIC_OCR
+    return IMAGE_SEMANTIC_OCR
+
+
+def _mineru_image_unit_relationships(
+    unit: MinerUImageUnit,
+    *,
+    role: str,
+    semantic_type: str,
+) -> dict[str, Any]:
+    blocks = unit.blocks
+    if role == "caption_text" and unit.caption_blocks:
+        first = _best_image_unit_block(unit.caption_blocks)
+    elif role == "image_semantic" and unit.semantic_blocks:
+        first = _best_image_unit_block(unit.semantic_blocks)
+    elif role == "whole_image" and unit.image_blocks:
+        first = _best_image_unit_block(unit.image_blocks)
+    else:
+        first = _best_image_unit_block(blocks)
+    relationships = _mineru_relationships(first)
+    relationships["mineru_block_type"] = "image"
+    relationships["mineru_image_role"] = role
+    relationships["image_semantic_type"] = semantic_type
+    relationships["mineru_image_block_count"] = len(blocks)
+    relationships["mineru_image_block_ids"] = [block.block_id for block in blocks if block.block_id]
+    relationships["mineru_image_block_types"] = [block.type for block in blocks]
+    relationships["mineru_image_raw_types"] = [block.raw_type for block in blocks if block.raw_type]
+    relationships["mineru_image_source_kinds"] = _unique_strings(
+        [str(block.source_kind) for block in blocks if block.source_kind]
+    )
+    if unit.image_path:
+        relationships["mineru_image_path"] = unit.image_path
+    if unit.caption_blocks:
+        relationships["caption"] = _join_unique_block_texts(unit.caption_blocks)
+    if unit.semantic_blocks:
+        relationships["mineru_generated_semantic"] = True
+    return relationships
+
+
+def _image_unit_location_blocks(
+    *groups: list[MinerUStructuredBlock],
+) -> list[MinerUStructuredBlock]:
+    candidates: list[MinerUStructuredBlock] = []
+    for group in groups:
+        candidates.extend(group or [])
+    candidates = _unique_blocks(candidates)
+    located = [block for block in candidates if block.page is not None or block.bbox is not None]
+    return located or candidates
+
+
+def _whole_image_location_blocks(
+    image_blocks: list[MinerUStructuredBlock],
+    semantic_blocks: list[MinerUStructuredBlock],
+    caption_blocks: list[MinerUStructuredBlock],
+    fallback_blocks: list[MinerUStructuredBlock],
+) -> list[MinerUStructuredBlock]:
+    located_images = [block for block in _unique_blocks(image_blocks) if block.bbox is not None or block.page is not None]
+    located_images = _prefer_direct_image_path_blocks(located_images)
+    located_images = _select_consensus_bbox_blocks(located_images)
+    model_images = [block for block in located_images if str(block.source_kind or "").lower() == "model"]
+    if model_images:
+        return model_images
+    if located_images:
+        return located_images
+    return _image_unit_location_blocks(semantic_blocks, caption_blocks, fallback_blocks)
+
+
+def _caption_location_blocks(
+    caption_blocks: list[MinerUStructuredBlock],
+    image_blocks: list[MinerUStructuredBlock],
+    semantic_blocks: list[MinerUStructuredBlock],
+    fallback_blocks: list[MinerUStructuredBlock],
+) -> list[MinerUStructuredBlock]:
+    located_captions = [
+        block for block in _unique_blocks(caption_blocks) if block.bbox is not None or block.page is not None
+    ]
+    if located_captions:
+        return located_captions
+    return _image_unit_location_blocks(image_blocks, semantic_blocks, fallback_blocks)
+
+
+def _prefer_direct_image_path_blocks(blocks: list[MinerUStructuredBlock]) -> list[MinerUStructuredBlock]:
+    direct = [
+        block
+        for block in blocks
+        if block.image_path and "/" not in _normalize_asset_name(block.image_path).strip("/")
+    ]
+    return direct or blocks
+
+
+def _select_consensus_bbox_blocks(blocks: list[MinerUStructuredBlock]) -> list[MinerUStructuredBlock]:
+    located = [block for block in blocks if block.bbox is not None]
+    if len(located) <= 1:
+        return blocks
+    grouped: dict[tuple[float, float, float, float], list[MinerUStructuredBlock]] = {}
+    for block in located:
+        key = tuple(round(coord, 3) for coord in _normalize_bbox(block.bbox or [0, 0, 0, 0]))
+        grouped.setdefault(key, []).append(block)
+    if len(grouped) <= 1:
+        return blocks
+
+    def group_key(item: tuple[tuple[float, float, float, float], list[MinerUStructuredBlock]]) -> tuple[int, float]:
+        bbox, group = item
+        x0, y0, x1, y1 = bbox
+        area = max(0.0, x1 - x0) * max(0.0, y1 - y0)
+        return (len(group), -area)
+
+    _bbox, selected = max(grouped.items(), key=group_key)
+    if selected:
+        return selected
+    return blocks
+
+
+def _apply_location_to_relationships(
+    relationships: dict[str, Any],
+    blocks: list[MinerUStructuredBlock],
+) -> None:
+    page = _page_for_blocks(blocks)
+    if page is not None:
+        relationships["page"] = page
+        relationships["page_node_id"] = f"page:{page}"
+        relationships["page_source"] = "structured"
+
+    bbox_payload = _mineru_bbox_payload(blocks)
+    for key in (
+        "bbox",
+        "bbox_items",
+        "pages",
+        "bbox_by_page",
+        "page_spans",
+        "bbox_coordinate_system",
+        "bbox_source",
+        "bbox_merge_policy",
+    ):
+        value = bbox_payload.get(key)
+        if value is not None:
+            relationships[key] = value
+
+
+def _best_image_unit_block(blocks: list[MinerUStructuredBlock]) -> MinerUStructuredBlock | None:
+    if not blocks:
+        return None
+    return max(
+        blocks,
+        key=lambda block: (
+            1 if block.page is not None else 0,
+            1 if block.bbox is not None else 0,
+            _source_priority(block.source_kind),
+            len(block.text or ""),
+        ),
+    )
+
+
 def _dedupe_image_groups(
     groups: list[list[MinerUStructuredBlock]],
 ) -> list[list[MinerUStructuredBlock]]:
@@ -1476,6 +2560,8 @@ def _assemble_logical_text_segments(
         if not block_text:
             continue
 
+        if pending_headings and block.type != "text":
+            pending_headings = []
         if not current and pending_headings:
             current.extend(pending_headings)
             pending_headings = []
@@ -1484,8 +2570,10 @@ def _assemble_logical_text_segments(
             last = current[-1]
             if _title_region_id(last) != _title_region_id(block):
                 flush_current()
-                if pending_headings:
+                if pending_headings and block.type == "text":
                     current.extend(pending_headings)
+                    pending_headings = []
+                elif pending_headings:
                     pending_headings = []
                 current.append(block)
                 continue
@@ -1501,13 +2589,17 @@ def _assemble_logical_text_segments(
             )
             if last.page != block.page and not cross_page_allowed:
                 flush_current()
-                if pending_headings:
+                if pending_headings and block.type == "text":
                     current.extend(pending_headings)
+                    pending_headings = []
+                elif pending_headings:
                     pending_headings = []
             elif last.page == block.page and projected > max_chars and not current_is_heading_only:
                 flush_current()
-                if pending_headings:
+                if pending_headings and block.type == "text":
                     current.extend(pending_headings)
+                    pending_headings = []
+                elif pending_headings:
                     pending_headings = []
             elif cross_page_allowed:
                 current_cross_page = True
@@ -1516,8 +2608,6 @@ def _assemble_logical_text_segments(
         current.append(block)
 
     flush_current()
-    if pending_headings:
-        segments.append(MinerULogicalSegment(blocks=pending_headings))
     return segments
 
 
@@ -1539,23 +2629,31 @@ def _assign_title_regions(blocks: list[MinerUStructuredBlock]) -> None:
 
 
 def _assign_heading_context(blocks: list[MinerUStructuredBlock]) -> None:
-    current_heading: str | None = None
-    current_heading_region: int | None = None
-    current_heading_block_id: str | None = None
+    pending_heading: str | None = None
+    pending_heading_region: int | None = None
+    pending_heading_block_id: str | None = None
     for block in sorted(blocks, key=lambda item: item.order):
         if block.type == "heading":
             heading = _normalize_heading_text(block.text)
             if heading:
-                current_heading = heading
-                current_heading_region = block.title_region_id
-                current_heading_block_id = block.block_id
+                pending_heading = heading
+                pending_heading_region = block.title_region_id
+                pending_heading_block_id = block.block_id
             continue
-        if current_heading and not block.section:
-            block.section = current_heading
-        if current_heading_block_id:
-            block.heading_context_block_id = current_heading_block_id
-        if current_heading_region is not None and block.title_region_id is None:
-            block.title_region_id = current_heading_region
+        if block.type != "text":
+            pending_heading = None
+            pending_heading_region = None
+            pending_heading_block_id = None
+            continue
+        if pending_heading and not block.section:
+            block.section = pending_heading
+        if pending_heading_block_id:
+            block.heading_context_block_id = pending_heading_block_id
+        if pending_heading_region is not None and block.title_region_id is None:
+            block.title_region_id = pending_heading_region
+        pending_heading = None
+        pending_heading_region = None
+        pending_heading_block_id = None
 
 
 def _normalize_heading_text(text: str) -> str:
@@ -2222,14 +3320,7 @@ def _mineru_bbox_source(block: MinerUStructuredBlock | None) -> str | None:
 def _mineru_bbox_coordinate_system(block: MinerUStructuredBlock | None) -> str | None:
     if block is None or block.bbox is None:
         return None
-    source_kind = str(block.source_kind or "").lower()
-    if source_kind in {"content_list", "content_list_v2"}:
-        return "mineru_content_list_1000"
-    if source_kind == "model":
-        return "mineru_model_raw"
-    if source_kind == "layout":
-        return "mineru_layout_raw"
-    return "mineru_raw"
+    return block.bbox_coordinate_system or "mineru_1000"
 
 
 def _mineru_bbox_payload(blocks: list[MinerUStructuredBlock]) -> dict[str, Any]:

@@ -297,6 +297,10 @@ class Settings(BaseSettings):
         default="storage/ingestion_visualization",
         description="Output directory for inspect-only ingestion visualization reports",
     )
+    mineru_asset_output_dir: str = Field(
+        default="storage/mineru_assets",
+        description="Stable output directory for MinerU image assets used by image nodes",
+    )
     ingestion_inspect_max_text_chars: int = Field(
         default=4000,
         description="Max text chars stored per node in ingestion inspection reports",
@@ -437,13 +441,15 @@ class Settings(BaseSettings):
     )
     retrieval_rerank_prior_min_composite_score: float = Field(default=0.15, description="Low prior score cutoff")
     retrieval_rerank_prior_low_score_penalty: float = Field(default=0.70, description="Low prior rerank penalty")
-    rel_expand_related_modality_enabled: bool = Field(default=True, description="Expand related table/formula nodes")
+    rel_expand_related_modality_enabled: bool = Field(default=True, description="Expand related table/formula/image semantic nodes")
     rel_expand_min_seed_composite_score: float = Field(default=0.30, description="Min seed score for related modality expansion")
     rel_expand_seed_top_m: int = Field(default=6, description="Max ranked seeds for related modality expansion")
     rel_expand_max_related_tables: int = Field(default=5, description="Max related tables to add")
     rel_expand_max_related_formulas: int = Field(default=5, description="Max related formulas to add")
+    rel_expand_max_related_images: int = Field(default=3, description="Max related image semantic nodes to add")
     rel_expand_related_table_weight: float = Field(default=0.90, description="Related table inherited score weight")
     rel_expand_related_formula_weight: float = Field(default=0.85, description="Related formula inherited score weight")
+    rel_expand_related_image_weight: float = Field(default=0.80, description="Related image semantic inherited score weight")
     rel_expand_context_text_enabled: bool = Field(default=True, description="Expand high-score context text nodes")
     rel_expand_context_text_weight: float = Field(default=0.60, description="Context text inherited score weight")
     rel_expand_page_window_weight: float = Field(default=0.30, description="Page-window inherited score weight")
@@ -664,6 +670,7 @@ class Settings(BaseSettings):
         "rel_expand_seed_top_m",
         "rel_expand_max_related_tables",
         "rel_expand_max_related_formulas",
+        "rel_expand_max_related_images",
         "rel_expand_context_text_seed_top_m",
         "rel_expand_context_text_max_per_seed",
         "retrieval_related_evidence_max_total",

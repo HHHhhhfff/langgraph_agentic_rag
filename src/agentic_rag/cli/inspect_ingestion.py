@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from agentic_rag.config import Settings, get_settings
-from agentic_rag.ingestion.adapters.mineru_adapter import MinerUAdapter
+from agentic_rag.ingestion.adapters.mineru_adapter import MinerUAdapter, _write_mineru_assets_for_doc
 from agentic_rag.ingestion.adapters.mineru_result_parser import parse_mineru_markdown
 from agentic_rag.ingestion.inspection import (
     DOC_LIKE_SUFFIXES,
@@ -309,10 +309,16 @@ def _parse_mineru_file_for_inspection(file_path: Path, settings: Settings) -> tu
         else:
             parse_result = adapter._parse_precise(file_path)  # noqa: SLF001
         parsed_markdown = parse_mineru_markdown(parse_result, settings)
+        asset_paths = _write_mineru_assets_for_doc(
+            parse_result.assets or {},
+            file_path=file_path,
+            output_dir=Path(settings.mineru_asset_output_dir),
+        )
         nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
             parsed_markdown,
             file_path,
             structured_content=parse_result.structured_content or [],
+            asset_paths=asset_paths,
         )
         result = MultimodalIngestionResult(nodes=nodes, failures=[])
         raw = {
