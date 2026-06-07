@@ -211,12 +211,65 @@ check/query_records/<run-name>_query_stage_chunks.json
 
 When cases contain SciEGQA `rel_bbox` and retrieved chunks contain `metadata.bbox`, the check pipeline also reports:
 
-- `bbox_hit_rate`: whether at least one expected region is hit by IoU.
-- `bbox_precision`: matched unique returned chunks / comparable returned chunks with bbox.
-- `bbox_recall`: expected regions covered by returned chunks / expected regions.
+- `bbox_hit_rate`: whether at least one expected region has non-zero bbox area coverage.
+- `bbox_precision`: returned chunks with IoU greater than `--bbox-precision-iou-threshold` / comparable returned chunks with bbox.
+- `bbox_recall`: covered expected bbox area / total expected bbox area. Overlapping returned chunk intersections are unioned before area coverage is counted.
+- `bbox_f1`: harmonic mean of `bbox_precision` and `bbox_recall`.
+- `bbox_region_precision` / `bbox_region_recall` / `bbox_region_f1`: region-level metrics when derived bbox labels are used.
+- `bbox_area_precision` / `bbox_area_recall` / `bbox_area_f1`: area-coverage diagnostic metrics retained when derived bbox labels override the main bbox metrics.
 - `bbox_max_iou`: max IoU between returned chunk bbox and expected bbox.
 
 The implementation uses 0-1000 normalized page coordinates. Existing indexes must be rebuilt after MinerU bbox metadata is added; old runs without chunk bbox will show these metrics as `-`.
+
+`bbox_precision` uses a separate minimum IoU threshold:
+
+```powershell
+py -3.11 -m check --dataset check/sciqa_2412_16030_cases.jsonl --pipeline taskgraph --bbox-precision-iou-threshold 0.1
+```
+
+The default is `0.1`. It can be configured with `.env`:
+
+```env
+CHECK_BBOX_PRECISION_IOU_THRESHOLD=0.10
+```
+
+The CLI flag overrides the `.env` value. This does not change the green/yellow/red relevance coloring: visual relevance still uses `IoU > 0.5` as the green/relevant threshold.
+
+### Derived BBox Labels
+
+For datasets where the standard answer bbox is larger than individual indexed chunk bboxes, generate query-specific derived labels from the current index:
+
+```powershell
+py -3.11 -m check.derive_bbox_labels `
+  --dataset check/sciqa_2412_16030_cases.jsonl `
+  --index-nodes storage/ingestion_visualization/runs/20260605_213657_eacfe4ed/nodes.jsonl `
+  --iou-threshold 0.1
+```
+
+Then run evaluation with derived bbox relevance:
+
+```powershell
+py -3.11 -m check `
+  --dataset check/sciqa_2412_16030_cases.jsonl `
+  --pipeline taskgraph `
+  --bbox-labels check/derived_bbox_labels/sciqa_2412_16030_cases/20260605_213657_eacfe4ed.json `
+  --bbox-relevance-mode derived_regions
+```
+
+In `derived_regions` mode:
+
+- `bbox_precision` = returned unique chunks with best IoU greater than `CHECK_BBOX_PRECISION_IOU_THRESHOLD` or `--bbox-precision-iou-threshold` / returned comparable unique chunks.
+- `bbox_recall` = returned relevant unique bbox regions / all derived relevant unique bbox regions for the query.
+- `bbox_f1` is the harmonic mean of chunk-level `bbox_precision` and region-level `bbox_recall`.
+- `bbox_region_precision` / `bbox_region_recall` / `bbox_region_f1` keep the pure unique bbox-region metric.
+- Area coverage remains available as `bbox_area_*`.
+
+The HTML overview also shows run-level averages for the final stage:
+
+- `final page MRR`: mean reciprocal rank using source/page relevance, not IoU relevance.
+- `final bbox MAP`: mean of per-case final-stage `bbox_precision`; this is a region-level mean precision summary, not traditional ranked AP.
+- `final bbox MAR`: mean of per-case final-stage `bbox_recall`.
+- `final bbox F1`: mean of per-case final-stage `bbox_f1`.
 
 For chunks that cover multiple MinerU regions, `bbox_items` stores each region bbox and `bbox` stores the union. Region metrics compare against `bbox_items` first, then fall back to `bbox`. If structural splitting creates `part` nodes from a parent text node with multiple bbox regions, the part nodes do not inherit the parent union bbox to avoid inflated IoU.
 

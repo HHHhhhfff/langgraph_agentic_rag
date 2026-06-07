@@ -31,6 +31,7 @@ class MinerUStructuredBlock:
     type: str
     text: str
     page: int | None = None
+    page_size: tuple[float, float] | None = None
     section: str | None = None
     bbox: list[float] | None = None
     bbox_coordinate_system: str | None = None
@@ -657,8 +658,8 @@ class MinerUAdapter:
                 group_max_gap_lines=self.settings.formula_group_max_gap_lines,
             ):
                 matched_block = (
-                    _infer_block_for_text(formula.raw, structured_blocks)
-                    or _infer_block_for_text(formula.formula_latex, structured_blocks)
+                    _infer_block_for_text(formula.formula_latex, structured_blocks)
+                    or _infer_block_for_text(formula.raw, structured_blocks)
                     or _infer_block_for_text(formula.text, structured_blocks)
                 )
                 page = matched_block.page if matched_block else None
@@ -775,8 +776,6 @@ class MinerUAdapter:
             semantic_location_blocks = _image_unit_location_blocks(
                 all_semantic_blocks,
                 all_image_blocks,
-                all_caption_blocks,
-                unit_blocks,
             )
             semantic_type = image_unit.semantic_kind or _infer_image_semantic_type(image_unit.semantic_blocks or [])
             semantic_relationships = _mineru_image_unit_relationships(
@@ -810,7 +809,7 @@ class MinerUAdapter:
 
         if caption_text:
             caption_location_blocks = _caption_location_blocks(
-                all_caption_blocks,
+                image_unit.caption_blocks or [],
                 all_image_blocks,
                 all_semantic_blocks,
                 unit_blocks,
@@ -862,14 +861,17 @@ class MinerUAdapter:
 
 def _extract_structured_blocks(structured_content: list[Any]) -> list[MinerUStructuredBlock]:
     blocks: list[MinerUStructuredBlock] = []
+    page_sizes = _collect_page_sizes(structured_content)
     for idx, item in enumerate(structured_content):
         source_kind = _infer_structured_source_kind(item, idx)
         blocks.extend(
             _walk_structured_item(
                 item,
                 inherited_page=None,
+                inherited_page_size=None,
                 inherited_section=None,
                 source_kind=source_kind,
+                page_sizes=page_sizes,
             )
         )
     kept = [
@@ -887,8 +889,10 @@ def _walk_structured_item(
     item: Any,
     *,
     inherited_page: int | None,
+    inherited_page_size: tuple[float, float] | None,
     inherited_section: str | None,
     source_kind: str | None,
+    page_sizes: dict[int, tuple[float, float]],
 ) -> list[MinerUStructuredBlock]:
     if isinstance(item, list):
         blocks: list[MinerUStructuredBlock] = []
@@ -901,12 +905,17 @@ def _walk_structured_item(
             child_page = inherited_page
             if page_list and child_page is None:
                 child_page = idx + 1
+            child_page_size = page_sizes.get(child_page) if child_page is not None else inherited_page_size
+            if child_page_size is None:
+                child_page_size = inherited_page_size
             blocks.extend(
                 _walk_structured_item(
                     sub,
                     inherited_page=child_page,
+                    inherited_page_size=child_page_size,
                     inherited_section=inherited_section,
                     source_kind=list_source_kind,
+                    page_sizes=page_sizes,
                 )
             )
         return blocks
@@ -921,12 +930,18 @@ def _walk_structured_item(
     if numeric_page_items:
         blocks: list[MinerUStructuredBlock] = []
         for key, value in sorted(numeric_page_items, key=lambda pair: int(pair[0])):
+            child_page = _coerce_page(int(key), zero_based=True)
             blocks.extend(
                 _walk_structured_item(
                     value,
-                    inherited_page=_coerce_page(int(key), zero_based=True),
+                    inherited_page=child_page,
+                    inherited_page_size=(
+                        page_sizes.get(child_page) if child_page is not None else inherited_page_size
+                    )
+                    or inherited_page_size,
                     inherited_section=inherited_section,
                     source_kind=source_kind,
+                    page_sizes=page_sizes,
                 )
             )
         return blocks
@@ -937,20 +952,39 @@ def _walk_structured_item(
         return _walk_structured_item(
             item.get("structured_content"),
             inherited_page=inherited_page,
+            inherited_page_size=inherited_page_size,
             inherited_section=inherited_section,
             source_kind=child_source_kind,
+            page_sizes=page_sizes,
         )
 
     page = _extract_page(item)
     if page is None:
         page = inherited_page
+    page_size = _extract_page_size(item)
+    if page_size is None and page is not None:
+        page_size = page_sizes.get(page)
+    if page_size is None:
+        page_size = inherited_page_size
     section = _extract_section(item) or inherited_section
     raw_type = _raw_block_type(item)
     item_type = _normalize_block_type(raw_type)
     if item_type == "text" and _is_text_level_heading(item):
         item_type = "heading"
         raw_type = _text_level_raw_type(item) or raw_type
-    bbox, bbox_coordinate_system = _extract_bbox_with_coordinate_system(item)
+    bbox, bbox_coordinate_system = _extract_bbox_with_coordinate_system(
+        item,
+        source_kind=source_kind,
+        page_size=page_size,
+    )
+    if _is_composite_bbox_block(item_type, raw_type):
+        bbox, bbox_coordinate_system = _union_composite_bbox(
+            item,
+            own_bbox=bbox,
+            own_coordinate_system=bbox_coordinate_system,
+            source_kind=source_kind,
+            page_size=page_size,
+        )
     image_path = _extract_image_path(item)
 
     blocks: list[MinerUStructuredBlock] = []
@@ -967,6 +1001,7 @@ def _walk_structured_item(
                 type=item_type,
                 text=text,
                 page=page,
+                page_size=page_size,
                 section=section,
                 bbox=bbox,
                 bbox_coordinate_system=bbox_coordinate_system,
@@ -982,6 +1017,7 @@ def _walk_structured_item(
                         type="image_caption",
                         text=caption_text,
                         page=page,
+                        page_size=page_size,
                         section=None,
                         bbox=None,
                         image_path=image_path,
@@ -1006,6 +1042,7 @@ def _walk_structured_item(
         "pdf_info",
         "preproc_blocks",
         "para_blocks",
+        "pdfData",
     ):
         value = item.get(key)
         if isinstance(value, (list, dict)):
@@ -1013,8 +1050,10 @@ def _walk_structured_item(
                 _walk_structured_item(
                     value,
                     inherited_page=page,
+                    inherited_page_size=page_size,
                     inherited_section=section,
                     source_kind="nested_content" if key == "content" else source_kind,
+                    page_sizes=page_sizes,
                 )
             )
     return blocks
@@ -1033,6 +1072,14 @@ def _should_prefer_inferred_source_kind(current: str | None, inferred: str | Non
 def _looks_like_page_block_list(value: list[Any]) -> bool:
     """MinerU may return one list per page without repeating page_idx on blocks."""
 
+    if len(value) == 1:
+        only = value[0]
+        if not isinstance(only, list):
+            return False
+        dict_items = [sub for sub in only if isinstance(sub, dict)]
+        return bool(dict_items) and any(
+            {"type", "bbox"} & {str(key).lower() for key in sub.keys()} for sub in dict_items
+        )
     if len(value) < 2:
         return False
     sample = value[: min(len(value), 12)]
@@ -1048,6 +1095,58 @@ def _looks_like_page_block_list(value: list[Any]) -> bool:
         if any({"type", "bbox"} & {str(key).lower() for key in sub.keys()} for sub in dict_items):
             page_like += 1
     return page_like >= max(2, len(sample) // 2)
+
+
+def _collect_page_sizes(value: Any) -> dict[int, tuple[float, float]]:
+    page_sizes: dict[int, tuple[float, float]] = {}
+
+    def walk(item: Any, inherited_page: int | None = None) -> None:
+        if isinstance(item, list):
+            page_list = _looks_like_page_block_list(item)
+            for idx, sub in enumerate(item):
+                child_page = inherited_page
+                if page_list and child_page is None:
+                    child_page = idx + 1
+                walk(sub, child_page)
+            return
+        if not isinstance(item, dict):
+            return
+
+        page = _extract_page(item)
+        if page is None:
+            page = inherited_page
+        page_size = _extract_page_size(item)
+        if page is not None and page_size is not None:
+            page_sizes.setdefault(page, page_size)
+
+        numeric_page_items = [
+            (str(key), sub)
+            for key, sub in item.items()
+            if str(key).isdigit() and isinstance(sub, (list, dict))
+        ]
+        for key, sub in numeric_page_items:
+            walk(sub, _coerce_page(int(key), zero_based=True))
+
+        for key in (
+            "structured_content",
+            "children",
+            "blocks",
+            "content",
+            "items",
+            "spans",
+            "lines",
+            "layout",
+            "pdf_info",
+            "preproc_blocks",
+            "para_blocks",
+            "pdfData",
+        ):
+            sub = item.get(key)
+            if isinstance(sub, (list, dict)):
+                walk(sub, page)
+
+    walk(value)
+    return page_sizes
 
 
 def _extract_block_text(item: dict[str, Any], item_type: str) -> str:
@@ -1351,6 +1450,31 @@ def _extract_page(item: dict[str, Any]) -> int | None:
     return None
 
 
+def _extract_page_size(item: dict[str, Any]) -> tuple[float, float] | None:
+    for key in ("page_size", "pageSize", "size"):
+        page_size = _coerce_page_size(item.get(key))
+        if page_size is not None:
+            return page_size
+    metadata = item.get("metadata") or item.get("meta")
+    if isinstance(metadata, dict):
+        return _extract_page_size(metadata)
+    return None
+
+
+def _coerce_page_size(value: Any) -> tuple[float, float] | None:
+    if isinstance(value, dict):
+        width = _coerce_float(value.get("width") or value.get("w"))
+        height = _coerce_float(value.get("height") or value.get("h"))
+        if width is not None and height is not None and width > 0 and height > 0:
+            return float(width), float(height)
+    if isinstance(value, list) and len(value) >= 2:
+        width = _coerce_float(value[0])
+        height = _coerce_float(value[1])
+        if width is not None and height is not None and width > 0 and height > 0:
+            return float(width), float(height)
+    return None
+
+
 def _coerce_page(value: Any, *, zero_based: bool = False) -> int | None:
     if isinstance(value, bool):
         return None
@@ -1399,6 +1523,71 @@ def _normalize_block_type(value: Any) -> str:
     return "text"
 
 
+def _is_composite_bbox_block(item_type: str, raw_type: Any) -> bool:
+    raw = str(raw_type or "").strip().lower()
+    if item_type in {"image", "image_semantic", "table"}:
+        return True
+    return any(token in raw for token in ("chart", "figure", "image", "table"))
+
+
+def _union_composite_bbox(
+    item: dict[str, Any],
+    *,
+    own_bbox: list[float] | None,
+    own_coordinate_system: str | None,
+    source_kind: str | None,
+    page_size: tuple[float, float] | None,
+) -> tuple[list[float] | None, str | None]:
+    child_bboxes = _extract_nested_bboxes(
+        item,
+        source_kind=source_kind,
+        page_size=page_size,
+    )
+    if not child_bboxes:
+        return own_bbox, own_coordinate_system
+    candidates = []
+    if own_bbox is not None:
+        candidates.append(own_bbox)
+    candidates.extend(child_bboxes)
+    if not candidates:
+        return own_bbox, own_coordinate_system
+    return _union_bboxes(candidates), own_coordinate_system or "mineru_pdf_points_top_left"
+
+
+def _extract_nested_bboxes(
+    item: dict[str, Any],
+    *,
+    source_kind: str | None,
+    page_size: tuple[float, float] | None,
+) -> list[list[float]]:
+    results: list[list[float]] = []
+
+    def walk(value: Any) -> None:
+        if isinstance(value, list):
+            for sub in value:
+                walk(sub)
+            return
+        if not isinstance(value, dict):
+            return
+        bbox, coordinate_system = _extract_bbox_with_coordinate_system(
+            value,
+            source_kind=source_kind,
+            page_size=page_size,
+        )
+        if bbox is not None and coordinate_system == "mineru_pdf_points_top_left":
+            results.append(bbox)
+        for key in ("children", "blocks", "items", "spans", "lines", "content"):
+            nested = value.get(key)
+            if isinstance(nested, (list, dict)):
+                walk(nested)
+
+    for key in ("children", "blocks", "items", "spans", "lines", "content"):
+        nested = item.get(key)
+        if isinstance(nested, (list, dict)):
+            walk(nested)
+    return results
+
+
 def _is_text_level_heading(item: dict[str, Any]) -> bool:
     value = item.get("text_level")
     if isinstance(value, bool) or value is None:
@@ -1432,7 +1621,11 @@ def _infer_structured_source_kind(item: Any, idx: int) -> str:
             return "content_list"
         if "layout" in keys:
             return "layout"
-        if "model" in keys or "middle" in keys or "pages" in keys or "pdf_info" in keys:
+        if "pdf_info" in keys:
+            return "pdf_info"
+        if "pdfdata" in keys or "mergeconnections" in keys:
+            return "block_list"
+        if "model" in keys or "middle" in keys or "pages" in keys:
             return "model"
         if {"type", "table_body"} & keys or {"type", "page_idx"} <= keys:
             return "content_list"
@@ -1440,9 +1633,21 @@ def _infer_structured_source_kind(item: Any, idx: int) -> str:
         if isinstance(content, dict) and {"html", "table_type"} & {str(key).lower() for key in content}:
             return "model"
     if isinstance(item, list):
-        sample = [sub for sub in item[:5] if isinstance(sub, dict)]
+        sample = _sample_structured_dicts(item)
         if sample and any("table_body" in sub or "page_idx" in sub for sub in sample):
             return "content_list"
+        bbox_values = [
+            abs(float(coord))
+            for sub in sample
+            for coord in (_extract_bbox(sub) or [])
+            if isinstance(coord, (int, float))
+        ]
+        if bbox_values:
+            max_abs = max(bbox_values)
+            if max_abs <= 1.5:
+                return "model"
+            if _looks_like_page_block_list(item):
+                return "content_list_v2"
     return f"structured_json_{idx}"
 
 
@@ -1454,11 +1659,34 @@ def _source_kind_from_name(value: Any) -> str | None:
         return "content_list_v2"
     if "content_list" in name:
         return "content_list"
+    if "pdf_info" in name:
+        return "pdf_info"
     if "layout" in name:
         return "layout"
+    if "block_list" in name:
+        return "block_list"
     if "middle" in name or "model" in name:
         return "model"
     return None
+
+
+def _sample_structured_dicts(value: Any, *, limit: int = 12) -> list[dict[str, Any]]:
+    sample: list[dict[str, Any]] = []
+
+    def walk(item: Any) -> None:
+        if len(sample) >= limit:
+            return
+        if isinstance(item, dict):
+            sample.append(item)
+            return
+        if isinstance(item, list):
+            for sub in item:
+                walk(sub)
+                if len(sample) >= limit:
+                    return
+
+    walk(value)
+    return sample
 
 
 def _raw_block_type(item: dict[str, Any]) -> Any:
@@ -1478,11 +1706,16 @@ def _raw_block_type(item: dict[str, Any]) -> Any:
     return None
 
 
-def _extract_bbox_with_coordinate_system(item: dict[str, Any]) -> tuple[list[float] | None, str | None]:
+def _extract_bbox_with_coordinate_system(
+    item: dict[str, Any],
+    *,
+    source_kind: str | None,
+    page_size: tuple[float, float] | None,
+) -> tuple[list[float] | None, str | None]:
     bbox = _extract_bbox(item)
     if bbox is None:
         return None, None
-    return _normalize_mineru_bbox_units(bbox)
+    return _normalize_mineru_bbox_units(bbox, source_kind=source_kind, page_size=page_size)
 
 
 def _extract_bbox(item: dict[str, Any]) -> list[float] | None:
@@ -1496,12 +1729,42 @@ def _extract_bbox(item: dict[str, Any]) -> list[float] | None:
     return None
 
 
-def _normalize_mineru_bbox_units(bbox: list[float]) -> tuple[list[float], str]:
+def _normalize_mineru_bbox_units(
+    bbox: list[float],
+    *,
+    source_kind: str | None,
+    page_size: tuple[float, float] | None,
+) -> tuple[list[float], str]:
     values = [float(value) for value in bbox[:4]]
+    source = str(source_kind or "").lower()
     max_abs = max((abs(value) for value in values), default=0.0)
-    if max_abs <= 1.5:
-        return [round(value * 1000.0, 3) for value in values], "mineru_1000"
-    return values, "mineru_1000"
+    if page_size is not None:
+        width, height = page_size
+        if source == "model" or max_abs <= 1.5:
+            return _scale_bbox(values, x_scale=width, y_scale=height), "mineru_pdf_points_top_left"
+        if source in {"content_list", "content_list_v2"}:
+            return _scale_bbox(values, x_scale=width / 1000.0, y_scale=height / 1000.0), (
+                "mineru_pdf_points_top_left"
+            )
+        if source in {"layout", "pdf_info", "block_list"}:
+            return values, "mineru_pdf_points_top_left"
+
+    if source == "model" or max_abs <= 1.5:
+        return [round(value * 1000.0, 3) for value in values], "mineru_1000_unscaled"
+    if source in {"content_list", "content_list_v2"}:
+        return values, "mineru_content_list_1000_unscaled"
+    if source in {"layout", "pdf_info", "block_list"}:
+        return values, "mineru_pdf_points_top_left"
+    return values, "mineru_raw"
+
+
+def _scale_bbox(values: list[float], *, x_scale: float, y_scale: float) -> list[float]:
+    return [
+        round(values[0] * x_scale, 3),
+        round(values[1] * y_scale, 3),
+        round(values[2] * x_scale, 3),
+        round(values[3] * y_scale, 3),
+    ]
 
 
 def _coerce_bbox(value: Any) -> list[float] | None:
@@ -1696,10 +1959,12 @@ def _structured_table_quality_key(block: MinerUStructuredBlock) -> tuple[int, in
 
 def _source_priority(source_kind: str | None) -> int:
     priorities = {
-        "content_list": 100,
-        "content_list_v2": 90,
-        "model": 70,
-        "layout": 60,
+        "content_list": 130,
+        "content_list_v2": 125,
+        "pdf_info": 110,
+        "layout": 105,
+        "block_list": 105,
+        "model": 80,
         "nested_content": 40,
         "unknown": 10,
     }
@@ -1847,8 +2112,7 @@ def _image_units_from_structured_blocks(
         if block.type == "image_caption" and not resolved_path:
             if (
                 last_path_unit is not None
-                and not last_path_unit.caption_blocks
-                and _image_caption_adjacent_to_unit(block, last_path_unit)
+                and _image_caption_can_attach_to_unit(block, last_path_unit)
             ):
                 _append_image_unit_block(last_path_unit, block)
             else:
@@ -1869,10 +2133,10 @@ def _image_units_from_structured_blocks(
                 units.append(unit)
             _append_image_unit_block(unit, block)
             for caption in pending_captions[-1:]:
-                if not unit.caption_blocks and _image_caption_adjacent_to_unit(caption, unit, fallback_page=block.page):
+                if _image_caption_can_attach_to_unit(caption, unit, fallback_page=block.page):
                     _append_image_unit_block(unit, caption)
             pending_captions = []
-            if block.type == "image":
+            if block.type in {"image", "image_semantic"}:
                 last_path_unit = unit
             continue
 
@@ -1892,6 +2156,28 @@ def _image_units_from_structured_blocks(
     return units
 
 
+def _image_caption_can_attach_to_unit(
+    caption: MinerUStructuredBlock,
+    unit: MinerUImageUnit,
+    *,
+    fallback_page: int | None = None,
+) -> bool:
+    if not _image_caption_adjacent_to_unit(caption, unit, fallback_page=fallback_page):
+        return False
+    existing = unit.caption_blocks or []
+    if not existing:
+        return True
+
+    caption_label = _caption_figure_label(caption.text)
+    existing_labels = {_caption_figure_label(block.text) for block in existing}
+    existing_labels.discard(None)
+    if caption_label and existing_labels:
+        return caption_label in existing_labels
+    if caption_label and not existing_labels:
+        return _source_priority(caption.source_kind) > max(_source_priority(block.source_kind) for block in existing)
+    return False
+
+
 def _image_caption_adjacent_to_unit(
     caption: MinerUStructuredBlock,
     unit: MinerUImageUnit,
@@ -1907,10 +2193,21 @@ def _image_caption_adjacent_to_unit(
         page_ok = page in pages
     if not page_ok:
         return False
-    image_orders = [block.order for block in unit.image_blocks or []]
+    image_orders = [
+        block.order
+        for block in [*(unit.image_blocks or []), *(unit.semantic_blocks or [])]
+        if block.image_path
+    ]
     if not image_orders:
         return False
     return min(abs(caption.order - order) for order in image_orders) <= max_order_gap
+
+
+def _caption_figure_label(text: str) -> str | None:
+    match = re.search(r"\b(?:fig(?:ure)?\.?)\s*([0-9]+[A-Za-z]?)\b", str(text or ""), flags=re.IGNORECASE)
+    if not match:
+        return None
+    return match.group(1).lower()
 
 
 def _append_image_unit_block(unit: MinerUImageUnit, block: MinerUStructuredBlock) -> None:
@@ -2069,7 +2366,7 @@ def _normalize_caption_for_dedupe(text: str) -> str:
 
 
 def _figure_label_for_caption(normalized: str) -> str | None:
-    match = re.search(r"\b(?:fig|figure|supplemental figure)\s*([a-z0-9]+)", normalized)
+    match = re.search(r"\b(?:supplemental figure|figure|fig)\s*([a-z0-9]+)", normalized)
     if match:
         return match.group(1)
     return None
@@ -2320,12 +2617,33 @@ def _whole_image_location_blocks(
 ) -> list[MinerUStructuredBlock]:
     located_images = [block for block in _unique_blocks(image_blocks) if block.bbox is not None or block.page is not None]
     located_images = _prefer_direct_image_path_blocks(located_images)
+    layout_images = [
+        block for block in located_images if str(block.source_kind or "").lower() in {"pdf_info", "layout", "block_list"}
+    ]
+    if layout_images:
+        located_images = layout_images
     located_images = _select_consensus_bbox_blocks(located_images)
     model_images = [block for block in located_images if str(block.source_kind or "").lower() == "model"]
     if model_images:
         return model_images
     if located_images:
         return located_images
+    located_semantic_images = [
+        block
+        for block in _unique_blocks(semantic_blocks)
+        if block.image_path and (block.bbox is not None or block.page is not None)
+    ]
+    located_semantic_images = _prefer_direct_image_path_blocks(located_semantic_images)
+    layout_semantic_images = [
+        block
+        for block in located_semantic_images
+        if str(block.source_kind or "").lower() in {"pdf_info", "layout", "block_list"}
+    ]
+    if layout_semantic_images:
+        located_semantic_images = layout_semantic_images
+    located_semantic_images = _select_consensus_bbox_blocks(located_semantic_images)
+    if located_semantic_images:
+        return located_semantic_images
     return _image_unit_location_blocks(semantic_blocks, caption_blocks, fallback_blocks)
 
 
@@ -3320,7 +3638,7 @@ def _mineru_bbox_source(block: MinerUStructuredBlock | None) -> str | None:
 def _mineru_bbox_coordinate_system(block: MinerUStructuredBlock | None) -> str | None:
     if block is None or block.bbox is None:
         return None
-    return block.bbox_coordinate_system or "mineru_1000"
+    return block.bbox_coordinate_system or "mineru_pdf_points_top_left"
 
 
 def _mineru_bbox_payload(blocks: list[MinerUStructuredBlock]) -> dict[str, Any]:

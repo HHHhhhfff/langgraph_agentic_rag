@@ -325,10 +325,11 @@ Return only JSON:
         if not drop:
             return False, reason, None
 
+        protect_by_score = self.settings.tg_agent_chunk_drop_protect_drop_labels or label not in drop_labels
         rerank_score = _metadata_float(hit, "rerank_score")
-        if score_before >= self.settings.tg_agent_chunk_drop_protect_prior_score:
+        if protect_by_score and score_before >= self.settings.tg_agent_chunk_drop_protect_prior_score:
             return False, reason, "prior_score"
-        if rerank_score is not None and rerank_score >= self.settings.tg_agent_chunk_drop_protect_rerank_score:
+        if protect_by_score and rerank_score is not None and rerank_score >= self.settings.tg_agent_chunk_drop_protect_rerank_score:
             return False, reason, "rerank_score"
         if self.settings.tg_agent_chunk_drop_protect_anchors and has_query_anchor_overlap(question, hit):
             return False, reason, "query_anchor_overlap"

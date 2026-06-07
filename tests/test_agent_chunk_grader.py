@@ -88,7 +88,7 @@ def test_agent_chunk_grader_with_removed_exposes_drop_reason_metadata() -> None:
     assert "label=irrelevant" in removed.metadata["removed_reason_detail"]
 
 
-def test_agent_chunk_grader_protects_high_prior_irrelevant_grade_from_hard_drop() -> None:
+def test_agent_chunk_grader_drops_explicit_drop_label_even_with_high_prior_by_default() -> None:
     settings = Settings(
         _env_file=None,
         tg_agent_chunk_grading_enabled=True,
@@ -96,6 +96,27 @@ def test_agent_chunk_grader_protects_high_prior_irrelevant_grade_from_hard_drop(
         tg_agent_chunk_drop_enabled=True,
         tg_agent_chunk_drop_require_label_and_score=True,
         tg_agent_chunk_drop_protect_prior_score=0.55,
+        tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
+    )
+    llm = DummyLLM({"grades": [_grade("a", "irrelevant", 0.1)]})
+    hit = _hit("a", "exact anchor evidence", 0.7)
+
+    result = AgentChunkGrader(settings, llm).grade_hits_with_removed(question="anchor?", hits=[hit])
+
+    assert result.hits == []
+    assert [item.node_id for item in result.removed_hits] == ["a"]
+    assert result.removed_hits[0].metadata["removed_reason"] == "agent_irrelevant_label"
+
+
+def test_agent_chunk_grader_can_protect_drop_labels_when_configured() -> None:
+    settings = Settings(
+        _env_file=None,
+        tg_agent_chunk_grading_enabled=True,
+        tg_agent_chunk_grading_mode="all",
+        tg_agent_chunk_drop_enabled=True,
+        tg_agent_chunk_drop_require_label_and_score=True,
+        tg_agent_chunk_drop_protect_prior_score=0.55,
+        tg_agent_chunk_drop_protect_drop_labels=True,
         tg_agent_chunk_label_score_deltas="irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10",
     )
     llm = DummyLLM({"grades": [_grade("a", "irrelevant", 0.1)]})

@@ -1,0 +1,2135 @@
+{
+  "schema_version": "derived_bbox_labels_v1",
+  "created_at": "2026-06-06T15:49:42",
+  "dataset": "D:\\Agentic_RAG\\langgraph_agentic_rag\\check\\sciqa_2412_16030_cases.jsonl",
+  "index_nodes": "D:\\Agentic_RAG\\langgraph_agentic_rag\\storage\\ingestion_visualization\\runs\\20260605_213657_eacfe4ed\\nodes.jsonl",
+  "iou_threshold": 0.1,
+  "page_tolerance": 0,
+  "case_count": 18,
+  "cases": {
+    "sciqa_2412_16030_001": {
+      "case_id": "sciqa_2412_16030_001",
+      "bbox_spec_count": 1,
+      "matched_region_count": 3,
+      "matched_chunk_count": 6,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=512.000,432.000,921.000,487.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,239.000,879.000,412.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,65.000,879.000,234.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image0|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image1|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=1",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image3|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=3",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image4|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=4",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text2|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=2",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text5|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=5"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,65.000,879.000,234.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image0|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:0",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": null,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            65.0,
+            879.0,
+            234.0
+          ],
+          "iou": 0.31203750331165414,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,239.000,879.000,412.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image3|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=3",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:3",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 3,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            239.0,
+            879.0,
+            412.0
+          ],
+          "iou": 0.31942300634861637,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=512.000,432.000,921.000,487.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text5|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=5",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:5",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 5,
+          "modality": "text",
+          "bbox": [
+            512.0,
+            432.0,
+            921.0,
+            487.0
+          ],
+          "iou": 0.12819204538307508,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image0|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:0",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": null,
+          "modality": "image",
+          "best_iou": 0.31203750331165414
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image1|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=1",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:1",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 1,
+          "modality": "image",
+          "best_iou": 0.31203750331165414
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image3|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=3",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:3",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 3,
+          "modality": "image",
+          "best_iou": 0.31942300634861637
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image4|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=4",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:4",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 4,
+          "modality": "image",
+          "best_iou": 0.31942300634861637
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text2|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=2",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:2",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 2,
+          "modality": "text",
+          "best_iou": 0.31203750331165414
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text5|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=5",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:5",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 5,
+          "modality": "text",
+          "best_iou": 0.12819204538307508
+        }
+      ]
+    },
+    "sciqa_2412_16030_002": {
+      "case_id": "sciqa_2412_16030_002",
+      "bbox_spec_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 2,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=125.000,94.000,449.000,263.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image10|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=10",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=125.000,94.000,449.000,263.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 9,
+          "modality": "image",
+          "bbox": [
+            125.0,
+            94.0,
+            449.0,
+            263.0
+          ],
+          "iou": 0.7974729874747639,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image10|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=10",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:10",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 10,
+          "modality": "image",
+          "best_iou": 0.7974729874747639
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 9,
+          "modality": "image",
+          "best_iou": 0.7974729874747639
+        }
+      ]
+    },
+    "sciqa_2412_16030_003": {
+      "case_id": "sciqa_2412_16030_003",
+      "bbox_spec_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 2,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            501.0,
+            880.0,
+            679.0
+          ],
+          "iou": 0.6047564188223428,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:7",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 7,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        }
+      ]
+    },
+    "sciqa_2412_16030_004": {
+      "case_id": "sciqa_2412_16030_004",
+      "bbox_spec_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=81.000,386.000,488.000,417.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text74|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=74"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=81.000,386.000,488.000,417.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text74|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=74",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:74",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 74,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            386.0,
+            488.0,
+            417.0
+          ],
+          "iou": 0.9459743195817284,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text74|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=74",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:74",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 74,
+          "modality": "text",
+          "best_iou": 0.9459743195817284
+        }
+      ]
+    },
+    "sciqa_2412_16030_005": {
+      "case_id": "sciqa_2412_16030_005",
+      "bbox_spec_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=511.000,386.000,919.000,417.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text75|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=75"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=511.000,386.000,919.000,417.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text75|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=75",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:75",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 75,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            386.0,
+            919.0,
+            417.0
+          ],
+          "iou": 0.8777026538695926,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text75|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=75",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:75",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 75,
+          "modality": "text",
+          "best_iou": 0.8777026538695926
+        }
+      ]
+    },
+    "sciqa_2412_16030_006": {
+      "case_id": "sciqa_2412_16030_006",
+      "bbox_spec_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=511.000,339.000,919.000,426.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=511.000,339.000,919.000,426.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:59",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 59,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            339.0,
+            919.0,
+            426.0
+          ],
+          "iou": 0.12693547169341068,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:59",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 59,
+          "modality": "text",
+          "best_iou": 0.12693547169341068
+        }
+      ]
+    },
+    "sciqa_2412_16030_007": {
+      "case_id": "sciqa_2412_16030_007",
+      "bbox_spec_count": 1,
+      "matched_region_count": 4,
+      "matched_chunk_count": 3,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=511.000,752.000,919.000,781.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=511.000,816.000,918.000,844.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=511.000,897.000,919.000,914.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=521.000,854.000,918.000,888.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4formula99|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=99",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text71|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=71",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text72|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=72"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=511.000,752.000,919.000,781.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text71|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=71",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:71",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 71,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            752.0,
+            919.0,
+            781.0
+          ],
+          "iou": 0.17338258618956634,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=511.000,816.000,918.000,844.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text71|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=71",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:71",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 71,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            816.0,
+            918.0,
+            844.0
+          ],
+          "iou": 0.16991072085206685,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=511.000,897.000,919.000,914.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text72|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=72",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:72",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 72,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            897.0,
+            919.0,
+            914.0
+          ],
+          "iou": 0.10342010211545409,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=521.000,854.000,918.000,888.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text72|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=72",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:72",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 72,
+          "modality": "text",
+          "bbox": [
+            521.0,
+            854.0,
+            918.0,
+            888.0
+          ],
+          "iou": 0.20146661662918486,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4formula99|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=99",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:99",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 99,
+          "modality": "formula",
+          "best_iou": 0.20146661662918486
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text71|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=71",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:71",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 71,
+          "modality": "text",
+          "best_iou": 0.17338258618956634
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text72|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=72",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:72",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 72,
+          "modality": "text",
+          "best_iou": 0.20146661662918486
+        }
+      ]
+    },
+    "sciqa_2412_16030_008": {
+      "case_id": "sciqa_2412_16030_008",
+      "bbox_spec_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=83.000,311.000,357.000,328.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text73|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=73"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=83.000,311.000,357.000,328.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text73|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=73",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:73",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 73,
+          "modality": "text",
+          "bbox": [
+            83.0,
+            311.0,
+            357.0,
+            328.0
+          ],
+          "iou": 0.7320222560675418,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text73|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=73",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:73",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 73,
+          "modality": "text",
+          "best_iou": 0.7320222560675418
+        }
+      ]
+    },
+    "sciqa_2412_16030_009": {
+      "case_id": "sciqa_2412_16030_009",
+      "bbox_spec_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=511.000,566.000,919.000,670.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=511.000,566.000,919.000,670.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            566.0,
+            919.0,
+            670.0
+          ],
+          "iou": 0.11832069425069605,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "best_iou": 0.11832069425069605
+        }
+      ]
+    },
+    "sciqa_2412_16030_010": {
+      "case_id": "sciqa_2412_16030_010",
+      "bbox_spec_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=83.000,66.000,490.000,82.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text11|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=11"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=83.000,66.000,490.000,82.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text11|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=11",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 11,
+          "modality": "text",
+          "bbox": [
+            83.0,
+            66.0,
+            490.0,
+            82.0
+          ],
+          "iou": 0.856958916577566,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text11|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=11",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 11,
+          "modality": "text",
+          "best_iou": 0.856958916577566
+        }
+      ]
+    },
+    "sciqa_2412_16030_011": {
+      "case_id": "sciqa_2412_16030_011",
+      "bbox_spec_count": 2,
+      "matched_region_count": 2,
+      "matched_chunk_count": 3,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=125.000,94.000,449.000,263.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=83.000,311.000,357.000,328.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image10|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=10",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text73|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=73"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=125.000,94.000,449.000,263.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 9,
+          "modality": "image",
+          "bbox": [
+            125.0,
+            94.0,
+            449.0,
+            263.0
+          ],
+          "iou": 0.7974729874747639,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=83.000,311.000,357.000,328.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text73|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=73",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:73",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 73,
+          "modality": "text",
+          "bbox": [
+            83.0,
+            311.0,
+            357.0,
+            328.0
+          ],
+          "iou": 0.7320222560675418,
+          "matched_spec_index": 1
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image10|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=10",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:10",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 10,
+          "modality": "image",
+          "best_iou": 0.7974729874747639
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 9,
+          "modality": "image",
+          "best_iou": 0.7974729874747639
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text73|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=73",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:73",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 73,
+          "modality": "text",
+          "best_iou": 0.7320222560675418
+        }
+      ]
+    },
+    "sciqa_2412_16030_012": {
+      "case_id": "sciqa_2412_16030_012",
+      "bbox_spec_count": 2,
+      "matched_region_count": 4,
+      "matched_chunk_count": 8,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=512.000,432.000,921.000,487.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,239.000,879.000,412.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,65.000,879.000,234.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image0|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image1|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=1",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image3|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=3",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image4|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=4",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text2|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=2",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text5|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=5"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,65.000,879.000,234.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image0|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:0",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": null,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            65.0,
+            879.0,
+            234.0
+          ],
+          "iou": 0.31203750331165414,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,239.000,879.000,412.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image3|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=3",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:3",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 3,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            239.0,
+            879.0,
+            412.0
+          ],
+          "iou": 0.31942300634861637,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            501.0,
+            880.0,
+            679.0
+          ],
+          "iou": 0.6047564188223428,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=512.000,432.000,921.000,487.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text5|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=5",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:5",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 5,
+          "modality": "text",
+          "bbox": [
+            512.0,
+            432.0,
+            921.0,
+            487.0
+          ],
+          "iou": 0.12819204538307508,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image0|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:0",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": null,
+          "modality": "image",
+          "best_iou": 0.31203750331165414
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image1|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=1",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:1",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 1,
+          "modality": "image",
+          "best_iou": 0.31203750331165414
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image3|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=3",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:3",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 3,
+          "modality": "image",
+          "best_iou": 0.31942300634861637
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image4|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=4",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:4",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 4,
+          "modality": "image",
+          "best_iou": 0.31942300634861637
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:7",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 7,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text2|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=2",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:2",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 2,
+          "modality": "text",
+          "best_iou": 0.31203750331165414
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text5|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=5",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:5",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 5,
+          "modality": "text",
+          "best_iou": 0.12819204538307508
+        }
+      ]
+    },
+    "sciqa_2412_16030_013": {
+      "case_id": "sciqa_2412_16030_013",
+      "bbox_spec_count": 2,
+      "matched_region_count": 3,
+      "matched_chunk_count": 3,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=81.000,311.000,488.000,500.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=81.000,500.000,488.000,719.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=83.000,809.000,488.000,840.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text57|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=57",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text58|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=58",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=81.000,311.000,488.000,500.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text57|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=57",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:57",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 57,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            311.0,
+            488.0,
+            500.0
+          ],
+          "iou": 0.4521964104473177,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=81.000,500.000,488.000,719.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text58|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=58",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:58",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 58,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            500.0,
+            488.0,
+            719.0
+          ],
+          "iou": 0.5238117160449715,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=83.000,809.000,488.000,840.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:59",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 59,
+          "modality": "text",
+          "bbox": [
+            83.0,
+            809.0,
+            488.0,
+            840.0
+          ],
+          "iou": 0.8539465497079963,
+          "matched_spec_index": 1
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text57|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=57",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:57",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 57,
+          "modality": "text",
+          "best_iou": 0.4521964104473177
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text58|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=58",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:58",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 58,
+          "modality": "text",
+          "best_iou": 0.5238117160449715
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:59",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 59,
+          "modality": "text",
+          "best_iou": 0.8539465497079963
+        }
+      ]
+    },
+    "sciqa_2412_16030_014": {
+      "case_id": "sciqa_2412_16030_014",
+      "bbox_spec_count": 2,
+      "matched_region_count": 2,
+      "matched_chunk_count": 2,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=511.000,566.000,919.000,670.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=81.000,469.000,490.000,584.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text63|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=63",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=81.000,469.000,490.000,584.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text63|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=63",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:63",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 63,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            469.0,
+            490.0,
+            584.0
+          ],
+          "iou": 0.13124680052460347,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=511.000,566.000,919.000,670.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            566.0,
+            919.0,
+            670.0
+          ],
+          "iou": 0.11832069425069605,
+          "matched_spec_index": 0
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text63|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=63",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:63",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 63,
+          "modality": "text",
+          "best_iou": 0.13124680052460347
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "best_iou": 0.11832069425069605
+        }
+      ]
+    },
+    "sciqa_2412_16030_015": {
+      "case_id": "sciqa_2412_16030_015",
+      "bbox_spec_count": 4,
+      "matched_region_count": 7,
+      "matched_chunk_count": 7,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=112.000,131.000,486.000,162.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=112.000,97.000,455.000,128.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=169.000,255.000,488.000,285.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=81.000,171.000,488.000,228.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=125.000,94.000,449.000,263.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=509.000,465.000,921.000,698.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4formula94|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=94",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image10|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=10",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text68|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=68",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text76|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=76"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            501.0,
+            880.0,
+            679.0
+          ],
+          "iou": 0.6047564188223428,
+          "matched_spec_index": 3
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=125.000,94.000,449.000,263.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 9,
+          "modality": "image",
+          "bbox": [
+            125.0,
+            94.0,
+            449.0,
+            263.0
+          ],
+          "iou": 0.7974729874747639,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=112.000,131.000,486.000,162.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text68|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=68",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:68",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 68,
+          "modality": "text",
+          "bbox": [
+            112.0,
+            131.0,
+            486.0,
+            162.0
+          ],
+          "iou": 0.14815767411323438,
+          "matched_spec_index": 2
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=112.000,97.000,455.000,128.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text68|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=68",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:68",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 68,
+          "modality": "text",
+          "bbox": [
+            112.0,
+            97.0,
+            455.0,
+            128.0
+          ],
+          "iou": 0.15022760982846345,
+          "matched_spec_index": 2
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=169.000,255.000,488.000,285.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text68|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=68",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:68",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 68,
+          "modality": "text",
+          "bbox": [
+            169.0,
+            255.0,
+            488.0,
+            285.0
+          ],
+          "iou": 0.12326016743551452,
+          "matched_spec_index": 2
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=81.000,171.000,488.000,228.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text68|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=68",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:68",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 68,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            171.0,
+            488.0,
+            228.0
+          ],
+          "iou": 0.2614060804769846,
+          "matched_spec_index": 2
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=509.000,465.000,921.000,698.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text76|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=76",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:76",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 76,
+          "modality": "text",
+          "bbox": [
+            509.0,
+            465.0,
+            921.0,
+            698.0
+          ],
+          "iou": 0.7461588043598134,
+          "matched_spec_index": 1
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4formula94|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=94",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:94",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 94,
+          "modality": "formula",
+          "best_iou": 0.12326016743551452
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image10|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=10",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:10",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 10,
+          "modality": "image",
+          "best_iou": 0.7974729874747639
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:7",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 7,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 9,
+          "modality": "image",
+          "best_iou": 0.7974729874747639
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text68|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=68",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:68",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 68,
+          "modality": "text",
+          "best_iou": 0.2614060804769846
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text76|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=76",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:76",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 76,
+          "modality": "text",
+          "best_iou": 0.7461588043598134
+        }
+      ]
+    },
+    "sciqa_2412_16030_016": {
+      "case_id": "sciqa_2412_16030_016",
+      "bbox_spec_count": 4,
+      "matched_region_count": 7,
+      "matched_chunk_count": 7,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=135.000,132.000,488.000,215.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=511.000,566.000,919.000,670.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=81.000,224.000,490.000,299.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=81.000,65.000,490.000,125.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=83.000,105.000,299.000,171.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=125.000,94.000,449.000,263.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=509.000,465.000,921.000,698.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4formula81|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=81",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image10|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=10",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image25|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=25",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text62|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=62",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text76|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=76"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=83.000,105.000,299.000,171.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image25|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=25",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:25",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 25,
+          "modality": "image",
+          "bbox": [
+            83.0,
+            105.0,
+            299.0,
+            171.0
+          ],
+          "iou": 0.16529027917051445,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=125.000,94.000,449.000,263.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 9,
+          "modality": "image",
+          "bbox": [
+            125.0,
+            94.0,
+            449.0,
+            263.0
+          ],
+          "iou": 0.7974729874747639,
+          "matched_spec_index": 3
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=135.000,132.000,488.000,215.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text62|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=62",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:62",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 62,
+          "modality": "text",
+          "bbox": [
+            135.0,
+            132.0,
+            488.0,
+            215.0
+          ],
+          "iou": 0.3721249816868528,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=81.000,224.000,490.000,299.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text62|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=62",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:62",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 62,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            224.0,
+            490.0,
+            299.0
+          ],
+          "iou": 0.337109641391382,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=81.000,65.000,490.000,125.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text62|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=62",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:62",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 62,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            65.0,
+            490.0,
+            125.0
+          ],
+          "iou": 0.12386417243606472,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=511.000,566.000,919.000,670.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            566.0,
+            919.0,
+            670.0
+          ],
+          "iou": 0.11832069425069605,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=4|bbox=509.000,465.000,921.000,698.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text76|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=76",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:76",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 76,
+          "modality": "text",
+          "bbox": [
+            509.0,
+            465.0,
+            921.0,
+            698.0
+          ],
+          "iou": 0.2659661821751665,
+          "matched_spec_index": 2
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4formula81|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=81",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:81",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 81,
+          "modality": "formula",
+          "best_iou": 0.3721249816868528
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image10|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=10",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:10",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 10,
+          "modality": "image",
+          "best_iou": 0.7974729874747639
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image25|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=25",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:25",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 25,
+          "modality": "image",
+          "best_iou": 0.16529027917051445
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image9|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=9",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 9,
+          "modality": "image",
+          "best_iou": 0.7974729874747639
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text62|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=62",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:62",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 62,
+          "modality": "text",
+          "best_iou": 0.3721249816868528
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "best_iou": 0.11832069425069605
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text76|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=4|chunk_index=76",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:76",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 4,
+          "chunk_index": 76,
+          "modality": "text",
+          "best_iou": 0.2659661821751665
+        }
+      ]
+    },
+    "sciqa_2412_16030_017": {
+      "case_id": "sciqa_2412_16030_017",
+      "bbox_spec_count": 4,
+      "matched_region_count": 5,
+      "matched_chunk_count": 5,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=511.000,566.000,919.000,670.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=519.000,503.000,834.000,535.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=81.000,469.000,490.000,584.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=81.000,373.000,488.000,503.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text63|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=63",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text69|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=69"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            501.0,
+            880.0,
+            679.0
+          ],
+          "iou": 0.6047564188223428,
+          "matched_spec_index": 3
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=81.000,469.000,490.000,584.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text63|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=63",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:63",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 63,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            469.0,
+            490.0,
+            584.0
+          ],
+          "iou": 0.13124680052460347,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=511.000,566.000,919.000,670.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            566.0,
+            919.0,
+            670.0
+          ],
+          "iou": 0.4423794603702017,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=2|bbox=519.000,503.000,834.000,535.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "bbox": [
+            519.0,
+            503.0,
+            834.0,
+            535.0
+          ],
+          "iou": 0.10537501645167183,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=81.000,373.000,488.000,503.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text69|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=69",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:69",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 69,
+          "modality": "text",
+          "bbox": [
+            81.0,
+            373.0,
+            488.0,
+            503.0
+          ],
+          "iou": 0.1476170415423466,
+          "matched_spec_index": 2
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:7",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 7,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text63|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=63",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:63",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 63,
+          "modality": "text",
+          "best_iou": 0.13124680052460347
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text66|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=2|chunk_index=66",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:66",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 2,
+          "chunk_index": 66,
+          "modality": "text",
+          "best_iou": 0.4423794603702017
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text69|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=69",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:69",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 69,
+          "modality": "text",
+          "best_iou": 0.1476170415423466
+        }
+      ]
+    },
+    "sciqa_2412_16030_018": {
+      "case_id": "sciqa_2412_16030_018",
+      "bbox_spec_count": 4,
+      "matched_region_count": 7,
+      "matched_chunk_count": 6,
+      "relevant_region_keys": [
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=511.000,573.000,919.000,632.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=524.000,503.000,885.000,534.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=524.000,535.000,916.000,566.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=83.000,809.000,488.000,840.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=148.000,789.000,423.000,823.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=153.000,824.000,486.000,859.000",
+        "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000"
+      ],
+      "relevant_chunk_keys": [
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4formula97|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=97",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text60|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=60",
+        "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text71|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=71"
+      ],
+      "matched_regions": [
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=555.000,501.000,880.000,679.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "bbox": [
+            555.0,
+            501.0,
+            880.0,
+            679.0
+          ],
+          "iou": 0.6047564188223428,
+          "matched_spec_index": 3
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=83.000,809.000,488.000,840.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:59",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 59,
+          "modality": "text",
+          "bbox": [
+            83.0,
+            809.0,
+            488.0,
+            840.0
+          ],
+          "iou": 0.8539465497079963,
+          "matched_spec_index": 0
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=511.000,573.000,919.000,632.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text60|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=60",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:60",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 60,
+          "modality": "text",
+          "bbox": [
+            511.0,
+            573.0,
+            919.0,
+            632.0
+          ],
+          "iou": 0.2510555095166714,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=524.000,503.000,885.000,534.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text60|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=60",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:60",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 60,
+          "modality": "text",
+          "bbox": [
+            524.0,
+            503.0,
+            885.0,
+            534.0
+          ],
+          "iou": 0.11698926677685113,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=1|bbox=524.000,535.000,916.000,566.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text60|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=60",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:60",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 60,
+          "modality": "text",
+          "bbox": [
+            524.0,
+            535.0,
+            916.0,
+            566.0
+          ],
+          "iou": 0.12703543650007104,
+          "matched_spec_index": 1
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=148.000,789.000,423.000,823.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text71|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=71",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:71",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 71,
+          "modality": "text",
+          "bbox": [
+            148.0,
+            789.0,
+            423.0,
+            823.0
+          ],
+          "iou": 0.18799468909943345,
+          "matched_spec_index": 2
+        },
+        {
+          "region_key": "datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|page=3|bbox=153.000,824.000,486.000,859.000",
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text71|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=71",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:71",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 71,
+          "modality": "text",
+          "bbox": [
+            153.0,
+            824.0,
+            486.0,
+            859.0
+          ],
+          "iou": 0.35091532970424905,
+          "matched_spec_index": 2
+        }
+      ],
+      "matched_chunks": [
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4formula97|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=97",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:formula:97",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 97,
+          "modality": "formula",
+          "best_iou": 0.18799468909943345
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image6|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=6",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 6,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4image7|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=7",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:7",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 7,
+          "modality": "image",
+          "best_iou": 0.6047564188223428
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text59|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=59",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:59",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 59,
+          "modality": "text",
+          "best_iou": 0.8539465497079963
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text60|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=1|chunk_index=60",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:60",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 1,
+          "chunk_index": 60,
+          "modality": "text",
+          "best_iou": 0.2510555095166714
+        },
+        {
+          "chunk_key": "chunk:node_id=bad4486a9b70f8e94b4a5b409d3ffdb4text71|source=datademo_docs241216030_nonstationary_aharonovbohm_effectpdf|doc_id=bad4486a9b70f8e94b4a5b409d3ffdb4|title=241216030_nonstationary_aharonovbohm_effect|page=3|chunk_index=71",
+          "node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:71",
+          "point_id": null,
+          "source": "data\\demo_docs\\2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "doc_id": "bad4486a9b70f8e94b4a5b409d3ffdb4",
+          "title": "2412.16030_Non-stationary_Aharonov-Bohm_effect",
+          "page": 3,
+          "chunk_index": 71,
+          "modality": "text",
+          "best_iou": 0.35091532970424905
+        }
+      ]
+    }
+  }
+}

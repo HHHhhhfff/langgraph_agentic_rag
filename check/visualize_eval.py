@@ -55,6 +55,13 @@ METRIC_NAMES = (
     "bbox_hit_rate",
     "bbox_precision",
     "bbox_recall",
+    "bbox_f1",
+    "bbox_region_precision",
+    "bbox_region_recall",
+    "bbox_region_f1",
+    "bbox_area_precision",
+    "bbox_area_recall",
+    "bbox_area_f1",
     "bbox_max_iou",
 )
 AI_NAMES = (
@@ -702,9 +709,16 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("bbox_source", hit.get("bbox_source")),
         ("bbox_policy", hit.get("bbox_merge_policy")),
         ("bbox_iou", fmt_num(hit.get("bbox_iou"))),
+        ("bbox_metric_iou", fmt_num(hit.get("bbox_metric_iou"))),
         ("bbox_item_count", hit.get("bbox_item_count")),
         ("bbox_match", hit.get("bbox_match")),
         ("bbox_threshold", hit.get("bbox_iou_threshold")),
+        ("bbox_precision_match", hit.get("bbox_precision_match")),
+        ("bbox_precision_threshold", hit.get("bbox_precision_iou_threshold")),
+        ("bbox_precision_chunk_relevant", hit.get("bbox_precision_chunk_relevant")),
+        ("derived_bbox_relevant", hit.get("derived_bbox_relevant")),
+        ("derived_bbox_chunk_relevant", hit.get("derived_bbox_chunk_relevant")),
+        ("derived_bbox_region_hits", hit.get("derived_bbox_region_hits")),
         ("removed", hit.get("visual_removed")),
     ]
     score_meta = [
@@ -720,6 +734,7 @@ def render_chunk(hit: dict[str, Any], expected_pages: list[int], max_text_chars:
         ("guardrail_input_rank", hit.get("rerank_guardrail_input_rank")),
         ("composite", fmt_num(hit.get("score_composite"))),
         ("policy", hit.get("score_policy")),
+        ("final_preserved", hit.get("score_final_preserved")),
         ("stage", hit.get("score_stage")),
     ]
     expansion_meta = [
@@ -1044,7 +1059,10 @@ def render_run_cards(runs: list[dict[str, Any]]) -> str:
                 <div><b>final P@3</b>: {fmt_num(mean.get('final_output_precision_at_3'))}</div>
                 <div><b>final precision</b>: {fmt_num(mean.get('final_output_precision'))}</div>
                 <div><b>final recall</b>: {fmt_num(mean.get('final_output_recall'))}</div>
-                <div><b>final bbox recall</b>: {fmt_num(mean.get('final_output_bbox_recall'))}</div>
+                <div><b>final page MRR</b>: {fmt_num(mean.get('final_output_page_mrr'))}</div>
+                <div><b>final bbox MAP</b>: {fmt_num(mean.get('final_output_bbox_precision'))}</div>
+                <div><b>final bbox MAR</b>: {fmt_num(mean.get('final_output_bbox_recall'))}</div>
+                <div><b>final bbox F1</b>: {fmt_num(mean.get('final_output_bbox_f1'))}</div>
                 <div><b>final bbox max IoU</b>: {fmt_num(mean.get('final_output_bbox_max_iou'))}</div>
                 <div><b>AI/100</b>: {fmt_num(mean.get('ai_score_100'), 2)}</div>
               </div>
@@ -1108,8 +1126,10 @@ def render_html(
         "final_after_retry_recall": average_metric(cases, "final_after_retry_recall"),
         "final_after_retry_page_recall": average_metric(cases, "final_after_retry_page_recall"),
         "final_after_retry_page_precision": average_metric(cases, "final_after_retry_page_precision"),
+        "final_after_retry_page_mrr": average_metric(cases, "final_after_retry_page_mrr"),
         "final_after_retry_bbox_recall": average_metric(cases, "final_after_retry_bbox_recall"),
         "final_after_retry_bbox_precision": average_metric(cases, "final_after_retry_bbox_precision"),
+        "final_after_retry_bbox_f1": average_metric(cases, "final_after_retry_bbox_f1"),
         "final_after_retry_bbox_max_iou": average_metric(cases, "final_after_retry_bbox_max_iou"),
         "final_output_precision_at_1": average_metric(cases, "final_output_precision_at_1"),
         "final_output_precision_at_3": average_metric(cases, "final_output_precision_at_3"),
@@ -1117,8 +1137,10 @@ def render_html(
         "final_output_recall": average_metric(cases, "final_output_recall"),
         "final_output_page_recall": average_metric(cases, "final_output_page_recall"),
         "final_output_page_precision": average_metric(cases, "final_output_page_precision"),
+        "final_output_page_mrr": average_metric(cases, "final_output_page_mrr"),
         "final_output_bbox_recall": average_metric(cases, "final_output_bbox_recall"),
         "final_output_bbox_precision": average_metric(cases, "final_output_bbox_precision"),
+        "final_output_bbox_f1": average_metric(cases, "final_output_bbox_f1"),
         "final_output_bbox_max_iou": average_metric(cases, "final_output_bbox_max_iou"),
         "ai_score_100": average_metric(cases, "ai_score_100"),
     }
@@ -1578,7 +1600,10 @@ def render_html(
 
 
 def default_output_path(name: str) -> Path:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    base = DEFAULT_REPORT_DIR / f"{safe_name(name)}.html"
+    if not base.exists():
+        return base
+    timestamp = datetime.now().strftime("%H%M%S")
     return DEFAULT_REPORT_DIR / f"{safe_name(name)}_{timestamp}.html"
 
 

@@ -92,6 +92,7 @@ def _flatten_serialized_hit(row: dict[str, Any]) -> dict[str, Any]:
         "score_stage": scores.get("score_stage"),
         "score_threshold": scores.get("score_threshold"),
         "score_threshold_passed": scores.get("score_threshold_passed"),
+        "score_final_preserved": scores.get("score_final_preserved") or metadata.get("score_final_preserved"),
         "bbox": metadata.get("bbox"),
         "bbox_items": metadata.get("bbox_items"),
         "pages": metadata.get("pages"),
@@ -210,6 +211,16 @@ def _stage(stages: dict[str, list[dict[str, Any]]], *names: str) -> list[dict[st
         if name in stages:
             return stages[name]
     return []
+
+
+def _final_output_generation_skipped(
+    stages: dict[str, list[dict[str, Any]]],
+    removed_stages: dict[str, list[dict[str, Any]]],
+) -> bool:
+    if stages.get("final_output"):
+        return False
+    removed = removed_stages.get("final_output") or []
+    return bool(removed) and all(hit.get("removed_reason") == "generation_skipped" for hit in removed)
 
 
 class EvaluationPipeline:
@@ -452,9 +463,15 @@ class TaskGraphEvaluationPipeline:
         visual_stages = snapshot_visual_hits_by_stage(snapshots)
         final_hits = _stage(stages, "final_after_retry", "final_output")
         context_count = len(result.citations)
-        context_hits = _stage(stages, "final_output") or final_hits[:context_count]
+        final_output_fallback = _final_output_generation_skipped(stages, removed_stages)
+        context_hits = (
+            final_hits
+            if final_output_fallback
+            else (_stage(stages, "final_output") or final_hits[:context_count])
+        )
         ranked_hits_by_stage = dict(stages)
-        ranked_hits_by_stage.setdefault("final_output", context_hits)
+        if final_output_fallback or "final_output" not in ranked_hits_by_stage:
+            ranked_hits_by_stage["final_output"] = context_hits
         visual_hits_by_stage = dict(visual_stages)
         visual_hits_by_stage.setdefault("final_output", [*context_hits, *(removed_stages.get("final_output") or [])])
         token_usage = {
@@ -468,6 +485,7 @@ class TaskGraphEvaluationPipeline:
             "timings_ms": {"response_time_ms": response_time_ms},
             "snapshot_stage_counts": {stage: len(hits) for stage, hits in ranked_hits_by_stage.items()},
             "removed_snapshot_stage_counts": {stage: len(hits) for stage, hits in removed_stages.items()},
+            "final_output_fallback_from_final_after_retry": final_output_fallback,
         }
         return QueryRun(
             answer=result.answer,

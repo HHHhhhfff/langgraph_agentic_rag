@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from check.pipeline import snapshot_hits_by_stage, snapshot_removed_hits_by_stage, snapshot_visual_hits_by_stage
-from check.run_eval import compute_stage_ranking_metrics
-from check.visualize_eval import render_html
+from check.pipeline import (
+    _final_output_generation_skipped,
+    snapshot_hits_by_stage,
+    snapshot_removed_hits_by_stage,
+    snapshot_visual_hits_by_stage,
+)
+from check.run_eval import _hit_chunk_key, _hit_region_keys, compute_stage_ranking_metrics
+from check.visualize_eval import default_output_path, render_html
 
 
 def test_snapshot_hits_by_stage_flattens_agent_and_source_fields() -> None:
@@ -47,6 +52,17 @@ def test_snapshot_hits_by_stage_flattens_agent_and_source_fields() -> None:
     assert hit["agent_relevance_label"] == "strong"
     assert hit["score_composite"] == 0.8
     assert hit["bbox"] == [100, 100, 300, 300]
+
+
+def test_final_output_generation_skipped_detection_requires_empty_output_hits() -> None:
+    assert _final_output_generation_skipped(
+        {"final_after_retry": [{"node_id": "n1"}], "final_output": []},
+        {"final_output": [{"node_id": "n1", "removed_reason": "generation_skipped"}]},
+    ) is True
+    assert _final_output_generation_skipped(
+        {"final_output": [{"node_id": "n1"}]},
+        {"final_output": [{"node_id": "n2", "removed_reason": "generation_skipped"}]},
+    ) is False
 
 
 def test_snapshot_removed_and_visual_hits_by_stage_include_removed_metadata() -> None:
@@ -131,7 +147,9 @@ def test_bbox_metrics_compute_iou_precision_and_recall() -> None:
     assert stage_metrics["rerank"]["bbox_hit_rate"] == 1.0
     assert stage_metrics["rerank"]["bbox_precision"] == 0.5
     assert stage_metrics["rerank"]["bbox_recall"] == 1.0
+    assert stage_metrics["rerank"]["bbox_f1"] == 2.0 / 3.0
     assert flat["rerank_bbox_recall"] == 1.0
+    assert flat["rerank_bbox_f1"] == 2.0 / 3.0
     assert annotated["rerank"][0]["bbox_match"] is True
     assert annotated["rerank"][0]["bbox_iou"] > 0.5
 
@@ -165,6 +183,126 @@ def test_bbox_metrics_use_matching_page_span_for_cross_page_chunk() -> None:
     assert stage_metrics["rerank"]["bbox_precision"] == 1.0
     assert annotated["rerank"][0]["bbox_match"] is True
     assert annotated["rerank"][0]["bbox_iou"] > 0.5
+
+
+def test_bbox_recall_uses_area_coverage_and_precision_uses_low_iou_threshold() -> None:
+    hits = {
+        "rerank": [
+            {"node_id": "left", "page": 3, "source": "doc.pdf", "bbox": [0, 0, 50, 100]},
+            {"node_id": "right", "page": 3, "source": "doc.pdf", "bbox": [50, 0, 100, 100]},
+        ]
+    }
+    specs = [{"source": "doc.pdf", "page": 3, "grade": 1.0}]
+    region_specs = [{"source": "doc.pdf", "page": 3, "bbox": [0, 0, 100, 100]}]
+
+    stage_metrics, _flat, annotated = compute_stage_ranking_metrics(
+        hits_by_stage=hits,
+        specs=specs,
+        region_specs=region_specs,
+        k=10,
+        page_tolerance=0,
+        bbox_precision_iou_threshold=0.1,
+    )
+
+    assert stage_metrics["rerank"]["bbox_recall"] == 1.0
+    assert stage_metrics["rerank"]["bbox_precision"] == 1.0
+    assert stage_metrics["rerank"]["bbox_f1"] == 1.0
+    assert annotated["rerank"][0]["bbox_match"] is False
+    assert annotated["rerank"][0]["bbox_precision_match"] is True
+    assert annotated["rerank"][1]["bbox_precision_match"] is True
+
+
+def test_derived_bbox_labels_override_bbox_precision_and_recall() -> None:
+    hit_relevant = {
+        "node_id": "n1",
+        "point_id": "p1",
+        "page": 3,
+        "source": "doc.pdf",
+        "chunk_index": 1,
+        "bbox": [0, 0, 50, 100],
+    }
+    hit_irrelevant = {
+        "node_id": "n2",
+        "point_id": "p2",
+        "page": 3,
+        "source": "doc.pdf",
+        "chunk_index": 2,
+        "bbox": [900, 900, 950, 950],
+    }
+    hit_missing = {
+        "node_id": "n3",
+        "point_id": "p3",
+        "page": 3,
+        "source": "doc.pdf",
+        "chunk_index": 3,
+        "bbox": [50, 0, 100, 100],
+    }
+    relevant_chunk_key = _hit_chunk_key(hit_relevant, 1)
+    missing_chunk_key = _hit_chunk_key(hit_missing, 2)
+    relevant_region_key = next(iter(_hit_region_keys(hit_relevant, 1)))
+    missing_region_key = next(iter(_hit_region_keys(hit_missing, 2)))
+    labels = {
+        "relevant_chunk_keys": [relevant_chunk_key, missing_chunk_key],
+        "relevant_region_keys": [relevant_region_key, missing_region_key],
+    }
+
+    stage_metrics, _flat, annotated = compute_stage_ranking_metrics(
+        hits_by_stage={"rerank": [hit_relevant, hit_irrelevant]},
+        specs=[{"source": "doc.pdf", "page": 3, "grade": 1.0}],
+        region_specs=[{"source": "doc.pdf", "page": 3, "bbox": [0, 0, 100, 100]}],
+        derived_bbox_labels=labels,
+        bbox_relevance_mode="derived_regions",
+        k=10,
+        page_tolerance=0,
+    )
+
+    assert stage_metrics["rerank"]["bbox_precision"] == 0.5
+    assert stage_metrics["rerank"]["bbox_recall"] == 0.5
+    assert stage_metrics["rerank"]["bbox_f1"] == 0.5
+    assert stage_metrics["rerank"]["bbox_region_precision"] == 0.5
+    assert stage_metrics["rerank"]["bbox_region_recall"] == 0.5
+    assert stage_metrics["rerank"]["bbox_area_recall"] == 0.5
+    assert annotated["rerank"][0]["derived_bbox_relevant"] is True
+    assert annotated["rerank"][1]["derived_bbox_relevant"] is False
+    assert annotated["rerank"][0]["bbox_precision_chunk_relevant"] is True
+    assert annotated["rerank"][1]["bbox_precision_chunk_relevant"] is False
+
+
+def test_derived_bbox_region_metrics_dedupe_duplicate_bbox_regions() -> None:
+    first = {
+        "node_id": "n1",
+        "point_id": "p1",
+        "page": 3,
+        "source": "doc.pdf",
+        "chunk_index": 1,
+        "bbox": [0, 0, 100, 100],
+    }
+    duplicate_region = {
+        "node_id": "n2",
+        "point_id": "p2",
+        "page": 3,
+        "source": "doc.pdf",
+        "chunk_index": 2,
+        "bbox": [0, 0, 100, 100],
+    }
+    labels = {
+        "relevant_chunk_keys": [_hit_chunk_key(first, 1)],
+        "relevant_region_keys": list(_hit_region_keys(first, 1)),
+    }
+
+    stage_metrics, _flat, _annotated = compute_stage_ranking_metrics(
+        hits_by_stage={"rerank": [first, duplicate_region]},
+        specs=[{"source": "doc.pdf", "page": 3, "grade": 1.0}],
+        region_specs=[{"source": "doc.pdf", "page": 3, "bbox": [0, 0, 100, 100]}],
+        derived_bbox_labels=labels,
+        bbox_relevance_mode="derived_regions",
+        k=10,
+        page_tolerance=0,
+    )
+
+    assert stage_metrics["rerank"]["bbox_precision"] == 1.0
+    assert stage_metrics["rerank"]["bbox_recall"] == 1.0
+    assert stage_metrics["rerank"]["bbox_region_precision"] == 1.0
 
 
 def test_bbox_specs_override_page_relevance_with_region_threshold() -> None:
@@ -828,6 +966,10 @@ def test_visual_report_overview_renders_average_recall_metrics() -> None:
                         "rerank_recall": 0.5,
                         "final_after_retry_recall": 0.5,
                         "final_output_recall": 0.5,
+                        "final_output_page_mrr": 1.0,
+                        "final_output_bbox_precision": 0.5,
+                        "final_output_bbox_recall": 0.5,
+                        "final_output_bbox_f1": 0.5,
                     },
                     "ai_evaluation": {},
                     "model_debug": {},
@@ -845,6 +987,10 @@ def test_visual_report_overview_renders_average_recall_metrics() -> None:
                         "rerank_recall": 1.0,
                         "final_after_retry_recall": 1.0,
                         "final_output_recall": 1.0,
+                        "final_output_page_mrr": 0.5,
+                        "final_output_bbox_precision": 1.0,
+                        "final_output_bbox_recall": 1.0,
+                        "final_output_bbox_f1": 1.0,
                     },
                     "ai_evaluation": {},
                     "model_debug": {},
@@ -861,3 +1007,22 @@ def test_visual_report_overview_renders_average_recall_metrics() -> None:
     assert "final_output_recall" in html
     assert "<strong>0.7500</strong>" in html
     assert "final recall" in html
+    assert "final_output_page_mrr" in html
+    assert "final_output_bbox_f1" in html
+    assert "final bbox MAP" in html
+    assert "final bbox MAR" in html
+    assert "final bbox F1" in html
+
+
+def test_visual_report_default_output_path_uses_run_name_without_extra_timestamp(tmp_path: Path, monkeypatch) -> None:
+    import check.visualize_eval as visualize_eval
+
+    monkeypatch.setattr(visualize_eval, "DEFAULT_REPORT_DIR", tmp_path)
+
+    first = default_output_path("20260606_192958")
+    first.write_text("existing", encoding="utf-8")
+    second = default_output_path("20260606_192958")
+
+    assert first.name == "20260606_192958.html"
+    assert second.name.startswith("20260606_192958_")
+    assert second.name.endswith(".html")

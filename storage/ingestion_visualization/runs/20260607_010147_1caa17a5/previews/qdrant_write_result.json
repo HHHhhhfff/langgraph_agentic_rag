@@ -1,0 +1,7 @@
+{
+  "wrote_qdrant": true,
+  "qdrant_collection": "agentic_rag_docs",
+  "upserted_point_count": 430,
+  "embedded_count": 430,
+  "recreated_collection": true
+}

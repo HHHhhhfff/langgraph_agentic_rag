@@ -38,6 +38,16 @@ def compute_composite_scores(
     agent_relevance_norm = _norm_by_clip([_metadata_float(hit, "agent_relevance_score") for hit in hits])
 
     for index, hit in enumerate(hits):
+        if stage == STAGE_FINAL and _metadata_float(hit, "score_composite") is not None:
+            score = float(_metadata_float(hit, "score_composite") or 0.0)
+            hit.metadata.setdefault("score_stage", stage)
+            hit.metadata.setdefault("score_policy", "preserved_final_v1")
+            hit.metadata["score_final_preserved"] = True
+            hit.metadata.setdefault("score_weights", _stage_weights(settings=settings, stage=stage, hit=hit))
+            hit.metadata.setdefault("score_composite_prior", score)
+            if update_score:
+                hit.score = score
+            continue
         components = {
             "vector_norm": vector_norm[index],
             "bm25_norm": bm25_norm[index],

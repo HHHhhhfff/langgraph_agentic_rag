@@ -138,6 +138,7 @@ def serialize_hit(hit: SearchHit, *, rank: int, max_text_chars: int) -> dict[str
             "score_policy": metadata.get("score_policy"),
             "score_components": metadata.get("score_components"),
             "score_weights": metadata.get("score_weights"),
+            "score_final_preserved": metadata.get("score_final_preserved"),
             "score_threshold": metadata.get("score_threshold"),
             "score_threshold_passed": metadata.get("score_threshold_passed"),
         },

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -76,9 +77,18 @@ RETRIEVAL_REPORT_METRICS = (
     ("bbox_hit_rate", "BBox Hit Rate"),
     ("bbox_precision", "BBox Precision"),
     ("bbox_recall", "BBox Recall"),
+    ("bbox_f1", "BBox F1"),
+    ("bbox_region_precision", "BBox Region Precision"),
+    ("bbox_region_recall", "BBox Region Recall"),
+    ("bbox_region_f1", "BBox Region F1"),
+    ("bbox_area_precision", "BBox Area Precision"),
+    ("bbox_area_recall", "BBox Area Recall"),
+    ("bbox_area_f1", "BBox Area F1"),
     ("bbox_max_iou", "BBox Max IoU"),
 )
 BBOX_IOU_THRESHOLD = 0.5
+BBOX_PRECISION_IOU_THRESHOLD = 0.1
+CHECK_BBOX_PRECISION_IOU_THRESHOLD_ENV = "CHECK_BBOX_PRECISION_IOU_THRESHOLD"
 AI_REPORT_FIELDS = (
     ("ai_correctness", "Correctness（正确性）"),
     ("ai_completeness", "Completeness（完整性）"),
@@ -240,6 +250,32 @@ def optional_float(value: Any) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _env_file_value(name: str) -> str | None:
+    env_path = REPO_ROOT / ".env"
+    if not env_path.exists():
+        return None
+    with env_path.open("r", encoding="utf-8-sig") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            if key.strip().upper() != name.upper():
+                continue
+            return value.strip().strip('"').strip("'")
+    return None
+
+
+def check_bbox_precision_iou_threshold_default() -> float:
+    raw = os.environ.get(CHECK_BBOX_PRECISION_IOU_THRESHOLD_ENV)
+    if raw in (None, ""):
+        raw = _env_file_value(CHECK_BBOX_PRECISION_IOU_THRESHOLD_ENV)
+    parsed = optional_float(raw)
+    if parsed is None:
+        return BBOX_PRECISION_IOU_THRESHOLD
+    return max(0.0, float(parsed))
 
 
 def numeric_values(records: list[dict[str, Any]], metric_name: str) -> list[float]:
@@ -483,6 +519,58 @@ def _hit_chunk_key(hit: dict[str, Any], index: int) -> str:
         identity = _hit_value(hit, "source") or _hit_value(hit, "doc_id") or ""
         return f"text:{normalize_text(identity)}:{text[:200]}"
     return f"row:{index}"
+
+
+def _bbox_hash(box: list[float]) -> str:
+    return ",".join(f"{float(value):.3f}" for value in _normalize_bbox_1000(box) or box)
+
+
+def _hit_region_identity(hit: dict[str, Any]) -> str:
+    identity = (
+        _hit_value(hit, "source")
+        or _hit_value(hit, "doc_id")
+        or _hit_value(hit, "title")
+        or _hit_value(hit, "node_id")
+        or _hit_value(hit, "point_id")
+        or ""
+    )
+    return normalize_text(identity)
+
+
+def _hit_region_keys(hit: dict[str, Any], index: int) -> set[str]:
+    identity = _hit_region_identity(hit) or normalize_text(_hit_chunk_key(hit, index))
+    keys: set[str] = set()
+
+    page_spans = _hit_value(hit, "page_spans")
+    if isinstance(page_spans, list):
+        for span in page_spans:
+            if not isinstance(span, dict):
+                continue
+            page = _int_value(span.get("page"))
+            for box in _flatten_bbox_groups(span.get("bbox_items") or span.get("bbox")):
+                normalized = _normalize_bbox_1000(box)
+                if normalized is not None:
+                    keys.add(f"{identity}|page={page}|bbox={_bbox_hash(normalized)}")
+    bbox_by_page = _hit_value(hit, "bbox_by_page")
+    if isinstance(bbox_by_page, dict):
+        for raw_page, raw_boxes in bbox_by_page.items():
+            page = _int_value(raw_page)
+            for box in _flatten_bbox_groups(raw_boxes):
+                normalized = _normalize_bbox_1000(box)
+                if normalized is not None:
+                    keys.add(f"{identity}|page={page}|bbox={_bbox_hash(normalized)}")
+    if keys:
+        return keys
+
+    page = _int_value(_hit_value(hit, "page"))
+    boxes = [_normalize_bbox_1000(box) for box in _flatten_bbox_groups(_hit_value(hit, "bbox_items"))]
+    boxes = [box for box in boxes if box is not None]
+    fallback = _normalize_bbox_1000(_hit_value(hit, "bbox"))
+    if not boxes and fallback is not None:
+        boxes = [fallback]
+    for box in boxes:
+        keys.add(f"{identity}|page={page}|bbox={_bbox_hash(box)}")
+    return keys
 
 
 def candidate_chunk_recall_at_k(
@@ -787,6 +875,49 @@ def _bbox_iou(left: list[float], right: list[float]) -> float:
     return inter_area / union if union > 0 else 0.0
 
 
+def _bbox_intersection(left: list[float], right: list[float]) -> list[float] | None:
+    lx0, ly0, lx1, ly1 = left
+    rx0, ry0, rx1, ry1 = right
+    x0 = max(lx0, rx0)
+    y0 = max(ly0, ry0)
+    x1 = min(lx1, rx1)
+    y1 = min(ly1, ry1)
+    if x1 <= x0 or y1 <= y0:
+        return None
+    return [x0, y0, x1, y1]
+
+
+def _bbox_area(box: list[float]) -> float:
+    x0, y0, x1, y1 = box
+    return max(0.0, x1 - x0) * max(0.0, y1 - y0)
+
+
+def _bbox_union_area(boxes: list[list[float]]) -> float:
+    if not boxes:
+        return 0.0
+    xs = sorted({coord for box in boxes for coord in (box[0], box[2])})
+    total = 0.0
+    for left, right in zip(xs, xs[1:]):
+        if right <= left:
+            continue
+        intervals: list[tuple[float, float]] = []
+        for x0, y0, x1, y1 in boxes:
+            if x0 < right and x1 > left:
+                intervals.append((y0, y1))
+        if not intervals:
+            continue
+        intervals.sort()
+        merged: list[tuple[float, float]] = []
+        for start, end in intervals:
+            if not merged or start > merged[-1][1]:
+                merged.append((start, end))
+            else:
+                merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+        covered_y = sum(max(0.0, end - start) for start, end in merged)
+        total += (right - left) * covered_y
+    return total
+
+
 def _bbox_source_page_matches(hit: dict[str, Any], spec: dict[str, Any], *, page_tolerance: int) -> bool:
     for field in ("source", "doc_id", "title"):
         expected = spec.get(field)
@@ -808,12 +939,21 @@ def bbox_level_metrics(
     *,
     page_tolerance: int = 0,
     iou_threshold: float = BBOX_IOU_THRESHOLD,
+    precision_iou_threshold: float = BBOX_PRECISION_IOU_THRESHOLD,
 ) -> dict[str, float | None]:
     if not specs:
-        return {"bbox_hit_rate": None, "bbox_precision": None, "bbox_recall": None, "bbox_max_iou": None}
+        return {
+            "bbox_hit_rate": None,
+            "bbox_precision": None,
+            "bbox_recall": None,
+            "bbox_f1": None,
+            "bbox_area_precision": None,
+            "bbox_area_recall": None,
+            "bbox_area_f1": None,
+            "bbox_max_iou": None,
+        }
     comparable_hits = 0
     matched_hit_keys: set[str] = set()
-    covered_specs: set[int] = set()
     max_iou = 0.0
     for hit_index, hit in enumerate(hits, start=1):
         all_hit_boxes = _hit_bboxes_1000(hit)
@@ -838,21 +978,192 @@ def bbox_level_metrics(
                 best_iou = iou
                 best_spec_index = spec_index
         hit["bbox_iou"] = best_iou
-        hit["bbox_match"] = best_iou > iou_threshold
+        if "bbox_match" not in hit:
+            hit["bbox_match"] = best_iou > iou_threshold
         hit["bbox_iou_threshold"] = iou_threshold
+        hit["bbox_metric_iou"] = best_iou
+        hit["bbox_precision_iou_threshold"] = precision_iou_threshold
+        hit["bbox_precision_match"] = best_iou > precision_iou_threshold
         if best_spec_index is not None:
             hit["bbox_matched_spec_index"] = best_spec_index
         max_iou = max(max_iou, best_iou)
-        if best_iou > iou_threshold and best_spec_index is not None:
+        if best_iou > precision_iou_threshold and best_spec_index is not None:
             matched_hit_keys.add(_hit_chunk_key(hit, hit_index))
-            covered_specs.add(best_spec_index)
     if comparable_hits <= 0:
-        return {"bbox_hit_rate": None, "bbox_precision": None, "bbox_recall": None, "bbox_max_iou": None}
+        return {
+            "bbox_hit_rate": None,
+            "bbox_precision": None,
+            "bbox_recall": None,
+            "bbox_f1": None,
+            "bbox_area_precision": None,
+            "bbox_area_recall": None,
+            "bbox_area_f1": None,
+            "bbox_max_iou": None,
+        }
+
+    expected_area = 0.0
+    covered_area = 0.0
+    any_region_covered = False
+    for spec in specs:
+        spec_box = _normalize_bbox_1000(spec.get("bbox"))
+        if spec_box is None:
+            continue
+        spec_area = _bbox_area(spec_box)
+        if spec_area <= 0:
+            continue
+        expected_area += spec_area
+        intersections: list[list[float]] = []
+        for hit in hits:
+            if not _bbox_source_page_matches(hit, spec, page_tolerance=page_tolerance):
+                continue
+            hit_boxes = _hit_bboxes_1000(
+                hit,
+                page=_int_value(spec.get("page")),
+                page_tolerance=page_tolerance,
+            )
+            for hit_box in hit_boxes:
+                intersection = _bbox_intersection(hit_box, spec_box)
+                if intersection is not None:
+                    intersections.append(intersection)
+        spec_covered_area = min(_bbox_union_area(intersections), spec_area)
+        if spec_covered_area > 0:
+            any_region_covered = True
+        covered_area += spec_covered_area
+
+    precision = float(len(matched_hit_keys)) / float(comparable_hits)
+    recall = (covered_area / expected_area) if expected_area > 0 else None
+    f1 = (
+        (2.0 * precision * recall / (precision + recall))
+        if recall is not None and (precision + recall) > 0
+        else 0.0
+    )
     return {
-        "bbox_hit_rate": 1.0 if covered_specs else 0.0,
-        "bbox_precision": float(len(matched_hit_keys)) / float(comparable_hits),
-        "bbox_recall": float(len(covered_specs)) / float(len(specs)) if specs else None,
+        "bbox_hit_rate": 1.0 if any_region_covered else 0.0,
+        "bbox_precision": precision,
+        "bbox_recall": recall,
+        "bbox_f1": f1,
+        "bbox_area_precision": precision,
+        "bbox_area_recall": recall,
+        "bbox_area_f1": f1,
         "bbox_max_iou": max_iou,
+    }
+
+
+def load_derived_bbox_labels(path: str | Path | None) -> dict[str, Any]:
+    if not path:
+        return {}
+    label_path = Path(path)
+    if not label_path.is_absolute():
+        label_path = REPO_ROOT / label_path
+    data = json.loads(label_path.read_text(encoding="utf-8-sig"))
+    if not isinstance(data, dict):
+        raise ValueError(f"derived bbox labels must be a JSON object: {label_path}")
+    cases = data.get("cases")
+    if isinstance(cases, dict):
+        return cases
+    if isinstance(cases, list):
+        return {
+            str(item.get("case_id") or item.get("id")): item
+            for item in cases
+            if isinstance(item, dict) and (item.get("case_id") or item.get("id"))
+        }
+    return data
+
+
+def derived_bbox_metrics(
+    hits: list[dict[str, Any]],
+    labels: dict[str, Any] | None,
+) -> dict[str, float | None]:
+    if not labels:
+        return {
+            "bbox_hit_rate": None,
+            "bbox_precision": None,
+            "bbox_recall": None,
+            "bbox_f1": None,
+            "bbox_region_precision": None,
+            "bbox_region_recall": None,
+            "bbox_region_f1": None,
+        }
+    relevant_chunk_keys = {
+        str(value)
+        for value in labels.get("relevant_chunk_keys", [])
+        if str(value).strip()
+    }
+    relevant_region_keys = {
+        str(value)
+        for value in labels.get("relevant_region_keys", [])
+        if str(value).strip()
+    }
+    if not relevant_chunk_keys and not relevant_region_keys:
+        return {
+            "bbox_hit_rate": 0.0,
+            "bbox_precision": 0.0,
+            "bbox_recall": 0.0,
+            "bbox_f1": 0.0,
+            "bbox_region_precision": 0.0,
+            "bbox_region_recall": 0.0,
+            "bbox_region_f1": 0.0,
+        }
+
+    returned_region_keys: set[str] = set()
+    returned_relevant_region_keys: set[str] = set()
+    returned_chunk_keys: set[str] = set()
+    returned_precision_chunk_keys: set[str] = set()
+    for index, hit in enumerate(hits, start=1):
+        chunk_key = _hit_chunk_key(hit, index)
+        region_keys = _hit_region_keys(hit, index)
+        if region_keys:
+            returned_chunk_keys.add(chunk_key)
+        if region_keys:
+            returned_region_keys.update(region_keys)
+        matching_region_keys = region_keys & relevant_region_keys
+        chunk_key_relevant = chunk_key in relevant_chunk_keys
+        threshold_relevant = hit.get("bbox_precision_match") is True
+        derived_relevant = chunk_key_relevant or bool(matching_region_keys)
+        visual_relevant = derived_relevant or threshold_relevant
+        if matching_region_keys:
+            returned_relevant_region_keys.update(matching_region_keys)
+        if threshold_relevant and region_keys:
+            returned_precision_chunk_keys.add(chunk_key)
+        hit["derived_bbox_relevant"] = visual_relevant
+        hit["derived_bbox_chunk_relevant"] = derived_relevant
+        hit["bbox_precision_chunk_relevant"] = threshold_relevant
+        hit["derived_bbox_region_hits"] = len(matching_region_keys)
+        hit["derived_bbox_chunk_key"] = chunk_key
+
+    chunk_precision = (
+        float(len(returned_precision_chunk_keys)) / float(len(returned_chunk_keys))
+        if returned_chunk_keys
+        else None
+    )
+    region_precision = (
+        float(len(returned_relevant_region_keys)) / float(len(returned_region_keys))
+        if returned_region_keys
+        else None
+    )
+    region_recall = (
+        float(len(returned_relevant_region_keys)) / float(len(relevant_region_keys))
+        if relevant_region_keys
+        else None
+    )
+    region_f1 = (
+        (2.0 * region_precision * region_recall / (region_precision + region_recall))
+        if region_precision is not None and region_recall is not None and (region_precision + region_recall) > 0
+        else 0.0
+    )
+    mixed_f1 = (
+        (2.0 * chunk_precision * region_recall / (chunk_precision + region_recall))
+        if chunk_precision is not None and region_recall is not None and (chunk_precision + region_recall) > 0
+        else 0.0
+    )
+    return {
+        "bbox_hit_rate": 1.0 if returned_relevant_region_keys else 0.0,
+        "bbox_precision": chunk_precision,
+        "bbox_recall": region_recall,
+        "bbox_f1": mixed_f1,
+        "bbox_region_precision": region_precision,
+        "bbox_region_recall": region_recall,
+        "bbox_region_f1": region_f1,
     }
 
 
@@ -1020,8 +1331,11 @@ def compute_stage_ranking_metrics(
     hits_by_stage: dict[str, list[dict[str, Any]]],
     specs: list[dict[str, Any]],
     region_specs: list[dict[str, Any]] | None = None,
+    derived_bbox_labels: dict[str, Any] | None = None,
+    bbox_relevance_mode: str = "area",
     k: int,
     page_tolerance: int = 0,
+    bbox_precision_iou_threshold: float = BBOX_PRECISION_IOU_THRESHOLD,
 ) -> tuple[dict[str, dict[str, float | None]], dict[str, float | None], dict[str, list[dict[str, Any]]]]:
     stage_metrics: dict[str, dict[str, float | None]] = {}
     flat_metrics: dict[str, float | None] = {}
@@ -1088,7 +1402,16 @@ def compute_stage_ranking_metrics(
             denominator_keys=global_relevant_keys,
         )
         metrics.update(page_level_metrics(copied_hits, specs, page_tolerance=page_tolerance))
-        metrics.update(bbox_level_metrics(copied_hits, region_specs, page_tolerance=page_tolerance))
+        metrics.update(
+            bbox_level_metrics(
+                copied_hits,
+                region_specs,
+                page_tolerance=page_tolerance,
+                precision_iou_threshold=bbox_precision_iou_threshold,
+            )
+        )
+        if bbox_relevance_mode == "derived_regions":
+            metrics.update(derived_bbox_metrics(copied_hits, derived_bbox_labels))
         stage_metrics[stage] = metrics
         annotated[stage] = copied_hits
         prefix = f"{stage}_"
@@ -1320,6 +1643,7 @@ def build_run_metadata(
         "summary": {
             "case_count": summary.get("case_count"),
             "error_count": summary.get("error_count"),
+            "requested_limit": getattr(args, "limit", None),
         },
         "chunk_summary": chunk_summary,
         "index_info": index_info,
@@ -1402,8 +1726,16 @@ def build_metrics_report(
     return {
         "case_count": summary.get("case_count"),
         "error_count": summary.get("error_count"),
+        "requested_limit": getattr(args, "limit", None),
         "rank_cutoff_k": args.k,
         "page_tolerance": getattr(args, "page_tolerance", 0),
+        "bbox_precision_iou_threshold": getattr(
+            args,
+            "bbox_precision_iou_threshold",
+            BBOX_PRECISION_IOU_THRESHOLD,
+        ),
+        "bbox_relevance_mode": getattr(args, "bbox_relevance_mode", "area"),
+        "bbox_labels": getattr(args, "bbox_labels", None),
         "retrieval_metrics": retrieval,
         "ai_judge_scores": ai_scores,
         "timing": timing,
@@ -1659,16 +1991,25 @@ def evaluate_case(
             token_usage=token_usage,
         )
         specs = relevance_specs(case)
+        if not specs and isinstance(case.get("relevance_specs"), list):
+            specs = [dict(item) for item in case.get("relevance_specs", []) if isinstance(item, dict)]
         region_specs = bbox_specs(case)
+        if not region_specs and isinstance(case.get("bbox_specs"), list):
+            region_specs = [dict(item) for item in case.get("bbox_specs", []) if isinstance(item, dict)]
         if specs and (ranked_hits_by_stage or ranked_hits):
             if not ranked_hits_by_stage:
                 ranked_hits_by_stage = {args.rank_source: ranked_hits}
+            all_derived_bbox_labels = getattr(args, "_derived_bbox_labels", {}) or {}
+            case_derived_bbox_labels = all_derived_bbox_labels.get(case["id"], {})
             stage_metrics, flat_stage_metrics, annotated_stage_hits = compute_stage_ranking_metrics(
                 hits_by_stage=ranked_hits_by_stage,
                 specs=specs,
                 region_specs=region_specs,
+                derived_bbox_labels=case_derived_bbox_labels,
+                bbox_relevance_mode=args.bbox_relevance_mode,
                 k=args.k,
                 page_tolerance=args.page_tolerance,
+                bbox_precision_iou_threshold=args.bbox_precision_iou_threshold,
             )
             metrics.update(flat_stage_metrics)
             preferred_stage = args.rank_source
@@ -1689,6 +2030,9 @@ def evaluate_case(
             model_debug["bbox_spec_count"] = len(region_specs)
             model_debug["expected_pages"] = expected_pages_from_specs(specs)
             model_debug["page_tolerance"] = args.page_tolerance
+            model_debug["bbox_precision_iou_threshold"] = args.bbox_precision_iou_threshold
+            model_debug["bbox_relevance_mode"] = args.bbox_relevance_mode
+            model_debug["derived_bbox_label_count"] = len(case_derived_bbox_labels.get("relevant_chunk_keys", [])) if isinstance(case_derived_bbox_labels, dict) else 0
 
         if judge_client is not None and reference_answer:
             try:
@@ -1862,6 +2206,10 @@ def write_outputs(
 def print_summary(run_dir: Path, summary: dict[str, Any]) -> None:
     print(f"Run directory: {run_dir}")
     print(f"Cases: {summary['case_count']}  Errors: {summary['error_count']}")
+    print(f"Visualize: py -3.11 check/visualize_eval.py --run-dir {run_dir} --removed-mode both")
+    artifacts = summary.get("artifacts") or {}
+    if isinstance(artifacts, dict) and artifacts.get("results"):
+        print(f"Results: {artifacts['results']}")
     mean_metrics = summary.get("mean_metrics", {})
     for name in sorted(mean_metrics):
         print(f"{name}: {mean_metrics[name]:.4f}")
@@ -1944,6 +2292,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=0,
         help="Treat expected page +/- N as relevant for retrieval metrics.",
     )
+    parser.add_argument(
+        "--bbox-precision-iou-threshold",
+        type=float,
+        default=check_bbox_precision_iou_threshold_default(),
+        help=f"Minimum IoU for counting a returned bbox chunk as precision-relevant. Defaults to {CHECK_BBOX_PRECISION_IOU_THRESHOLD_ENV} or 0.1.",
+    )
+    parser.add_argument(
+        "--bbox-labels",
+        default=None,
+        help="Path to derived bbox labels JSON generated from cases and index nodes.",
+    )
+    parser.add_argument(
+        "--bbox-relevance-mode",
+        choices=["area", "derived_regions"],
+        default="area",
+        help="BBox metric relevance mode. Use derived_regions with --bbox-labels for query-specific derived labels.",
+    )
     parser.add_argument("--source", default=None, help="Global metadata source filter")
     parser.add_argument("--tag", action="append", default=None, help="Global metadata tag filter, repeatable")
     parser.add_argument("--chunk-log-top-n", type=int, default=10, help="Top N chunk ids to save per stage/case")
@@ -1965,6 +2330,9 @@ def main(argv: list[str] | None = None) -> int:
     run_dir = output_root / run_name
 
     cases = load_cases(dataset_path, limit=args.limit)
+    args._derived_bbox_labels = load_derived_bbox_labels(args.bbox_labels)
+    if args.bbox_relevance_mode == "derived_regions" and not args._derived_bbox_labels:
+        raise ValueError("--bbox-relevance-mode derived_regions requires --bbox-labels")
     graph = build_graph_if_needed(args)
     judge_client = build_judge_if_needed(args)
 
@@ -1973,6 +2341,7 @@ def main(argv: list[str] | None = None) -> int:
         for case in cases
     ]
     summary = summarize_records(records)
+    summary["requested_limit"] = args.limit
     write_outputs(
         run_dir=run_dir,
         records=records,

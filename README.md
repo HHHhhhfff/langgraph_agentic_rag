@@ -484,7 +484,7 @@ py -3.11 -m check --dataset check/sciqa_2412_16030_cases.jsonl --pipeline taskgr
 - 只有 `node_id` / `point_id` / `chunk_index` 等精确 chunk 级标注足够完整时，`ap` / `ndcg` 才会计算。
 - `page_recall` 是页级召回率：命中的标准页数 / 标准页总数，不把标准页内所有 chunk 都当作相关 chunk。
 - `page_precision` 是页级精确率：命中的返回页数 / 返回页总数，按页去重计算。
-- `bbox_hit_rate` / `bbox_precision` / `bbox_recall` / `bbox_max_iou` 是区域级指标。评测优先使用 SciEGQA 的 `rel_bbox` 和 chunk metadata 中的 `bbox`，按 0-1000 归一化页面坐标计算 IoU；如果当前索引没有 chunk bbox，则这些指标显示为 `-`。
+- `bbox_hit_rate` / `bbox_precision` / `bbox_recall` / `bbox_max_iou` 使用 SciEGQA 的 `rel_bbox` 和 chunk metadata 中的 `bbox`，按 0-1000 归一化页面坐标计算 IoU；`bbox_precision` 的最小 IoU 阈值可用 `CHECK_BBOX_PRECISION_IOU_THRESHOLD` 或 `--bbox-precision-iou-threshold` 配置，默认 `0.1`。派生 bbox 标签模式下，`bbox_precision` 是唯一 chunk 级 precision，`bbox_recall` 是唯一 bbox 区域块 recall，纯区域块指标保留在 `bbox_region_*`。
 - 如果一个 chunk 覆盖多个 MinerU 区域，入库会保留 `bbox_items` 并用 union 写入 `bbox`；bbox 指标计算时优先逐个比较 `bbox_items`，避免只用 union 导致 IoU 偏低。超长 text node 被结构化拆成 part 且父节点有多个 bbox 时，part 不会继承父 union bbox，避免区域评测虚高。
 - 当 case 提供 bbox 标注时，评测和可视化优先使用区域级判断：同文件同页且 `IoU > 0.5` 标绿并计为相关；`0 < IoU <= 0.5` 标黄为 partial overlap，但不计为相关；`IoU = 0` 或非同文件同页标红。没有 bbox 标注的 case 继续使用原来的 source/page 判断。
 
@@ -753,6 +753,7 @@ TG_AGENT_CHUNK_DROP_ENABLED=true
 TG_AGENT_CHUNK_DROP_REQUIRE_LABEL_AND_SCORE=true
 TG_AGENT_CHUNK_DROP_PROTECT_PRIOR_SCORE=0.55
 TG_AGENT_CHUNK_DROP_PROTECT_RERANK_SCORE=0.70
+TG_AGENT_CHUNK_DROP_PROTECT_DROP_LABELS=false
 TG_AGENT_CHUNK_DROP_PROTECT_ANCHORS=true
 TG_AGENT_CHUNK_SCORE_ADJUST_ENABLED=true
 TG_AGENT_CHUNK_LABEL_SCORE_DELTAS=irrelevant:-0.20,weak:-0.05,relevant:0.03,strong:0.10
@@ -782,6 +783,8 @@ TG_AGENT_CHUNK_RELATED_CONTEXT_ADDED_MODALITY_DELTAS=irrelevant:0.00,weak:0.00,r
   - 为 `true` 时，必须同时命中 drop label 且低于分数阈值才硬剔除，避免 Agent 单个 `drop=true` 误删高分证据。
 - `TG_AGENT_CHUNK_DROP_PROTECT_PRIOR_SCORE` / `TG_AGENT_CHUNK_DROP_PROTECT_RERANK_SCORE`
   - prior `score_composite` 或 `rerank_score` 足够高时，即使 Agent 给出低相关，也只做分数下沉，不直接硬剔除。
+- `TG_AGENT_CHUNK_DROP_PROTECT_DROP_LABELS`
+  - 是否让高分保护也作用于 `TG_AGENT_CHUNK_DROP_LABELS` 中的显式 drop 标签。默认 `false`，即 `irrelevant/weak + 低分` 可以被正常硬剔除。
 - `TG_AGENT_CHUNK_DROP_PROTECT_ANCHORS`
   - chunk 与 query 存在实体、符号、数字等精确锚点重合时，保护其不被 Agent 硬剔除。
 - `TG_AGENT_CHUNK_SCORE_ADJUST_ENABLED`

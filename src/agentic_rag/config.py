@@ -532,6 +532,10 @@ class Settings(BaseSettings):
         default=0.70,
         description="Do not hard-drop agent-graded chunks whose rerank_score is at least this value",
     )
+    tg_agent_chunk_drop_protect_drop_labels: bool = Field(
+        default=False,
+        description="Apply prior/rerank score hard-drop protection even when the agent label is configured for dropping",
+    )
     tg_agent_chunk_drop_protect_anchors: bool = Field(
         default=True,
         description="Do not hard-drop chunks that share exact anchor tokens with the query",

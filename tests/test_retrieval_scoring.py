@@ -46,6 +46,24 @@ def test_rerank_prior_penalty_reduces_low_prior_hit() -> None:
     assert hit.metadata["score_composite"] < 1.0
 
 
+def test_final_stage_preserves_existing_composite_score() -> None:
+    settings = Settings(_env_file=None)
+    hit = SearchHit(
+        point_id="1",
+        text="a",
+        score=0.2,
+        score_vector=0.0,
+        metadata={"rerank_score": 0.8674, "score_composite": 0.6398, "score_policy": "weighted_v1"},
+    )
+
+    compute_composite_scores([hit], stage=STAGE_FINAL, settings=settings)
+
+    assert hit.score == 0.6398
+    assert hit.metadata["score_composite"] == 0.6398
+    assert hit.metadata["score_policy"] == "weighted_v1"
+    assert hit.metadata["score_final_preserved"] is True
+
+
 def test_stage_threshold_filters_low_composite_hit() -> None:
     settings = Settings(_env_file=None, retrieval_final_min_composite_score=0.5)
     low = SearchHit(point_id="low", text="low", score=0.1, metadata={"score_composite": 0.2})

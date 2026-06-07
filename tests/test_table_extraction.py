@@ -10,6 +10,7 @@ from agentic_rag.ingestion.adapters.llamaparse_adapter import LlamaParseAdapter
 from agentic_rag.ingestion.adapters.mineru_adapter import (
     MinerUAdapter,
     _coalesce_duplicate_table_nodes,
+    _extract_structured_blocks,
     _merge_heading_only_chunks_with_following,
     _split_large_structured_text,
     _write_mineru_assets_for_doc,
@@ -104,6 +105,7 @@ def test_mineru_adapter_preserves_content_list_bbox_in_node_metadata(tmp_path: P
             "type": "table",
             "table_body": "<table><tr><td>a</td><td>b</td></tr></table>",
             "page_idx": 0,
+            "page_size": [612, 792],
             "bbox": [100, 200, 300, 400],
         }
     ]
@@ -111,12 +113,227 @@ def test_mineru_adapter_preserves_content_list_bbox_in_node_metadata(tmp_path: P
     nodes = adapter._build_nodes_from_markdown("", path, structured_content=structured_content)  # noqa: SLF001
 
     table = next(node for node in nodes if node.modality == "table")
-    assert table.metadata.bbox == [100.0, 200.0, 300.0, 400.0]
-    assert table.metadata.bbox_items == [[100.0, 200.0, 300.0, 400.0]]
-    assert table.metadata.bbox_coordinate_system == "mineru_1000"
+    assert table.metadata.bbox == [61.2, 158.4, 183.6, 316.8]
+    assert table.metadata.bbox_items == [[61.2, 158.4, 183.6, 316.8]]
+    assert table.metadata.bbox_coordinate_system == "mineru_pdf_points_top_left"
     assert table.metadata.bbox_source == "content_list"
-    assert table.relationships["bbox"] == [100.0, 200.0, 300.0, 400.0]
-    assert table.relationships["bbox_items"] == [[100.0, 200.0, 300.0, 400.0]]
+    assert table.relationships["bbox"] == [61.2, 158.4, 183.6, 316.8]
+    assert table.relationships["bbox_items"] == [[61.2, 158.4, 183.6, 316.8]]
+
+
+def test_mineru_adapter_normalizes_mineru_bbox_coordinate_systems_to_pdf_points() -> None:
+    structured_content = [
+        {
+            "pdf_info": [
+                {
+                    "page_idx": 0,
+                    "page_size": [612, 792],
+                    "para_blocks": [
+                        {"type": "text", "content": "layout text", "bbox": [10, 20, 110, 40]},
+                    ],
+                }
+            ],
+        },
+        {
+            "source": "block_list.json",
+            "pdfData": [
+                [
+                    {
+                        "type": "text",
+                        "text": "block text",
+                        "page_idx": 0,
+                        "page_size": [612, 792],
+                        "bbox": [12, 22, 112, 42],
+                    }
+                ]
+            ],
+        },
+        {
+            "source": "content_list.json",
+            "structured_content": [
+                {"type": "text", "text": "content text", "page_idx": 0, "bbox": [100, 200, 300, 400]},
+            ],
+        },
+        {
+            "source": "model.json",
+            "structured_content": [
+                [
+                    {"type": "text", "content": "model text", "bbox": [0.1, 0.2, 0.3, 0.4]},
+                ]
+            ],
+        },
+    ]
+
+    blocks = _extract_structured_blocks(structured_content)
+    by_text = {block.text: block for block in blocks}
+
+    assert by_text["layout text"].bbox == [10.0, 20.0, 110.0, 40.0]
+    assert by_text["layout text"].source_kind == "pdf_info"
+    assert by_text["block text"].bbox == [12.0, 22.0, 112.0, 42.0]
+    assert by_text["block text"].source_kind == "block_list"
+    assert by_text["content text"].bbox == [61.2, 158.4, 183.6, 316.8]
+    assert by_text["model text"].bbox == [61.2, 158.4, 183.6, 316.8]
+    assert {block.bbox_coordinate_system for block in by_text.values()} == {"mineru_pdf_points_top_left"}
+
+
+def test_mineru_adapter_unions_composite_chart_child_bboxes() -> None:
+    structured_content = [
+        {
+            "pdf_info": [
+                {
+                    "page_idx": 0,
+                    "page_size": [612, 792],
+                    "para_blocks": [
+                        {
+                            "type": "chart",
+                            "content": "| Q | value |\n| - | ----- |\n| 1 | 2 |",
+                            "bbox": [77, 75, 275, 209],
+                            "blocks": [
+                                {"type": "chart_body", "bbox": [77, 75, 275, 209]},
+                                {
+                                    "type": "chart_caption",
+                                    "bbox": [78, 222, 271, 235],
+                                    "lines": [
+                                        {
+                                            "spans": [
+                                                {
+                                                    "type": "text",
+                                                    "content": "Figure 3. Caption.",
+                                                    "bbox": [78, 222, 271, 235],
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                },
+                            ],
+                        }
+                    ],
+                }
+            ],
+        },
+    ]
+
+    blocks = _extract_structured_blocks(structured_content)
+    chart = next(block for block in blocks if block.type == "image_semantic")
+
+    assert chart.bbox == [77.0, 75.0, 275.0, 235.0]
+    assert chart.bbox_coordinate_system == "mineru_pdf_points_top_left"
+
+
+def test_mineru_adapter_prefers_converted_content_list_bbox_for_text_chunks(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("Answer text.", encoding="utf-8")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {"type": "text", "text": "Answer text.", "page_idx": 0, "bbox": [100, 100, 300, 140]},
+        {
+            "pdf_info": [
+                {
+                    "page_idx": 0,
+                    "page_size": [612, 792],
+                    "para_blocks": [
+                        {
+                            "type": "text",
+                            "bbox": [10, 20, 110, 40],
+                            "lines": [
+                                {
+                                    "bbox": [10, 20, 110, 40],
+                                    "spans": [
+                                        {
+                                            "type": "text",
+                                            "content": "Answer text.",
+                                            "bbox": [10, 20, 110, 40],
+                                        }
+                                    ],
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ]
+        },
+    ]
+
+    nodes = adapter._build_nodes_from_markdown("Answer text.", path, structured_content=structured_content)  # noqa: SLF001
+
+    text = next(node for node in nodes if node.modality == "text")
+    assert text.metadata.bbox == [61.2, 79.2, 183.6, 110.88]
+    assert text.metadata.bbox_items == [[61.2, 79.2, 183.6, 110.88]]
+    assert text.metadata.bbox_source == "content_list"
+    assert text.metadata.bbox_coordinate_system == "mineru_pdf_points_top_left"
+    assert text.relationships["mineru_source_kind"] == "content_list"
+
+
+def test_mineru_adapter_attaches_pdf_info_chart_caption_to_semantic_image_unit(tmp_path: Path) -> None:
+    path = tmp_path / "doc.pdf"
+    path.write_text("plain text", encoding="utf-8")
+    image_path = tmp_path / "assets" / "images" / "chart.jpg"
+    image_path.parent.mkdir(parents=True)
+    image_path.write_bytes(b"fake image")
+    adapter = _make_mineru_adapter(Settings(_env_file=None))
+    structured_content = [
+        {
+            "pdf_info": [
+                {
+                    "page_idx": 0,
+                    "para_blocks": [
+                        {
+                            "type": "chart",
+                            "bbox": [50, 60, 250, 200],
+                            "blocks": [
+                                {
+                                    "type": "chart_body",
+                                    "bbox": [50, 60, 250, 200],
+                                    "lines": [
+                                        {
+                                            "bbox": [50, 60, 250, 200],
+                                            "spans": [
+                                                {
+                                                    "type": "chart",
+                                                    "content": "| Q | value |\n| - | ----- |\n| 1 | 2 |",
+                                                    "bbox": [50, 60, 250, 200],
+                                                    "image_path": "chart.jpg",
+                                                }
+                                            ],
+                                        }
+                                    ],
+                                },
+                                {
+                                    "type": "chart_caption",
+                                    "bbox": [52, 220, 240, 236],
+                                    "lines": [
+                                        {
+                                            "bbox": [52, 220, 240, 236],
+                                            "spans": [
+                                                {
+                                                    "type": "text",
+                                                    "content": "Figure 3. Caption with the answer.",
+                                                    "bbox": [52, 220, 240, 236],
+                                                }
+                                            ],
+                                        }
+                                    ],
+                                },
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+    ]
+
+    nodes = adapter._build_nodes_from_markdown(  # noqa: SLF001
+        "",
+        path,
+        structured_content=structured_content,
+        asset_paths={"images/chart.jpg": str(image_path), "chart.jpg": str(image_path)},
+    )
+
+    caption = next(node for node in nodes if node.modality == "text" and node.relationships.get("mineru_image_role") == "caption_text")
+    assert caption.text == "Figure 3. Caption with the answer."
+    assert caption.metadata.bbox == [52.0, 220.0, 240.0, 236.0]
+    assert caption.metadata.bbox_source == "pdf_info"
+    assert caption.relationships["related_image_node_ids"]
 
 
 def test_mineru_adapter_splits_whole_image_and_caption_text_without_heading_pollution(tmp_path: Path) -> None:
@@ -438,6 +655,7 @@ def test_mineru_adapter_image_semantic_inherits_structured_chart_location(tmp_pa
                 "content": "| Delay | Ratio |\n| --- | --- |\n| 0 | 1.0 |",
             },
             "page_idx": 2,
+            "page_size": [612, 792],
             "bbox": [100, 200, 500, 700],
             "sub_type": "line",
         }
@@ -454,10 +672,11 @@ def test_mineru_adapter_image_semantic_inherits_structured_chart_location(tmp_pa
     whole = next(node for node in nodes if node.relationships.get("image_semantic_type") == "whole_image")
     assert "| Delay | Ratio |" in (semantic.text or "")
     assert semantic.metadata.page == 3
-    assert semantic.metadata.bbox == [100.0, 200.0, 500.0, 700.0]
+    assert semantic.metadata.bbox == [61.2, 158.4, 306.0, 554.4]
     assert semantic.metadata.bbox_source == "content_list"
-    assert semantic.relationships["bbox"] == [100.0, 200.0, 500.0, 700.0]
-    assert whole.metadata.bbox == [100.0, 200.0, 500.0, 700.0]
+    assert semantic.metadata.bbox_coordinate_system == "mineru_pdf_points_top_left"
+    assert semantic.relationships["bbox"] == [61.2, 158.4, 306.0, 554.4]
+    assert whole.metadata.bbox == [61.2, 158.4, 306.0, 554.4]
 
 
 def test_mineru_adapter_chart_image_path_without_semantic_text_creates_located_whole_image(tmp_path: Path) -> None:
@@ -477,6 +696,7 @@ Figure 1: The evolution of two simple piecewise polynomials.
             "content": "",
             "img_path": "images/fig1.jpg",
             "page_idx": 4,
+            "page_size": [612, 792],
             "bbox": [504, 417, 848, 595],
         },
         {
@@ -484,6 +704,7 @@ Figure 1: The evolution of two simple piecewise polynomials.
             "content": "",
             "image_path": "fig1.jpg",
             "page_idx": 4,
+            "page_size": [612, 792],
             "bbox": [309, 331, 519, 472],
         }
     ]
@@ -497,9 +718,9 @@ Figure 1: The evolution of two simple piecewise polynomials.
 
     whole = next(node for node in nodes if node.relationships.get("image_semantic_type") == "whole_image")
     assert whole.metadata.page == 5
-    assert whole.metadata.bbox == [309.0, 331.0, 519.0, 472.0]
-    assert whole.metadata.bbox_coordinate_system == "mineru_1000"
-    assert whole.relationships["bbox"] == [309.0, 331.0, 519.0, 472.0]
+    assert whole.metadata.bbox == [189.108, 262.152, 317.628, 373.824]
+    assert whole.metadata.bbox_coordinate_system == "mineru_pdf_points_top_left"
+    assert whole.relationships["bbox"] == [189.108, 262.152, 317.628, 373.824]
 
 
 def test_mineru_adapter_uses_stable_asset_path_for_whole_image(tmp_path: Path) -> None:
