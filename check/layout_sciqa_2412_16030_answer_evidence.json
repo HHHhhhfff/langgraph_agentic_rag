@@ -1,0 +1,2307 @@
+{
+  "schema_version": "layout_sciqa_2412_16030_answer_evidence_v1",
+  "coordinate_system": "layout_pdf_points_top_left",
+  "page_size": [
+    612.0,
+    792.0
+  ],
+  "source_dataset": "check/sciqa_2412_16030_cases.jsonl",
+  "mineru_dir": "mineru_testfile/2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf-83944793-d9c3-47d4-8931-b1f250b5eedf",
+  "notes": [
+    "layout.json/block_list.json direct PDF-point bboxes are used when available.",
+    "content_list/content_list_v2/model bboxes were not needed for final case boxes because block_list provided the selected regions.",
+    "bbox and rel_bbox in the generated JSONL are intentionally the same layout/PDF-point coordinates to avoid mixing with the old SciQA high-resolution crop coordinate system.",
+    "sciqa_2412_16030_010 uses the index-aligned Figure 3 caption region because the literal pre-image caption fragment is not present as a separate chunk in the current run."
+  ],
+  "cases": {
+    "sciqa_2412_16030_001": {
+      "question": "At ϑ ≈ 1.5, which f (3 or 4) has the larger value in both Σ_s(ϑ) and Σ_a(ϑ) plots?",
+      "original_reference_answer": "f = 3",
+      "corrected_reference_answer": "f = 4",
+      "answer_changed": true,
+      "answer_correction_reason": "Fig. 1 top and bottom plots both show the dotted f=4 curve above dashed f=3 at vartheta approximately 1.5; the original case answer f=3 conflicts with the figure and MinerU chart data.",
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1303,
+                209,
+                2354,
+                1614
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                510.980392,
+                63.333333,
+                923.137255,
+                489.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "image"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                340.0,
+                52.0,
+                538.0,
+                186.0
+              ],
+              [
+                340.0,
+                190.0,
+                538.0,
+                327.0
+              ],
+              [
+                313.0,
+                342.0,
+                563.0,
+                385.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                340.0,
+                52.0,
+                538.0,
+                186.0
+              ],
+              [
+                340.0,
+                190.0,
+                538.0,
+                327.0
+              ],
+              [
+                313.0,
+                342.0,
+                563.0,
+                385.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "image",
+              "image",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 3,
+          "subimg_type": "image",
+          "block_type": "image",
+          "source_kind": "block_list",
+          "bbox": [
+            340.0,
+            52.0,
+            538.0,
+            186.0
+          ],
+          "text": "Figure 1 top plot: Sigma_s(vartheta) image."
+        },
+        {
+          "page": 3,
+          "subimg_type": "image",
+          "block_type": "image",
+          "source_kind": "block_list",
+          "bbox": [
+            340.0,
+            190.0,
+            538.0,
+            327.0
+          ],
+          "text": "Figure 1 bottom plot: Sigma_a(vartheta) image."
+        },
+        {
+          "page": 3,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            342.0,
+            563.0,
+            385.0
+          ],
+          "text": "Figure 1 caption maps f=2/3/4 to solid/dashed/dotted curves."
+        }
+      ]
+    },
+    "sciqa_2412_16030_002": {
+      "question": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "original_reference_answer": "σ̄(Q)/σ0",
+      "corrected_reference_answer": "σ̄(Q)/σ0",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                309,
+                311,
+                1159,
+                989
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                121.176471,
+                94.242424,
+                454.509804,
+                299.69697
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "image"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                78.0,
+                222.0,
+                271.0,
+                235.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                78.0,
+                222.0,
+                271.0,
+                235.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 4,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ],
+          "text": "Figure 3 caption defines Sigma_bar_tot = sigma_bar(Q) / sigma_0."
+        }
+      ]
+    },
+    "sciqa_2412_16030_003": {
+      "question": "At τ≈3, order Σ_tot(τ) by Q from highest to lowest.",
+      "original_reference_answer": "Q=3 > Q=2 > Q=1",
+      "corrected_reference_answer": "Q=3 > Q=2 > Q=1",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1305,
+                1643,
+                2360,
+                2406
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                511.764706,
+                497.878788,
+                925.490196,
+                729.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "image"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                340.0,
+                397.0,
+                539.0,
+                538.0
+              ],
+              [
+                313.0,
+                553.0,
+                563.0,
+                575.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                340.0,
+                397.0,
+                539.0,
+                538.0
+              ],
+              [
+                313.0,
+                553.0,
+                563.0,
+                575.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "image",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 3,
+          "subimg_type": "image",
+          "block_type": "image",
+          "source_kind": "block_list",
+          "bbox": [
+            340.0,
+            397.0,
+            539.0,
+            538.0
+          ],
+          "text": "Figure 2 plot: Sigma_tot(tau) curves at tau?3."
+        },
+        {
+          "page": 3,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ],
+          "text": "Figure 2 caption maps Q=1/2/3 to solid/dashed/dotted curves."
+        }
+      ]
+    },
+    "sciqa_2412_16030_004": {
+      "question": "In the snippet, which exact hyphenated effect is investigated and under which hyphenated approximation?",
+      "original_reference_answer": "Non-stationary Aharonov-Bohm effect; non-relativistic approximation.",
+      "corrected_reference_answer": "Non-stationary Aharonov-Bohm effect; non-relativistic approximation.",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                212,
+                1274,
+                1256,
+                1380
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                83.137255,
+                386.060606,
+                492.54902,
+                418.181818
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                50.0,
+                306.0,
+                299.0,
+                331.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                50.0,
+                306.0,
+                299.0,
+                331.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 4,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            50.0,
+            306.0,
+            299.0,
+            331.0
+          ],
+          "text": "Conclusion sentence: non-stationary Aharonov-Bohm effect is investigated in the non-relativistic approximation."
+        }
+      ]
+    },
+    "sciqa_2412_16030_005": {
+      "question": "Which program financially supported the work of Ivan Terekhov?",
+      "original_reference_answer": "ITMO Fellowship Program",
+      "corrected_reference_answer": "ITMO Fellowship Program",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1308,
+                1278,
+                2354,
+                1384
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                512.941176,
+                387.272727,
+                923.137255,
+                419.393939
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                313.0,
+                306.0,
+                563.0,
+                331.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                313.0,
+                306.0,
+                563.0,
+                331.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 4,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            306.0,
+            563.0,
+            331.0
+          ],
+          "text": "Acknowledgement sentence: Ivan Terekhov was supported by the ITMO Fellowship Program."
+        }
+      ]
+    },
+    "sciqa_2412_16030_006": {
+      "question": "For kr >> 1, what exact relation holds between the scalar fields E(r,t) and B(r,t) in the asymptotics given?",
+      "original_reference_answer": "E(r,t) = -B(r,t).",
+      "corrected_reference_answer": "E(r,t) = -B(r,t).",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 1,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1288,
+                894,
+                2383,
+                3043
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                505.098039,
+                270.909091,
+                934.509804,
+                922.121212
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 1,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                313.0,
+                595.0,
+                492.0,
+                607.0
+              ],
+              [
+                347.0,
+                642.0,
+                530.0,
+                669.0
+              ],
+              [
+                347.0,
+                670.0,
+                561.0,
+                696.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                313.0,
+                595.0,
+                492.0,
+                607.0
+              ],
+              [
+                347.0,
+                642.0,
+                530.0,
+                669.0
+              ],
+              [
+                347.0,
+                670.0,
+                561.0,
+                696.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text",
+              "text",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 1,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            595.0,
+            492.0,
+            607.0
+          ],
+          "text": "Introductory line: For kr >> 1 the asymptotics of fields are."
+        },
+        {
+          "page": 1,
+          "subimg_type": "text",
+          "block_type": "formula",
+          "source_kind": "block_list",
+          "bbox": [
+            347.0,
+            642.0,
+            530.0,
+            669.0
+          ],
+          "text": "Asymptotic B(r,t) formula."
+        },
+        {
+          "page": 1,
+          "subimg_type": "text",
+          "block_type": "formula",
+          "source_kind": "block_list",
+          "bbox": [
+            347.0,
+            670.0,
+            561.0,
+            696.0
+          ],
+          "text": "Asymptotic E(r,t) formula; compared with B gives E(r,t) = -B(r,t)."
+        }
+      ]
+    },
+    "sciqa_2412_16030_007": {
+      "question": "In the time-averaged cross section σ̄(Q), what exact y-integrand (including differential) appears inside the 0-to-1 integral multiplying πσ0?",
+      "original_reference_answer": "[1 - J0(Qy)] dy/y",
+      "corrected_reference_answer": "[1 - J0(Qy)] dy/y",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1304,
+                2483,
+                2350,
+                3022
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                511.372549,
+                752.424242,
+                921.568627,
+                915.757576
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                319.0,
+                677.0,
+                562.0,
+                704.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                319.0,
+                677.0,
+                562.0,
+                704.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 3,
+          "subimg_type": "text",
+          "block_type": "formula",
+          "source_kind": "block_list",
+          "bbox": [
+            319.0,
+            677.0,
+            562.0,
+            704.0
+          ],
+          "text": "Equation (21): sigma_bar(Q) integral contains [1 - J0(Qy)] dy/y."
+        }
+      ]
+    },
+    "sciqa_2412_16030_008": {
+      "question": "In the snippet, how many times does the symbol Q appear?",
+      "original_reference_answer": "2",
+      "corrected_reference_answer": "2",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                221,
+                1035,
+                914,
+                1090
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                86.666667,
+                313.636364,
+                358.431373,
+                330.30303
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                51.0,
+                247.0,
+                219.0,
+                260.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                51.0,
+                247.0,
+                219.0,
+                260.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 4,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            51.0,
+            247.0,
+            219.0,
+            260.0
+          ],
+          "text": "Snippet: mically with increasing Q for large Q."
+        }
+      ]
+    },
+    "sciqa_2412_16030_009": {
+      "question": "For v/c ≪ 1 and ζ ≲ 1, what asymptotic form is given for Ξ0(y, τ)?",
+      "original_reference_answer": "Q sgn(y) cos τ exp(−|y|/ϑ)",
+      "corrected_reference_answer": "Q sgn(y) cos τ exp(−|y|/ϑ)",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 2,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1305,
+                206,
+                2371,
+                3031
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                511.764706,
+                62.424242,
+                929.803922,
+                918.484848
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 2,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                354.0,
+                624.0,
+                523.0,
+                637.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                354.0,
+                624.0,
+                523.0,
+                637.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 2,
+          "subimg_type": "text",
+          "block_type": "formula",
+          "source_kind": "block_list",
+          "bbox": [
+            354.0,
+            624.0,
+            523.0,
+            637.0
+          ],
+          "text": "Asymptotic Xi_0(y,tau) = Q sgn(y) cos tau exp(-|y|/vartheta)."
+        }
+      ]
+    },
+    "sciqa_2412_16030_010": {
+      "question": "What figure number accompanies the caption fragment 'The time-averaged cross section grows logarith-'?",
+      "original_reference_answer": "3",
+      "corrected_reference_answer": "3",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                215,
+                217,
+                1257,
+                278
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                84.313725,
+                65.757576,
+                492.941176,
+                84.242424
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                78.0,
+                222.0,
+                271.0,
+                235.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                78.0,
+                222.0,
+                271.0,
+                235.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 4,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ],
+          "text": "Index-aligned Figure 3 caption region; it identifies the same figure number for the fragment."
+        }
+      ],
+      "unindexed_true_fragment_region": {
+        "page": 4,
+        "subimg_type": "text",
+        "block_type": "image_caption",
+        "source_kind": "block_list",
+        "bbox": [
+          50.0,
+          52.0,
+          299.0,
+          64.0
+        ],
+        "text": "Caption fragment: Fig. 3. The time-averaged cross section grows logarith-",
+        "current_index_status": "not_indexed_as_separate_chunk_in_run_20260607_143859_7b714a96"
+      },
+      "selection_note": "The literal pre-image caption fragment exists in block_list at [50,52,299,64] but current ingestion did not retain it as a comparable chunk; the generated cases use the index-aligned Figure 3 caption bbox [78,222,271,235] so derived labels remain usable."
+    },
+    "sciqa_2412_16030_011": {
+      "question": "According to Figure 3's caption, Σ̄_tot is defined as what ratio?",
+      "original_reference_answer": "σ̄(Q)/σ_0",
+      "corrected_reference_answer": "σ̄(Q)/σ_0",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                309,
+                311,
+                1159,
+                989
+              ],
+              [
+                221,
+                1035,
+                914,
+                1090
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                121.176471,
+                94.242424,
+                454.509804,
+                299.69697
+              ],
+              [
+                86.666667,
+                313.636364,
+                358.431373,
+                330.30303
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "image",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                78.0,
+                222.0,
+                271.0,
+                235.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                78.0,
+                222.0,
+                271.0,
+                235.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 4,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ],
+          "text": "Figure 3 caption defines Sigma_bar_tot = sigma_bar(Q) / sigma_0."
+        }
+      ]
+    },
+    "sciqa_2412_16030_012": {
+      "question": "Across the two figures, what parameter values correspond to the dashed curve in Figure 1 and in Figure 2, respectively?",
+      "original_reference_answer": "f = 3; Q = 2",
+      "corrected_reference_answer": "f = 3; Q = 2",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1303,
+                209,
+                2354,
+                1614
+              ],
+              [
+                1305,
+                1643,
+                2360,
+                2406
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                510.980392,
+                63.333333,
+                923.137255,
+                489.090909
+              ],
+              [
+                511.764706,
+                497.878788,
+                925.490196,
+                729.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "image",
+              "image"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                313.0,
+                342.0,
+                563.0,
+                385.0
+              ],
+              [
+                313.0,
+                553.0,
+                563.0,
+                575.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                313.0,
+                342.0,
+                563.0,
+                385.0
+              ],
+              [
+                313.0,
+                553.0,
+                563.0,
+                575.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 3,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            342.0,
+            563.0,
+            385.0
+          ],
+          "text": "Figure 1 caption: f=3 is dashed."
+        },
+        {
+          "page": 3,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ],
+          "text": "Figure 2 caption: Q=2 is dashed."
+        }
+      ]
+    },
+    "sciqa_2412_16030_013": {
+      "question": "Under which solenoid-current condition is the electron-accessible topology unchanged, and which two solenoid parameters are later specified?",
+      "original_reference_answer": "Alternating current; radius a and turns-per-length n.",
+      "corrected_reference_answer": "Alternating current; radius a and turns-per-length n.",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 1,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                211,
+                1020,
+                1257,
+                2380
+              ],
+              [
+                214,
+                2671,
+                1260,
+                2786
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                82.745098,
+                309.090909,
+                492.941176,
+                721.212121
+              ],
+              [
+                83.921569,
+                809.393939,
+                494.117647,
+                844.242424
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 1,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                50.0,
+                396.0,
+                299.0,
+                570.0
+              ],
+              [
+                51.0,
+                641.0,
+                299.0,
+                666.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                50.0,
+                396.0,
+                299.0,
+                570.0
+              ],
+              [
+                51.0,
+                641.0,
+                299.0,
+                666.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 1,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            50.0,
+            396.0,
+            299.0,
+            570.0
+          ],
+          "text": "Alternating current paragraph: topology of accessible space is the same as in the stationary case."
+        },
+        {
+          "page": 1,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            51.0,
+            641.0,
+            299.0,
+            666.0
+          ],
+          "text": "Solenoid definition: radius a and number n of turns per unit length."
+        }
+      ]
+    },
+    "sciqa_2412_16030_014": {
+      "question": "The text states that the wave function (8), with F(x,y,t) from (10), satisfies condition (6). What is the explicit form of condition (6), including the period T in terms of ω?",
+      "original_reference_answer": "ψ(r,t+T)=e^{iαT} ψ(r,t), with T=2π/ω.",
+      "corrected_reference_answer": "ψ(r,t+T)=e^{iαT} ψ(r,t), with T=2π/ω.",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 2,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1305,
+                206,
+                2371,
+                3031
+              ],
+              [
+                214,
+                209,
+                1274,
+                3031
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                511.764706,
+                62.424242,
+                929.803922,
+                918.484848
+              ],
+              [
+                83.921569,
+                63.333333,
+                499.607843,
+                918.484848
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 2,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                50.0,
+                178.0,
+                300.0,
+                237.0
+              ],
+              [
+                119.0,
+                255.0,
+                299.0,
+                270.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                50.0,
+                178.0,
+                300.0,
+                237.0
+              ],
+              [
+                119.0,
+                255.0,
+                299.0,
+                270.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text",
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 2,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            50.0,
+            178.0,
+            300.0,
+            237.0
+          ],
+          "text": "Text before Eq. (6): A and B are periodic with period T = 2 pi / omega and wave function satisfies periodicity."
+        },
+        {
+          "page": 2,
+          "subimg_type": "text",
+          "block_type": "formula",
+          "source_kind": "block_list",
+          "bbox": [
+            119.0,
+            255.0,
+            299.0,
+            270.0
+          ],
+          "text": "Condition (6): psi(r,t+T)=exp(i alpha T) psi(r,t)."
+        }
+      ]
+    },
+    "sciqa_2412_16030_015": {
+      "question": "What is the ratio of the topmost labeled y-axis values in Figure 3 to Figure 2?",
+      "original_reference_answer": "5:3",
+      "corrected_reference_answer": "5:3",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                309,
+                311,
+                1159,
+                989
+              ]
+            ],
+            [
+              [
+                1305,
+                1643,
+                2360,
+                2406
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                121.176471,
+                94.242424,
+                454.509804,
+                299.69697
+              ]
+            ],
+            [
+              [
+                511.764706,
+                497.878788,
+                925.490196,
+                729.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "image"
+            ],
+            [
+              "image"
+            ]
+          ]
+        },
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                309,
+                311,
+                1159,
+                989
+              ]
+            ],
+            [
+              [
+                1305,
+                1643,
+                2360,
+                2406
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                121.176471,
+                94.242424,
+                454.509804,
+                299.69697
+              ]
+            ],
+            [
+              [
+                511.764706,
+                497.878788,
+                925.490196,
+                729.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "image"
+            ],
+            [
+              "image"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                77.0,
+                75.0,
+                275.0,
+                209.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                77.0,
+                75.0,
+                275.0,
+                209.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "image"
+            ]
+          ]
+        },
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                340.0,
+                397.0,
+                539.0,
+                538.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                340.0,
+                397.0,
+                539.0,
+                538.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "image"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 4,
+          "subimg_type": "image",
+          "block_type": "image",
+          "source_kind": "block_list",
+          "bbox": [
+            77.0,
+            75.0,
+            275.0,
+            209.0
+          ],
+          "text": "Figure 3 plot; top y-axis label is 10."
+        },
+        {
+          "page": 3,
+          "subimg_type": "image",
+          "block_type": "image",
+          "source_kind": "block_list",
+          "bbox": [
+            340.0,
+            397.0,
+            539.0,
+            538.0
+          ],
+          "text": "Figure 2 plot; top y-axis label is 6."
+        }
+      ]
+    },
+    "sciqa_2412_16030_016": {
+      "question": "What dimension is assigned to the 2D cross section, and by which constant is Σ̄_tot normalized in Figure 3?",
+      "original_reference_answer": "Length; σ0",
+      "corrected_reference_answer": "Length; σ0",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 2,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1305,
+                206,
+                2371,
+                3031
+              ]
+            ],
+            [
+              [
+                309,
+                311,
+                1159,
+                989
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                511.764706,
+                62.424242,
+                929.803922,
+                918.484848
+              ]
+            ],
+            [
+              [
+                121.176471,
+                94.242424,
+                454.509804,
+                299.69697
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ],
+            [
+              "image"
+            ]
+          ]
+        },
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                1305,
+                206,
+                2371,
+                3031
+              ]
+            ],
+            [
+              [
+                309,
+                311,
+                1159,
+                989
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                511.764706,
+                62.424242,
+                929.803922,
+                918.484848
+              ]
+            ],
+            [
+              [
+                121.176471,
+                94.242424,
+                454.509804,
+                299.69697
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ],
+            [
+              "image"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 2,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                313.0,
+                449.0,
+                563.0,
+                531.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                313.0,
+                449.0,
+                563.0,
+                531.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        },
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 4,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                78.0,
+                222.0,
+                271.0,
+                235.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                78.0,
+                222.0,
+                271.0,
+                235.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 2,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            449.0,
+            563.0,
+            531.0
+          ],
+          "text": "Text: the cross section in the two-dimensional case has the dimension of length."
+        },
+        {
+          "page": 4,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ],
+          "text": "Figure 3 caption: Sigma_bar_tot is normalized by sigma_0."
+        }
+      ]
+    },
+    "sciqa_2412_16030_017": {
+      "question": "In Eq. (8), what is the exact coefficient multiplying P^2 t in the exponent, and in Fig. 2 which line style corresponds to Q = 3?",
+      "original_reference_answer": "−i/(2Mħ); dotted curve.",
+      "corrected_reference_answer": "−i/(2Mħ); dotted curve.",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 2,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                214,
+                209,
+                1274,
+                3031
+              ]
+            ],
+            [
+              [
+                1305,
+                1643,
+                2360,
+                2406
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                83.921569,
+                63.333333,
+                499.607843,
+                918.484848
+              ]
+            ],
+            [
+              [
+                511.764706,
+                497.878788,
+                925.490196,
+                729.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ],
+            [
+              "image"
+            ]
+          ]
+        },
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                214,
+                209,
+                1274,
+                3031
+              ]
+            ],
+            [
+              [
+                1305,
+                1643,
+                2360,
+                2406
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                83.921569,
+                63.333333,
+                499.607843,
+                918.484848
+              ]
+            ],
+            [
+              [
+                511.764706,
+                497.878788,
+                925.490196,
+                729.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ],
+            [
+              "image"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 2,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                85.0,
+                471.0,
+                299.0,
+                502.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                85.0,
+                471.0,
+                299.0,
+                502.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        },
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                313.0,
+                553.0,
+                563.0,
+                575.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                313.0,
+                553.0,
+                563.0,
+                575.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 2,
+          "subimg_type": "text",
+          "block_type": "formula",
+          "source_kind": "block_list",
+          "bbox": [
+            85.0,
+            471.0,
+            299.0,
+            502.0
+          ],
+          "text": "Equation (8): coefficient multiplying P^2 t in the exponent is -i/(2M hbar)."
+        },
+        {
+          "page": 3,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ],
+          "text": "Figure 2 caption: Q=3 corresponds to dotted curve."
+        }
+      ]
+    },
+    "sciqa_2412_16030_018": {
+      "question": "Based on the crops, which curve style represents Q = 3, and what symbol denotes the solenoid's number of turns per unit length?",
+      "original_reference_answer": "Dotted; n",
+      "corrected_reference_answer": "Dotted; n",
+      "answer_changed": false,
+      "answer_correction_reason": null,
+      "original_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 1,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                214,
+                2671,
+                1260,
+                2786
+              ]
+            ],
+            [
+              [
+                1305,
+                1643,
+                2360,
+                2406
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                83.921569,
+                809.393939,
+                494.117647,
+                844.242424
+              ]
+            ],
+            [
+              [
+                511.764706,
+                497.878788,
+                925.490196,
+                729.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ],
+            [
+              "image"
+            ]
+          ]
+        },
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                214,
+                2671,
+                1260,
+                2786
+              ]
+            ],
+            [
+              [
+                1305,
+                1643,
+                2360,
+                2406
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                83.921569,
+                809.393939,
+                494.117647,
+                844.242424
+              ]
+            ],
+            [
+              [
+                511.764706,
+                497.878788,
+                925.490196,
+                729.090909
+              ]
+            ]
+          ],
+          "subimg_type": [
+            [
+              "text"
+            ],
+            [
+              "image"
+            ]
+          ]
+        }
+      ],
+      "new_relevant_docs": [
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 3,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                313.0,
+                553.0,
+                563.0,
+                575.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                313.0,
+                553.0,
+                563.0,
+                575.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        },
+        {
+          "source": "2412.16030_Non-stationary_Aharonov-Bohm_effect.pdf",
+          "page": 1,
+          "grade": 1.0,
+          "bbox": [
+            [
+              [
+                51.0,
+                641.0,
+                299.0,
+                666.0
+              ]
+            ]
+          ],
+          "rel_bbox": [
+            [
+              [
+                51.0,
+                641.0,
+                299.0,
+                666.0
+              ]
+            ]
+          ],
+          "bbox_coordinate_system": "layout_pdf_points_top_left",
+          "subimg_type": [
+            [
+              "text"
+            ]
+          ]
+        }
+      ],
+      "evidence_regions": [
+        {
+          "page": 3,
+          "subimg_type": "text",
+          "block_type": "image_caption",
+          "source_kind": "block_list",
+          "bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ],
+          "text": "Figure 2 caption: Q=3 corresponds to dotted curve."
+        },
+        {
+          "page": 1,
+          "subimg_type": "text",
+          "block_type": "text",
+          "source_kind": "block_list",
+          "bbox": [
+            51.0,
+            641.0,
+            299.0,
+            666.0
+          ],
+          "text": "Solenoid definition: n is the number of turns per unit length."
+        }
+      ]
+    }
+  }
+}

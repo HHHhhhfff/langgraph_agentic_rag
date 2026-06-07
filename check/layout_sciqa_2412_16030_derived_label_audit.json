@@ -1,0 +1,810 @@
+{
+  "schema_version": "layout_sciqa_2412_16030_derived_label_audit_v1",
+  "evidence_json": "check/layout_sciqa_2412_16030_answer_evidence.json",
+  "derived_bbox_labels": "check/derived_bbox_labels/layout_sciqa_2412_16030_cases/20260607_143859_7b714a96.json",
+  "coordinate_system": "layout_pdf_points_top_left",
+  "iou_threshold": 0.1,
+  "case_count": 18,
+  "problems": [],
+  "cases": {
+    "sciqa_2412_16030_001": {
+      "question": "At ϑ ≈ 1.5, which f (3 or 4) has the larger value in both Σ_s(ϑ) and Σ_a(ϑ) plots?",
+      "answer_changed": true,
+      "expected_region_count": 3,
+      "matched_region_count": 5,
+      "matched_chunk_count": 6,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 3,
+          "expected_bbox": [
+            340.0,
+            52.0,
+            538.0,
+            186.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:0",
+          "best_modality": "image",
+          "best_bbox": [
+            340.0,
+            52.0,
+            538.0,
+            186.0
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 3,
+          "expected_bbox": [
+            340.0,
+            190.0,
+            538.0,
+            327.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:3",
+          "best_modality": "image",
+          "best_bbox": [
+            340.0,
+            190.0,
+            538.0,
+            327.0
+          ]
+        },
+        {
+          "expected_index": 3,
+          "expected_page": 3,
+          "expected_bbox": [
+            313.0,
+            342.0,
+            563.0,
+            385.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:5",
+          "best_modality": "text",
+          "best_bbox": [
+            313.0,
+            342.0,
+            563.0,
+            385.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_002": {
+      "question": "According to the Figure 3 caption, Σ̄_tot is equal to what ratio?",
+      "answer_changed": false,
+      "expected_region_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 4,
+          "expected_bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "best_modality": "text",
+          "best_bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_003": {
+      "question": "At τ≈3, order Σ_tot(τ) by Q from highest to lowest.",
+      "answer_changed": false,
+      "expected_region_count": 2,
+      "matched_region_count": 4,
+      "matched_chunk_count": 4,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 3,
+          "expected_bbox": [
+            340.0,
+            397.0,
+            539.0,
+            538.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "best_modality": "image",
+          "best_bbox": [
+            340.0,
+            397.0,
+            539.0,
+            538.0
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 3,
+          "expected_bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+          "best_modality": "text",
+          "best_bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_004": {
+      "question": "In the snippet, which exact hyphenated effect is investigated and under which hyphenated approximation?",
+      "answer_changed": false,
+      "expected_region_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "min_expected_best_iou": 0.9566,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 4,
+          "expected_bbox": [
+            50.0,
+            306.0,
+            299.0,
+            331.0
+          ],
+          "best_iou": 0.9566,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:73",
+          "best_modality": "text",
+          "best_bbox": [
+            49.572,
+            305.712,
+            298.656,
+            330.264
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_005": {
+      "question": "Which program financially supported the work of Ivan Terekhov?",
+      "answer_changed": false,
+      "expected_region_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "min_expected_best_iou": 0.956341,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 4,
+          "expected_bbox": [
+            313.0,
+            306.0,
+            563.0,
+            331.0
+          ],
+          "best_iou": 0.956341,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:74",
+          "best_modality": "text",
+          "best_bbox": [
+            312.732,
+            305.712,
+            562.428,
+            330.264
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_006": {
+      "question": "For kr >> 1, what exact relation holds between the scalar fields E(r,t) and B(r,t) in the asymptotics given?",
+      "answer_changed": false,
+      "expected_region_count": 3,
+      "matched_region_count": 5,
+      "matched_chunk_count": 5,
+      "min_expected_best_iou": 0.951746,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 1,
+          "expected_bbox": [
+            313.0,
+            595.0,
+            492.0,
+            607.0
+          ],
+          "best_iou": 0.951746,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:59",
+          "best_modality": "text",
+          "best_bbox": [
+            312.732,
+            594.792,
+            491.436,
+            606.672
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 1,
+          "expected_bbox": [
+            347.0,
+            642.0,
+            530.0,
+            669.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:23",
+          "best_modality": "image",
+          "best_bbox": [
+            347.0,
+            642.0,
+            530.0,
+            669.0
+          ]
+        },
+        {
+          "expected_index": 3,
+          "expected_page": 1,
+          "expected_bbox": [
+            347.0,
+            670.0,
+            561.0,
+            696.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:24",
+          "best_modality": "image",
+          "best_bbox": [
+            347.0,
+            670.0,
+            561.0,
+            696.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_007": {
+      "question": "In the time-averaged cross section σ̄(Q), what exact y-integrand (including differential) appears inside the 0-to-1 integral multiplying πσ0?",
+      "answer_changed": false,
+      "expected_region_count": 1,
+      "matched_region_count": 2,
+      "matched_chunk_count": 3,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 3,
+          "expected_bbox": [
+            319.0,
+            677.0,
+            562.0,
+            704.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:54",
+          "best_modality": "image",
+          "best_bbox": [
+            319.0,
+            677.0,
+            562.0,
+            704.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_008": {
+      "question": "In the snippet, how many times does the symbol Q appear?",
+      "answer_changed": false,
+      "expected_region_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "min_expected_best_iou": 0.929539,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 4,
+          "expected_bbox": [
+            51.0,
+            247.0,
+            219.0,
+            260.0
+          ],
+          "best_iou": 0.929539,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:72",
+          "best_modality": "text",
+          "best_bbox": [
+            50.796,
+            246.312,
+            218.484,
+            259.776
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_009": {
+      "question": "For v/c ≪ 1 and ζ ≲ 1, what asymptotic form is given for Ξ0(y, τ)?",
+      "answer_changed": false,
+      "expected_region_count": 1,
+      "matched_region_count": 2,
+      "matched_chunk_count": 2,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 2,
+          "expected_bbox": [
+            354.0,
+            624.0,
+            523.0,
+            637.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:40",
+          "best_modality": "image",
+          "best_bbox": [
+            354.0,
+            624.0,
+            523.0,
+            637.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_010": {
+      "question": "What figure number accompanies the caption fragment 'The time-averaged cross section grows logarith-'?",
+      "answer_changed": false,
+      "expected_region_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 4,
+          "expected_bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "best_modality": "text",
+          "best_bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ]
+        }
+      ],
+      "selection_note": "The literal pre-image caption fragment exists in block_list at [50,52,299,64] but current ingestion did not retain it as a comparable chunk; the generated cases use the index-aligned Figure 3 caption bbox [78,222,271,235] so derived labels remain usable.",
+      "unindexed_true_fragment_region": {
+        "page": 4,
+        "subimg_type": "text",
+        "block_type": "image_caption",
+        "source_kind": "block_list",
+        "bbox": [
+          50.0,
+          52.0,
+          299.0,
+          64.0
+        ],
+        "text": "Caption fragment: Fig. 3. The time-averaged cross section grows logarith-",
+        "current_index_status": "not_indexed_as_separate_chunk_in_run_20260607_143859_7b714a96"
+      }
+    },
+    "sciqa_2412_16030_011": {
+      "question": "According to Figure 3's caption, Σ̄_tot is defined as what ratio?",
+      "answer_changed": false,
+      "expected_region_count": 1,
+      "matched_region_count": 1,
+      "matched_chunk_count": 1,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 4,
+          "expected_bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "best_modality": "text",
+          "best_bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_012": {
+      "question": "Across the two figures, what parameter values correspond to the dashed curve in Figure 1 and in Figure 2, respectively?",
+      "answer_changed": false,
+      "expected_region_count": 2,
+      "matched_region_count": 3,
+      "matched_chunk_count": 3,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 3,
+          "expected_bbox": [
+            313.0,
+            342.0,
+            563.0,
+            385.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:5",
+          "best_modality": "text",
+          "best_bbox": [
+            313.0,
+            342.0,
+            563.0,
+            385.0
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 3,
+          "expected_bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+          "best_modality": "text",
+          "best_bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_013": {
+      "question": "Under which solenoid-current condition is the electron-accessible topology unchanged, and which two solenoid parameters are later specified?",
+      "answer_changed": false,
+      "expected_region_count": 2,
+      "matched_region_count": 2,
+      "matched_chunk_count": 2,
+      "min_expected_best_iou": 0.958663,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 1,
+          "expected_bbox": [
+            50.0,
+            396.0,
+            299.0,
+            570.0
+          ],
+          "best_iou": 0.993748,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:57",
+          "best_modality": "text",
+          "best_bbox": [
+            49.572,
+            396.0,
+            298.656,
+            569.448
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 1,
+          "expected_bbox": [
+            51.0,
+            641.0,
+            299.0,
+            666.0
+          ],
+          "best_iou": 0.958663,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:58",
+          "best_modality": "text",
+          "best_bbox": [
+            50.796,
+            640.728,
+            298.656,
+            665.28
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_014": {
+      "question": "The text states that the wave function (8), with F(x,y,t) from (10), satisfies condition (6). What is the explicit form of condition (6), including the period T in terms of ω?",
+      "answer_changed": false,
+      "expected_region_count": 2,
+      "matched_region_count": 3,
+      "matched_chunk_count": 3,
+      "min_expected_best_iou": 0.984695,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 2,
+          "expected_bbox": [
+            50.0,
+            178.0,
+            300.0,
+            237.0
+          ],
+          "best_iou": 0.984695,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:61",
+          "best_modality": "text",
+          "best_bbox": [
+            49.572,
+            177.408,
+            299.88,
+            236.808
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 2,
+          "expected_bbox": [
+            119.0,
+            255.0,
+            299.0,
+            270.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:26",
+          "best_modality": "image",
+          "best_bbox": [
+            119.0,
+            255.0,
+            299.0,
+            270.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_015": {
+      "question": "What is the ratio of the topmost labeled y-axis values in Figure 3 to Figure 2?",
+      "answer_changed": false,
+      "expected_region_count": 2,
+      "matched_region_count": 4,
+      "matched_chunk_count": 4,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 4,
+          "expected_bbox": [
+            77.0,
+            75.0,
+            275.0,
+            209.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:9",
+          "best_modality": "image",
+          "best_bbox": [
+            77.0,
+            75.0,
+            275.0,
+            209.0
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 3,
+          "expected_bbox": [
+            340.0,
+            397.0,
+            539.0,
+            538.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:6",
+          "best_modality": "image",
+          "best_bbox": [
+            340.0,
+            397.0,
+            539.0,
+            538.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_016": {
+      "question": "What dimension is assigned to the 2D cross section, and by which constant is Σ̄_tot normalized in Figure 3?",
+      "answer_changed": false,
+      "expected_region_count": 2,
+      "matched_region_count": 2,
+      "matched_chunk_count": 2,
+      "min_expected_best_iou": 0.983561,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 2,
+          "expected_bbox": [
+            313.0,
+            449.0,
+            563.0,
+            531.0
+          ],
+          "best_iou": 0.983561,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:65",
+          "best_modality": "text",
+          "best_bbox": [
+            312.732,
+            448.272,
+            562.428,
+            530.64
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 4,
+          "expected_bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:11",
+          "best_modality": "text",
+          "best_bbox": [
+            78.0,
+            222.0,
+            271.0,
+            235.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_017": {
+      "question": "In Eq. (8), what is the exact coefficient multiplying P^2 t in the exponent, and in Fig. 2 which line style corresponds to Q = 3?",
+      "answer_changed": false,
+      "expected_region_count": 2,
+      "matched_region_count": 4,
+      "matched_chunk_count": 5,
+      "min_expected_best_iou": 1.0,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 2,
+          "expected_bbox": [
+            85.0,
+            471.0,
+            299.0,
+            502.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:image:28",
+          "best_modality": "image",
+          "best_bbox": [
+            85.0,
+            471.0,
+            299.0,
+            502.0
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 3,
+          "expected_bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+          "best_modality": "text",
+          "best_bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    },
+    "sciqa_2412_16030_018": {
+      "question": "Based on the crops, which curve style represents Q = 3, and what symbol denotes the solenoid's number of turns per unit length?",
+      "answer_changed": false,
+      "expected_region_count": 2,
+      "matched_region_count": 3,
+      "matched_chunk_count": 3,
+      "min_expected_best_iou": 0.958663,
+      "expected_region_matches": [
+        {
+          "expected_index": 1,
+          "expected_page": 3,
+          "expected_bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ],
+          "best_iou": 1.0,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:8",
+          "best_modality": "text",
+          "best_bbox": [
+            313.0,
+            553.0,
+            563.0,
+            575.0
+          ]
+        },
+        {
+          "expected_index": 2,
+          "expected_page": 1,
+          "expected_bbox": [
+            51.0,
+            641.0,
+            299.0,
+            666.0
+          ],
+          "best_iou": 0.958663,
+          "best_node_id": "bad4486a9b70f8e94b4a5b409d3ffdb4:text:58",
+          "best_modality": "text",
+          "best_bbox": [
+            50.796,
+            640.728,
+            298.656,
+            665.28
+          ]
+        }
+      ],
+      "selection_note": null,
+      "unindexed_true_fragment_region": null
+    }
+  }
+}

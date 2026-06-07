@@ -50,6 +50,7 @@ def load_index_nodes(path: Path) -> list[dict[str, Any]]:
             if not isinstance(obj, dict):
                 continue
             metadata = obj.get("metadata") if isinstance(obj.get("metadata"), dict) else {}
+            chunk_index = metadata["chunk_index"] if "chunk_index" in metadata else obj.get("chunk_index")
             hit = {
                 "rank": line_no,
                 "node_id": obj.get("node_id"),
@@ -59,7 +60,7 @@ def load_index_nodes(path: Path) -> list[dict[str, Any]]:
                 "title": metadata.get("title") or obj.get("title"),
                 "page": metadata.get("page") or obj.get("page"),
                 "pages": metadata.get("pages") or obj.get("pages"),
-                "chunk_index": metadata.get("chunk_index") or obj.get("chunk_index"),
+                "chunk_index": chunk_index,
                 "modality": metadata.get("modality"),
                 "bbox": metadata.get("bbox"),
                 "bbox_items": metadata.get("bbox_items"),
